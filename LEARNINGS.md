@@ -154,6 +154,13 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The high feedback target is closer to neutral, the transition is slower, and the moving resonance layer is no longer damped by the harmonic tilt.
 - The goal is to keep some KS009 moving-emphasis benefit while restoring KS008-like h8 decay and air-band energy.
 
+## 2026-04-25 — KS-010 render comparison
+
+- KS010 restored most of KS008's level, upper-harmonic energy, and air-band behavior while preserving a small amount of KS009's stronger moving-emphasis behavior.
+- The user's listening feedback that higher strings sound more convincing than lower strings is supported by grouped analysis.
+- Treating E2/A2/D3 as lower or wound-side notes, the reference has much stronger early/mid upper and air energy plus more phase drift than the render.
+- A likely next experiment is string-class-aware behavior: lower notes should receive a wound-string interaction model with more scrape/air, stronger evolving upper content, and possibly more phase irregularity than plain-string notes.
+
 ## 2026-04-25 — CMake build label cache issue
 
 - The visible plugin model label should not be stored as a CMake cache variable.

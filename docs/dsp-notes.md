@@ -353,6 +353,17 @@ Expected sound:
 
 This should preserve more of KS008's upper harmonic and air behavior while keeping some of KS009's improved dynamic decay/moving-emphasis behavior. It is a retune, not a new modeling feature.
 
+Calibration feedback:
+
+- KS010 restored most of the KS008 energy that KS009 lost. Whole-file RMS was about 0.01676, close to KS008 at about 0.01678.
+- Mean upper-to-low harmonic energy returned to about 0.00424, close to KS008 at about 0.00429 and above KS009 at about 0.00403.
+- Mean h8 decay was about -16.7 dB, between KS008 at about -14.8 dB and KS009 at about -25.7 dB. This is a better compromise than KS009, though still note-dependent.
+- Strongest upper-harmonic shift retained a small improvement over KS008: KS010 averaged about 0.52, KS008 about 0.47, KS009 about 0.75, and the reference about 1.04.
+- Grouping the calibration notes roughly as lower/wound-side notes E2-A2-D3 vs higher/plain-side notes G3-B3-E4 supports the listening feedback: the lower notes are much farther from the reference in early/mid air and phase drift.
+- The DI reference low-note group has far more early/mid upper and air energy than the render. For example, reference low-note early air-to-low averaged about 0.0164, while KS010 averaged about 0.00115.
+- The high/plain-side render is still imperfect, but it is closer in broad spectral shape than the lower/wound-side notes.
+- Conclusion: KS010 is the better damping retune. The next experiment should probably add string-class-aware behavior, especially a wound-string interaction layer for lower notes, rather than another global damping adjustment.
+
 ## Suggested MVP Signal Flow
 
 ```text
