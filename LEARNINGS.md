@@ -225,3 +225,11 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The additive wound-layer branch should be paused.
 - Research on electric guitar synthesis and pickup modeling suggests a bigger next experiment: dual-polarization string motion plus a more physical pickup-position/width readout.
 - Noise should become incidental pick/contact texture, not the primary source of wound-string realism.
+
+## 2026-04-25 — KS-015 dual pickup implementation
+
+- `StringVoice KS-015 DualPickup` is a basin-jump experiment, not a retune of KS014.
+- The voice now has two simplified string polarizations with weak coupling and separate high-frequency damping behavior.
+- Pickup output now comes mainly from velocity at a finite-width pickup aperture, rather than additive wound air/ring layers.
+- Wound open strings still get slightly different coupling/damping, but no longer receive a dedicated sustained noise or ring layer.
+- This version should be judged by listening first, because the old air/upper metrics were shown to reward perceptually wrong changes.

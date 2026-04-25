@@ -537,6 +537,38 @@ Expected sound:
 
 This may initially be less bright than KS013, but it should be a better physical base: more naturally metallic, more pickup-like, and less dependent on hiss/noise tricks.
 
+## 2026-04-25 — Dual Polarization Pickup Experiment
+
+Implemented the first version of the course-correction experiment inside `StringVoice`.
+
+Current behavior:
+
+- Each voice now has two delay paths representing two simplified string polarizations.
+- The two polarizations are excited differently at note start.
+- The secondary polarization has its own damping state and high-frequency feedback target.
+- The two paths are weakly cross-coupled in the feedback loop.
+- The old wound noise/ring processing branch is removed from the audible path.
+- Pickup readout now uses velocity from a small finite-width aperture rather than one raw displacement sample plus additive wound layers.
+- The pickup reads the two polarizations from slightly different positions.
+- E2, A2, and D3 still get slightly different coupling/damping through the open-wound-string classification, but they no longer receive a dedicated hiss/ring layer.
+- The visible model label is now `StringVoice KS-015 DualPickup`.
+
+Initial values:
+
+- primary pickup position: 0.18 of string length
+- secondary pickup position: 0.205 of string length
+- pickup aperture: 0.018 of string length
+- primary displacement excitation: 0.70 * velocity
+- secondary displacement excitation: about 0.28 to 0.34 * velocity
+- primary loop blend: 0.58 current, 0.42 previous
+- secondary loop blend: 0.53 current, 0.47 previous
+- cross-coupling: about 0.010 for plain strings, 0.015 for wound strings
+- contact noise is now short and low-level, intended as incidental pick contact only
+
+Expected sound:
+
+This is a deliberate jump away from the KS011-KS014 local search. It may score worse on some previous metrics, but it should test whether two-polarization motion plus physical pickup velocity/aperture readout produces a less synthetic open-string base.
+
 ## Suggested MVP Signal Flow
 
 ```text

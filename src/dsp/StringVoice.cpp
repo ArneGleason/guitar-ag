@@ -14,16 +14,21 @@ void StringVoice::prepare (double newSampleRate)
 void StringVoice::reset()
 {
     delayLine.fill (0.0f);
+    secondaryDelayLine.fill (0.0f);
 
     delayLength = 1;
     writeIndex = 0;
     pickupOffsetSamples = 1;
+    secondaryPickupOffsetSamples = 1;
+    pickupApertureSamples = 1;
     samplesSinceStart = 0;
     noteNumber = -1;
     channel = 0;
     damping = baseDamping;
     lastOutput = 0.0f;
+    lastSecondaryOutput = 0.0f;
     previousPickupSample = 0.0f;
+    previousSecondaryPickupSample = 0.0f;
     energy = 0.0f;
     pickTransient = 0.0f;
     pickTransientDecay = 0.0f;
@@ -39,24 +44,14 @@ void StringVoice::reset()
     resonanceDecay = 0.0f;
     resonanceMoveSamples = 1;
     dampingTiltState = 0.0f;
+    secondaryDampingTiltState = 0.0f;
     highFeedbackGain = 1.0f;
     highFeedbackGainTarget = 1.0f;
     highFeedbackGainStep = 0.0f;
     highFeedbackGainSamplesRemaining = 0;
-    woundMotionCoefficient.fill (0.0f);
-    woundMotionRadiusSquared.fill (0.0f);
-    woundMotionState1.fill (0.0f);
-    woundMotionState2.fill (0.0f);
-    woundInteractionEnvelope = 0.0f;
-    woundInteractionDecay = 0.0f;
-    woundPreviousNoise = 0.0f;
-    woundTextureState = 0.0f;
-    woundInteractionSamplesRemaining = 0;
-    woundMotionEnvelope = 0.0f;
-    woundMotionDecay = 0.0f;
-    woundMotionTextureState = 0.0f;
-    woundMotionPreviousNoise = 0.0f;
-    woundMotionMoveSamples = 1;
+    secondaryHighFeedbackGain = 1.0f;
+    secondaryHighFeedbackGainTarget = 1.0f;
+    secondaryHighFeedbackGainStep = 0.0f;
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -72,7 +67,9 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     writeIndex = 0;
     samplesSinceStart = 0;
     lastOutput = 0.0f;
+    lastSecondaryOutput = 0.0f;
     previousPickupSample = 0.0f;
+    previousSecondaryPickupSample = 0.0f;
     pickTransient = 0.0f;
     pickTransientDecay = 0.0f;
     pickContact = 0.0f;
@@ -81,19 +78,8 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     pickContactSamplesRemaining = 0;
     resonanceState1.fill (0.0f);
     resonanceState2.fill (0.0f);
-    woundMotionState1.fill (0.0f);
-    woundMotionState2.fill (0.0f);
     dampingTiltState = 0.0f;
-    woundInteractionEnvelope = 0.0f;
-    woundInteractionDecay = 0.0f;
-    woundPreviousNoise = 0.0f;
-    woundTextureState = 0.0f;
-    woundInteractionSamplesRemaining = 0;
-    woundMotionEnvelope = 0.0f;
-    woundMotionDecay = 0.0f;
-    woundMotionTextureState = 0.0f;
-    woundMotionPreviousNoise = 0.0f;
-    woundMotionMoveSamples = 1;
+    secondaryDampingTiltState = 0.0f;
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -104,16 +90,19 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     const auto frequency = juce::jlimit (20.0, 8000.0, juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber));
     delayLength = juce::jlimit (2, maxDelaySamples, static_cast<int> (std::round (sampleRate / frequency)));
     pickupOffsetSamples = juce::jlimit (1, delayLength - 1, static_cast<int> (std::round (delayLength * 0.18f)));
+    secondaryPickupOffsetSamples = juce::jlimit (1, delayLength - 1, static_cast<int> (std::round (delayLength * 0.205f)));
+    pickupApertureSamples = juce::jlimit (1, delayLength / 9, static_cast<int> (std::round (delayLength * 0.018f)));
 
     const auto velocityGain = juce::jlimit (0.05f, 1.0f, velocity);
     const auto brightness = juce::jlimit (0.0f, 1.0f, velocityGain);
     const auto pluckPosition = 0.20f;
-    const auto displacementAmount = 0.75f * velocityGain;
-    const auto woundExcitationScale = woundString ? 1.28f : 1.0f;
-    const auto noiseAmount = (0.025f + 0.09f * brightness) * woundExcitationScale;
+    const auto displacementAmount = 0.70f * velocityGain;
+    const auto horizontalAmount = (0.28f + (woundString ? 0.06f : 0.0f)) * velocityGain;
+    const auto noiseAmount = (0.006f + 0.014f * brightness) * (woundString ? 1.2f : 1.0f);
     constexpr auto twoPi = 6.28318530717958647692f;
-    const auto steelPartialAmount = (0.010f + 0.040f * brightness) * velocityGain * woundExcitationScale;
+    const auto steelPartialAmount = (0.012f + 0.032f * brightness) * velocityGain;
     auto mean = 0.0f;
+    auto secondaryMean = 0.0f;
 
     randomState = static_cast<uint32_t> ((midiNoteNumber + 1) * 1103515245u + (midiChannel + 17) * 12345u);
 
@@ -121,6 +110,7 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     {
         const auto x = static_cast<float> (i) / static_cast<float> (delayLength);
         const auto shape = pluckShapeAt (x, pluckPosition);
+        const auto horizontalShape = pluckShapeAt (std::fmod (x + 0.017f, 1.0f), pluckPosition);
         const auto pickDistance = std::abs (x - pluckPosition);
         const auto localPickContact = std::exp (-pickDistance * static_cast<float> (delayLength) * 0.18f);
         const auto scrapeNoise = nextNoiseSample() * localPickContact * noiseAmount;
@@ -128,37 +118,49 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
                                  + 0.34f * std::sin (twoPi * 7.0f * x)
                                  + 0.24f * std::sin (twoPi * 11.0f * x)
                                  + 0.16f * std::sin (twoPi * 13.0f * x);
+        const auto horizontalPartials = 0.38f * std::sin (twoPi * (5.0f * x + 0.19f))
+                                      + 0.28f * std::sin (twoPi * (7.0f * x + 0.31f))
+                                      + 0.18f * std::sin (twoPi * (11.0f * x + 0.43f));
         const auto pickKink = juce::jlimit (-1.0f, 1.0f, (pluckPosition - x) * 8.0f);
         const auto sample = shape * displacementAmount
                           + scrapeNoise
                           + steelPartials * steelPartialAmount
                           + pickKink * localPickContact * steelPartialAmount;
+        const auto secondarySample = horizontalShape * horizontalAmount
+                                   - scrapeNoise * 0.18f
+                                   + horizontalPartials * steelPartialAmount * 0.65f
+                                   - pickKink * localPickContact * steelPartialAmount * 0.38f;
 
         delayLine[static_cast<size_t> (i)] = sample;
+        secondaryDelayLine[static_cast<size_t> (i)] = secondarySample;
         mean += sample;
+        secondaryMean += secondarySample;
     }
 
     mean /= static_cast<float> (delayLength);
+    secondaryMean /= static_cast<float> (delayLength);
 
     for (auto i = 0; i < delayLength; ++i)
+    {
         delayLine[static_cast<size_t> (i)] -= mean;
+        secondaryDelayLine[static_cast<size_t> (i)] -= secondaryMean;
+    }
 
     for (auto i = delayLength; i < maxDelaySamples; ++i)
+    {
         delayLine[static_cast<size_t> (i)] = 0.0f;
+        secondaryDelayLine[static_cast<size_t> (i)] = 0.0f;
+    }
 
     energy = velocityGain;
-    pickTransient = (0.02f + 0.08f * brightness) * (nextNoiseSample() >= 0.0f ? 1.0f : -1.0f);
+    pickTransient = (0.012f + 0.040f * brightness) * (nextNoiseSample() >= 0.0f ? 1.0f : -1.0f);
     pickTransientDecay = 0.998f - 0.003f * brightness;
-    pickContact = (0.006f + 0.030f * brightness) * velocityGain;
-    pickContactDecay = 0.9991f - 0.00035f * brightness;
-    pickContactSamplesRemaining = static_cast<int> (sampleRate * (0.014f + 0.012f * brightness));
+    pickContact = (0.003f + 0.012f * brightness) * velocityGain;
+    pickContactDecay = 0.9993f - 0.00025f * brightness;
+    pickContactSamplesRemaining = static_cast<int> (sampleRate * (0.008f + 0.008f * brightness));
     configureResonator (0, frequency * 5.0f, 0.9895f);
     configureResonator (1, frequency * 7.0f, 0.9880f);
     configureResonator (2, frequency * 11.0f, 0.9860f);
-    configureWoundMotionResonator (0, frequency * 5.90f, 0.9935f);
-    configureWoundMotionResonator (1, frequency * 7.95f, 0.9928f);
-    configureWoundMotionResonator (2, frequency * 10.85f, 0.9918f);
-    configureWoundMotionResonator (3, frequency * 13.65f, 0.9905f);
     resonanceEnvelope = (0.012f + 0.045f * brightness) * velocityGain;
     resonanceDecay = 0.99976f - 0.00008f * brightness;
     resonanceMoveSamples = juce::jmax (1, static_cast<int> (sampleRate * (0.36f + 0.16f * brightness)));
@@ -167,16 +169,10 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     highFeedbackGainSamplesRemaining = juce::jmax (1, static_cast<int> (sampleRate * (0.55f + 0.25f * brightness)));
     highFeedbackGainStep = (highFeedbackGainTarget - highFeedbackGain)
                          / juce::jmax (1.0f, static_cast<float> (highFeedbackGainSamplesRemaining));
-
-    if (woundString)
-    {
-        woundInteractionEnvelope = (0.006f + 0.022f * brightness) * velocityGain;
-        woundInteractionDecay = 0.99993f - 0.00003f * brightness;
-        woundInteractionSamplesRemaining = static_cast<int> (sampleRate * (0.42f + 0.18f * brightness));
-        woundMotionEnvelope = (0.006f + 0.020f * brightness) * velocityGain;
-        woundMotionDecay = 0.99994f - 0.000015f * brightness;
-        woundMotionMoveSamples = juce::jmax (1, static_cast<int> (sampleRate * (0.42f + 0.28f * brightness)));
-    }
+    secondaryHighFeedbackGain = 0.9992f;
+    secondaryHighFeedbackGainTarget = 0.9955f - 0.0010f * brightness + (woundString ? 0.0010f : 0.0f);
+    secondaryHighFeedbackGainStep = (secondaryHighFeedbackGainTarget - secondaryHighFeedbackGain)
+                                  / juce::jmax (1.0f, static_cast<float> (highFeedbackGainSamplesRemaining));
 
     updateDamping();
 }
@@ -198,10 +194,12 @@ float StringVoice::renderSample() noexcept
 
     const auto index = static_cast<size_t> (writeIndex);
     auto current = delayLine[index];
+    auto secondaryCurrent = secondaryDelayLine[index];
 
     if (std::abs (pickTransient) > 0.000001f)
     {
         current += pickTransient;
+        secondaryCurrent -= pickTransient * 0.36f;
         pickTransient *= pickTransientDecay;
     }
 
@@ -213,28 +211,40 @@ float StringVoice::renderSample() noexcept
         const auto highPassedContact = contactNoise - previousContactNoise;
         previousContactNoise = contactNoise;
         contactOutput = highPassedContact * pickContact;
-        current += contactOutput * 0.55f;
+        current += contactOutput * 0.22f;
+        secondaryCurrent -= contactOutput * 0.16f;
         pickContact *= pickContactDecay;
         --pickContactSamplesRemaining;
     }
-
-    const auto preDampingSlope = current - lastOutput;
-    const auto woundOutput = processWoundInteraction (preDampingSlope, contactOutput);
-    current += woundOutput * 0.22f;
 
     if (releasing && leftHandDamping > leftHandDampingTarget)
         leftHandDamping = juce::jmax (leftHandDampingTarget, leftHandDamping - leftHandDampingStep);
 
     const auto slope = current - lastOutput;
-    const auto woundMotion = processWoundMotion (slope, contactOutput, woundOutput);
-    const auto movingResonance = processMovingResonance (slope + contactOutput * 0.35f + woundOutput * 0.45f + woundMotion * 0.14f);
-    const auto contactDrive = softClip (slope * 2.8f) * 0.018f;
-    const auto feedbackInput = 0.58f * current + 0.42f * lastOutput + contactDrive;
-    const auto dampedFeedback = processHarmonicDamping (feedbackInput);
-    const auto filtered = (dampedFeedback + movingResonance * 0.18f + woundMotion * 0.018f) * damping * leftHandDamping;
+    const auto secondarySlope = secondaryCurrent - lastSecondaryOutput;
+    const auto movingResonance = processMovingResonance (slope + secondarySlope * 0.42f + contactOutput * 0.20f);
+    const auto contactDrive = softClip ((slope + secondarySlope * 0.25f) * 2.4f) * 0.012f;
+    const auto secondaryDrive = softClip ((secondarySlope - slope * 0.18f) * 2.0f) * 0.009f;
+    const auto coupling = (secondaryCurrent - current) * (woundString ? 0.015f : 0.010f);
+    const auto feedbackInput = 0.58f * current + 0.42f * lastOutput + contactDrive + coupling;
+    const auto secondaryFeedbackInput = 0.53f * secondaryCurrent + 0.47f * lastSecondaryOutput + secondaryDrive - coupling * 0.74f;
+
+    updateHighFrequencyFeedback();
+
+    const auto dampedFeedback = processHarmonicDamping (feedbackInput, dampingTiltState, highFeedbackGain, 0.30f);
+    const auto secondaryDampedFeedback = processHarmonicDamping (secondaryFeedbackInput,
+                                                                 secondaryDampingTiltState,
+                                                                 secondaryHighFeedbackGain,
+                                                                 0.22f);
+    const auto filtered = (dampedFeedback + movingResonance * 0.075f) * damping * leftHandDamping;
+    const auto secondaryFiltered = (secondaryDampedFeedback + movingResonance * 0.045f)
+                                 * (damping + (woundString ? 0.00045f : 0.00015f))
+                                 * leftHandDamping;
 
     delayLine[index] = filtered;
+    secondaryDelayLine[index] = secondaryFiltered;
     lastOutput = current;
+    lastSecondaryOutput = secondaryCurrent;
 
     ++writeIndex;
 
@@ -243,7 +253,7 @@ float StringVoice::renderSample() noexcept
 
     ++samplesSinceStart;
 
-    energy = 0.9995f * energy + 0.0005f * std::abs (current);
+    energy = 0.9995f * energy + 0.0005f * (std::abs (current) + std::abs (secondaryCurrent) * 0.7f);
 
     if (energy < 0.00008f)
     {
@@ -251,16 +261,26 @@ float StringVoice::renderSample() noexcept
         return 0.0f;
     }
 
-    const auto pickupSample = readDelayLineAtOffset (pickupOffsetSamples);
+    const auto primaryCenter = readDelayLineAtOffset (pickupOffsetSamples);
+    const auto primaryAhead = readDelayLineAtOffset (pickupOffsetSamples + pickupApertureSamples);
+    const auto primaryBehind = readDelayLineAtOffset (pickupOffsetSamples - pickupApertureSamples);
+    const auto pickupSample = 0.58f * primaryCenter + 0.21f * (primaryAhead + primaryBehind);
     const auto pickupVelocity = pickupSample - previousPickupSample;
     previousPickupSample = pickupSample;
 
-    const auto pickupReadout = 0.82f * pickupSample
-                             + 0.62f * pickupVelocity
-                             + 0.28f * contactOutput
-                             + 0.72f * movingResonance
-                             + 0.88f * woundOutput
-                             + 0.52f * woundMotion;
+    const auto secondaryCenter = readSecondaryDelayLineAtOffset (secondaryPickupOffsetSamples);
+    const auto secondaryAhead = readSecondaryDelayLineAtOffset (secondaryPickupOffsetSamples + pickupApertureSamples);
+    const auto secondaryBehind = readSecondaryDelayLineAtOffset (secondaryPickupOffsetSamples - pickupApertureSamples);
+    const auto secondaryPickupSample = 0.58f * secondaryCenter + 0.21f * (secondaryAhead + secondaryBehind);
+    const auto secondaryPickupVelocity = secondaryPickupSample - previousSecondaryPickupSample;
+    previousSecondaryPickupSample = secondaryPickupSample;
+
+    const auto pickupReadout = 0.24f * pickupSample
+                             + 1.05f * pickupVelocity
+                             + 0.18f * secondaryPickupSample
+                             + 0.72f * secondaryPickupVelocity
+                             + 0.16f * contactOutput
+                             + 0.42f * movingResonance;
     return pickupReadout * outputGain;
 }
 
@@ -322,6 +342,12 @@ float StringVoice::readDelayLineAtOffset (int offset) const noexcept
     return delayLine[static_cast<size_t> (index)];
 }
 
+float StringVoice::readSecondaryDelayLineAtOffset (int offset) const noexcept
+{
+    const auto index = (writeIndex + delayLength - juce::jlimit (0, delayLength - 1, offset)) % delayLength;
+    return secondaryDelayLine[static_cast<size_t> (index)];
+}
+
 void StringVoice::configureResonator (int index, float frequency, float radius) noexcept
 {
     const auto clampedIndex = static_cast<size_t> (juce::jlimit (0, resonanceCount - 1, index));
@@ -333,39 +359,33 @@ void StringVoice::configureResonator (int index, float frequency, float radius) 
     resonanceRadiusSquared[clampedIndex] = clampedRadius * clampedRadius;
 }
 
-void StringVoice::configureWoundMotionResonator (int index, float frequency, float radius) noexcept
-{
-    const auto clampedIndex = static_cast<size_t> (juce::jlimit (0, woundMotionResonanceCount - 1, index));
-    const auto clampedFrequency = juce::jlimit (20.0f, static_cast<float> (sampleRate * 0.43), frequency);
-    const auto clampedRadius = juce::jlimit (0.80f, 0.999f, radius);
-    constexpr auto twoPi = 6.28318530717958647692f;
-
-    woundMotionCoefficient[clampedIndex] = 2.0f * clampedRadius * std::cos (twoPi * clampedFrequency / static_cast<float> (sampleRate));
-    woundMotionRadiusSquared[clampedIndex] = clampedRadius * clampedRadius;
-}
-
 bool StringVoice::isWoundOpenString (int midiNoteNumber) const noexcept
 {
     return midiNoteNumber == 40 || midiNoteNumber == 45 || midiNoteNumber == 50;
 }
 
-float StringVoice::processHarmonicDamping (float input) noexcept
+void StringVoice::updateHighFrequencyFeedback() noexcept
 {
     if (highFeedbackGainSamplesRemaining > 0)
     {
         highFeedbackGain += highFeedbackGainStep;
+        secondaryHighFeedbackGain += secondaryHighFeedbackGainStep;
         --highFeedbackGainSamplesRemaining;
     }
     else
     {
         highFeedbackGain = highFeedbackGainTarget;
+        secondaryHighFeedbackGain = secondaryHighFeedbackGainTarget;
     }
+}
 
-    dampingTiltState += 0.30f * (input - dampingTiltState);
+float StringVoice::processHarmonicDamping (float input, float& state, float highGain, float splitCoefficient) noexcept
+{
+    state += splitCoefficient * (input - state);
 
-    const auto lowComponent = dampingTiltState;
+    const auto lowComponent = state;
     const auto highComponent = input - lowComponent;
-    return lowComponent + highComponent * highFeedbackGain;
+    return lowComponent + highComponent * highGain;
 }
 
 float StringVoice::processMovingResonance (float input) noexcept
@@ -389,64 +409,6 @@ float StringVoice::processMovingResonance (float input) noexcept
     output *= resonanceEnvelope;
     resonanceEnvelope *= resonanceDecay;
     return output;
-}
-
-float StringVoice::processWoundInteraction (float inputSlope, float contactOutput) noexcept
-{
-    if (! woundString || woundInteractionSamplesRemaining <= 0)
-        return 0.0f;
-
-    const auto noise = nextNoiseSample();
-    const auto highPassedNoise = noise - woundPreviousNoise;
-    woundPreviousNoise = noise;
-
-    woundTextureState += 0.004f * (nextNoiseSample() - woundTextureState);
-
-    const auto motion = softClip (inputSlope * 3.0f + contactOutput * 1.8f);
-    const auto interaction = woundInteractionEnvelope
-                           * (0.68f * highPassedNoise + 0.22f * woundTextureState + 0.18f * motion);
-
-    woundInteractionEnvelope *= woundInteractionDecay;
-    --woundInteractionSamplesRemaining;
-    return interaction;
-}
-
-float StringVoice::processWoundMotion (float inputSlope, float contactOutput, float woundOutput) noexcept
-{
-    if (! woundString)
-        return 0.0f;
-
-    const auto noise = nextNoiseSample();
-    const auto highPassedNoise = noise - woundMotionPreviousNoise;
-    woundMotionPreviousNoise = noise;
-    woundMotionTextureState += 0.0016f * (nextNoiseSample() - woundMotionTextureState);
-
-    const auto movement = juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / static_cast<float> (woundMotionMoveSamples));
-    const std::array<float, woundMotionResonanceCount> weights {
-        0.40f + 0.80f * movement,
-        0.65f + 0.25f * std::sin (movement * 3.14159265358979323846f),
-        0.75f - 0.25f * movement,
-        (1.0f - movement) * (1.0f - movement)
-    };
-
-    const auto drive = softClip (inputSlope * 2.8f + contactOutput * 0.9f + woundOutput * 3.0f)
-                     + 0.055f * highPassedNoise
-                     + 0.10f * woundMotionTextureState;
-    auto output = 0.0f;
-
-    for (auto i = 0; i < woundMotionResonanceCount; ++i)
-    {
-        const auto next = drive + woundMotionCoefficient[i] * woundMotionState1[i]
-                        - woundMotionRadiusSquared[i] * woundMotionState2[i];
-        const auto band = next - woundMotionState2[i];
-        woundMotionState2[i] = woundMotionState1[i];
-        woundMotionState1[i] = next;
-        output += band * weights[static_cast<size_t> (i)];
-    }
-
-    output *= woundMotionEnvelope;
-    woundMotionEnvelope *= woundMotionDecay;
-    return softClip (output * 1.35f) * 0.42f;
 }
 
 float StringVoice::softClip (float value) const noexcept

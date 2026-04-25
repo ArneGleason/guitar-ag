@@ -25,28 +25,29 @@ public:
 private:
     static constexpr auto maxDelaySamples = 8192;
     static constexpr auto resonanceCount = 3;
-    static constexpr auto woundMotionResonanceCount = 4;
 
     float nextNoiseSample() noexcept;
     void updateDamping() noexcept;
     void startLeftHandRelease() noexcept;
     float pluckShapeAt (float position, float pluckPosition) const noexcept;
     float readDelayLineAtOffset (int offset) const noexcept;
+    float readSecondaryDelayLineAtOffset (int offset) const noexcept;
     void configureResonator (int index, float frequency, float radius) noexcept;
-    void configureWoundMotionResonator (int index, float frequency, float radius) noexcept;
     bool isWoundOpenString (int midiNoteNumber) const noexcept;
-    float processHarmonicDamping (float input) noexcept;
+    void updateHighFrequencyFeedback() noexcept;
+    float processHarmonicDamping (float input, float& state, float highGain, float splitCoefficient) noexcept;
     float processMovingResonance (float input) noexcept;
-    float processWoundInteraction (float inputSlope, float contactOutput) noexcept;
-    float processWoundMotion (float inputSlope, float contactOutput, float woundOutput) noexcept;
     float softClip (float value) const noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
+    std::array<float, maxDelaySamples> secondaryDelayLine {};
 
     double sampleRate = 44100.0;
     int delayLength = 1;
     int writeIndex = 0;
     int pickupOffsetSamples = 1;
+    int secondaryPickupOffsetSamples = 1;
+    int pickupApertureSamples = 1;
     int samplesSinceStart = 0;
 
     int noteNumber = -1;
@@ -56,9 +57,11 @@ private:
     float baseDamping = 0.9965f;
     float releaseDamping = 0.985f;
     float lastOutput = 0.0f;
+    float lastSecondaryOutput = 0.0f;
     float previousPickupSample = 0.0f;
+    float previousSecondaryPickupSample = 0.0f;
     float energy = 0.0f;
-    float outputGain = 0.42f;
+    float outputGain = 0.48f;
     float pickTransient = 0.0f;
     float pickTransientDecay = 0.0f;
     float pickContact = 0.0f;
@@ -73,24 +76,14 @@ private:
     float resonanceDecay = 0.0f;
     int resonanceMoveSamples = 1;
     float dampingTiltState = 0.0f;
+    float secondaryDampingTiltState = 0.0f;
     float highFeedbackGain = 1.0f;
     float highFeedbackGainTarget = 1.0f;
     float highFeedbackGainStep = 0.0f;
     int highFeedbackGainSamplesRemaining = 0;
-    float woundInteractionEnvelope = 0.0f;
-    float woundInteractionDecay = 0.0f;
-    float woundPreviousNoise = 0.0f;
-    float woundTextureState = 0.0f;
-    int woundInteractionSamplesRemaining = 0;
-    std::array<float, woundMotionResonanceCount> woundMotionCoefficient {};
-    std::array<float, woundMotionResonanceCount> woundMotionRadiusSquared {};
-    std::array<float, woundMotionResonanceCount> woundMotionState1 {};
-    std::array<float, woundMotionResonanceCount> woundMotionState2 {};
-    float woundMotionEnvelope = 0.0f;
-    float woundMotionDecay = 0.0f;
-    float woundMotionTextureState = 0.0f;
-    float woundMotionPreviousNoise = 0.0f;
-    int woundMotionMoveSamples = 1;
+    float secondaryHighFeedbackGain = 1.0f;
+    float secondaryHighFeedbackGainTarget = 1.0f;
+    float secondaryHighFeedbackGainStep = 0.0f;
     float leftHandDamping = 1.0f;
     float leftHandDampingTarget = 1.0f;
     float leftHandDampingStep = 0.0f;

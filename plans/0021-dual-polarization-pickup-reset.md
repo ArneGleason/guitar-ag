@@ -66,3 +66,14 @@ The human should be able to verify:
 - [ ] Open strings sound less like layered plucked synthesis and less dependent on hiss/noise.
 - [ ] Lower strings have a more metallic, physical ring even if spectral metrics are not immediately better.
 
+## Implementation Notes
+
+2026-04-25:
+
+- Implemented first version as `StringVoice KS-015 DualPickup`.
+- Added a second delay path inside each voice.
+- Removed the KS013/KS014 wound motion branch from the audible path.
+- Added separate secondary-polarization damping state and high-frequency feedback target.
+- Added weak cross-coupling between the two polarizations.
+- Changed pickup readout to use velocity from a finite aperture across both polarizations.
+- Kept the experiment scoped to open-string synthesis; no fretting, MPE, pickup switching, or amp/cab behavior was added.
