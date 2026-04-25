@@ -161,6 +161,13 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - Treating E2/A2/D3 as lower or wound-side notes, the reference has much stronger early/mid upper and air energy plus more phase drift than the render.
 - A likely next experiment is string-class-aware behavior: lower notes should receive a wound-string interaction model with more scrape/air, stronger evolving upper content, and possibly more phase irregularity than plain-string notes.
 
+## 2026-04-25 — KS-011 wound open-string implementation
+
+- The calibration MIDI is now treated as open strings for the next sound experiment.
+- `StringVoice KS-011 WoundOpen` applies a wound-string interaction layer only to E2, A2, and D3.
+- G3, B3, and E4 are intended to remain close to KS010.
+- The goal is to improve lower-string scrape/air and evolving roughness without a global tone change.
+
 ## 2026-04-25 — CMake build label cache issue
 
 - The visible plugin model label should not be stored as a CMake cache variable.

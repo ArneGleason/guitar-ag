@@ -32,8 +32,10 @@ private:
     float pluckShapeAt (float position, float pluckPosition) const noexcept;
     float readDelayLineAtOffset (int offset) const noexcept;
     void configureResonator (int index, float frequency, float radius) noexcept;
+    bool isWoundOpenString (int midiNoteNumber) const noexcept;
     float processHarmonicDamping (float input) noexcept;
     float processMovingResonance (float input) noexcept;
+    float processWoundInteraction (float inputSlope, float contactOutput) noexcept;
     float softClip (float value) const noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
@@ -72,6 +74,11 @@ private:
     float highFeedbackGainTarget = 1.0f;
     float highFeedbackGainStep = 0.0f;
     int highFeedbackGainSamplesRemaining = 0;
+    float woundInteractionEnvelope = 0.0f;
+    float woundInteractionDecay = 0.0f;
+    float woundPreviousNoise = 0.0f;
+    float woundTextureState = 0.0f;
+    int woundInteractionSamplesRemaining = 0;
     float leftHandDamping = 1.0f;
     float leftHandDampingTarget = 1.0f;
     float leftHandDampingStep = 0.0f;
@@ -80,6 +87,7 @@ private:
 
     bool active = false;
     bool releasing = false;
+    bool woundString = false;
 };
 
 } // namespace guitar_ag

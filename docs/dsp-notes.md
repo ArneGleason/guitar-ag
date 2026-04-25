@@ -364,6 +364,33 @@ Calibration feedback:
 - The high/plain-side render is still imperfect, but it is closer in broad spectral shape than the lower/wound-side notes.
 - Conclusion: KS010 is the better damping retune. The next experiment should probably add string-class-aware behavior, especially a wound-string interaction layer for lower notes, rather than another global damping adjustment.
 
+## 2026-04-25 — Wound Open-String Experiment
+
+Added open-string class behavior inside `StringVoice`.
+
+Current behavior:
+
+- The calibration notes are treated as open guitar strings.
+- E2, A2, and D3 are treated as wound strings.
+- G3, B3, and E4 are treated as plain strings.
+- The KS010 path remains the base path for all strings.
+- Wound strings receive a small excitation boost and an extra decaying interaction layer.
+- The wound interaction layer combines high-passed noise, slow roughness, string motion, and pick contact.
+- The wound interaction is injected lightly into the string loop and more directly into the pickup readout.
+- The visible model label is now `StringVoice KS-011 WoundOpen`.
+
+Initial values:
+
+- wound excitation scale: 1.28
+- wound interaction envelope: 0.006 to 0.028, scaled by velocity
+- wound interaction duration: about 420 to 600 ms
+- wound loop injection: 0.22
+- wound pickup readout mix: 0.88
+
+Expected sound:
+
+This should add more scrape/air and physical roughness to the lower open strings while leaving the higher plain strings close to KS010. The main risk is adding static fizz or noisy attack that does not track string motion naturally.
+
 ## Suggested MVP Signal Flow
 
 ```text
