@@ -40,8 +40,17 @@ Initial retune:
 
 The human should be able to verify:
 
-- [ ] The plugin UI shows `StringVoice KS-014 WoundRing`.
-- [ ] The plugin still loads in Bitwig.
-- [ ] The calibration MIDI renders successfully.
-- [ ] The lower strings sound less like a short hiss envelope and more like metallic/string-coupled ring.
+- [x] The plugin UI shows `StringVoice KS-014 WoundRing`.
+- [x] The plugin still loads in Bitwig.
+- [x] The calibration MIDI renders successfully.
+- [x] The lower strings sound less like a short hiss envelope and more like metallic/string-coupled ring.
+
+## Completion Notes
+
+2026-04-25:
+
+- Built and installed `StringVoice KS-014 WoundRing` at commit `4188b0a`.
+- Analyzed `/Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-ks014-woundring-4188b0a-single-note-calibration.wav`.
+- KS014 reduced the KS013 air/noise boost but did not create a meaningfully more realistic open-string sound.
+- Result: stop retuning this additive wound-layer branch and try a more fundamental string/pickup experiment.
 

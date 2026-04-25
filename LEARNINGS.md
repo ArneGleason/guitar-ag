@@ -217,3 +217,11 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The high-passed noise and slow random texture contributions are reduced sharply.
 - The wound-motion resonators are longer-lived, lower in level, and driven more by string motion than noise.
 - The goal is metallic/string-coupled ring on lower strings instead of a short hiss envelope.
+
+## 2026-04-25 — KS-014 render comparison and research pivot
+
+- KS014 reduced the KS013 air/noise boost but did not create a more realistic open-string sound by ear.
+- The analysis metrics still moved within the same narrow feature space, which supports the user's concern that optimizing these dimensions can miss the perceptual target.
+- The additive wound-layer branch should be paused.
+- Research on electric guitar synthesis and pickup modeling suggests a bigger next experiment: dual-polarization string motion plus a more physical pickup-position/width readout.
+- Noise should become incidental pick/contact texture, not the primary source of wound-string realism.

@@ -502,6 +502,41 @@ Expected sound:
 
 This should trade some of KS013's spectral-air gain for a more metallic, string-coupled lower-string tail with less obvious white-noise hiss. The main risk is undershooting and returning too close to KS011.
 
+Calibration feedback:
+
+- KS014 reduced the KS013 air boost but did not create a qualitatively more realistic open-string sound.
+- The lower/wound early air-to-low metric fell from about 0.00276 in KS013 to about 0.00206 in KS014, still above KS011 at about 0.00150.
+- The lower/wound strongest upper-harmonic shift fell from about 0.93 in KS013 to about 0.77 in KS014, still above KS011 at about 0.64.
+- Subjectively, the recent wound-layer releases do not feel meaningfully closer to a realistic open electric guitar string.
+- Conclusion: the additive wound-noise/ring branch is probably the wrong level of model. The next experiment should change the core string/pickup representation rather than continuing to decorate the existing one-polarization Karplus-Strong loop.
+
+## 2026-04-25 — Research-Informed Course Correction
+
+The next open-string experiment should be bolder than another wound-layer retune.
+
+Useful research signals:
+
+- Parametric electric guitar synthesis work models two string polarizations, loop filters, inharmonicity, pickup position/width, and pickup nonlinearity as connected parts of the instrument rather than isolated effects.
+- Pickup modeling research emphasizes that pickup position, finite aperture/sensitivity width, resonant electrical filtering, pickup mixing, and magnetic nonlinearity all shape electric guitar DI tone.
+- Player/string interaction work points at scattering/contact models for pluck, touch, frets, and collisions rather than treating noise as a main realism source.
+- Piano and other stiff-string models reinforce that inharmonicity, dual-polarization/coupled modes, and body/bridge coupling can make the sound feel physical before any explicit "noise" layer is added.
+
+Working hypothesis:
+
+The current model sounds synthetic because it has one main string motion, a crude pickup readout, and additive layers trying to impersonate missing physics. A better next experiment is a restrained architecture reset:
+
+- two polarization delay paths per voice
+- different damping/dispersion per polarization
+- weak cross-coupling between polarizations
+- pick excitation that launches both polarizations with a slight time/phase difference
+- pickup readout based on string velocity at a position, with a small finite-width aperture
+- optional pickup/circuit resonance after the physical readout
+- no dedicated white-noise wound tail
+
+Expected sound:
+
+This may initially be less bright than KS013, but it should be a better physical base: more naturally metallic, more pickup-like, and less dependent on hiss/noise tricks.
+
 ## Suggested MVP Signal Flow
 
 ```text

@@ -38,6 +38,7 @@ Relevant references:
 
 - Julius O. Smith's digital waveguide work remains foundational background for the string model.
 - Sanders and Weiss's guitar synthesis project is older but useful because it explicitly notes that a basic waveguide resembles a plucked string before it resembles a guitar: https://www.ee.columbia.edu/~ronw/dsp/
+- Lindroos, Penttinen, and Välimäki's "Parametric Electric Guitar Synthesis" is especially relevant because it treats two string polarizations, loop filtering, inharmonicity, and pickup modeling as one electric-guitar synthesis problem: https://research.aalto.fi/en/publications/parametric-electric-guitar-synthesis
 - The 2021 ICMC paper "Guitar Virtual Instrument using Physical Modelling with Collision Simulation" uses a finite-difference string with damping/stiffness plus a collision system for articulations: https://www.researchgate.net/publication/346562874_Guitar_Virtual_Instrument_using_Physical_Modelling_with_Collision_Simulation
 
 ### Pick, Finger, and Collision Interactions
@@ -155,6 +156,22 @@ The MVP can skip the `Performance Interpreter` at first. It becomes important on
 10. Revisit neural/DDSP/differentiable approaches only after the physical controls and test cases are clear.
 
 Early listening notes suggest that Strat-like twang/quack may require pickup-position and pickup-mix modeling, not only changes to the string excitation.
+
+## 2026-04-25 — Open-String Course Correction
+
+Listening feedback after the KS011-KS014 wound-string experiments suggests that the current open-string model is not moving toward realism quickly enough. KS013 and KS014 can improve air-band or moving-harmonic metrics, but the result still sounds like synthetic layers placed on top of a simple plucked-string core.
+
+The next bold experiment should stop adding wound-string decorations and instead replace the core open-string representation with a more guitar-like base:
+
+- two coupled string polarizations per voice
+- slightly different damping and dispersion for each polarization
+- pick excitation that launches both polarizations with different phase/timing
+- a velocity-based pickup readout at a physical position
+- a finite pickup aperture/width approximation
+- a simple pickup/circuit resonance after the readout
+- no explicit sustained white-noise wound layer
+
+This experiment does not need to implement fretting, MPE, pickup switching, or an amp. It should be judged first on whether six open strings feel less like generic plucked synthesis and more like an electric guitar DI source.
 
 ## Evaluation Strategy
 
