@@ -287,6 +287,15 @@ Expected sound:
 
 This should test whether a changing upper-harmonic emphasis moves the sound closer to the DI reference. It may sound more alive, or it may become metallic/ringy if the resonators are too narrow or too prominent.
 
+Calibration feedback:
+
+- KS008 preserved the KS006 level and broad upper-harmonic balance better than KS007. Mean upper-to-low harmonic energy was about 0.0043, close to KS006 at about 0.0044 and above KS007 at about 0.0017.
+- The high "air" band improved. Early air-to-low rose from about 0.00057 in KS006 to about 0.00104 in KS008; the DI reference average is about 0.00825.
+- The h4-h12 relative spread moved very close to the reference average. KS008 averaged about 34.49 dB, while the reference averaged about 34.50 dB. KS006 was about 37.97 dB and KS007 about 47.48 dB.
+- The strongest-harmonic shift metric did not improve beyond KS006. KS008 averaged about 0.47 vs KS006 at about 0.57 and the reference at about 1.04.
+- As expected for this isolated test, phase drift stayed close to KS006 and far below KS007/reference. KS008 phase-drift standard deviation averaged about 1.0 cents.
+- Conclusion: moving resonance is useful for spectral shape/air and should be kept as a candidate. It does not replace the phase-settling idea, and the resonance movement probably needs either stronger frequency movement or later recombination with phase settling.
+
 ## Suggested MVP Signal Flow
 
 ```text

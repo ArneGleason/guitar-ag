@@ -126,6 +126,14 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - `StringVoice KS-008 MovingRes` removes the KS007 all-pass stage and adds moving resonator weights across the 11th, 7th, and 5th harmonics.
 - This should test the moving upper-harmonic emphasis metric separately from the phase-settling result.
 
+## 2026-04-25 — KS-008 render comparison
+
+- KS008 preserved KS006's overall upper-harmonic balance while improving the high-air band.
+- The h4-h12 relative spread landed almost exactly on the current DI reference average, which suggests the moving resonance layer is useful.
+- Strongest upper-harmonic movement did not improve beyond KS006, so the current moving-resonance implementation shapes spectrum more than it creates moving emphasis.
+- Phase drift stayed low, as expected, because KS008 intentionally left out the KS007 all-pass stage.
+- A later combined model should probably test KS008-style resonance plus a gentler/reworked phase-settling stage.
+
 ## 2026-04-25 — CMake build label cache issue
 
 - The visible plugin model label should not be stored as a CMake cache variable.
