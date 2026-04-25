@@ -319,6 +319,15 @@ Expected sound:
 
 This should keep the attack relatively bright while making the sustain shed high-frequency energy faster. It may make the tone more guitar-like if the decay contrast is useful, or it may simply dull the note if the target high feedback gain is too low.
 
+Calibration feedback:
+
+- KS009 did create stronger time-varying damping. Mean attack-to-sustain rose from about 1.34 in KS008 to about 1.36, and late-to-sustain fell from about 0.64 to about 0.61.
+- Strongest upper-harmonic shift moved toward the DI reference: KS008 averaged about 0.47, KS009 about 0.75, and the reference about 1.04.
+- High-harmonic decay became too strong by the current h8 metric. KS008 averaged about -14.8 dB, close to the reference average of about -14.6 dB, while KS009 fell to about -25.7 dB.
+- Upper-to-low harmonic energy fell modestly from about 0.0043 in KS008 to about 0.0040 in KS009, and late upper-to-low fell from about 0.0033 to about 0.0020.
+- The high-air improvement from KS008 mostly survived at the attack, but mid-air energy dropped from about 0.00057 to about 0.00043.
+- Conclusion: harmonic-dependent damping is a useful property, especially for moving harmonic emphasis, but the current high-feedback target is too aggressive. A later version should use a gentler high-frequency loss or a more selective band-specific decay.
+
 ## Suggested MVP Signal Flow
 
 ```text

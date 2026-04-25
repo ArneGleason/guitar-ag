@@ -141,6 +141,13 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The high-frequency feedback component starts nearly neutral and settles lower over the first few hundred milliseconds.
 - This should test partial-dependent decay without adding phase-settling, new excitation, or a new pickup model.
 
+## 2026-04-25 — KS-009 render comparison
+
+- KS009 made the note decay more dynamically and moved the strongest upper-harmonic shift metric closer to the DI reference.
+- The current damping tilt is too strong for high harmonics: h8 decay overshot the reference average, while KS008 was already close on that metric.
+- KS009 slightly reduced upper-harmonic and air-band energy compared with KS008.
+- The damping concept is useful, but a future pass should make it gentler or more selective rather than applying broad high-frequency loss.
+
 ## 2026-04-25 — CMake build label cache issue
 
 - The visible plugin model label should not be stored as a CMake cache variable.
