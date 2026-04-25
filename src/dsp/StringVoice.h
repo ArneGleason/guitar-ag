@@ -2,10 +2,14 @@
 
 #include <juce_audio_basics/juce_audio_basics.h>
 
+#include <array>
+#include <cstddef>
+#include <cstdint>
+
 namespace guitar_ag
 {
 
-class TestToneVoice
+class StringVoice
 {
 public:
     void prepare (double newSampleRate);
@@ -19,17 +23,28 @@ public:
     float renderSample() noexcept;
 
 private:
+    static constexpr auto maxDelaySamples = 8192;
+
+    float nextNoiseSample() noexcept;
+    void updateDamping() noexcept;
+
+    std::array<float, maxDelaySamples> delayLine {};
+
     double sampleRate = 44100.0;
-    double phase = 0.0;
-    double phaseIncrement = 0.0;
+    int delayLength = 1;
+    int writeIndex = 0;
 
     int noteNumber = -1;
     int channel = 0;
 
-    float targetLevel = 0.0f;
-    float currentLevel = 0.0f;
-    float attackStep = 0.001f;
-    float releaseStep = 0.001f;
+    float damping = 0.9965f;
+    float baseDamping = 0.9965f;
+    float releaseDamping = 0.985f;
+    float lastOutput = 0.0f;
+    float energy = 0.0f;
+    float outputGain = 0.35f;
+
+    uint32_t randomState = 0x12345678u;
 
     bool active = false;
     bool releasing = false;

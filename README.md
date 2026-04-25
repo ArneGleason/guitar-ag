@@ -6,7 +6,7 @@ The goal is to build a VST3 plugin that generates guitar-like sound through phys
 
 ## Current Status
 
-Initial JUCE/CMake plugin shell has been added. It is intended to build a VST3 instrument named `Guitar AG` once CMake and JUCE are installed.
+Initial JUCE/CMake VST3 plugin shell builds and loads in Bitwig. The current audio engine has a basic MIDI-triggered Karplus-Strong-style plucked string voice.
 
 ## MVP Goal
 
@@ -32,9 +32,9 @@ The first successful MVP should:
 
 ## Suggested First Build Step
 
-Start with `plans/0001-mvp-plugin-shell.md`.
+Milestone 1 is complete. See `plans/0001-mvp-plugin-shell.md`.
 
-The first task should only create a minimal plugin shell that builds, loads, and produces a simple test tone. Do not start with the full guitar model immediately.
+Milestone 2 has started. See `plans/0002-basic-string-voice.md`.
 
 ## Local VST3 Install
 

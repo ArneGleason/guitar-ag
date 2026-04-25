@@ -37,3 +37,9 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The instrument model needs string excitation, damping, fret/finger/collision behavior, pickup position/width/circuit coloration, and clean DI output.
 - The player interpretation layer should eventually convert MIDI/MPE into guitar gestures such as string/fret choice, pick direction, hammer-ons, pull-offs, slides, bends, vibrato, and muting.
 - Recent DDSP/neural work is useful research context, but the near-term plugin should remain physically controlled and real-time safe.
+
+## 2026-04-25 — Basic string voice implementation
+
+- The first Karplus-Strong-style voice builds successfully in the JUCE VST3 target.
+- A fixed 8192-sample delay line per voice is enough for the current guitar-oriented range at common sample rates.
+- The first implementation deliberately favors simplicity over perfect tuning or realism; fractional delay and pickup-position shaping remain future work.

@@ -38,8 +38,8 @@ target_sources(GuitarAG
     PRIVATE
         src/dsp/AudioEngine.cpp
         src/dsp/AudioEngine.h
-        src/dsp/TestToneVoice.cpp
-        src/dsp/TestToneVoice.h
+        src/dsp/StringVoice.cpp
+        src/dsp/StringVoice.h
         src/plugin/PluginEditor.cpp
         src/plugin/PluginEditor.h
         src/plugin/PluginProcessor.cpp

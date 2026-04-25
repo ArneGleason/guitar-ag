@@ -48,4 +48,12 @@ The human should be able to verify:
 
 ## Completion Notes
 
-Fill this in after implementation.
+2026-04-25:
+
+- Replaced the sine test voice with `StringVoice`, a fixed-delay-line Karplus-Strong-style voice.
+- MIDI note-on excites the delay line with deterministic noise plus a simple pluck-position shape.
+- MIDI pitch controls delay length.
+- Velocity controls excitation strength.
+- MIDI note-off increases damping for a faster release.
+- Kept 8 fixed voices and avoided allocation during rendering.
+- Updated `docs/dsp-notes.md` with the model approach and initial values.

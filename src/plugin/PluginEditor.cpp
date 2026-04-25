@@ -20,9 +20,9 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
 
     graphics.setColour (juce::Colour (0xff9aa8b5));
     graphics.setFont (juce::FontOptions (15.0f));
-    graphics.drawFittedText ("MVP plugin shell: MIDI-triggered test tone", bounds.removeFromTop (28),
+    graphics.drawFittedText ("MVP string voice: MIDI-triggered plucked model", bounds.removeFromTop (28),
                              juce::Justification::centredLeft, 1);
-    graphics.drawFittedText ("String model and MPE routing are intentionally not implemented yet.", bounds,
+    graphics.drawFittedText ("MPE routing and pickup modeling are intentionally not implemented yet.", bounds,
                              juce::Justification::centredLeft, 2);
 }
 

@@ -89,3 +89,17 @@ Accepted
 
 Consequences:
 Future milestones can replace the test-tone voice with a modeled string voice without moving DAW lifecycle or editor code.
+
+## 2026-04-25 — Use Karplus-Strong for the first string voice
+
+Decision:
+The first physical string voice uses a small Karplus-Strong-style delay-line model.
+
+Reason:
+It is simple, real-time friendly, easy to debug, and enough to replace the sine test tone with a plucked physical-model sound before adding pickup modeling, MPE, or guitar-specific articulations.
+
+Status:
+Accepted
+
+Consequences:
+The first string voice will not yet be fully guitar-realistic. Future work should improve tuning accuracy, damping, pluck position, pickup position, and expressive pitch changes without losing the current buildable milestone.

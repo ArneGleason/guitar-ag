@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TestToneVoice.h"
+#include "StringVoice.h"
 
 #include <array>
 
@@ -23,7 +23,7 @@ private:
     void noteOn (int noteNumber, int channel, float velocity);
     void noteOff (int noteNumber, int channel);
 
-    std::array<TestToneVoice, maxVoices> voices;
+    std::array<StringVoice, maxVoices> voices;
     int nextVoice = 0;
 };
 

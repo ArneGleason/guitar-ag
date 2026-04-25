@@ -40,7 +40,7 @@ The first JUCE build emits a deprecated `std::wstring_convert` warning from JUCE
 - Source layout:
   - `src/plugin/` contains the JUCE processor and editor.
   - `src/dsp/` contains the placeholder audio engine and test-tone voice.
-- Current audio behavior: MIDI note-on triggers a quiet sine-wave test tone; note-off releases it.
+- Current audio behavior: MIDI note-on triggers a basic plucked string model; note-off damps/releases it.
 - Current non-goals: no string model, no MPE routing, no full UI, no amp/cab simulation.
 
 ## Prerequisites
@@ -135,5 +135,5 @@ Manual checks for this milestone:
 - The plugin opens without crashing.
 - The small placeholder editor opens.
 - No sound is produced when no MIDI note is held.
-- MIDI note-on produces a quiet sine tone.
+- MIDI note-on produces a basic plucked-string tone.
 - MIDI note-off releases the tone.
