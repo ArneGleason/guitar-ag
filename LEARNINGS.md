@@ -148,6 +148,12 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - KS009 slightly reduced upper-harmonic and air-band energy compared with KS008.
 - The damping concept is useful, but a future pass should make it gentler or more selective rather than applying broad high-frequency loss.
 
+## 2026-04-25 — KS-010 gentle damping retune
+
+- `StringVoice KS-010 GentleDamp` retunes the KS009 damping idea rather than adding a new feature.
+- The high feedback target is closer to neutral, the transition is slower, and the moving resonance layer is no longer damped by the harmonic tilt.
+- The goal is to keep some KS009 moving-emphasis benefit while restoring KS008-like h8 decay and air-band energy.
+
 ## 2026-04-25 — CMake build label cache issue
 
 - The visible plugin model label should not be stored as a CMake cache variable.

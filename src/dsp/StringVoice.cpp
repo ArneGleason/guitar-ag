@@ -130,8 +130,8 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     resonanceDecay = 0.99976f - 0.00008f * brightness;
     resonanceMoveSamples = juce::jmax (1, static_cast<int> (sampleRate * (0.36f + 0.16f * brightness)));
     highFeedbackGain = 0.9995f;
-    highFeedbackGainTarget = 0.984f - 0.004f * brightness;
-    highFeedbackGainSamplesRemaining = juce::jmax (1, static_cast<int> (sampleRate * (0.42f + 0.20f * brightness)));
+    highFeedbackGainTarget = 0.9935f - 0.0015f * brightness;
+    highFeedbackGainSamplesRemaining = juce::jmax (1, static_cast<int> (sampleRate * (0.55f + 0.25f * brightness)));
     highFeedbackGainStep = (highFeedbackGainTarget - highFeedbackGain)
                          / juce::jmax (1.0f, static_cast<float> (highFeedbackGainSamplesRemaining));
     updateDamping();
@@ -180,9 +180,9 @@ float StringVoice::renderSample() noexcept
     const auto slope = current - lastOutput;
     const auto movingResonance = processMovingResonance (slope + contactOutput * 0.35f);
     const auto contactDrive = softClip (slope * 2.8f) * 0.018f;
-    const auto feedbackInput = 0.58f * current + 0.42f * lastOutput + contactDrive + movingResonance * 0.18f;
+    const auto feedbackInput = 0.58f * current + 0.42f * lastOutput + contactDrive;
     const auto dampedFeedback = processHarmonicDamping (feedbackInput);
-    const auto filtered = dampedFeedback * damping * leftHandDamping;
+    const auto filtered = (dampedFeedback + movingResonance * 0.18f) * damping * leftHandDamping;
 
     delayLine[index] = filtered;
     lastOutput = current;
@@ -294,7 +294,7 @@ float StringVoice::processHarmonicDamping (float input) noexcept
         highFeedbackGain = highFeedbackGainTarget;
     }
 
-    dampingTiltState += 0.18f * (input - dampingTiltState);
+    dampingTiltState += 0.30f * (input - dampingTiltState);
 
     const auto lowComponent = dampingTiltState;
     const auto highComponent = input - lowComponent;

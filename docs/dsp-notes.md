@@ -328,6 +328,31 @@ Calibration feedback:
 - The high-air improvement from KS008 mostly survived at the attack, but mid-air energy dropped from about 0.00057 to about 0.00043.
 - Conclusion: harmonic-dependent damping is a useful property, especially for moving harmonic emphasis, but the current high-feedback target is too aggressive. A later version should use a gentler high-frequency loss or a more selective band-specific decay.
 
+## 2026-04-25 — Gentle Harmonic Damping Retune
+
+Retuned the KS009 harmonic damping experiment.
+
+Current behavior:
+
+- The KS008 moving resonance layer remains in place.
+- The KS009 harmonic damping architecture remains in place.
+- The high feedback target is much closer to neutral.
+- The damping transition is slower.
+- The split filter is more selective, so less midrange is treated as the high component.
+- The moving resonance contribution is added after the damping tilt instead of being damped by it.
+- The visible model label is now `StringVoice KS-010 GentleDamp`.
+
+Initial values:
+
+- high feedback gain start: 0.9995
+- high feedback gain target: about 0.992 to 0.9935, depending on velocity
+- transition time: about 550 to 800 ms
+- split lowpass coefficient: 0.30
+
+Expected sound:
+
+This should preserve more of KS008's upper harmonic and air behavior while keeping some of KS009's improved dynamic decay/moving-emphasis behavior. It is a retune, not a new modeling feature.
+
 ## Suggested MVP Signal Flow
 
 ```text
