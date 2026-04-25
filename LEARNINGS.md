@@ -134,6 +134,13 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - Phase drift stayed low, as expected, because KS008 intentionally left out the KS007 all-pass stage.
 - A later combined model should probably test KS008-style resonance plus a gentler/reworked phase-settling stage.
 
+## 2026-04-25 — KS-009 harmonic damping implementation
+
+- The next isolated sound experiment targets harmonic-dependent decay.
+- `StringVoice KS-009 HarmDamp` keeps KS008 moving resonance and adds a dynamic feedback damping tilt.
+- The high-frequency feedback component starts nearly neutral and settles lower over the first few hundred milliseconds.
+- This should test partial-dependent decay without adding phase-settling, new excitation, or a new pickup model.
+
 ## 2026-04-25 — CMake build label cache issue
 
 - The visible plugin model label should not be stored as a CMake cache variable.

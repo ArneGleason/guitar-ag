@@ -38,6 +38,11 @@ void StringVoice::reset()
     resonanceEnvelope = 0.0f;
     resonanceDecay = 0.0f;
     resonanceMoveSamples = 1;
+    dampingTiltState = 0.0f;
+    highFeedbackGain = 1.0f;
+    highFeedbackGainTarget = 1.0f;
+    highFeedbackGainStep = 0.0f;
+    highFeedbackGainSamplesRemaining = 0;
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -61,6 +66,7 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     pickContactSamplesRemaining = 0;
     resonanceState1.fill (0.0f);
     resonanceState2.fill (0.0f);
+    dampingTiltState = 0.0f;
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -123,6 +129,11 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     resonanceEnvelope = (0.012f + 0.045f * brightness) * velocityGain;
     resonanceDecay = 0.99976f - 0.00008f * brightness;
     resonanceMoveSamples = juce::jmax (1, static_cast<int> (sampleRate * (0.36f + 0.16f * brightness)));
+    highFeedbackGain = 0.9995f;
+    highFeedbackGainTarget = 0.984f - 0.004f * brightness;
+    highFeedbackGainSamplesRemaining = juce::jmax (1, static_cast<int> (sampleRate * (0.42f + 0.20f * brightness)));
+    highFeedbackGainStep = (highFeedbackGainTarget - highFeedbackGain)
+                         / juce::jmax (1.0f, static_cast<float> (highFeedbackGainSamplesRemaining));
     updateDamping();
 }
 
@@ -169,9 +180,9 @@ float StringVoice::renderSample() noexcept
     const auto slope = current - lastOutput;
     const auto movingResonance = processMovingResonance (slope + contactOutput * 0.35f);
     const auto contactDrive = softClip (slope * 2.8f) * 0.018f;
-    const auto filtered = (0.58f * current + 0.42f * lastOutput + contactDrive + movingResonance * 0.18f)
-                        * damping
-                        * leftHandDamping;
+    const auto feedbackInput = 0.58f * current + 0.42f * lastOutput + contactDrive + movingResonance * 0.18f;
+    const auto dampedFeedback = processHarmonicDamping (feedbackInput);
+    const auto filtered = dampedFeedback * damping * leftHandDamping;
 
     delayLine[index] = filtered;
     lastOutput = current;
@@ -269,6 +280,25 @@ void StringVoice::configureResonator (int index, float frequency, float radius) 
 
     resonanceCoefficient[clampedIndex] = 2.0f * clampedRadius * std::cos (twoPi * clampedFrequency / static_cast<float> (sampleRate));
     resonanceRadiusSquared[clampedIndex] = clampedRadius * clampedRadius;
+}
+
+float StringVoice::processHarmonicDamping (float input) noexcept
+{
+    if (highFeedbackGainSamplesRemaining > 0)
+    {
+        highFeedbackGain += highFeedbackGainStep;
+        --highFeedbackGainSamplesRemaining;
+    }
+    else
+    {
+        highFeedbackGain = highFeedbackGainTarget;
+    }
+
+    dampingTiltState += 0.18f * (input - dampingTiltState);
+
+    const auto lowComponent = dampingTiltState;
+    const auto highComponent = input - lowComponent;
+    return lowComponent + highComponent * highFeedbackGain;
 }
 
 float StringVoice::processMovingResonance (float input) noexcept

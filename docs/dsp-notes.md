@@ -296,6 +296,29 @@ Calibration feedback:
 - As expected for this isolated test, phase drift stayed close to KS006 and far below KS007/reference. KS008 phase-drift standard deviation averaged about 1.0 cents.
 - Conclusion: moving resonance is useful for spectral shape/air and should be kept as a candidate. It does not replace the phase-settling idea, and the resonance movement probably needs either stronger frequency movement or later recombination with phase settling.
 
+## 2026-04-25 — Harmonic Damping Experiment
+
+Added one isolated harmonic-dependent damping property inside `StringVoice`.
+
+Current behavior:
+
+- The KS008 moving resonance layer remains in place.
+- The KS007 all-pass phase-settling stage is still not included.
+- The delay-line feedback sample is split into low and high components with a one-pole filter.
+- The high component starts with nearly neutral feedback gain and gradually damps more strongly over the first few hundred milliseconds.
+- The visible model label is now `StringVoice KS-009 HarmDamp`.
+
+Initial values:
+
+- high feedback gain start: 0.9995
+- high feedback gain target: about 0.980 to 0.984, depending on velocity
+- transition time: about 420 to 620 ms
+- split lowpass coefficient: 0.18
+
+Expected sound:
+
+This should keep the attack relatively bright while making the sustain shed high-frequency energy faster. It may make the tone more guitar-like if the decay contrast is useful, or it may simply dull the note if the target high feedback gain is too low.
+
 ## Suggested MVP Signal Flow
 
 ```text

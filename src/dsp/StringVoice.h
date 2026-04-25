@@ -32,6 +32,7 @@ private:
     float pluckShapeAt (float position, float pluckPosition) const noexcept;
     float readDelayLineAtOffset (int offset) const noexcept;
     void configureResonator (int index, float frequency, float radius) noexcept;
+    float processHarmonicDamping (float input) noexcept;
     float processMovingResonance (float input) noexcept;
     float softClip (float value) const noexcept;
 
@@ -66,6 +67,11 @@ private:
     float resonanceEnvelope = 0.0f;
     float resonanceDecay = 0.0f;
     int resonanceMoveSamples = 1;
+    float dampingTiltState = 0.0f;
+    float highFeedbackGain = 1.0f;
+    float highFeedbackGainTarget = 1.0f;
+    float highFeedbackGainStep = 0.0f;
+    int highFeedbackGainSamplesRemaining = 0;
     float leftHandDamping = 1.0f;
     float leftHandDampingTarget = 1.0f;
     float leftHandDampingStep = 0.0f;
