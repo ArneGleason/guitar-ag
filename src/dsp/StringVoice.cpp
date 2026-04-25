@@ -17,6 +17,7 @@ void StringVoice::reset()
 
     delayLength = 1;
     writeIndex = 0;
+    samplesSinceStart = 0;
     noteNumber = -1;
     channel = 0;
     damping = baseDamping;
@@ -24,6 +25,9 @@ void StringVoice::reset()
     energy = 0.0f;
     pickTransient = 0.0f;
     pickTransientDecay = 0.0f;
+    leftHandDamping = 1.0f;
+    leftHandDampingTarget = 1.0f;
+    leftHandDampingStep = 0.0f;
     active = false;
     releasing = false;
 }
@@ -33,9 +37,13 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     noteNumber = midiNoteNumber;
     channel = midiChannel;
     writeIndex = 0;
+    samplesSinceStart = 0;
     lastOutput = 0.0f;
     pickTransient = 0.0f;
     pickTransientDecay = 0.0f;
+    leftHandDamping = 1.0f;
+    leftHandDampingTarget = 1.0f;
+    leftHandDampingStep = 0.0f;
     releasing = false;
     active = true;
 
@@ -83,6 +91,7 @@ void StringVoice::release (int midiNoteNumber, int midiChannel)
     if (active && noteNumber == midiNoteNumber && channel == midiChannel)
     {
         releasing = true;
+        startLeftHandRelease();
         updateDamping();
     }
 }
@@ -101,7 +110,10 @@ float StringVoice::renderSample() noexcept
         pickTransient *= pickTransientDecay;
     }
 
-    const auto filtered = 0.5f * (current + lastOutput) * damping;
+    if (releasing && leftHandDamping > leftHandDampingTarget)
+        leftHandDamping = juce::jmax (leftHandDampingTarget, leftHandDamping - leftHandDampingStep);
+
+    const auto filtered = 0.5f * (current + lastOutput) * damping * leftHandDamping;
 
     delayLine[index] = filtered;
     lastOutput = current;
@@ -110,6 +122,8 @@ float StringVoice::renderSample() noexcept
 
     if (writeIndex >= delayLength)
         writeIndex = 0;
+
+    ++samplesSinceStart;
 
     energy = 0.9995f * energy + 0.0005f * std::abs (current);
 
@@ -132,8 +146,37 @@ float StringVoice::nextNoiseSample() noexcept
 void StringVoice::updateDamping() noexcept
 {
     baseDamping = 0.9965f;
-    releaseDamping = 0.985f;
+    releaseDamping = 0.992f;
     damping = releasing ? releaseDamping : baseDamping;
+}
+
+void StringVoice::startLeftHandRelease() noexcept
+{
+    const auto heldSeconds = static_cast<float> (samplesSinceStart) / static_cast<float> (sampleRate);
+
+    if (heldSeconds < 0.12f)
+    {
+        leftHandDampingTarget = 0.55f;
+        const auto transitionSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * 0.008f);
+        leftHandDampingStep = (leftHandDamping - leftHandDampingTarget) / transitionSamples;
+        energy *= 0.35f;
+        return;
+    }
+
+    if (heldSeconds < 0.45f)
+    {
+        const auto blend = (heldSeconds - 0.12f) / 0.33f;
+        leftHandDampingTarget = juce::jmap (blend, 0.55f, 0.82f);
+        const auto transitionSeconds = juce::jmap (blend, 0.012f, 0.035f);
+        const auto transitionSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * transitionSeconds);
+        leftHandDampingStep = (leftHandDamping - leftHandDampingTarget) / transitionSamples;
+        energy *= juce::jmap (blend, 0.45f, 0.75f);
+        return;
+    }
+
+    leftHandDampingTarget = 0.90f;
+    const auto transitionSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * 0.06f);
+    leftHandDampingStep = (leftHandDamping - leftHandDampingTarget) / transitionSamples;
 }
 
 float StringVoice::pluckShapeAt (float position, float pluckPosition) const noexcept

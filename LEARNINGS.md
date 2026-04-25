@@ -55,3 +55,10 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The first string voice sounded like old-school plucked synthesis.
 - Its attack read more like a hard tap/fretboard tap than a picked string.
 - Volume, sustain, and release were acceptable for now, so the next polish should focus on excitation rather than decay or gain.
+
+## 2026-04-25 — String voice listening feedback after pick polish
+
+- `StringVoice KS-002` is more mellow and less harpsichord-like.
+- It still needs more string scrape and twang/quack.
+- The twang/quack may belong partly in pickup modeling rather than only string excitation.
+- Note-off needs a left-hand damping model; short notes should damp quickly and longer held notes should release more gently.

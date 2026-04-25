@@ -67,6 +67,38 @@ Expected sound:
 
 The attack should be less dominated by tap-like noise than `StringVoice KS-001`, but it is still a simple Karplus-Strong-style voice rather than a full pick/string interaction model.
 
+Listening feedback:
+
+- `StringVoice KS-002` is more mellow and less harpsichord-like than the first version.
+- It still wants a little more string scrape and twang/quack.
+- The twang/quack may come more from pickup position, pickup filtering, or pickup mixing than from the string alone, especially for Strat-like character.
+- Note-off did not yet feel like a fretting hand muting the string.
+
+## 2026-04-25 — Left-Hand Release Damping
+
+Note-off behavior was changed from a fixed damping value to a duration-sensitive left-hand damping approximation.
+
+Current behavior:
+
+- Each voice tracks `samplesSinceStart`.
+- On note-off, the held duration selects a left-hand damping target and transition time.
+- Very short notes get the strongest and fastest damping, approximating a quickly lifted fretting finger or immediate hand damping.
+- Medium notes transition between abrupt and gentle damping.
+- Longer notes release more gently, as if a held chord is being lifted with less force.
+- The model label is now `StringVoice KS-003`.
+
+Initial values:
+
+- very short note threshold: below 0.12 seconds
+- medium note range: 0.12 to 0.45 seconds
+- short-note damping target: 0.55 over about 8 ms
+- medium-note damping target: 0.55 to 0.82 over about 12 to 35 ms
+- long-note damping target: 0.90 over about 60 ms
+
+Expected sound:
+
+Short detached notes should stop much more quickly without a hard digital gate. Longer notes should still have a more natural decay.
+
 ## Suggested MVP Signal Flow
 
 ```text
@@ -95,6 +127,7 @@ Next likely improvements:
 - a more explicitly modeled pluck position
 - simple pickup-position shaping after the string voice
 - smoother pitch changes for future MPE bends
+- string scrape/twang experiments, likely involving both exciter and pickup-position models
 
 ## Pluck Parameters
 

@@ -154,6 +154,8 @@ The MVP can skip the `Performance Interpreter` at first. It becomes important on
 9. Add a rule-based performance interpreter for string/fret/articulation choices.
 10. Revisit neural/DDSP/differentiable approaches only after the physical controls and test cases are clear.
 
+Early listening notes suggest that Strat-like twang/quack may require pickup-position and pickup-mix modeling, not only changes to the string excitation.
+
 ## Evaluation Strategy
 
 Each realism feature should have both a technical test and a listening test.

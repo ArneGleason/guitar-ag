@@ -27,6 +27,7 @@ private:
 
     float nextNoiseSample() noexcept;
     void updateDamping() noexcept;
+    void startLeftHandRelease() noexcept;
     float pluckShapeAt (float position, float pluckPosition) const noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
@@ -34,6 +35,7 @@ private:
     double sampleRate = 44100.0;
     int delayLength = 1;
     int writeIndex = 0;
+    int samplesSinceStart = 0;
 
     int noteNumber = -1;
     int channel = 0;
@@ -46,6 +48,9 @@ private:
     float outputGain = 0.35f;
     float pickTransient = 0.0f;
     float pickTransientDecay = 0.0f;
+    float leftHandDamping = 1.0f;
+    float leftHandDampingTarget = 1.0f;
+    float leftHandDampingStep = 0.0f;
 
     uint32_t randomState = 0x12345678u;
 
