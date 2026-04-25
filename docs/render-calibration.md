@@ -59,6 +59,32 @@ Every future Guitar AG build can render the same MIDI. That lets us compare chan
 - attack brightness and scrape/noise behavior
 - future pickup/twang experiments
 
+## Analysis Commands
+
+Standard harmonic/level comparison:
+
+```sh
+scripts/compare-calibration-render.py \
+  --render-wav /Users/arnegleason/code/reference-audio/Guitar-AG-renders/<render>.wav \
+  --render-notes /Users/arnegleason/code/reference-audio/Guitar-AG-renders/single-note-calibration-notes.csv \
+  --reference-wav /Users/arnegleason/code/reference-audio/Guitar-TECHS/extracted/P1_singlenotes/audio/directinput/directinput_allsinglenotes.wav \
+  --reference-notes /Users/arnegleason/code/reference-audio/Guitar-TECHS/analysis/P1_singlenotes_notes.csv \
+  --output /Users/arnegleason/code/reference-audio/Guitar-AG-renders/<comparison>.csv \
+  --long-notes-only
+```
+
+Time-varying harmonic comparison:
+
+```sh
+scripts/analyze-harmonic-evolution.py \
+  --render-wav /Users/arnegleason/code/reference-audio/Guitar-AG-renders/<render>.wav \
+  --render-notes /Users/arnegleason/code/reference-audio/Guitar-AG-renders/single-note-calibration-notes.csv \
+  --reference-wav /Users/arnegleason/code/reference-audio/Guitar-TECHS/extracted/P1_singlenotes/audio/directinput/directinput_allsinglenotes.wav \
+  --reference-notes /Users/arnegleason/code/reference-audio/Guitar-TECHS/analysis/P1_singlenotes_notes.csv \
+  --output /Users/arnegleason/code/reference-audio/Guitar-AG-renders/<evolution-comparison>.csv \
+  --long-notes-only
+```
+
 ## Verified MIDI Contents
 
 The generated MIDI has 12 note events:

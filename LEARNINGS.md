@@ -101,6 +101,12 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The change deliberately targets excitation and feedback partial content, not pickup filtering.
 - The main listening risk is harshness/fizz from the pick-contact burst or soft-clipped slope term at high velocity.
 
+## 2026-04-25 — KS-006 harmonic evolution analysis
+
+- KS006 improved the mean upper-to-low harmonic metric versus KS005, but not enough to approach the Guitar-TECHS DI references.
+- The real DI references show time-varying behavior that the current KS model mostly lacks: larger harmonic phase drift, moving upper-harmonic emphasis, and harmonic-dependent decay.
+- A useful next hypothesis is a time-varying attack/string model: pitch/tension settling, dispersion or inharmonicity, moving contact damping, and/or a short bridge/body/contact resonance layer that changes during the first few hundred milliseconds.
+
 ## 2026-04-25 — CMake build label cache issue
 
 - The visible plugin model label should not be stored as a CMake cache variable.
