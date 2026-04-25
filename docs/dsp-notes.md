@@ -426,6 +426,15 @@ Expected sound:
 
 This should test whether the lower wound strings can gain more harmonic phase irregularity and evolving string behavior without a global tone change. The main risk is the same family as KS007: too much all-pass movement can blur or dull upper harmonics, so this version is wound-only and gentler.
 
+Calibration feedback:
+
+- KS012 kept the intended isolation: G3, B3, and E4 stayed essentially unchanged from KS011.
+- The wound-string phase metrics moved, but not in the most useful shape. Lower/wound phase-drift mean absolute error rose from about 0.96 cents in KS011 to about 5.66 cents in KS012, closer to the DI reference around 12.16 cents.
+- Lower/wound phase-drift standard deviation only rose from about 0.06 cents to about 0.21 cents, still far below the DI reference around 16.06 cents.
+- The cost was significant loss of wound-string air and upper content. Lower/wound upper-to-low fell from about 0.00708 in KS011 to about 0.00372 in KS012, and early air-to-low fell from about 0.00150 to about 0.00084.
+- The lower/wound strongest upper-harmonic shift metric collapsed from about 0.64 in KS011 to 0.00 in KS012, while the DI reference is around 1.06.
+- Conclusion: this all-pass placement is useful as a diagnostic but probably not a good tone direction as implemented. It creates broad phase offset/blur more than lively wound-string irregularity. The next pass should likely return to the KS011/KS010 base and target motion-coupled roughness or moving partial behavior without putting a strong all-pass directly in the core feedback path.
+
 ## Suggested MVP Signal Flow
 
 ```text

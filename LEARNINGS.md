@@ -188,3 +188,11 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - It keeps KS011's wound interaction layer and adds a gentler wound-only all-pass phase stage in the feedback loop.
 - This specifically targets the missing lower-string phase irregularity shown by the Guitar-TECHS DI comparison.
 - The main risk is dulling or blurring the wound notes, as the earlier global KS007 phase-settling experiment improved phase metrics but hurt brightness.
+
+## 2026-04-25 — KS-012 render comparison
+
+- KS012 confirmed that putting even a gentle all-pass phase stage directly in the wound-string feedback path is risky.
+- The change increased lower/wound mean absolute phase drift, but it did not create the large phase-drift standard deviation seen in the real DI references.
+- It also reduced wound-string upper/air energy and collapsed the strongest upper-harmonic movement metric.
+- This suggests the missing wound-string behavior is not just a simple phase-settling problem; it likely needs motion-coupled roughness, moving partial excitation, or selective dispersion that does not blur the whole feedback signal.
+- The next sound pass should probably use KS011 as the base, not KS012.

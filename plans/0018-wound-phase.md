@@ -37,8 +37,17 @@ The phase stage is deliberately gentler than the earlier global KS007 phase-sett
 
 The human should be able to verify:
 
-- [ ] The plugin UI shows `StringVoice KS-012 WoundPhase`.
-- [ ] The plugin still loads in Bitwig.
-- [ ] The calibration MIDI renders successfully.
-- [ ] Analysis shows whether E2/A2/D3 gain phase drift or evolving harmonic behavior without badly dulling the tone.
+- [x] The plugin UI shows `StringVoice KS-012 WoundPhase`.
+- [x] The plugin still loads in Bitwig.
+- [x] The calibration MIDI renders successfully.
+- [x] Analysis shows whether E2/A2/D3 gain phase drift or evolving harmonic behavior without badly dulling the tone.
 
+## Completion Notes
+
+2026-04-25:
+
+- Built and installed `StringVoice KS-012 WoundPhase` at commit `4586f64`.
+- Analyzed `/Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-ks012-woundphase-4586f64-single-note-calibration.wav`.
+- Plain-string notes stayed effectively unchanged, so the experiment was isolated correctly.
+- Lower/wound mean absolute phase drift improved, but upper/air energy and moving upper-harmonic behavior worsened.
+- Result: useful diagnostic, but not a preferred base for the next tone pass.
