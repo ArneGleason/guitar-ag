@@ -173,3 +173,11 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The visible plugin model label should not be stored as a CMake cache variable.
 - CMake preserved an older `GUITAR_AG_MODEL_LABEL` value in `build/CMakeCache.txt`, causing the Bitwig UI label to disagree with source-controlled `CMakeLists.txt`.
 - The label is now a normal CMake variable so source changes update `BuildInfo.h` reliably.
+
+## 2026-04-25 — KS-011 render comparison
+
+- `StringVoice KS-011 WoundOpen` successfully isolated its change to the lower open-string notes E2, A2, and D3.
+- The wound group gained about 17% upper-to-low energy and about 30% early air-to-low energy versus KS010 without shifting the plain-string notes.
+- The wound group strongest upper-harmonic shift moved closer to the DI reference, which suggests the added interaction layer is directionally useful.
+- The wound group is still far below the DI reference for air/upper energy, and phase drift stayed almost unchanged.
+- The next wound-string experiment should probably add motion-coupled phase/dispersion or roughness that changes the string state, instead of only mixing more noise into the pickup readout.

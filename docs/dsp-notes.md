@@ -391,6 +391,16 @@ Expected sound:
 
 This should add more scrape/air and physical roughness to the lower open strings while leaving the higher plain strings close to KS010. The main risk is adding static fizz or noisy attack that does not track string motion naturally.
 
+Calibration feedback:
+
+- KS011 changed the intended note group only. E2, A2, and D3 gained upper/air energy, while G3, B3, and E4 stayed effectively unchanged from KS010.
+- Whole-render level stayed stable. KS011 RMS was about 0.01676, close to KS010 at about 0.01676.
+- The lower/wound group upper-to-low metric rose from about 0.00607 in KS010 to about 0.00708 in KS011.
+- The lower/wound early air-to-low metric rose from about 0.00115 in KS010 to about 0.00150 in KS011, but the Guitar-TECHS DI lower/wound group is still much higher at about 0.0164.
+- The lower/wound strongest upper-harmonic shift improved from about 0.46 in KS010 to about 0.64 in KS011, closer to the DI reference around 1.06.
+- Lower/wound phase drift did not materially improve. KS011 stayed near 0.06 cents by the current metric, while the DI reference lower/wound group is much more irregular.
+- Conclusion: the wound-string interaction layer is a useful structure, but this first version mostly adds controlled amplitude/noise energy. The next lower-string experiment should target wound-only phase/dispersion or motion-coupled roughness rather than a global brightness change.
+
 ## Suggested MVP Signal Flow
 
 ```text
