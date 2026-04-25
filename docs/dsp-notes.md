@@ -54,6 +54,10 @@ Possible simplifications:
 - neck pickup as warmer/rounder
 - output gain with safe limiting or headroom
 
+## Realism Research
+
+See `docs/realism-vision.md` for collected research links and longer-term hypotheses around string/fret interaction, pickup modeling, player interpretation, and hybrid/neural directions.
+
 ## Known Risks
 
 - Karplus-Strong can sound like a generic plucked synth if not shaped carefully.

@@ -55,6 +55,19 @@ Should handle:
 - CC74/timbre
 - normal MIDI fallback behavior
 
+### Performance Interpreter
+
+Future layer responsible for translating MIDI/MPE note streams into guitar-like gestures before they reach the voice manager.
+
+May eventually handle:
+
+- string and fret choice
+- pick direction and pick position
+- legato, hammer-on, pull-off, slide, bend, vibrato, and mute decisions
+- human-player variation that does not destroy authored MPE detail
+
+The first MVP milestones can bypass this layer, but the architecture should leave room for it.
+
 ### Tone / Pickup Model
 
 Responsible for electric guitar-like shaping after the string model.

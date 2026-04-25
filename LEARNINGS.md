@@ -30,3 +30,10 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The plugin shell configures and builds successfully with CMake and Command Line Tools.
 - The CMake project needs both C and CXX languages enabled because JUCE compiles some C sources.
 - First JUCE/VST3 builds may print warnings from JUCE/VST3 SDK internals, but the VST3 bundle can still be produced.
+
+## 2026-04-25 — Realism research direction
+
+- Guitar realism should be treated as both an instrument-model problem and a player-interpretation problem.
+- The instrument model needs string excitation, damping, fret/finger/collision behavior, pickup position/width/circuit coloration, and clean DI output.
+- The player interpretation layer should eventually convert MIDI/MPE into guitar gestures such as string/fret choice, pick direction, hammer-ons, pull-offs, slides, bends, vibrato, and muting.
+- Recent DDSP/neural work is useful research context, but the near-term plugin should remain physically controlled and real-time safe.

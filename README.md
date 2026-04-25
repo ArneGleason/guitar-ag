@@ -25,6 +25,7 @@ The first successful MVP should:
 - `docs/requirements.md` — top-level requirements.
 - `docs/mpe-behavior.md` — MPE behavior and voice routing.
 - `docs/dsp-notes.md` — physical modeling notes and experiments.
+- `docs/realism-vision.md` — research-backed long-term realism direction.
 - `plans/` — milestone-by-milestone implementation plans.
 - `DECISIONS.md` — decision log.
 - `LEARNINGS.md` — running project memory.
