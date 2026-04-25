@@ -89,6 +89,12 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The fixed post-mix comb is a useful prototype but not a good long-term pickup model because it ignores each note's string length.
 - The next smaller experiment is per-voice pickup readout plus lighter post-mix conditioning, before changing the string/exciter again.
 
+## 2026-04-25 — KS-005 render comparison
+
+- `StringVoice KS-005 Pickup-Voice` restored body and level compared with KS004.
+- The upper-harmonic measurement mostly fell back near KS003, so per-voice pickup readout alone did not create the missing steel/electric brightness.
+- The next likely improvement should target the string/exciter model: pick contact/scrape, stiffness/dispersion, or a small real-time-safe nonlinear component that produces additional partials before pickup/tone shaping.
+
 ## 2026-04-25 — CMake build label cache issue
 
 - The visible plugin model label should not be stored as a CMake cache variable.

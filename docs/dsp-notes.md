@@ -193,6 +193,14 @@ Expected sound:
 
 This should keep more note-dependent electric/pickup character than KS004, with less global thinning from the fixed post-mix comb. It may still lack steel-string bite because the string/exciter itself remains a simple Karplus-Strong model.
 
+Calibration feedback:
+
+- The KS005 render restored level/body compared with KS004. Whole-render RMS is about 0.0169, close to KS003 at about 0.0171, while KS004 was about 0.0051.
+- KS005 peak is about 0.0986, higher than KS003 at about 0.0880 and KS004 at about 0.0654.
+- The upper-to-low harmonic metric mostly returned near KS003 rather than preserving the KS004 increase. For example, E2 was 0.0036 in KS005 vs 0.0041 in KS003 and 0.0182 in KS004.
+- This suggests the per-voice readout is a better structure, but the current readout/blend is not enough to add steel-string/electric bite.
+- The next sound experiment should likely change the string/exciter partial content or add a controlled nonlinear/contact component rather than only moving pickup filtering around.
+
 ## Suggested MVP Signal Flow
 
 ```text
