@@ -1,3 +1,6 @@
 .DS_Store
 build/
 *.vst3/
+reference-audio/
+__pycache__/
+*.pyc

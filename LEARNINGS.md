@@ -62,3 +62,10 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - It still needs more string scrape and twang/quack.
 - The twang/quack may belong partly in pickup modeling rather than only string excitation.
 - Note-off needs a left-hand damping model; short notes should damp quickly and longer held notes should release more gently.
+
+## 2026-04-25 — Guitar-TECHS reference setup
+
+- Guitar-TECHS provides useful DI, amp-mic, ego, exo, and synchronized per-string MIDI references.
+- The first local subset is `P1_singlenotes.zip`, stored outside the repo under `/Users/arnegleason/code/reference-audio/Guitar-TECHS/`.
+- `P1_singlenotes` includes one long DI WAV, one long amp-mic WAV, stereo MP3 perspective captures, and a MIDI file with 142 note events.
+- The initial reference workflow can locate real note regions by MIDI timestamps before deeper spectral comparison tools exist.
