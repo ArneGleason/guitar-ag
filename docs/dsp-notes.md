@@ -464,6 +464,44 @@ Expected sound:
 
 This should restore the KS011 lower-string air/upper energy while adding more evolving wound-string character than a static roughness layer. The main risk is metallic ringing or fizzy non-string noise if the moving partial layer is too strong.
 
+Calibration feedback:
+
+- KS013 correctly isolated the change to E2, A2, and D3; the plain-string notes stayed essentially unchanged.
+- It restored the air/upper energy that KS012 lost. Lower/wound upper-to-low was about 0.00673, near KS011 at about 0.00708, and early air-to-low rose to about 0.00276 from KS011's about 0.00150.
+- The lower/wound strongest upper-harmonic shift metric improved to about 0.93, close to the DI reference around 1.06.
+- Subjectively, the lower strings sounded too synthetic because the added layer read as a short white-noise hiss/envelope after the attack, around a few hundred milliseconds long.
+- The likely cause is the high-passed noise component in the wound-motion drive plus a relatively fast motion-envelope decay. The metric moved in a useful direction, but the perceptual material is wrong: real guitar wound-string air should read more like metallic/string-coupled ring than white-noise hiss.
+- Conclusion: keep the moving-partial architecture as promising, but strongly reduce stochastic noise drive and retune toward lower-level, longer metallic resonances.
+
+## 2026-04-25 — Wound Ring Retune
+
+Retuned the KS013 wound-motion experiment.
+
+Current behavior:
+
+- KS014 keeps the separate wound-only moving-partial layer.
+- The high-passed noise contribution inside the wound-motion drive is reduced sharply.
+- The slow random texture contribution is reduced.
+- The motion drive is biased more toward string slope and wound interaction output.
+- The wound-motion resonators are longer-lived and slightly lower in output level.
+- Coupling into the main loop and pickup readout is reduced.
+- The visible model label is now `StringVoice KS-014 WoundRing`.
+
+Initial values:
+
+- wound motion resonances: about 5.90x, 7.95x, 10.85x, and 13.65x note frequency
+- resonance radii: 0.9935, 0.9928, 0.9918, and 0.9905
+- motion envelope: about 0.006 to 0.026, scaled by velocity
+- motion decay: about 0.999925 to 0.99994
+- high-passed noise drive: 0.055, down from 0.35
+- slow texture drive: 0.10, down from 0.28
+- wound motion loop injection: 0.018, down from 0.055
+- wound motion pickup readout mix: 0.52, down from 0.96
+
+Expected sound:
+
+This should trade some of KS013's spectral-air gain for a more metallic, string-coupled lower-string tail with less obvious white-noise hiss. The main risk is undershooting and returning too close to KS011.
+
 ## Suggested MVP Signal Flow
 
 ```text

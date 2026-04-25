@@ -203,3 +203,17 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - It adds a separate wound-only moving partial/roughness layer so lower-string motion can gain evolving upper content without broadly blurring the feedback loop.
 - The layer is mixed mostly into pickup readout, with only light coupling into the moving resonance and loop.
 - The main listening risk is metallic or fizzy wound-string noise if the added upper partials are too prominent.
+
+## 2026-04-25 — KS-013 render comparison
+
+- KS013 improved the lower/wound moving upper-harmonic metric substantially and restored air compared with KS012.
+- The user's listening feedback identified the failure mode clearly: the lower-string layer reads as a short synthetic white-noise tail rather than metallic wound-string ring.
+- The current analysis metrics can reward extra air-band energy even when the perceptual material is wrong, so subjective listening should override the metric here.
+- The next retune should keep the moving-partial idea but reduce stochastic noise drive, lengthen the resonator behavior, and lower the direct pickup mix.
+
+## 2026-04-25 — KS-014 wound ring retune
+
+- `StringVoice KS-014 WoundRing` retunes KS013 rather than adding a new architecture.
+- The high-passed noise and slow random texture contributions are reduced sharply.
+- The wound-motion resonators are longer-lived, lower in level, and driven more by string motion than noise.
+- The goal is metallic/string-coupled ring on lower strings instead of a short hiss envelope.
