@@ -1,5 +1,7 @@
 #include "PluginEditor.h"
 
+#include "BuildInfo.h"
+
 GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcessor& processor)
     : AudioProcessorEditor (&processor),
       audioProcessor (processor)
@@ -24,6 +26,12 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
                              juce::Justification::centredLeft, 1);
     graphics.drawFittedText ("MPE routing and pickup modeling are intentionally not implemented yet.", bounds,
                              juce::Justification::centredLeft, 2);
+
+    graphics.setColour (juce::Colour (0xff65717c));
+    graphics.setFont (juce::FontOptions (12.0f));
+    const juce::String buildText = "v" JucePlugin_VersionString " / " GUITAR_AG_MODEL_LABEL " / " GUITAR_AG_GIT_COMMIT;
+    graphics.drawFittedText (buildText, getLocalBounds().reduced (24).removeFromBottom (20),
+                             juce::Justification::centredLeft, 1);
 }
 
 void GuitarAgAudioProcessorEditor::resized()

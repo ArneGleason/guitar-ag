@@ -22,6 +22,8 @@ void StringVoice::reset()
     damping = baseDamping;
     lastOutput = 0.0f;
     energy = 0.0f;
+    pickTransient = 0.0f;
+    pickTransientDecay = 0.0f;
     active = false;
     releasing = false;
 }
@@ -32,6 +34,8 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     channel = midiChannel;
     writeIndex = 0;
     lastOutput = 0.0f;
+    pickTransient = 0.0f;
+    pickTransientDecay = 0.0f;
     releasing = false;
     active = true;
 
@@ -39,7 +43,10 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     delayLength = juce::jlimit (2, maxDelaySamples, static_cast<int> (std::round (sampleRate / frequency)));
 
     const auto velocityGain = juce::jlimit (0.05f, 1.0f, velocity);
-    const auto pluckPosition = 0.18f;
+    const auto brightness = juce::jlimit (0.0f, 1.0f, velocityGain);
+    const auto pluckPosition = 0.20f;
+    const auto displacementAmount = 0.75f * velocityGain;
+    const auto noiseAmount = 0.025f + 0.09f * brightness;
     auto mean = 0.0f;
 
     randomState = static_cast<uint32_t> ((midiNoteNumber + 1) * 1103515245u + (midiChannel + 17) * 12345u);
@@ -47,9 +54,11 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     for (auto i = 0; i < delayLength; ++i)
     {
         const auto x = static_cast<float> (i) / static_cast<float> (delayLength);
-        const auto shape = x < pluckPosition ? x / pluckPosition : (1.0f - x) / (1.0f - pluckPosition);
-        const auto noise = nextNoiseSample();
-        const auto sample = (0.75f * noise + 0.25f * shape) * velocityGain;
+        const auto shape = pluckShapeAt (x, pluckPosition);
+        const auto pickDistance = std::abs (x - pluckPosition);
+        const auto localPickContact = std::exp (-pickDistance * static_cast<float> (delayLength) * 0.18f);
+        const auto scrapeNoise = nextNoiseSample() * localPickContact * noiseAmount;
+        const auto sample = shape * displacementAmount + scrapeNoise;
 
         delayLine[static_cast<size_t> (i)] = sample;
         mean += sample;
@@ -64,6 +73,8 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
         delayLine[static_cast<size_t> (i)] = 0.0f;
 
     energy = velocityGain;
+    pickTransient = (0.02f + 0.08f * brightness) * (nextNoiseSample() >= 0.0f ? 1.0f : -1.0f);
+    pickTransientDecay = 0.998f - 0.003f * brightness;
     updateDamping();
 }
 
@@ -82,7 +93,14 @@ float StringVoice::renderSample() noexcept
         return 0.0f;
 
     const auto index = static_cast<size_t> (writeIndex);
-    const auto current = delayLine[index];
+    auto current = delayLine[index];
+
+    if (std::abs (pickTransient) > 0.000001f)
+    {
+        current += pickTransient;
+        pickTransient *= pickTransientDecay;
+    }
+
     const auto filtered = 0.5f * (current + lastOutput) * damping;
 
     delayLine[index] = filtered;
@@ -116,6 +134,15 @@ void StringVoice::updateDamping() noexcept
     baseDamping = 0.9965f;
     releaseDamping = 0.985f;
     damping = releasing ? releaseDamping : baseDamping;
+}
+
+float StringVoice::pluckShapeAt (float position, float pluckPosition) const noexcept
+{
+    const auto left = position < pluckPosition ? position / pluckPosition
+                                               : (1.0f - position) / (1.0f - pluckPosition);
+
+    const auto centered = juce::jlimit (0.0f, 1.0f, left);
+    return 2.0f * centered - 1.0f;
 }
 
 } // namespace guitar_ag

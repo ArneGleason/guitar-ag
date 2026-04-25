@@ -49,3 +49,5 @@ To build and install in one step:
 ```bash
 scripts/install-vst3.sh --build
 ```
+
+The plugin editor shows the plugin version, model label, and Git commit so you can confirm which build a DAW has loaded.

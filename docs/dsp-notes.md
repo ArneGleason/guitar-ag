@@ -37,6 +37,36 @@ Expected sound:
 
 This should sound like a basic plucked physical string rather than a sine tone. It may still sound synthetic or generic; that is acceptable for this milestone.
 
+Listening feedback:
+
+- The first Karplus-Strong voice had a very old-school plucked-synthesis character.
+- The attack read less like a pick on a string and more like a hard tap or fretboard tap.
+- Volume, sustain, and note-off behavior were acceptable enough to leave alone for the next polish step.
+
+## 2026-04-25 — Pick Excitation Polish
+
+The excitation was adjusted to reduce the hard-tap/noise-burst character.
+
+Current behavior:
+
+- The initial delay line is now dominated by a triangular displacement shape around a fixed pluck point.
+- Broadband noise is reduced and localized near the pluck point as a small scrape/contact component.
+- A very short velocity-dependent pick-release transient is added at note start.
+- Velocity affects both amplitude and the amount of transient/noise brightness.
+- The visible editor now shows plugin version, model label, and Git commit to help identify the loaded build in Bitwig.
+
+Initial values:
+
+- model label: `StringVoice KS-002`
+- pluck position: 0.20 of string length
+- displacement amount: 0.75 * velocity
+- scrape noise amount: 0.025 to 0.115 depending on velocity
+- pick transient: 0.02 to 0.10 depending on velocity
+
+Expected sound:
+
+The attack should be less dominated by tap-like noise than `StringVoice KS-001`, but it is still a simple Karplus-Strong-style voice rather than a full pick/string interaction model.
+
 ## Suggested MVP Signal Flow
 
 ```text

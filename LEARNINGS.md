@@ -19,6 +19,12 @@ Add notes here when something sounds good, bad, unstable, too bright, too dull, 
 
 Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Live, Logic, or others.
 
+## 2026-04-25 — Bitwig VST3 cache behavior
+
+- After replacing the VST3 bundle, Bitwig showed two `Guitar AG` entries with the same name.
+- One entry appeared to instantiate the older sine-test build while another loaded the newer plucked-string build.
+- The plugin editor should show build identity so stale-plugin/cache confusion is visible during testing.
+
 ## 2026-04-25 — Plugin shell setup environment
 
 - The repository started as documentation plus empty `src` and `tests` placeholders.
@@ -43,3 +49,9 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The first Karplus-Strong-style voice builds successfully in the JUCE VST3 target.
 - A fixed 8192-sample delay line per voice is enough for the current guitar-oriented range at common sample rates.
 - The first implementation deliberately favors simplicity over perfect tuning or realism; fractional delay and pickup-position shaping remain future work.
+
+## 2026-04-25 — Pick attack feedback
+
+- The first string voice sounded like old-school plucked synthesis.
+- Its attack read more like a hard tap/fretboard tap than a picked string.
+- Volume, sustain, and release were acceptable for now, so the next polish should focus on excitation rather than decay or gain.

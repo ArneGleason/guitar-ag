@@ -7,6 +7,38 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(JUCE_PATH "" CACHE PATH "Optional path to a local JUCE checkout")
+set(GUITAR_AG_MODEL_LABEL "StringVoice KS-002" CACHE STRING "Visible model/build label")
+
+find_package(Git QUIET)
+
+if (Git_FOUND)
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" rev-parse --short HEAD
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        OUTPUT_VARIABLE GUITAR_AG_GIT_COMMIT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET)
+
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" status --porcelain
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        OUTPUT_VARIABLE GUITAR_AG_GIT_STATUS
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET)
+endif()
+
+if (NOT GUITAR_AG_GIT_COMMIT)
+    set(GUITAR_AG_GIT_COMMIT "unknown")
+endif()
+
+if (GUITAR_AG_GIT_STATUS)
+    string(APPEND GUITAR_AG_GIT_COMMIT "-dirty")
+endif()
+
+configure_file(
+    cmake/BuildInfo.h.in
+    "${CMAKE_CURRENT_BINARY_DIR}/generated/BuildInfo.h"
+    @ONLY)
 
 if (JUCE_PATH)
     add_subdirectory("${JUCE_PATH}" "${CMAKE_BINARY_DIR}/JUCE")
@@ -44,6 +76,10 @@ target_sources(GuitarAG
         src/plugin/PluginEditor.h
         src/plugin/PluginProcessor.cpp
         src/plugin/PluginProcessor.h)
+
+target_include_directories(GuitarAG
+    PRIVATE
+        "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
 target_compile_definitions(GuitarAG
     PUBLIC

@@ -137,3 +137,15 @@ Manual checks for this milestone:
 - No sound is produced when no MIDI note is held.
 - MIDI note-on produces a basic plucked-string tone.
 - MIDI note-off releases the tone.
+
+## Bitwig Notes
+
+On 2026-04-25, Bitwig showed two `Guitar AG` entries after replacing the VST3 bundle, and one appeared to load the older sine-test build while the other loaded the newer string build.
+
+The plugin editor now shows version/build identity in the form:
+
+```text
+v<plugin-version> / <model-label> / <git-commit>
+```
+
+Use that line to confirm which binary Bitwig actually instantiated after rescanning or restarting.

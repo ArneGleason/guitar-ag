@@ -27,6 +27,7 @@ private:
 
     float nextNoiseSample() noexcept;
     void updateDamping() noexcept;
+    float pluckShapeAt (float position, float pluckPosition) const noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
 
@@ -43,6 +44,8 @@ private:
     float lastOutput = 0.0f;
     float energy = 0.0f;
     float outputGain = 0.35f;
+    float pickTransient = 0.0f;
+    float pickTransientDecay = 0.0f;
 
     uint32_t randomState = 0x12345678u;
 
