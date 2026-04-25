@@ -263,6 +263,30 @@ Calibration feedback:
 - Moving upper-harmonic emphasis also became more static by the current metric. The strongest-harmonic shift standard deviation fell from about 0.57 in KS006 to about 0.06 in KS007, while the reference averaged about 1.04.
 - Conclusion: the all-pass phase-settling direction is useful, but the current implementation should not be treated as a tone improvement by itself. It likely needs to be paired later with a separate amplitude/resonance or harmonic-dependent damping model.
 
+## 2026-04-25 — Moving Resonance Experiment
+
+Added one isolated time-varying amplitude/resonance property inside `StringVoice`.
+
+Current behavior:
+
+- The KS007 all-pass phase-settling stage is not included in this build.
+- The KS006 steel exciter, pickup readout, and tone stage are otherwise preserved.
+- Three short-lived resonators are configured at the 5th, 7th, and 11th harmonics of the active note.
+- Resonance weighting starts higher on the 11th harmonic and shifts toward the 5th harmonic over the first few hundred milliseconds.
+- The resonance layer is lightly fed back into the delay line and also added to the pickup readout.
+- The visible model label is now `StringVoice KS-008 MovingRes`.
+
+Initial values:
+
+- resonance harmonics: 5, 7, 11
+- resonance radii: 0.9895, 0.9880, 0.9860
+- resonance envelope: 0.012 to 0.057, scaled by velocity
+- resonance movement time: about 360 to 520 ms
+
+Expected sound:
+
+This should test whether a changing upper-harmonic emphasis moves the sound closer to the DI reference. It may sound more alive, or it may become metallic/ringy if the resonators are too narrow or too prominent.
+
 ## Suggested MVP Signal Flow
 
 ```text

@@ -120,6 +120,12 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - KS007 also reduced upper-harmonic energy and made the strongest upper-harmonic emphasis less mobile, so all-pass phase movement alone is not enough.
 - The next isolated property should probably be time-varying amplitude/resonance behavior, such as harmonic-dependent damping or a short moving contact/resonance layer, while preserving the useful phase-settling idea for later recombination.
 
+## 2026-04-25 — KS-008 moving resonance implementation
+
+- The next isolated sound experiment targets time-varying amplitude/resonance behavior.
+- `StringVoice KS-008 MovingRes` removes the KS007 all-pass stage and adds moving resonator weights across the 11th, 7th, and 5th harmonics.
+- This should test the moving upper-harmonic emphasis metric separately from the phase-settling result.
+
 ## 2026-04-25 — CMake build label cache issue
 
 - The visible plugin model label should not be stored as a CMake cache variable.

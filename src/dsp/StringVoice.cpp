@@ -31,12 +31,13 @@ void StringVoice::reset()
     pickContactDecay = 0.0f;
     previousContactNoise = 0.0f;
     pickContactSamplesRemaining = 0;
-    dispersionCoefficient = 0.0f;
-    dispersionTarget = 0.0f;
-    dispersionStep = 0.0f;
-    dispersionInputState = 0.0f;
-    dispersionOutputState = 0.0f;
-    dispersionSamplesRemaining = 0;
+    resonanceCoefficient.fill (0.0f);
+    resonanceRadiusSquared.fill (0.0f);
+    resonanceState1.fill (0.0f);
+    resonanceState2.fill (0.0f);
+    resonanceEnvelope = 0.0f;
+    resonanceDecay = 0.0f;
+    resonanceMoveSamples = 1;
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -58,8 +59,8 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     pickContactDecay = 0.0f;
     previousContactNoise = 0.0f;
     pickContactSamplesRemaining = 0;
-    dispersionInputState = 0.0f;
-    dispersionOutputState = 0.0f;
+    resonanceState1.fill (0.0f);
+    resonanceState2.fill (0.0f);
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -116,10 +117,12 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     pickContact = (0.006f + 0.030f * brightness) * velocityGain;
     pickContactDecay = 0.9991f - 0.00035f * brightness;
     pickContactSamplesRemaining = static_cast<int> (sampleRate * (0.014f + 0.012f * brightness));
-    dispersionCoefficient = 0.030f + 0.015f * brightness;
-    dispersionTarget = 0.120f + 0.030f * brightness;
-    dispersionSamplesRemaining = static_cast<int> (sampleRate * (0.26f + 0.12f * brightness));
-    dispersionStep = (dispersionTarget - dispersionCoefficient) / juce::jmax (1.0f, static_cast<float> (dispersionSamplesRemaining));
+    configureResonator (0, frequency * 5.0f, 0.9895f);
+    configureResonator (1, frequency * 7.0f, 0.9880f);
+    configureResonator (2, frequency * 11.0f, 0.9860f);
+    resonanceEnvelope = (0.012f + 0.045f * brightness) * velocityGain;
+    resonanceDecay = 0.99976f - 0.00008f * brightness;
+    resonanceMoveSamples = juce::jmax (1, static_cast<int> (sampleRate * (0.36f + 0.16f * brightness)));
     updateDamping();
 }
 
@@ -164,20 +167,13 @@ float StringVoice::renderSample() noexcept
         leftHandDamping = juce::jmax (leftHandDampingTarget, leftHandDamping - leftHandDampingStep);
 
     const auto slope = current - lastOutput;
+    const auto movingResonance = processMovingResonance (slope + contactOutput * 0.35f);
     const auto contactDrive = softClip (slope * 2.8f) * 0.018f;
-    const auto filtered = (0.58f * current + 0.42f * lastOutput + contactDrive) * damping * leftHandDamping;
+    const auto filtered = (0.58f * current + 0.42f * lastOutput + contactDrive + movingResonance * 0.18f)
+                        * damping
+                        * leftHandDamping;
 
-    if (dispersionSamplesRemaining > 0)
-    {
-        dispersionCoefficient += dispersionStep;
-        --dispersionSamplesRemaining;
-    }
-    else
-    {
-        dispersionCoefficient = dispersionTarget;
-    }
-
-    delayLine[index] = processDispersion (filtered);
+    delayLine[index] = filtered;
     lastOutput = current;
 
     ++writeIndex;
@@ -199,7 +195,10 @@ float StringVoice::renderSample() noexcept
     const auto pickupVelocity = pickupSample - previousPickupSample;
     previousPickupSample = pickupSample;
 
-    const auto pickupReadout = 0.82f * pickupSample + 0.62f * pickupVelocity + 0.28f * contactOutput;
+    const auto pickupReadout = 0.82f * pickupSample
+                             + 0.62f * pickupVelocity
+                             + 0.28f * contactOutput
+                             + 0.72f * movingResonance;
     return pickupReadout * outputGain;
 }
 
@@ -261,12 +260,37 @@ float StringVoice::readDelayLineAtOffset (int offset) const noexcept
     return delayLine[static_cast<size_t> (index)];
 }
 
-float StringVoice::processDispersion (float input) noexcept
+void StringVoice::configureResonator (int index, float frequency, float radius) noexcept
 {
-    const auto coefficient = juce::jlimit (-0.35f, 0.35f, dispersionCoefficient);
-    const auto output = -coefficient * input + dispersionInputState + coefficient * dispersionOutputState;
-    dispersionInputState = input;
-    dispersionOutputState = output;
+    const auto clampedIndex = static_cast<size_t> (juce::jlimit (0, resonanceCount - 1, index));
+    const auto clampedFrequency = juce::jlimit (20.0f, static_cast<float> (sampleRate * 0.43), frequency);
+    const auto clampedRadius = juce::jlimit (0.80f, 0.999f, radius);
+    constexpr auto twoPi = 6.28318530717958647692f;
+
+    resonanceCoefficient[clampedIndex] = 2.0f * clampedRadius * std::cos (twoPi * clampedFrequency / static_cast<float> (sampleRate));
+    resonanceRadiusSquared[clampedIndex] = clampedRadius * clampedRadius;
+}
+
+float StringVoice::processMovingResonance (float input) noexcept
+{
+    const auto movement = juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / static_cast<float> (resonanceMoveSamples));
+    const auto highWeight = (1.0f - movement) * (1.0f - movement);
+    const auto midWeight = 0.45f + 0.35f * (1.0f - std::abs (2.0f * movement - 1.0f));
+    const auto lowWeight = 0.25f + 0.75f * movement;
+    const std::array<float, resonanceCount> weights { lowWeight, midWeight, highWeight };
+    auto output = 0.0f;
+
+    for (auto i = 0; i < resonanceCount; ++i)
+    {
+        const auto next = input + resonanceCoefficient[i] * resonanceState1[i] - resonanceRadiusSquared[i] * resonanceState2[i];
+        const auto band = next - resonanceState2[i];
+        resonanceState2[i] = resonanceState1[i];
+        resonanceState1[i] = next;
+        output += band * weights[static_cast<size_t> (i)];
+    }
+
+    output *= resonanceEnvelope;
+    resonanceEnvelope *= resonanceDecay;
     return output;
 }
 
