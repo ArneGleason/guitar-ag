@@ -31,6 +31,12 @@ void StringVoice::reset()
     pickContactDecay = 0.0f;
     previousContactNoise = 0.0f;
     pickContactSamplesRemaining = 0;
+    dispersionCoefficient = 0.0f;
+    dispersionTarget = 0.0f;
+    dispersionStep = 0.0f;
+    dispersionInputState = 0.0f;
+    dispersionOutputState = 0.0f;
+    dispersionSamplesRemaining = 0;
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -52,6 +58,8 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     pickContactDecay = 0.0f;
     previousContactNoise = 0.0f;
     pickContactSamplesRemaining = 0;
+    dispersionInputState = 0.0f;
+    dispersionOutputState = 0.0f;
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -108,6 +116,10 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     pickContact = (0.006f + 0.030f * brightness) * velocityGain;
     pickContactDecay = 0.9991f - 0.00035f * brightness;
     pickContactSamplesRemaining = static_cast<int> (sampleRate * (0.014f + 0.012f * brightness));
+    dispersionCoefficient = 0.030f + 0.015f * brightness;
+    dispersionTarget = 0.120f + 0.030f * brightness;
+    dispersionSamplesRemaining = static_cast<int> (sampleRate * (0.26f + 0.12f * brightness));
+    dispersionStep = (dispersionTarget - dispersionCoefficient) / juce::jmax (1.0f, static_cast<float> (dispersionSamplesRemaining));
     updateDamping();
 }
 
@@ -155,7 +167,17 @@ float StringVoice::renderSample() noexcept
     const auto contactDrive = softClip (slope * 2.8f) * 0.018f;
     const auto filtered = (0.58f * current + 0.42f * lastOutput + contactDrive) * damping * leftHandDamping;
 
-    delayLine[index] = filtered;
+    if (dispersionSamplesRemaining > 0)
+    {
+        dispersionCoefficient += dispersionStep;
+        --dispersionSamplesRemaining;
+    }
+    else
+    {
+        dispersionCoefficient = dispersionTarget;
+    }
+
+    delayLine[index] = processDispersion (filtered);
     lastOutput = current;
 
     ++writeIndex;
@@ -237,6 +259,15 @@ float StringVoice::readDelayLineAtOffset (int offset) const noexcept
 {
     const auto index = (writeIndex + delayLength - juce::jlimit (0, delayLength - 1, offset)) % delayLength;
     return delayLine[static_cast<size_t> (index)];
+}
+
+float StringVoice::processDispersion (float input) noexcept
+{
+    const auto coefficient = juce::jlimit (-0.35f, 0.35f, dispersionCoefficient);
+    const auto output = -coefficient * input + dispersionInputState + coefficient * dispersionOutputState;
+    dispersionInputState = input;
+    dispersionOutputState = output;
+    return output;
 }
 
 float StringVoice::softClip (float value) const noexcept

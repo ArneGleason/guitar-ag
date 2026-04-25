@@ -233,6 +233,28 @@ Calibration feedback:
 - The reference also shows stronger moving upper-harmonic/resonance behavior: early upper-to-low energy is much higher and often collapses or shifts over the note, while KS006 decays more smoothly and predictably.
 - This points toward adding time-varying string behavior such as tension/pitch settling, dispersion/inharmonicity, moving contact damping, or a short attack-only contact/resonance layer rather than only adding static partials.
 
+## 2026-04-25 — Phase Settling Experiment
+
+Added one isolated time-varying string property inside `StringVoice`.
+
+Current behavior:
+
+- The KS006 exciter, pickup readout, and tone stage are unchanged.
+- The delay-line feedback path now passes through a first-order all-pass stage.
+- The all-pass coefficient starts lower and settles upward during the first few hundred milliseconds of each note.
+- This should create harmonic-dependent phase movement without directly adding brightness.
+- The visible model label is now `StringVoice KS-007 PhaseSettle`.
+
+Initial values:
+
+- all-pass coefficient start: about 0.030 to 0.045, depending on velocity
+- all-pass coefficient target: about 0.120 to 0.150, depending on velocity
+- settling time: about 260 to 380 ms
+
+Expected sound:
+
+This should subtly destabilize the otherwise static KS loop, especially near the attack. It may read as more string-like tension settling, or it may simply detune/blur the note if the coefficient movement is too strong.
+
 ## Suggested MVP Signal Flow
 
 ```text

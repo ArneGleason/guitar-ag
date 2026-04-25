@@ -107,6 +107,12 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The real DI references show time-varying behavior that the current KS model mostly lacks: larger harmonic phase drift, moving upper-harmonic emphasis, and harmonic-dependent decay.
 - A useful next hypothesis is a time-varying attack/string model: pitch/tension settling, dispersion or inharmonicity, moving contact damping, and/or a short bridge/body/contact resonance layer that changes during the first few hundred milliseconds.
 
+## 2026-04-25 — KS-007 phase-settling implementation
+
+- The next isolated sound experiment targets phase/dispersion only.
+- `StringVoice KS-007 PhaseSettle` adds a time-varying all-pass stage in the string feedback loop.
+- The KS006 exciter, pickup readout, and tone stage were intentionally left unchanged so the next render can test phase settling without mixing in another new property.
+
 ## 2026-04-25 — CMake build label cache issue
 
 - The visible plugin model label should not be stored as a CMake cache variable.

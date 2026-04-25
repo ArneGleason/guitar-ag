@@ -30,6 +30,7 @@ private:
     void startLeftHandRelease() noexcept;
     float pluckShapeAt (float position, float pluckPosition) const noexcept;
     float readDelayLineAtOffset (int offset) const noexcept;
+    float processDispersion (float input) noexcept;
     float softClip (float value) const noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
@@ -56,6 +57,12 @@ private:
     float pickContactDecay = 0.0f;
     float previousContactNoise = 0.0f;
     int pickContactSamplesRemaining = 0;
+    float dispersionCoefficient = 0.0f;
+    float dispersionTarget = 0.0f;
+    float dispersionStep = 0.0f;
+    float dispersionInputState = 0.0f;
+    float dispersionOutputState = 0.0f;
+    int dispersionSamplesRemaining = 0;
     float leftHandDamping = 1.0f;
     float leftHandDampingTarget = 1.0f;
     float leftHandDampingStep = 0.0f;
