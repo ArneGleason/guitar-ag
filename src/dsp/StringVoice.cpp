@@ -43,20 +43,20 @@ void StringVoice::reset()
     highFeedbackGainTarget = 1.0f;
     highFeedbackGainStep = 0.0f;
     highFeedbackGainSamplesRemaining = 0;
+    woundMotionCoefficient.fill (0.0f);
+    woundMotionRadiusSquared.fill (0.0f);
+    woundMotionState1.fill (0.0f);
+    woundMotionState2.fill (0.0f);
     woundInteractionEnvelope = 0.0f;
     woundInteractionDecay = 0.0f;
     woundPreviousNoise = 0.0f;
     woundTextureState = 0.0f;
     woundInteractionSamplesRemaining = 0;
-    woundPhaseCoefficient = 0.0f;
-    woundPhaseTarget = 0.0f;
-    woundPhaseStep = 0.0f;
-    woundPhaseSamplesRemaining = 0;
-    woundPhaseInputState = 0.0f;
-    woundPhaseOutputState = 0.0f;
-    woundPhaseModState = 0.0f;
-    woundPhaseEnvelope = 0.0f;
-    woundPhaseEnvelopeDecay = 0.0f;
+    woundMotionEnvelope = 0.0f;
+    woundMotionDecay = 0.0f;
+    woundMotionTextureState = 0.0f;
+    woundMotionPreviousNoise = 0.0f;
+    woundMotionMoveSamples = 1;
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -81,21 +81,19 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     pickContactSamplesRemaining = 0;
     resonanceState1.fill (0.0f);
     resonanceState2.fill (0.0f);
+    woundMotionState1.fill (0.0f);
+    woundMotionState2.fill (0.0f);
     dampingTiltState = 0.0f;
     woundInteractionEnvelope = 0.0f;
     woundInteractionDecay = 0.0f;
     woundPreviousNoise = 0.0f;
     woundTextureState = 0.0f;
     woundInteractionSamplesRemaining = 0;
-    woundPhaseCoefficient = 0.0f;
-    woundPhaseTarget = 0.0f;
-    woundPhaseStep = 0.0f;
-    woundPhaseSamplesRemaining = 0;
-    woundPhaseInputState = 0.0f;
-    woundPhaseOutputState = 0.0f;
-    woundPhaseModState = 0.0f;
-    woundPhaseEnvelope = 0.0f;
-    woundPhaseEnvelopeDecay = 0.0f;
+    woundMotionEnvelope = 0.0f;
+    woundMotionDecay = 0.0f;
+    woundMotionTextureState = 0.0f;
+    woundMotionPreviousNoise = 0.0f;
+    woundMotionMoveSamples = 1;
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -157,6 +155,10 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     configureResonator (0, frequency * 5.0f, 0.9895f);
     configureResonator (1, frequency * 7.0f, 0.9880f);
     configureResonator (2, frequency * 11.0f, 0.9860f);
+    configureWoundMotionResonator (0, frequency * 5.65f, 0.9875f);
+    configureWoundMotionResonator (1, frequency * 7.90f, 0.9868f);
+    configureWoundMotionResonator (2, frequency * 10.85f, 0.9858f);
+    configureWoundMotionResonator (3, frequency * 13.75f, 0.9845f);
     resonanceEnvelope = (0.012f + 0.045f * brightness) * velocityGain;
     resonanceDecay = 0.99976f - 0.00008f * brightness;
     resonanceMoveSamples = juce::jmax (1, static_cast<int> (sampleRate * (0.36f + 0.16f * brightness)));
@@ -171,13 +173,9 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
         woundInteractionEnvelope = (0.006f + 0.022f * brightness) * velocityGain;
         woundInteractionDecay = 0.99993f - 0.00003f * brightness;
         woundInteractionSamplesRemaining = static_cast<int> (sampleRate * (0.42f + 0.18f * brightness));
-        woundPhaseCoefficient = 0.032f + 0.012f * brightness;
-        woundPhaseTarget = 0.088f + 0.018f * brightness;
-        woundPhaseSamplesRemaining = juce::jmax (1, static_cast<int> (sampleRate * (0.34f + 0.22f * brightness)));
-        woundPhaseStep = (woundPhaseTarget - woundPhaseCoefficient)
-                       / juce::jmax (1.0f, static_cast<float> (woundPhaseSamplesRemaining));
-        woundPhaseEnvelope = (0.018f + 0.024f * brightness) * velocityGain;
-        woundPhaseEnvelopeDecay = 0.999965f - 0.000010f * brightness;
+        woundMotionEnvelope = (0.010f + 0.034f * brightness) * velocityGain;
+        woundMotionDecay = 0.99982f - 0.00004f * brightness;
+        woundMotionMoveSamples = juce::jmax (1, static_cast<int> (sampleRate * (0.30f + 0.20f * brightness)));
     }
 
     updateDamping();
@@ -228,12 +226,12 @@ float StringVoice::renderSample() noexcept
         leftHandDamping = juce::jmax (leftHandDampingTarget, leftHandDamping - leftHandDampingStep);
 
     const auto slope = current - lastOutput;
-    const auto movingResonance = processMovingResonance (slope + contactOutput * 0.35f + woundOutput * 0.45f);
+    const auto woundMotion = processWoundMotion (slope, contactOutput, woundOutput);
+    const auto movingResonance = processMovingResonance (slope + contactOutput * 0.35f + woundOutput * 0.45f + woundMotion * 0.20f);
     const auto contactDrive = softClip (slope * 2.8f) * 0.018f;
     const auto feedbackInput = 0.58f * current + 0.42f * lastOutput + contactDrive;
-    const auto phasedFeedback = processWoundPhase (feedbackInput, slope + woundOutput * 0.9f);
-    const auto dampedFeedback = processHarmonicDamping (phasedFeedback);
-    const auto filtered = (dampedFeedback + movingResonance * 0.18f) * damping * leftHandDamping;
+    const auto dampedFeedback = processHarmonicDamping (feedbackInput);
+    const auto filtered = (dampedFeedback + movingResonance * 0.18f + woundMotion * 0.055f) * damping * leftHandDamping;
 
     delayLine[index] = filtered;
     lastOutput = current;
@@ -261,7 +259,8 @@ float StringVoice::renderSample() noexcept
                              + 0.62f * pickupVelocity
                              + 0.28f * contactOutput
                              + 0.72f * movingResonance
-                             + 0.88f * woundOutput;
+                             + 0.88f * woundOutput
+                             + 0.96f * woundMotion;
     return pickupReadout * outputGain;
 }
 
@@ -334,6 +333,17 @@ void StringVoice::configureResonator (int index, float frequency, float radius) 
     resonanceRadiusSquared[clampedIndex] = clampedRadius * clampedRadius;
 }
 
+void StringVoice::configureWoundMotionResonator (int index, float frequency, float radius) noexcept
+{
+    const auto clampedIndex = static_cast<size_t> (juce::jlimit (0, woundMotionResonanceCount - 1, index));
+    const auto clampedFrequency = juce::jlimit (20.0f, static_cast<float> (sampleRate * 0.43), frequency);
+    const auto clampedRadius = juce::jlimit (0.80f, 0.999f, radius);
+    constexpr auto twoPi = 6.28318530717958647692f;
+
+    woundMotionCoefficient[clampedIndex] = 2.0f * clampedRadius * std::cos (twoPi * clampedFrequency / static_cast<float> (sampleRate));
+    woundMotionRadiusSquared[clampedIndex] = clampedRadius * clampedRadius;
+}
+
 bool StringVoice::isWoundOpenString (int midiNoteNumber) const noexcept
 {
     return midiNoteNumber == 40 || midiNoteNumber == 45 || midiNoteNumber == 50;
@@ -401,34 +411,42 @@ float StringVoice::processWoundInteraction (float inputSlope, float contactOutpu
     return interaction;
 }
 
-float StringVoice::processWoundPhase (float input, float motion) noexcept
+float StringVoice::processWoundMotion (float inputSlope, float contactOutput, float woundOutput) noexcept
 {
     if (! woundString)
-        return input;
+        return 0.0f;
 
-    if (woundPhaseSamplesRemaining > 0)
+    const auto noise = nextNoiseSample();
+    const auto highPassedNoise = noise - woundMotionPreviousNoise;
+    woundMotionPreviousNoise = noise;
+    woundMotionTextureState += 0.0025f * (nextNoiseSample() - woundMotionTextureState);
+
+    const auto movement = juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / static_cast<float> (woundMotionMoveSamples));
+    const std::array<float, woundMotionResonanceCount> weights {
+        0.40f + 0.80f * movement,
+        0.65f + 0.25f * std::sin (movement * 3.14159265358979323846f),
+        0.75f - 0.25f * movement,
+        (1.0f - movement) * (1.0f - movement)
+    };
+
+    const auto drive = softClip (inputSlope * 2.2f + contactOutput * 1.4f + woundOutput * 2.4f)
+                     + 0.35f * highPassedNoise
+                     + 0.28f * woundMotionTextureState;
+    auto output = 0.0f;
+
+    for (auto i = 0; i < woundMotionResonanceCount; ++i)
     {
-        woundPhaseCoefficient += woundPhaseStep;
-        --woundPhaseSamplesRemaining;
+        const auto next = drive + woundMotionCoefficient[i] * woundMotionState1[i]
+                        - woundMotionRadiusSquared[i] * woundMotionState2[i];
+        const auto band = next - woundMotionState2[i];
+        woundMotionState2[i] = woundMotionState1[i];
+        woundMotionState1[i] = next;
+        output += band * weights[static_cast<size_t> (i)];
     }
-    else
-    {
-        woundPhaseCoefficient = woundPhaseTarget;
-    }
 
-    woundPhaseModState += 0.0009f * (nextNoiseSample() - woundPhaseModState);
-    woundPhaseEnvelope *= woundPhaseEnvelopeDecay;
-
-    const auto motionMod = softClip (motion * 6.0f);
-    const auto coefficient = juce::jlimit (0.015f,
-                                           0.135f,
-                                           woundPhaseCoefficient
-                                               + woundPhaseEnvelope * (0.55f * woundPhaseModState + 0.45f * motionMod));
-
-    const auto output = -coefficient * input + woundPhaseInputState + coefficient * woundPhaseOutputState;
-    woundPhaseInputState = input;
-    woundPhaseOutputState = output;
-    return output;
+    output *= woundMotionEnvelope;
+    woundMotionEnvelope *= woundMotionDecay;
+    return softClip (output * 1.8f) * 0.55f;
 }
 
 float StringVoice::softClip (float value) const noexcept

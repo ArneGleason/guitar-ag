@@ -25,6 +25,7 @@ public:
 private:
     static constexpr auto maxDelaySamples = 8192;
     static constexpr auto resonanceCount = 3;
+    static constexpr auto woundMotionResonanceCount = 4;
 
     float nextNoiseSample() noexcept;
     void updateDamping() noexcept;
@@ -32,11 +33,12 @@ private:
     float pluckShapeAt (float position, float pluckPosition) const noexcept;
     float readDelayLineAtOffset (int offset) const noexcept;
     void configureResonator (int index, float frequency, float radius) noexcept;
+    void configureWoundMotionResonator (int index, float frequency, float radius) noexcept;
     bool isWoundOpenString (int midiNoteNumber) const noexcept;
     float processHarmonicDamping (float input) noexcept;
     float processMovingResonance (float input) noexcept;
     float processWoundInteraction (float inputSlope, float contactOutput) noexcept;
-    float processWoundPhase (float input, float motion) noexcept;
+    float processWoundMotion (float inputSlope, float contactOutput, float woundOutput) noexcept;
     float softClip (float value) const noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
@@ -80,15 +82,15 @@ private:
     float woundPreviousNoise = 0.0f;
     float woundTextureState = 0.0f;
     int woundInteractionSamplesRemaining = 0;
-    float woundPhaseCoefficient = 0.0f;
-    float woundPhaseTarget = 0.0f;
-    float woundPhaseStep = 0.0f;
-    int woundPhaseSamplesRemaining = 0;
-    float woundPhaseInputState = 0.0f;
-    float woundPhaseOutputState = 0.0f;
-    float woundPhaseModState = 0.0f;
-    float woundPhaseEnvelope = 0.0f;
-    float woundPhaseEnvelopeDecay = 0.0f;
+    std::array<float, woundMotionResonanceCount> woundMotionCoefficient {};
+    std::array<float, woundMotionResonanceCount> woundMotionRadiusSquared {};
+    std::array<float, woundMotionResonanceCount> woundMotionState1 {};
+    std::array<float, woundMotionResonanceCount> woundMotionState2 {};
+    float woundMotionEnvelope = 0.0f;
+    float woundMotionDecay = 0.0f;
+    float woundMotionTextureState = 0.0f;
+    float woundMotionPreviousNoise = 0.0f;
+    int woundMotionMoveSamples = 1;
     float leftHandDamping = 1.0f;
     float leftHandDampingTarget = 1.0f;
     float leftHandDampingStep = 0.0f;

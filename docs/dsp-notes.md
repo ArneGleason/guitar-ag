@@ -435,6 +435,35 @@ Calibration feedback:
 - The lower/wound strongest upper-harmonic shift metric collapsed from about 0.64 in KS011 to 0.00 in KS012, while the DI reference is around 1.06.
 - Conclusion: this all-pass placement is useful as a diagnostic but probably not a good tone direction as implemented. It creates broad phase offset/blur more than lively wound-string irregularity. The next pass should likely return to the KS011/KS010 base and target motion-coupled roughness or moving partial behavior without putting a strong all-pass directly in the core feedback path.
 
+## 2026-04-25 — Wound Motion Experiment
+
+Added a wound-only moving partial/roughness layer inside `StringVoice`.
+
+Current behavior:
+
+- KS011 is treated as the practical base.
+- The KS012 wound all-pass feedback stage is removed.
+- E2, A2, and D3 receive a separate wound motion layer with four broad resonances.
+- The wound motion layer is driven by string slope, pick contact, wound interaction output, high-passed noise, and slow roughness.
+- The resonance weights move from higher partials toward lower/mid partials over the first few hundred milliseconds.
+- The wound motion output feeds the pickup readout strongly, the moving-resonance drive lightly, and the string loop very lightly.
+- G3, B3, and E4 are intended to stay close to KS011/KS010.
+- The visible model label is now `StringVoice KS-013 WoundMotion`.
+
+Initial values:
+
+- wound motion resonances: about 5.65x, 7.90x, 10.85x, and 13.75x note frequency
+- resonance radii: 0.9875, 0.9868, 0.9858, and 0.9845
+- motion envelope: about 0.010 to 0.044, scaled by velocity
+- motion decay: about 0.99978 to 0.99982
+- motion movement time: about 300 to 500 ms
+- wound motion loop injection: 0.055
+- wound motion pickup readout mix: 0.96
+
+Expected sound:
+
+This should restore the KS011 lower-string air/upper energy while adding more evolving wound-string character than a static roughness layer. The main risk is metallic ringing or fizzy non-string noise if the moving partial layer is too strong.
+
 ## Suggested MVP Signal Flow
 
 ```text

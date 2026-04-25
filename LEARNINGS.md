@@ -196,3 +196,10 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - It also reduced wound-string upper/air energy and collapsed the strongest upper-harmonic movement metric.
 - This suggests the missing wound-string behavior is not just a simple phase-settling problem; it likely needs motion-coupled roughness, moving partial excitation, or selective dispersion that does not blur the whole feedback signal.
 - The next sound pass should probably use KS011 as the base, not KS012.
+
+## 2026-04-25 — KS-013 wound motion implementation
+
+- `StringVoice KS-013 WoundMotion` removes the KS012 wound all-pass stage and returns to the KS011-style feedback path.
+- It adds a separate wound-only moving partial/roughness layer so lower-string motion can gain evolving upper content without broadly blurring the feedback loop.
+- The layer is mixed mostly into pickup readout, with only light coupling into the moving resonance and loop.
+- The main listening risk is metallic or fizzy wound-string noise if the added upper partials are too prominent.
