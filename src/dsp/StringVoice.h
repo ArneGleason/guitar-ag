@@ -29,12 +29,14 @@ private:
     void updateDamping() noexcept;
     void startLeftHandRelease() noexcept;
     float pluckShapeAt (float position, float pluckPosition) const noexcept;
+    float readDelayLineAtOffset (int offset) const noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
 
     double sampleRate = 44100.0;
     int delayLength = 1;
     int writeIndex = 0;
+    int pickupOffsetSamples = 1;
     int samplesSinceStart = 0;
 
     int noteNumber = -1;
@@ -44,8 +46,9 @@ private:
     float baseDamping = 0.9965f;
     float releaseDamping = 0.985f;
     float lastOutput = 0.0f;
+    float previousPickupSample = 0.0f;
     float energy = 0.0f;
-    float outputGain = 0.35f;
+    float outputGain = 0.42f;
     float pickTransient = 0.0f;
     float pickTransientDecay = 0.0f;
     float leftHandDamping = 1.0f;

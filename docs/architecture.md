@@ -81,9 +81,9 @@ MVP may use:
 
 Current first implementation:
 
-- `ElectricGuitarTone` is a fixed post-voice tone stage.
-- It approximates pickup-position shaping with a short delay/comb readout and presence filtering.
-- It is not yet a full per-string or per-pickup model.
+- `StringVoice` owns the current simple pickup readout because the read position depends on the active note's delay length.
+- `ElectricGuitarTone` is now a lighter post-voice conditioning stage for high-pass, presence, body, and output shaping.
+- It is not yet a full per-string, pickup-width, pickup-switching, or pickup-circuit model.
 
 ### UI Layer
 

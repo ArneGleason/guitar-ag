@@ -163,6 +163,36 @@ Expected sound:
 
 This should move the tone away from smooth nylon-like pluck and toward electric DI brightness/twang. It may be too thin or phasey; the next calibration render should decide whether it is warmer or colder.
 
+Calibration feedback:
+
+- `StringVoice KS-004 Pickup-001` increased upper-harmonic measurements compared with KS-003.
+- It also reduced overall level/body and still remained far below Guitar-TECHS DI upper-harmonic ratios.
+- The fixed post-mix comb is probably too crude because all notes share one pickup delay instead of using a note/string-length-specific readout.
+
+## 2026-04-25 — Per-Voice Pickup Readout Experiment
+
+Moved the first pickup-position readout into each `StringVoice`.
+
+Current behavior:
+
+- Each voice computes a pickup read offset from its own delay length.
+- The offset is currently about 0.18 of the modeled string length.
+- The voice output blends a displacement-like pickup sample with a velocity-like difference component.
+- `ElectricGuitarTone` no longer performs a fixed pickup comb. It now provides lighter post-mix high-pass, presence, body, and gain conditioning.
+- The visible model label is now `StringVoice KS-005 Pickup-Voice`.
+
+Initial values:
+
+- per-voice pickup offset: 0.18 of delay length
+- pickup sample coefficient: 0.82
+- pickup velocity coefficient: 0.55
+- voice output gain: 0.42
+- post-mix tone gain: 0.95
+
+Expected sound:
+
+This should keep more note-dependent electric/pickup character than KS004, with less global thinning from the fixed post-mix comb. It may still lack steel-string bite because the string/exciter itself remains a simple Karplus-Strong model.
+
 ## Suggested MVP Signal Flow
 
 ```text
@@ -215,6 +245,12 @@ Possible simplifications:
 - bridge pickup as brighter/thinner
 - neck pickup as warmer/rounder
 - output gain with safe limiting or headroom
+
+Current simplification:
+
+- Pickup readout currently lives inside `StringVoice` as a fixed normalized read position.
+- `ElectricGuitarTone` is a post-voice conditioning stage.
+- This is not yet a full per-string, per-pickup, pickup-width, or circuit model.
 
 ## Realism Research
 

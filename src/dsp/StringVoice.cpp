@@ -17,11 +17,13 @@ void StringVoice::reset()
 
     delayLength = 1;
     writeIndex = 0;
+    pickupOffsetSamples = 1;
     samplesSinceStart = 0;
     noteNumber = -1;
     channel = 0;
     damping = baseDamping;
     lastOutput = 0.0f;
+    previousPickupSample = 0.0f;
     energy = 0.0f;
     pickTransient = 0.0f;
     pickTransientDecay = 0.0f;
@@ -39,6 +41,7 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     writeIndex = 0;
     samplesSinceStart = 0;
     lastOutput = 0.0f;
+    previousPickupSample = 0.0f;
     pickTransient = 0.0f;
     pickTransientDecay = 0.0f;
     leftHandDamping = 1.0f;
@@ -49,6 +52,7 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
 
     const auto frequency = juce::jlimit (20.0, 8000.0, juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber));
     delayLength = juce::jlimit (2, maxDelaySamples, static_cast<int> (std::round (sampleRate / frequency)));
+    pickupOffsetSamples = juce::jlimit (1, delayLength - 1, static_cast<int> (std::round (delayLength * 0.18f)));
 
     const auto velocityGain = juce::jlimit (0.05f, 1.0f, velocity);
     const auto brightness = juce::jlimit (0.0f, 1.0f, velocityGain);
@@ -133,7 +137,12 @@ float StringVoice::renderSample() noexcept
         return 0.0f;
     }
 
-    return current * outputGain;
+    const auto pickupSample = readDelayLineAtOffset (pickupOffsetSamples);
+    const auto pickupVelocity = pickupSample - previousPickupSample;
+    previousPickupSample = pickupSample;
+
+    const auto pickupReadout = 0.82f * pickupSample + 0.55f * pickupVelocity;
+    return pickupReadout * outputGain;
 }
 
 float StringVoice::nextNoiseSample() noexcept
@@ -186,6 +195,12 @@ float StringVoice::pluckShapeAt (float position, float pluckPosition) const noex
 
     const auto centered = juce::jlimit (0.0f, 1.0f, left);
     return 2.0f * centered - 1.0f;
+}
+
+float StringVoice::readDelayLineAtOffset (int offset) const noexcept
+{
+    const auto index = (writeIndex + delayLength - juce::jlimit (0, delayLength - 1, offset)) % delayLength;
+    return delayLine[static_cast<size_t> (index)];
 }
 
 } // namespace guitar_ag

@@ -145,3 +145,17 @@ Accepted
 
 Consequences:
 The first pickup model is intentionally crude and may be replaced or moved per voice later. Listening and calibration analysis should decide whether the direction is useful.
+
+## 2026-04-25 — Move first pickup readout into each string voice
+
+Decision:
+Use a per-voice pickup readout for the next pickup experiment instead of one fixed post-mix comb delay.
+
+Reason:
+The KS004 fixed post-mix pickup/tone stage increased upper-harmonic measurements but reduced body and applied the same delay relationship to every note. A per-voice readout can scale pickup position with the modeled string length while keeping the experiment small.
+
+Status:
+Accepted
+
+Consequences:
+`StringVoice` now owns the current simplified pickup readout. `ElectricGuitarTone` remains as post-mix conditioning and can later grow into tone/circuit/output shaping without hiding note-specific pickup behavior.
