@@ -8,6 +8,7 @@ void AudioEngine::prepare (double sampleRate, int, int)
     for (auto& voice : voices)
         voice.prepare (sampleRate);
 
+    tone.prepare (sampleRate);
     reset();
 }
 
@@ -16,6 +17,7 @@ void AudioEngine::reset()
     for (auto& voice : voices)
         voice.reset();
 
+    tone.reset();
     nextVoice = 0;
 }
 
@@ -45,6 +47,8 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
 
         for (auto& voice : voices)
             mixedSample += voice.renderSample();
+
+        mixedSample = tone.processSample (mixedSample);
 
         for (auto channel = 0; channel < numChannels; ++channel)
             audio.addSample (channel, sampleIndex, mixedSample);

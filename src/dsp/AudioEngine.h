@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ElectricGuitarTone.h"
 #include "StringVoice.h"
 
 #include <array>
@@ -24,6 +25,7 @@ private:
     void noteOff (int noteNumber, int channel);
 
     std::array<StringVoice, maxVoices> voices;
+    ElectricGuitarTone tone;
     int nextVoice = 0;
 };
 

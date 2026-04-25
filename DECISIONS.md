@@ -131,3 +131,17 @@ Accepted
 
 Consequences:
 This is a pragmatic listening-driven model. A future fret/finger system may replace it with a more physically detailed contact/damping model.
+
+## 2026-04-25 — Add fixed pickup/tone stage before UI controls
+
+Decision:
+Add a fixed post-string `ElectricGuitarTone` stage before exposing pickup/tone parameters.
+
+Reason:
+The calibration comparison suggests the current string voice lacks electric-guitar-like upper harmonic structure. A fixed pickup-position/tone experiment is the smallest way to test that hypothesis before designing UI controls.
+
+Status:
+Accepted
+
+Consequences:
+The first pickup model is intentionally crude and may be replaced or moved per voice later. Listening and calibration analysis should decide whether the direction is useful.

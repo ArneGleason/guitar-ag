@@ -6,7 +6,7 @@ The goal is to build a VST3 plugin that generates guitar-like sound through phys
 
 ## Current Status
 
-Initial JUCE/CMake VST3 plugin shell builds and loads in Bitwig. The current audio engine has a basic MIDI-triggered Karplus-Strong-style plucked string voice with early pick-excitation and left-hand damping experiments.
+Initial JUCE/CMake VST3 plugin shell builds and loads in Bitwig. The current audio engine has a basic MIDI-triggered Karplus-Strong-style plucked string voice with early pick-excitation, left-hand damping, and pickup/tone experiments.
 
 ## MVP Goal
 

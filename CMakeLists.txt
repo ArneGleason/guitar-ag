@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(JUCE_PATH "" CACHE PATH "Optional path to a local JUCE checkout")
-set(GUITAR_AG_MODEL_LABEL "StringVoice KS-003" CACHE STRING "Visible model/build label")
+set(GUITAR_AG_MODEL_LABEL "StringVoice KS-004 Pickup-001" CACHE STRING "Visible model/build label")
 
 find_package(Git QUIET)
 
@@ -70,6 +70,8 @@ target_sources(GuitarAG
     PRIVATE
         src/dsp/AudioEngine.cpp
         src/dsp/AudioEngine.h
+        src/dsp/ElectricGuitarTone.cpp
+        src/dsp/ElectricGuitarTone.h
         src/dsp/StringVoice.cpp
         src/dsp/StringVoice.h
         src/plugin/PluginEditor.cpp

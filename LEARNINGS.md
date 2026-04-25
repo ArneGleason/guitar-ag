@@ -76,3 +76,9 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - A rough harmonic comparison against Guitar-TECHS DI notes supports the listening impression that KS-003 is too smooth/nylon-like.
 - The render appears to have much less upper-harmonic energy than the real DI notes.
 - The next likely sound experiment is a simple pickup-position/tone model rather than a plain brightness boost.
+
+## 2026-04-25 — Pickup model first step
+
+- The first pickup/tone model is fixed and intentionally simple.
+- It shapes the mixed string signal after voices, which is easy to test but less physically precise than per-string pickup readouts.
+- If the calibration render improves, a future version should move toward a better pickup-position model with controllable pickup position/width and possibly per-voice processing.

@@ -138,6 +138,31 @@ Risks:
 - Current reference matching is still approximate; some same-pitch notes in Guitar-TECHS are much quieter than others.
 - The harmonic metrics are dependency-free and coarse. They are useful for direction, not final scoring.
 
+## 2026-04-25 — Simple Pickup/Tone Experiment
+
+Added a fixed post-string `ElectricGuitarTone` stage.
+
+Current behavior:
+
+- Mixed string voices feed a single tone stage before output.
+- The tone stage uses a short delay/comb readout as a crude bridge-ish pickup-position approximation.
+- It adds a string-velocity-style difference component.
+- It adds small high-pass/presence shaping and a little body/tone smoothing.
+- The visible model label is now `StringVoice KS-004 Pickup-001`.
+
+Initial values:
+
+- nominal pickup position: 0.18 of low-E string length for the fixed delay estimate
+- delayed sample subtraction: 0.72
+- presence coefficient: 0.42
+- high-pass coefficient: 0.14
+- body coefficient: 0.18
+- final tone gain: 0.72
+
+Expected sound:
+
+This should move the tone away from smooth nylon-like pluck and toward electric DI brightness/twang. It may be too thin or phasey; the next calibration render should decide whether it is warmer or colder.
+
 ## Suggested MVP Signal Flow
 
 ```text

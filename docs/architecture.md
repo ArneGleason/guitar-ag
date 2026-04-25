@@ -79,6 +79,12 @@ MVP may use:
 - tone control
 - output gain
 
+Current first implementation:
+
+- `ElectricGuitarTone` is a fixed post-voice tone stage.
+- It approximates pickup-position shaping with a short delay/comb readout and presence filtering.
+- It is not yet a full per-string or per-pickup model.
+
 ### UI Layer
 
 Responsible for controls and display only.
