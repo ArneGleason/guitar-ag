@@ -201,6 +201,30 @@ Calibration feedback:
 - This suggests the per-voice readout is a better structure, but the current readout/blend is not enough to add steel-string/electric bite.
 - The next sound experiment should likely change the string/exciter partial content or add a controlled nonlinear/contact component rather than only moving pickup filtering around.
 
+## 2026-04-25 — Steel Exciter Harmonics Experiment
+
+Added a small steel/pick-contact experiment inside `StringVoice`.
+
+Current behavior:
+
+- The initial delay line now includes a small deterministic higher-partial component at the 5th, 7th, 11th, and 13th harmonics.
+- The note start includes a short high-passed noise burst intended to read more like pick contact/scrape than generic broadband noise.
+- The feedback path includes a very small soft-clipped slope term to preserve or create more upper partials.
+- The per-voice pickup readout from KS005 remains in place.
+- The visible model label is now `StringVoice KS-006 SteelExcite`.
+
+Initial values:
+
+- steel partial amount: 0.010 to 0.050, scaled by velocity
+- pick contact amount: 0.006 to 0.036, scaled by velocity
+- pick contact duration: about 14 to 26 ms
+- feedback blend: 0.58 current sample, 0.42 previous sample
+- slope drive: `tanh(slope * 2.8) * 0.018`
+
+Expected sound:
+
+This should add more bite, scrape, and upper partials than KS005 while keeping the cleaner per-voice pickup structure. The risk is that the contact burst or slope term may become fizzy or too synthetic, especially at high velocity.
+
 ## Suggested MVP Signal Flow
 
 ```text

@@ -95,6 +95,12 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The upper-harmonic measurement mostly fell back near KS003, so per-voice pickup readout alone did not create the missing steel/electric brightness.
 - The next likely improvement should target the string/exciter model: pick contact/scrape, stiffness/dispersion, or a small real-time-safe nonlinear component that produces additional partials before pickup/tone shaping.
 
+## 2026-04-25 — KS-006 steel exciter implementation
+
+- The next testable sound hypothesis is now implemented as `StringVoice KS-006 SteelExcite`.
+- The change deliberately targets excitation and feedback partial content, not pickup filtering.
+- The main listening risk is harshness/fizz from the pick-contact burst or soft-clipped slope term at high velocity.
+
 ## 2026-04-25 — CMake build label cache issue
 
 - The visible plugin model label should not be stored as a CMake cache variable.

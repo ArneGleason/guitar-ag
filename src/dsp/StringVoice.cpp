@@ -27,6 +27,10 @@ void StringVoice::reset()
     energy = 0.0f;
     pickTransient = 0.0f;
     pickTransientDecay = 0.0f;
+    pickContact = 0.0f;
+    pickContactDecay = 0.0f;
+    previousContactNoise = 0.0f;
+    pickContactSamplesRemaining = 0;
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -44,6 +48,10 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     previousPickupSample = 0.0f;
     pickTransient = 0.0f;
     pickTransientDecay = 0.0f;
+    pickContact = 0.0f;
+    pickContactDecay = 0.0f;
+    previousContactNoise = 0.0f;
+    pickContactSamplesRemaining = 0;
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -59,6 +67,8 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     const auto pluckPosition = 0.20f;
     const auto displacementAmount = 0.75f * velocityGain;
     const auto noiseAmount = 0.025f + 0.09f * brightness;
+    constexpr auto twoPi = 6.28318530717958647692f;
+    const auto steelPartialAmount = (0.010f + 0.040f * brightness) * velocityGain;
     auto mean = 0.0f;
 
     randomState = static_cast<uint32_t> ((midiNoteNumber + 1) * 1103515245u + (midiChannel + 17) * 12345u);
@@ -70,7 +80,15 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
         const auto pickDistance = std::abs (x - pluckPosition);
         const auto localPickContact = std::exp (-pickDistance * static_cast<float> (delayLength) * 0.18f);
         const auto scrapeNoise = nextNoiseSample() * localPickContact * noiseAmount;
-        const auto sample = shape * displacementAmount + scrapeNoise;
+        const auto steelPartials = 0.46f * std::sin (twoPi * 5.0f * x)
+                                 + 0.34f * std::sin (twoPi * 7.0f * x)
+                                 + 0.24f * std::sin (twoPi * 11.0f * x)
+                                 + 0.16f * std::sin (twoPi * 13.0f * x);
+        const auto pickKink = juce::jlimit (-1.0f, 1.0f, (pluckPosition - x) * 8.0f);
+        const auto sample = shape * displacementAmount
+                          + scrapeNoise
+                          + steelPartials * steelPartialAmount
+                          + pickKink * localPickContact * steelPartialAmount;
 
         delayLine[static_cast<size_t> (i)] = sample;
         mean += sample;
@@ -87,6 +105,9 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     energy = velocityGain;
     pickTransient = (0.02f + 0.08f * brightness) * (nextNoiseSample() >= 0.0f ? 1.0f : -1.0f);
     pickTransientDecay = 0.998f - 0.003f * brightness;
+    pickContact = (0.006f + 0.030f * brightness) * velocityGain;
+    pickContactDecay = 0.9991f - 0.00035f * brightness;
+    pickContactSamplesRemaining = static_cast<int> (sampleRate * (0.014f + 0.012f * brightness));
     updateDamping();
 }
 
@@ -114,10 +135,25 @@ float StringVoice::renderSample() noexcept
         pickTransient *= pickTransientDecay;
     }
 
+    auto contactOutput = 0.0f;
+
+    if (pickContactSamplesRemaining > 0)
+    {
+        const auto contactNoise = nextNoiseSample();
+        const auto highPassedContact = contactNoise - previousContactNoise;
+        previousContactNoise = contactNoise;
+        contactOutput = highPassedContact * pickContact;
+        current += contactOutput * 0.55f;
+        pickContact *= pickContactDecay;
+        --pickContactSamplesRemaining;
+    }
+
     if (releasing && leftHandDamping > leftHandDampingTarget)
         leftHandDamping = juce::jmax (leftHandDampingTarget, leftHandDamping - leftHandDampingStep);
 
-    const auto filtered = 0.5f * (current + lastOutput) * damping * leftHandDamping;
+    const auto slope = current - lastOutput;
+    const auto contactDrive = softClip (slope * 2.8f) * 0.018f;
+    const auto filtered = (0.58f * current + 0.42f * lastOutput + contactDrive) * damping * leftHandDamping;
 
     delayLine[index] = filtered;
     lastOutput = current;
@@ -141,7 +177,7 @@ float StringVoice::renderSample() noexcept
     const auto pickupVelocity = pickupSample - previousPickupSample;
     previousPickupSample = pickupSample;
 
-    const auto pickupReadout = 0.82f * pickupSample + 0.55f * pickupVelocity;
+    const auto pickupReadout = 0.82f * pickupSample + 0.62f * pickupVelocity + 0.28f * contactOutput;
     return pickupReadout * outputGain;
 }
 
@@ -201,6 +237,11 @@ float StringVoice::readDelayLineAtOffset (int offset) const noexcept
 {
     const auto index = (writeIndex + delayLength - juce::jlimit (0, delayLength - 1, offset)) % delayLength;
     return delayLine[static_cast<size_t> (index)];
+}
+
+float StringVoice::softClip (float value) const noexcept
+{
+    return std::tanh (value);
 }
 
 } // namespace guitar_ag
