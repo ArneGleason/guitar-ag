@@ -401,6 +401,31 @@ Calibration feedback:
 - Lower/wound phase drift did not materially improve. KS011 stayed near 0.06 cents by the current metric, while the DI reference lower/wound group is much more irregular.
 - Conclusion: the wound-string interaction layer is a useful structure, but this first version mostly adds controlled amplitude/noise energy. The next lower-string experiment should target wound-only phase/dispersion or motion-coupled roughness rather than a global brightness change.
 
+## 2026-04-25 — Wound Phase Experiment
+
+Added a wound-only phase/dispersion stage inside `StringVoice`.
+
+Current behavior:
+
+- KS011 remains the base path.
+- E2, A2, and D3 now pass their feedback signal through a gentle first-order all-pass stage.
+- The all-pass coefficient moves over the first few hundred milliseconds of each wound-string note.
+- A small decaying modulation, driven by slow noise and string motion, perturbs the coefficient.
+- G3, B3, and E4 are intended to stay on the KS011/KS010 plain-string path.
+- The visible model label is now `StringVoice KS-012 WoundPhase`.
+
+Initial values:
+
+- wound all-pass coefficient start: about 0.032 to 0.044, depending on velocity
+- wound all-pass coefficient target: about 0.088 to 0.106, depending on velocity
+- coefficient movement time: about 340 to 560 ms
+- decaying coefficient modulation: about 0.018 to 0.042, scaled by velocity
+- coefficient clamp: 0.015 to 0.135
+
+Expected sound:
+
+This should test whether the lower wound strings can gain more harmonic phase irregularity and evolving string behavior without a global tone change. The main risk is the same family as KS007: too much all-pass movement can blur or dull upper harmonics, so this version is wound-only and gentler.
+
 ## Suggested MVP Signal Flow
 
 ```text

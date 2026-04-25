@@ -181,3 +181,10 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The wound group strongest upper-harmonic shift moved closer to the DI reference, which suggests the added interaction layer is directionally useful.
 - The wound group is still far below the DI reference for air/upper energy, and phase drift stayed almost unchanged.
 - The next wound-string experiment should probably add motion-coupled phase/dispersion or roughness that changes the string state, instead of only mixing more noise into the pickup readout.
+
+## 2026-04-25 — KS-012 wound phase implementation
+
+- The next isolated lower-string experiment is `StringVoice KS-012 WoundPhase`.
+- It keeps KS011's wound interaction layer and adds a gentler wound-only all-pass phase stage in the feedback loop.
+- This specifically targets the missing lower-string phase irregularity shown by the Guitar-TECHS DI comparison.
+- The main risk is dulling or blurring the wound notes, as the earlier global KS007 phase-settling experiment improved phase metrics but hurt brightness.

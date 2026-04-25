@@ -48,6 +48,15 @@ void StringVoice::reset()
     woundPreviousNoise = 0.0f;
     woundTextureState = 0.0f;
     woundInteractionSamplesRemaining = 0;
+    woundPhaseCoefficient = 0.0f;
+    woundPhaseTarget = 0.0f;
+    woundPhaseStep = 0.0f;
+    woundPhaseSamplesRemaining = 0;
+    woundPhaseInputState = 0.0f;
+    woundPhaseOutputState = 0.0f;
+    woundPhaseModState = 0.0f;
+    woundPhaseEnvelope = 0.0f;
+    woundPhaseEnvelopeDecay = 0.0f;
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -78,6 +87,15 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     woundPreviousNoise = 0.0f;
     woundTextureState = 0.0f;
     woundInteractionSamplesRemaining = 0;
+    woundPhaseCoefficient = 0.0f;
+    woundPhaseTarget = 0.0f;
+    woundPhaseStep = 0.0f;
+    woundPhaseSamplesRemaining = 0;
+    woundPhaseInputState = 0.0f;
+    woundPhaseOutputState = 0.0f;
+    woundPhaseModState = 0.0f;
+    woundPhaseEnvelope = 0.0f;
+    woundPhaseEnvelopeDecay = 0.0f;
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
@@ -153,6 +171,13 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
         woundInteractionEnvelope = (0.006f + 0.022f * brightness) * velocityGain;
         woundInteractionDecay = 0.99993f - 0.00003f * brightness;
         woundInteractionSamplesRemaining = static_cast<int> (sampleRate * (0.42f + 0.18f * brightness));
+        woundPhaseCoefficient = 0.032f + 0.012f * brightness;
+        woundPhaseTarget = 0.088f + 0.018f * brightness;
+        woundPhaseSamplesRemaining = juce::jmax (1, static_cast<int> (sampleRate * (0.34f + 0.22f * brightness)));
+        woundPhaseStep = (woundPhaseTarget - woundPhaseCoefficient)
+                       / juce::jmax (1.0f, static_cast<float> (woundPhaseSamplesRemaining));
+        woundPhaseEnvelope = (0.018f + 0.024f * brightness) * velocityGain;
+        woundPhaseEnvelopeDecay = 0.999965f - 0.000010f * brightness;
     }
 
     updateDamping();
@@ -206,7 +231,8 @@ float StringVoice::renderSample() noexcept
     const auto movingResonance = processMovingResonance (slope + contactOutput * 0.35f + woundOutput * 0.45f);
     const auto contactDrive = softClip (slope * 2.8f) * 0.018f;
     const auto feedbackInput = 0.58f * current + 0.42f * lastOutput + contactDrive;
-    const auto dampedFeedback = processHarmonicDamping (feedbackInput);
+    const auto phasedFeedback = processWoundPhase (feedbackInput, slope + woundOutput * 0.9f);
+    const auto dampedFeedback = processHarmonicDamping (phasedFeedback);
     const auto filtered = (dampedFeedback + movingResonance * 0.18f) * damping * leftHandDamping;
 
     delayLine[index] = filtered;
@@ -373,6 +399,36 @@ float StringVoice::processWoundInteraction (float inputSlope, float contactOutpu
     woundInteractionEnvelope *= woundInteractionDecay;
     --woundInteractionSamplesRemaining;
     return interaction;
+}
+
+float StringVoice::processWoundPhase (float input, float motion) noexcept
+{
+    if (! woundString)
+        return input;
+
+    if (woundPhaseSamplesRemaining > 0)
+    {
+        woundPhaseCoefficient += woundPhaseStep;
+        --woundPhaseSamplesRemaining;
+    }
+    else
+    {
+        woundPhaseCoefficient = woundPhaseTarget;
+    }
+
+    woundPhaseModState += 0.0009f * (nextNoiseSample() - woundPhaseModState);
+    woundPhaseEnvelope *= woundPhaseEnvelopeDecay;
+
+    const auto motionMod = softClip (motion * 6.0f);
+    const auto coefficient = juce::jlimit (0.015f,
+                                           0.135f,
+                                           woundPhaseCoefficient
+                                               + woundPhaseEnvelope * (0.55f * woundPhaseModState + 0.45f * motionMod));
+
+    const auto output = -coefficient * input + woundPhaseInputState + coefficient * woundPhaseOutputState;
+    woundPhaseInputState = input;
+    woundPhaseOutputState = output;
+    return output;
 }
 
 float StringVoice::softClip (float value) const noexcept

@@ -36,6 +36,7 @@ private:
     float processHarmonicDamping (float input) noexcept;
     float processMovingResonance (float input) noexcept;
     float processWoundInteraction (float inputSlope, float contactOutput) noexcept;
+    float processWoundPhase (float input, float motion) noexcept;
     float softClip (float value) const noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
@@ -79,6 +80,15 @@ private:
     float woundPreviousNoise = 0.0f;
     float woundTextureState = 0.0f;
     int woundInteractionSamplesRemaining = 0;
+    float woundPhaseCoefficient = 0.0f;
+    float woundPhaseTarget = 0.0f;
+    float woundPhaseStep = 0.0f;
+    int woundPhaseSamplesRemaining = 0;
+    float woundPhaseInputState = 0.0f;
+    float woundPhaseOutputState = 0.0f;
+    float woundPhaseModState = 0.0f;
+    float woundPhaseEnvelope = 0.0f;
+    float woundPhaseEnvelopeDecay = 0.0f;
     float leftHandDamping = 1.0f;
     float leftHandDampingTarget = 1.0f;
     float leftHandDampingStep = 0.0f;
