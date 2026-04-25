@@ -113,6 +113,13 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - `StringVoice KS-007 PhaseSettle` adds a time-varying all-pass stage in the string feedback loop.
 - The KS006 exciter, pickup readout, and tone stage were intentionally left unchanged so the next render can test phase settling without mixing in another new property.
 
+## 2026-04-25 — KS-007 render comparison
+
+- The isolated phase-settling experiment moved the phase metrics in the intended direction.
+- KS007 raised phase-drift standard deviation across harmonics 2-8 from about 1.0 cents to about 3.5 cents, with the DI reference around 12.4 cents.
+- KS007 also reduced upper-harmonic energy and made the strongest upper-harmonic emphasis less mobile, so all-pass phase movement alone is not enough.
+- The next isolated property should probably be time-varying amplitude/resonance behavior, such as harmonic-dependent damping or a short moving contact/resonance layer, while preserving the useful phase-settling idea for later recombination.
+
 ## 2026-04-25 — CMake build label cache issue
 
 - The visible plugin model label should not be stored as a CMake cache variable.

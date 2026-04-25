@@ -255,6 +255,14 @@ Expected sound:
 
 This should subtly destabilize the otherwise static KS loop, especially near the attack. It may read as more string-like tension settling, or it may simply detune/blur the note if the coefficient movement is too strong.
 
+Calibration feedback:
+
+- KS007 successfully increased harmonic phase/pitch drift. Mean phase-drift standard deviation across harmonics 2-8 rose from about 1.0 cents in KS006 to about 3.5 cents in KS007; the Guitar-TECHS DI reference averaged about 12.4 cents.
+- Mean absolute phase drift moved close to the reference average: KS006 was about 2.5 cents, KS007 about 8.7 cents, and the reference about 9.4 cents.
+- The isolated phase-settling change did not improve brightness. Mean upper-to-low harmonic energy fell from about 0.0044 in KS006 to about 0.0017 in KS007.
+- Moving upper-harmonic emphasis also became more static by the current metric. The strongest-harmonic shift standard deviation fell from about 0.57 in KS006 to about 0.06 in KS007, while the reference averaged about 1.04.
+- Conclusion: the all-pass phase-settling direction is useful, but the current implementation should not be treated as a tone improvement by itself. It likely needs to be paired later with a separate amplitude/resonance or harmonic-dependent damping model.
+
 ## Suggested MVP Signal Flow
 
 ```text
