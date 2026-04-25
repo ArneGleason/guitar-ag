@@ -136,3 +136,34 @@ Then move to techniques:
 - vibrato for pitch modulation shape
 - bends for pitch trajectory and sustain
 - harmonics/pinch harmonics for future excitation and contact models
+
+## Comparing Guitar AG Renders
+
+After rendering `tests/midi/single-note-calibration.mid` through Guitar AG, extract its note timings:
+
+```bash
+scripts/extract-midi-notes.py \
+  tests/midi/single-note-calibration.mid \
+  --output /Users/arnegleason/code/reference-audio/Guitar-AG-renders/single-note-calibration-notes.csv
+```
+
+Then compare the rendered long notes against the Guitar-TECHS DI reference:
+
+```bash
+scripts/compare-calibration-render.py \
+  --render-wav /Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-ks003-e35bf11-single-note-calibration.wav \
+  --render-notes /Users/arnegleason/code/reference-audio/Guitar-AG-renders/single-note-calibration-notes.csv \
+  --reference-wav /Users/arnegleason/code/reference-audio/Guitar-TECHS/extracted/P1_singlenotes/audio/directinput/directinput_allsinglenotes.wav \
+  --reference-notes /Users/arnegleason/code/reference-audio/Guitar-TECHS/analysis/P1_singlenotes_notes.csv \
+  --output /Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks003-vs-p1-di.csv \
+  --long-notes-only
+```
+
+The comparison includes basic level, attack-to-sustain, late-to-sustain, and zero-crossing-rate metrics. It is an orientation tool, not a final perceptual model.
+
+The script also reports rough harmonic-balance metrics:
+
+- upper harmonics versus low harmonics
+- even harmonics versus odd harmonics
+
+These metrics use a simple dependency-free analysis and should be treated as directional clues, not final perceptual truth.

@@ -69,3 +69,10 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The first local subset is `P1_singlenotes.zip`, stored outside the repo under `/Users/arnegleason/code/reference-audio/Guitar-TECHS/`.
 - `P1_singlenotes` includes one long DI WAV, one long amp-mic WAV, stereo MP3 perspective captures, and a MIDI file with 142 note events.
 - The initial reference workflow can locate real note regions by MIDI timestamps before deeper spectral comparison tools exist.
+
+## 2026-04-25 — KS-003 render comparison
+
+- The first calibration render is stored at `/Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-ks003-e35bf11-single-note-calibration.wav`.
+- A rough harmonic comparison against Guitar-TECHS DI notes supports the listening impression that KS-003 is too smooth/nylon-like.
+- The render appears to have much less upper-harmonic energy than the real DI notes.
+- The next likely sound experiment is a simple pickup-position/tone model rather than a plain brightness boost.

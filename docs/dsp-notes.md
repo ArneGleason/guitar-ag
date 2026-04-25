@@ -99,6 +99,45 @@ Expected sound:
 
 Short detached notes should stop much more quickly without a hard digital gate. Longer notes should still have a more natural decay.
 
+Listening feedback:
+
+- The left-hand mute behavior is good enough for now.
+- The string tone still reads more nylon-like than steel-like.
+- The missing steel/electric quality seems to involve overtone generation or preservation, not only EQ brightness.
+
+## 2026-04-25 — Render vs Guitar-TECHS DI Comparison
+
+Compared the user-rendered `StringVoice KS-003` calibration WAV against Guitar-TECHS P1 direct-input single-note references.
+
+Render:
+
+```text
+/Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-ks003-e35bf11-single-note-calibration.wav
+```
+
+Reference:
+
+```text
+/Users/arnegleason/code/reference-audio/Guitar-TECHS/extracted/P1_singlenotes/audio/directinput/directinput_allsinglenotes.wav
+```
+
+Initial observations:
+
+- The render is a 48 kHz stereo WAV, 24 seconds long, peak 0.087955, RMS 0.017134.
+- The comparison script matched the six long calibration notes against same-pitch DI note regions.
+- Simple zero-crossing rates are in the same rough range for some notes, so the issue is not merely pitch or gross brightness.
+- Rough harmonic-balance metrics show the render has far less upper-harmonic energy than the DI reference.
+- For example, the render upper-to-low harmonic ratios were around 0.000001 to 0.007, while real DI examples were often much higher.
+
+Hypothesis:
+
+The next sound step should not be a plain high-shelf EQ. Guitar AG likely needs a simple electric pickup/tone model and/or steel-string partial behavior that creates or preserves upper harmonic structure. A pickup-position readout/comb model is the best next small experiment because it can introduce electric-guitar-like harmonic emphasis/notches and may move the sound toward twang/quack.
+
+Risks:
+
+- Current reference matching is still approximate; some same-pitch notes in Guitar-TECHS are much quieter than others.
+- The harmonic metrics are dependency-free and coarse. They are useful for direction, not final scoring.
+
 ## Suggested MVP Signal Flow
 
 ```text
