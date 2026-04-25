@@ -27,6 +27,7 @@ The first successful MVP should:
 - `docs/dsp-notes.md` — physical modeling notes and experiments.
 - `docs/realism-vision.md` — research-backed long-term realism direction.
 - `docs/reference-data.md` — external reference-audio workflow.
+- `docs/render-calibration.md` — fixed MIDI render workflow for Bitwig comparisons.
 - `plans/` — milestone-by-milestone implementation plans.
 - `DECISIONS.md` — decision log.
 - `LEARNINGS.md` — running project memory.
