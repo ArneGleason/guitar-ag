@@ -82,3 +82,9 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The first pickup/tone model is fixed and intentionally simple.
 - It shapes the mixed string signal after voices, which is easy to test but less physically precise than per-string pickup readouts.
 - If the calibration render improves, a future version should move toward a better pickup-position model with controllable pickup position/width and possibly per-voice processing.
+
+## 2026-04-25 — CMake build label cache issue
+
+- The visible plugin model label should not be stored as a CMake cache variable.
+- CMake preserved an older `GUITAR_AG_MODEL_LABEL` value in `build/CMakeCache.txt`, causing the Bitwig UI label to disagree with source-controlled `CMakeLists.txt`.
+- The label is now a normal CMake variable so source changes update `BuildInfo.h` reliably.
