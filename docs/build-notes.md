@@ -37,9 +37,11 @@ The first JUCE build emits a deprecated `std::wstring_convert` warning from JUCE
 - Plugin format enabled: VST3.
 - Product name: `Guitar AG`.
 - Target name: `GuitarAG`.
+- Offline render target: `GuitarAGOfflineRender`.
 - Source layout:
   - `src/plugin/` contains the JUCE processor and editor.
   - `src/dsp/` contains the placeholder audio engine and test-tone voice.
+  - `tools/` contains command-line development tools.
 - Current audio behavior: MIDI note-on triggers a basic plucked string model; note-off damps/releases it.
 - Current non-goals: no string model, no MPE routing, no full UI, no amp/cab simulation.
 
@@ -77,6 +79,27 @@ Install the already-built VST3 bundle without rebuilding:
 ```bash
 scripts/install-vst3.sh
 ```
+
+Build the offline render tool:
+
+```bash
+cmake --build build --config Release --target GuitarAGOfflineRender
+```
+
+Render the calibration MIDI through the shared audio engine without opening a DAW:
+
+```bash
+build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
+  --midi tests/midi/single-note-calibration.mid \
+  --output /Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-offline-<model>-<commit>-single-note-calibration.wav \
+  --sample-rate 48000 \
+  --block-size 512 \
+  --tail-seconds 2.0
+```
+
+The offline renderer uses the same `AudioEngine` as the VST3 processor, so it is useful for rapid DSP iteration. It does not test DAW/plugin-host behavior, plugin scanning, or UI behavior.
+
+An optional `--gain` argument can align the offline WAV level with a DAW export if the DAW project has track/output gain applied.
 
 The script copies:
 

@@ -233,3 +233,11 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - Pickup output now comes mainly from velocity at a finite-width pickup aperture, rather than additive wound air/ring layers.
 - Wound open strings still get slightly different coupling/damping, but no longer receive a dedicated sustained noise or ring layer.
 - This version should be judged by listening first, because the old air/upper metrics were shown to reward perceptually wrong changes.
+
+## 2026-04-25 — Offline render harness
+
+- Added `GuitarAGOfflineRender`, a CMake console target that renders MIDI through the shared `AudioEngine` and writes WAV output.
+- The harness enables faster unattended DSP experiments without opening Bitwig for every candidate.
+- It does not replace DAW verification because it bypasses plugin hosting, scanning, UI, and any DAW gain/routing choices.
+- The first KS015 offline render had very high waveform correlation with the Bitwig render, but was about 10 dB louder, likely due to DAW project gain or export routing.
+- Rendering with `--gain 0.316` closely matches the Bitwig KS015 render level while preserving about 0.999 waveform correlation.

@@ -85,6 +85,25 @@ scripts/analyze-harmonic-evolution.py \
   --long-notes-only
 ```
 
+## Offline Render Harness
+
+For fast DSP iteration, the calibration MIDI can also be rendered without Bitwig:
+
+```sh
+cmake --build build --config Release --target GuitarAGOfflineRender
+
+build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
+  --midi tests/midi/single-note-calibration.mid \
+  --output /Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-offline-<model>-<commit>-single-note-calibration.wav \
+  --sample-rate 48000 \
+  --block-size 512 \
+  --tail-seconds 2.0
+```
+
+The offline renderer drives the shared `AudioEngine` directly. It is appropriate for fast unattended experiments and analysis, but human DAW renders remain important before deciding whether a sound change actually feels better.
+
+The first KS015 offline render correlated very closely with the Bitwig render, but was about 10 dB louder. Use `--gain 0.316` when a DAW-level-matched WAV is useful.
+
 ## Verified MIDI Contents
 
 The generated MIDI has 12 note events:

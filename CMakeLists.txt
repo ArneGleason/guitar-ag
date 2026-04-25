@@ -92,3 +92,26 @@ target_compile_definitions(GuitarAG
 target_link_libraries(GuitarAG
     PRIVATE
         juce::juce_audio_utils)
+
+juce_add_console_app(GuitarAGOfflineRender
+    PRODUCT_NAME "Guitar AG Offline Render")
+
+target_sources(GuitarAGOfflineRender
+    PRIVATE
+        tools/render-calibration.cpp
+        src/dsp/AudioEngine.cpp
+        src/dsp/AudioEngine.h
+        src/dsp/ElectricGuitarTone.cpp
+        src/dsp/ElectricGuitarTone.h
+        src/dsp/StringVoice.cpp
+        src/dsp/StringVoice.h)
+
+target_compile_definitions(GuitarAGOfflineRender
+    PRIVATE
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0)
+
+target_link_libraries(GuitarAGOfflineRender
+    PRIVATE
+        juce::juce_audio_utils
+        juce::juce_audio_formats)
