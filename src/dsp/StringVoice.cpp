@@ -106,11 +106,13 @@ void StringVoice::start (int midiNoteNumber,
                          float pickTexture,
                          float harmonicTouch,
                          float stringAge,
+                         float bridgeIntonation,
                          float pickupPositionControl,
                          int pickupModel)
 {
     const auto harmonicTouchAmount = juce::jlimit (0.0f, 1.0f, harmonicTouch);
     const auto stringAgeAmount = juce::jlimit (0.0f, 1.0f, stringAge);
+    const auto intonationRatio = getBridgeIntonationRatio (assignment, bridgeIntonation);
     const auto pickupAmount = juce::jlimit (0.0f, 1.0f, pickupPositionControl);
     const auto pickupModelIndex = juce::jlimit (0, 2, pickupModel);
     const auto harmonicActive = harmonicTouchAmount > 0.25f;
@@ -192,7 +194,10 @@ void StringVoice::start (int midiNoteNumber,
     active = true;
     woundString = woundAmount > 0.0f;
 
-    const auto frequency = juce::jlimit (20.0, 8000.0, juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber));
+    const auto frequency = juce::jlimit (20.0,
+                                         8000.0,
+                                         juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber)
+                                             * static_cast<double> (intonationRatio));
     delayLength = juce::jlimit (2, maxDelaySamples, static_cast<int> (std::round (sampleRate / frequency)));
     pickupOffsetSamples = juce::jlimit (1, delayLength - 1, static_cast<int> (std::round (delayLength * 0.18f)));
     secondaryPickupOffsetSamples = juce::jlimit (1, delayLength - 1, static_cast<int> (std::round (delayLength * 0.205f)));
@@ -813,6 +818,25 @@ float StringVoice::getHarmonicTouchMask (int harmonic, int harmonicDivision, flo
     const auto touchedMask = selectedMode ? selectedGain : rejectedLeak;
 
     return normalBlend + accuracy * touchedMask;
+}
+
+float StringVoice::getBridgeIntonationRatio (const FretboardAssignment& assignment, float bridgeIntonation) const noexcept
+{
+    if (assignment.fret <= 0)
+        return 1.0f;
+
+    constexpr std::array<float, 6> maxSaddleOffsets {
+        -0.0042f, 0.0037f, -0.0032f, 0.0028f, -0.0024f, 0.0022f
+    };
+    const auto amount = std::pow (juce::jlimit (0.0f, 1.0f, bridgeIntonation), 1.15f);
+    const auto stringOffset = maxSaddleOffsets[static_cast<size_t> (juce::jlimit (0, 5, assignment.stringIndex))] * amount;
+    const auto idealLengthRatio = std::pow (2.0f, -static_cast<float> (assignment.fret) / 12.0f);
+    const auto actualLengthRatio = idealLengthRatio + stringOffset;
+
+    if (actualLengthRatio <= 0.05f)
+        return 1.0f;
+
+    return juce::jlimit (0.970f, 1.030f, idealLengthRatio * (1.0f + stringOffset) / actualLengthRatio);
 }
 
 } // namespace guitar_ag

@@ -1031,6 +1031,24 @@ Expected sound:
 
 Bridge-side pickup positions should be brighter and lower in fundamental weight. Neck-side positions should become warmer and fuller, with audible harmonic peaks/nulls rather than a plain EQ sweep. Humbucker should be thicker and smoother than single coil. Humbucker OOP should be thinner and more nasal.
 
+## 2026-04-26 — Bridge Intonation
+
+Added the first setup imperfection control.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-039 BridgeIntonation`.
+- Added a `Bridge Intonation` VST parameter, default 0%.
+- 0% is perfect bridge intonation.
+- 100% applies a deterministic, per-string saddle-offset error that should be noticeably imperfect but not wildly unusable.
+- Open strings are unaffected.
+- Fretted notes drift more as the assigned fret gets higher, using the current fretboard mapper's string/fret assignment.
+- The offline renderer accepts `--bridge-intonation`.
+
+Expected sound:
+
+Low-position playing should remain close to normal. Higher fretted notes should reveal more pitch disagreement between strings as the control increases.
+
 ## Suggested MVP Signal Flow
 
 ```text

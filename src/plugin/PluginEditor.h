@@ -17,9 +17,18 @@ private:
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
 
+    void configureSectionButton (juce::TextButton& button, const juce::String& title);
+    void updateSectionVisibility();
+    [[nodiscard]] int getPreferredHeight() const noexcept;
+    [[nodiscard]] juce::String getSectionTitle (const juce::String& title, bool expanded) const;
+
     GuitarAgAudioProcessor& audioProcessor;
+    juce::TextButton setupSectionButton;
+    juce::TextButton pickupSectionButton;
+    juce::TextButton articulationSectionButton;
     juce::Slider sustainSlider;
     juce::Slider stringAgeSlider;
+    juce::Slider bridgeIntonationSlider;
     juce::Slider pickupPositionSlider;
     juce::Slider pickStiffnessSlider;
     juce::Slider pickTextureSlider;
@@ -27,6 +36,7 @@ private:
     juce::Slider harmonicTouchSlider;
     juce::Label sustainLabel;
     juce::Label stringAgeLabel;
+    juce::Label bridgeIntonationLabel;
     juce::Label pickupModelLabel;
     juce::Label pickupPositionLabel;
     juce::Label pickupSixthLabel;
@@ -43,12 +53,16 @@ private:
     juce::ComboBox pickupModelBox;
     std::unique_ptr<SliderAttachment> sustainAttachment;
     std::unique_ptr<SliderAttachment> stringAgeAttachment;
+    std::unique_ptr<SliderAttachment> bridgeIntonationAttachment;
     std::unique_ptr<SliderAttachment> pickupPositionAttachment;
     std::unique_ptr<ComboBoxAttachment> pickupModelAttachment;
     std::unique_ptr<SliderAttachment> pickStiffnessAttachment;
     std::unique_ptr<SliderAttachment> pickTextureAttachment;
     std::unique_ptr<SliderAttachment> palmMuteAttachment;
     std::unique_ptr<SliderAttachment> harmonicTouchAttachment;
+    bool setupExpanded = true;
+    bool pickupExpanded = true;
+    bool articulationExpanded = true;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAgAudioProcessorEditor)
 };

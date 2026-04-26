@@ -239,6 +239,12 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - A humbucker's wider sensing aperture should naturally smooth high partials. Modeling it as two nearby readout points also creates spacing-dependent notches.
 - Pickup-position UI markers are best treated as harmonic landmarks, not as promised sweet spots for every note, because fretting moves the effective speaking length and node layout.
 
+## 2026-04-26 — Bridge intonation model
+
+- Bridge intonation error should be tied to the fretboard assignment, not applied as a global pitch drift.
+- A simple saddle-offset formula gives the right shape for this milestone: open strings stay tuned, low frets are subtle, and higher frets reveal more error.
+- The editor is now grouped into collapsible sections so future controls can remain discoverable without making the plugin window permanently taller.
+
 ## 2026-04-25 — KS-014 render comparison and research pivot
 
 - KS014 reduced the KS013 air/noise boost but did not create a more realistic open-string sound by ear.

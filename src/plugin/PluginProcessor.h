@@ -13,6 +13,7 @@ public:
     static constexpr auto palmMuteParameterId = "palmMute";
     static constexpr auto harmonicTouchParameterId = "harmonicTouch";
     static constexpr auto stringAgeParameterId = "stringAge";
+    static constexpr auto bridgeIntonationParameterId = "bridgeIntonation";
     static constexpr auto pickupPositionParameterId = "pickupPosition";
     static constexpr auto pickupModelParameterId = "pickupModel";
 
@@ -56,6 +57,7 @@ private:
     std::atomic<float>* palmMuteParameter = nullptr;
     std::atomic<float>* harmonicTouchParameter = nullptr;
     std::atomic<float>* stringAgeParameter = nullptr;
+    std::atomic<float>* bridgeIntonationParameter = nullptr;
     std::atomic<float>* pickupPositionParameter = nullptr;
     std::atomic<float>* pickupModelParameter = nullptr;
 

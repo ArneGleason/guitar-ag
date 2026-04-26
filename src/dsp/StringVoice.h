@@ -25,6 +25,7 @@ public:
                 float pickTexture,
                 float harmonicTouch,
                 float stringAge,
+                float bridgeIntonation,
                 float pickupPosition,
                 int pickupModel);
     void release (int midiNoteNumber, int midiChannel);
@@ -54,6 +55,7 @@ private:
     float softClip (float value) const noexcept;
     void configureMode (int index, float frequency, float amplitude, float decay, float phase, float tailDampingScale = 1.0f) noexcept;
     float getHarmonicTouchMask (int harmonic, int harmonicDivision, float harmonicAccuracy) const noexcept;
+    float getBridgeIntonationRatio (const FretboardAssignment& assignment, float bridgeIntonation) const noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
     std::array<float, maxDelaySamples> secondaryDelayLine {};

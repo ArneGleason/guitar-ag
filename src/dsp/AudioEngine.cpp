@@ -20,6 +20,8 @@ void AudioEngine::prepare (double sampleRate, int, int)
     harmonicTouch.setCurrentAndTargetValue (0.0f);
     stringAge.reset (sampleRate, 0.050);
     stringAge.setCurrentAndTargetValue (0.0f);
+    bridgeIntonation.reset (sampleRate, 0.050);
+    bridgeIntonation.setCurrentAndTargetValue (0.0f);
     pickupPosition.reset (sampleRate, 0.050);
     pickupPosition.setCurrentAndTargetValue (0.39f);
     pickupModel = 0;
@@ -40,6 +42,7 @@ void AudioEngine::reset()
     palmMute.setCurrentAndTargetValue (palmMute.getTargetValue());
     harmonicTouch.setCurrentAndTargetValue (harmonicTouch.getTargetValue());
     stringAge.setCurrentAndTargetValue (stringAge.getTargetValue());
+    bridgeIntonation.setCurrentAndTargetValue (bridgeIntonation.getTargetValue());
     pickupPosition.setCurrentAndTargetValue (pickupPosition.getTargetValue());
     nextVoice = 0;
 }
@@ -72,6 +75,11 @@ void AudioEngine::setHarmonicTouch (float newHarmonicTouch) noexcept
 void AudioEngine::setStringAge (float newStringAge) noexcept
 {
     stringAge.setTargetValue (juce::jlimit (0.0f, 1.0f, newStringAge));
+}
+
+void AudioEngine::setBridgeIntonation (float newBridgeIntonation) noexcept
+{
+    bridgeIntonation.setTargetValue (juce::jlimit (0.0f, 1.0f, newBridgeIntonation));
 }
 
 void AudioEngine::setPickupPosition (float newPickupPosition) noexcept
@@ -113,6 +121,7 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         pickTexture.getNextValue();
         harmonicTouch.getNextValue();
         stringAge.getNextValue();
+        bridgeIntonation.getNextValue();
         pickupPosition.getNextValue();
 
         for (auto& voice : voices)
@@ -144,6 +153,7 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
     const auto notePickTexture = pickTexture.getTargetValue();
     const auto noteHarmonicTouch = harmonicTouch.getTargetValue();
     const auto noteStringAge = stringAge.getTargetValue();
+    const auto noteBridgeIntonation = bridgeIntonation.getTargetValue();
     const auto notePickupPosition = pickupPosition.getTargetValue();
     const auto notePickupModel = pickupModel;
 
@@ -159,6 +169,7 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                          notePickTexture,
                          noteHarmonicTouch,
                          noteStringAge,
+                         noteBridgeIntonation,
                          notePickupPosition,
                          notePickupModel);
             return;
@@ -175,6 +186,7 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                        notePickTexture,
                        noteHarmonicTouch,
                        noteStringAge,
+                       noteBridgeIntonation,
                        notePickupPosition,
                        notePickupModel);
     nextVoice = (nextVoice + 1) % maxVoices;
