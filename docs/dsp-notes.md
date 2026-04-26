@@ -953,6 +953,26 @@ Expected sound:
 
 The light palm-mute range should be easier to dial in. 50% should now resemble the previous 25% setting, while 100% remains the same full mute.
 
+## 2026-04-26 — Harmonic Touch Parameter
+
+Added a first note-start harmonic-touch articulation.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-035 HarmonicTouch`.
+- Added a `Harmonic Touch` VST parameter, default 0%.
+- 0% to 25% leaves normal playing unchanged.
+- 25% to 50% selects the 1/4 string-length harmonic family, matching the 5th/24th fret natural-harmonic region.
+- 50% to 75% selects the 1/3 string-length harmonic family, matching the 7th/19th fret region.
+- 75% to 100% selects the 1/2 string-length midpoint harmonic, matching the 12th fret octave harmonic.
+- The top of each band is the most accurate node touch. Lower values in the band leak more normal-string partials, approximating a less precise touch.
+- The implementation is a modal excitation mask at note start, not a continuous touch damper after the note has started.
+- The offline renderer accepts `--harmonic-touch`.
+
+Expected sound:
+
+100% should produce the strongest and clearest octave harmonic. 75% should produce a quieter octave-plus-fifth harmonic. 50% should produce a still quieter two-octave harmonic. Values near the lower edge of each active band should sound less pure and more mixed with the normal string voice.
+
 ## Suggested MVP Signal Flow
 
 ```text

@@ -218,6 +218,14 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The wound-motion resonators are longer-lived, lower in level, and driven more by string motion than noise.
 - The goal is metallic/string-coupled ring on lower strings instead of a short hiss envelope.
 
+## 2026-04-26 — Harmonic touch research
+
+- Natural/artificial harmonic gestures fit the current modal-cluster voice well because the physical action is mostly modal selection: touching a node damps modes that move at that point while allowing modes with a node there to ring.
+- The first three useful harmonic families are 1/2, 1/3, and 1/4 of the speaking string length, corresponding to 12th, 7th/19th, and 5th/24th fret regions.
+- Higher-division harmonics become weaker and more precision-sensitive, so the first implementation should make 1/4 quieter than 1/3, and 1/3 quieter than the midpoint octave.
+- The note-start implementation is a good first pass for the described “touch, strike, lift” gesture. A later pass could add a true time-varying touch damper if harmonics need to be faded in while a note is already ringing.
+- Research references used for this pass: Aaron Shearer Foundation guitar harmonic node chart, UNSW strings/harmonics notes, Woodhouse's guitar pluck synthesis paper, and the Columbia waveguide guitar synthesis notes.
+
 ## 2026-04-25 — KS-014 render comparison and research pivot
 
 - KS014 reduced the KS013 air/noise boost but did not create a more realistic open-string sound by ear.

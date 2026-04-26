@@ -18,6 +18,7 @@ public:
     void setPickStiffness (float newPickStiffness) noexcept;
     void setPickTexture (float newPickTexture) noexcept;
     void setPalmMute (float newPalmMute) noexcept;
+    void setHarmonicTouch (float newHarmonicTouch) noexcept;
 
     void render (juce::AudioBuffer<float>& audio, const juce::MidiBuffer& midi);
 
@@ -36,6 +37,7 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickStiffness { 0.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickTexture { 0.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> palmMute { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> harmonicTouch { 0.0f };
     int nextVoice = 0;
 };
 

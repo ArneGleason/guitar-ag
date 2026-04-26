@@ -58,6 +58,19 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     palmMuteSlider.setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0xff202832));
     addAndMakeVisible (palmMuteSlider);
 
+    harmonicTouchLabel.setText ("Harmonic Touch", juce::dontSendNotification);
+    harmonicTouchLabel.setColour (juce::Label::textColourId, juce::Colour (0xffcbd4dc));
+    harmonicTouchLabel.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (harmonicTouchLabel);
+
+    harmonicTouchSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    harmonicTouchSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 72, 24);
+    harmonicTouchSlider.setColour (juce::Slider::trackColourId, juce::Colour (0xffc39cff));
+    harmonicTouchSlider.setColour (juce::Slider::thumbColourId, juce::Colour (0xffe8edf2));
+    harmonicTouchSlider.setColour (juce::Slider::textBoxTextColourId, juce::Colour (0xffe8edf2));
+    harmonicTouchSlider.setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0xff202832));
+    addAndMakeVisible (harmonicTouchSlider);
+
     sustainAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                             GuitarAgAudioProcessor::tailSustainParameterId,
                                                             sustainSlider);
@@ -70,8 +83,11 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     palmMuteAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                             GuitarAgAudioProcessor::palmMuteParameterId,
                                                             palmMuteSlider);
+    harmonicTouchAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                 GuitarAgAudioProcessor::harmonicTouchParameterId,
+                                                                 harmonicTouchSlider);
 
-    setSize (500, 336);
+    setSize (500, 372);
 }
 
 void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
@@ -89,8 +105,8 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
     graphics.setFont (juce::FontOptions (15.0f));
     graphics.drawFittedText ("MVP string voice: MIDI-triggered plucked model", bounds.removeFromTop (28),
                              juce::Justification::centredLeft, 1);
-    bounds.removeFromTop (168);
-    graphics.drawFittedText ("MPE routing and pickup modeling are intentionally not implemented yet.", bounds,
+    bounds.removeFromTop (204);
+    graphics.drawFittedText ("MPE routing is intentionally not implemented yet.", bounds,
                              juce::Justification::centredLeft, 2);
 
     graphics.setColour (juce::Colour (0xff65717c));
@@ -120,4 +136,8 @@ void GuitarAgAudioProcessorEditor::resized()
     auto palmMuteBounds = bounds.removeFromTop (36);
     palmMuteLabel.setBounds (palmMuteBounds.removeFromLeft (120));
     palmMuteSlider.setBounds (palmMuteBounds);
+
+    auto harmonicTouchBounds = bounds.removeFromTop (36);
+    harmonicTouchLabel.setBounds (harmonicTouchBounds.removeFromLeft (120));
+    harmonicTouchSlider.setBounds (harmonicTouchBounds);
 }

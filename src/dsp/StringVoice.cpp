@@ -103,10 +103,12 @@ void StringVoice::start (int midiNoteNumber,
                          float velocity,
                          const FretboardAssignment& assignment,
                          float pickStiffness,
-                         float pickTexture)
+                         float pickTexture,
+                         float harmonicTouch)
 {
     const auto stiffnessAmount = juce::jlimit (0.0f, 1.0f, pickStiffness);
     const auto textureAmount = juce::jlimit (0.0f, 1.0f, pickTexture);
+    const auto harmonicTouchAmount = juce::jlimit (0.0f, 1.0f, harmonicTouch);
     const auto stiffnessBipolar = 2.0f * stiffnessAmount - 1.0f;
     const auto mappedTexture = juce::jlimit (0.0f, 1.0f, textureAmount / 0.8f);
     const auto coinTexture = juce::jlimit (0.0f, 1.0f, (textureAmount - 0.8f) * 5.0f);
@@ -206,6 +208,32 @@ void StringVoice::start (int midiNoteNumber,
     const auto steelPartialAmount = (0.012f + 0.032f * brightness) * velocityGain * partialStiffnessScale;
     auto mean = 0.0f;
     auto secondaryMean = 0.0f;
+    auto harmonicDivision = 1;
+    auto harmonicBandPosition = 0.0f;
+
+    if (harmonicTouchAmount > 0.75f)
+    {
+        harmonicDivision = 2;
+        harmonicBandPosition = (harmonicTouchAmount - 0.75f) * 4.0f;
+    }
+    else if (harmonicTouchAmount > 0.50f)
+    {
+        harmonicDivision = 3;
+        harmonicBandPosition = (harmonicTouchAmount - 0.50f) * 4.0f;
+    }
+    else if (harmonicTouchAmount > 0.25f)
+    {
+        harmonicDivision = 4;
+        harmonicBandPosition = (harmonicTouchAmount - 0.25f) * 4.0f;
+    }
+
+    const auto harmonicAccuracy = harmonicDivision > 1
+                                ? std::pow (juce::jlimit (0.0f, 1.0f, harmonicBandPosition), 0.70f)
+                                : 0.0f;
+    const auto harmonicEnergyScale = harmonicDivision == 2 ? 0.94f
+                                  : harmonicDivision == 3 ? 0.74f
+                                  : harmonicDivision == 4 ? 0.58f
+                                                          : 1.0f;
 
     randomState = static_cast<uint32_t> ((midiNoteNumber + 1) * 1103515245u + (midiChannel + 17) * 12345u);
 
@@ -255,7 +283,7 @@ void StringVoice::start (int midiNoteNumber,
         secondaryDelayLine[static_cast<size_t> (i)] = 0.0f;
     }
 
-    energy = velocityGain;
+    energy = velocityGain * harmonicEnergyScale;
     pickTransient = (0.004f + 0.014f * brightness) * pickEdgeScale * (nextNoiseSample() >= 0.0f ? 1.0f : -1.0f);
     pickTransientDecay = 0.9990f - 0.0015f * brightness - 0.00025f * stiffnessBipolar;
     const auto smoothTexture = mappedTexture <= 0.5f ? std::pow (mappedTexture * 2.0f, 1.35f)
@@ -354,7 +382,9 @@ void StringVoice::start (int midiNoteNumber,
         const auto attackEmphasis = 1.0f
                                   + strikeAmount * juce::jlimit (0.0f, 3.0f, (harmonicFloat - 1.0f) / 8.0f)
                                   + hardStrike * juce::jlimit (0.0f, 4.0f, (harmonicFloat - 4.0f) / 8.0f);
-        const auto amplitude = modalGain * pluckShape * pickupShape * aperture * partialTilt * velocityScale * attackEmphasis;
+        const auto touchMask = getHarmonicTouchMask (harmonic, harmonicDivision, harmonicAccuracy);
+        const auto amplitude = modalGain * pluckShape * pickupShape * aperture * partialTilt * velocityScale * attackEmphasis
+                             * touchMask * harmonicEnergyScale;
         const auto phase = (harmonic % 2 == 0 ? 0.18f : -0.11f) * harmonicFloat;
         const auto tailDampingScale = juce::jlimit (0.14f, 0.62f, 0.11f + 0.012f * harmonicFloat);
 
@@ -370,7 +400,7 @@ void StringVoice::start (int midiNoteNumber,
             const auto sideAmount = 0.045f + ((0.12f + 0.014f * harmonicFloat) - 0.045f) * woundAmount;
             configureMode (modeIndex++,
                            sideFrequency,
-                           amplitude * sideRegime * sideAmount,
+                           amplitude * sideRegime * sideAmount * (0.45f + 0.55f * touchMask),
                            sideDecay,
                            phase + 1.7f,
                            juce::jlimit (0.28f, 0.76f, tailDampingScale + 0.14f));
@@ -390,7 +420,8 @@ void StringVoice::start (int midiNoteNumber,
                                * (juce::jmap (strikeAmount, 0.35f, 2.50f) + hardStrike * 1.25f)
                                * (0.12f + 0.008f * harmonicFloat)
                                * windingAperture
-                               * woundAmount,
+                               * woundAmount
+                               * (0.35f + 0.65f * touchMask),
                            windingDecay,
                            phase + 2.35f + 0.29f * harmonicFloat,
                            0.65f);
@@ -405,7 +436,8 @@ void StringVoice::start (int midiNoteNumber,
 
             configureMode (modeIndex++,
                            chirpFrequency,
-                           std::abs (amplitude) * attackModeGain * 0.48f * std::pow (harmonicFloat, 0.72f),
+                           std::abs (amplitude) * attackModeGain * 0.48f * std::pow (harmonicFloat, 0.72f)
+                               * (0.35f + 0.65f * touchMask),
                            chirpDecay,
                            phase + 0.63f * harmonicFloat);
         }
@@ -743,6 +775,21 @@ void StringVoice::configureMode (int index, float frequency, float amplitude, fl
     modalAmplitude[clampedIndex] = amplitude;
     modalDecay[clampedIndex] = juce::jlimit (0.90f, 0.999999f, decay);
     modalTailDampingScale[clampedIndex] = juce::jlimit (0.05f, 1.0f, tailDampingScale);
+}
+
+float StringVoice::getHarmonicTouchMask (int harmonic, int harmonicDivision, float harmonicAccuracy) const noexcept
+{
+    if (harmonicDivision <= 1)
+        return 1.0f;
+
+    const auto accuracy = juce::jlimit (0.0f, 1.0f, harmonicAccuracy);
+    const auto selectedMode = harmonic % harmonicDivision == 0;
+    const auto normalBlend = 1.0f - accuracy;
+    const auto rejectedLeak = 0.045f + 0.42f * (1.0f - accuracy);
+    const auto selectedGain = 0.95f + 0.38f * accuracy;
+    const auto touchedMask = selectedMode ? selectedGain : rejectedLeak;
+
+    return normalBlend + accuracy * touchedMask;
 }
 
 } // namespace guitar_ag

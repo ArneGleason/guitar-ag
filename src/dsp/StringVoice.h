@@ -22,7 +22,8 @@ public:
                 float velocity,
                 const FretboardAssignment& assignment,
                 float pickStiffness,
-                float pickTexture);
+                float pickTexture,
+                float harmonicTouch);
     void release (int midiNoteNumber, int midiChannel);
 
     [[nodiscard]] bool isActive() const noexcept { return active; }
@@ -49,6 +50,7 @@ private:
     float processMovingResonance (float input) noexcept;
     float softClip (float value) const noexcept;
     void configureMode (int index, float frequency, float amplitude, float decay, float phase, float tailDampingScale = 1.0f) noexcept;
+    float getHarmonicTouchMask (int harmonic, int harmonicDivision, float harmonicAccuracy) const noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
     std::array<float, maxDelaySamples> secondaryDelayLine {};
