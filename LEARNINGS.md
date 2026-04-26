@@ -225,6 +225,7 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - Higher-division harmonics become weaker and more precision-sensitive, so the first implementation should make 1/4 quieter than 1/3, and 1/3 quieter than the midpoint octave.
 - The note-start implementation is a good first pass for the described “touch, strike, lift” gesture. A later pass could add a true time-varying touch damper if harmonics need to be faded in while a note is already ringing.
 - Research references used for this pass: Aaron Shearer Foundation guitar harmonic node chart, UNSW strings/harmonics notes, Woodhouse's guitar pluck synthesis paper, and the Columbia waveguide guitar synthesis notes.
+- Listening feedback on KS035 suggests harmonic articulations should act as a self-contained gesture, not as a layer on top of the current pick material settings. This makes MIDI/automation authoring easier because a harmonic can be added without also automating the pick controls away and back.
 
 ## 2026-04-25 — KS-014 render comparison and research pivot
 

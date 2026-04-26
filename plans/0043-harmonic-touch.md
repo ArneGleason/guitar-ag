@@ -25,3 +25,11 @@ Add a first playable natural/artificial-harmonic style articulation without chan
 - Build the offline renderer and VST3.
 - Render diagnostic harmonic-touch values at 0%, 50%, 75%, and 100%.
 - Install the VST3 for manual Bitwig audition.
+
+## Follow-up Retune
+
+Implemented as `StringVoice KS-036 HarmonicGesture`.
+
+- Active harmonic notes override the normal pick stiffness/texture controls with a soft, no-texture excitation.
+- The harmonic slider shows 1/4, 1/3, and 1/2 markers.
+- The palm mute curve gives more space to the light mute range.

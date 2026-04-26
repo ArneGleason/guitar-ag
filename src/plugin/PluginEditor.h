@@ -27,6 +27,9 @@ private:
     juce::Label pickTextureLabel;
     juce::Label palmMuteLabel;
     juce::Label harmonicTouchLabel;
+    juce::Label harmonicQuarterLabel;
+    juce::Label harmonicThirdLabel;
+    juce::Label harmonicHalfLabel;
     std::unique_ptr<SliderAttachment> sustainAttachment;
     std::unique_ptr<SliderAttachment> pickStiffnessAttachment;
     std::unique_ptr<SliderAttachment> pickTextureAttachment;

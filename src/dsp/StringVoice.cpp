@@ -106,9 +106,10 @@ void StringVoice::start (int midiNoteNumber,
                          float pickTexture,
                          float harmonicTouch)
 {
-    const auto stiffnessAmount = juce::jlimit (0.0f, 1.0f, pickStiffness);
-    const auto textureAmount = juce::jlimit (0.0f, 1.0f, pickTexture);
     const auto harmonicTouchAmount = juce::jlimit (0.0f, 1.0f, harmonicTouch);
+    const auto harmonicActive = harmonicTouchAmount > 0.25f;
+    const auto stiffnessAmount = harmonicActive ? 0.0f : juce::jlimit (0.0f, 1.0f, pickStiffness);
+    const auto textureAmount = harmonicActive ? 0.0f : juce::jlimit (0.0f, 1.0f, pickTexture);
     const auto stiffnessBipolar = 2.0f * stiffnessAmount - 1.0f;
     const auto mappedTexture = juce::jlimit (0.0f, 1.0f, textureAmount / 0.8f);
     const auto coinTexture = juce::jlimit (0.0f, 1.0f, (textureAmount - 0.8f) * 5.0f);
@@ -463,8 +464,8 @@ float StringVoice::renderSample (float tailSustain, float palmMute) noexcept
 
     const auto sustainAmount = juce::jlimit (0.0f, 1.0f, tailSustain);
     const auto palmAmount = juce::jlimit (0.0f, 1.0f, palmMute);
-    const auto mappedPalmAmount = palmAmount <= 0.5f ? palmAmount * 0.5f
-                                                     : 0.25f + (palmAmount - 0.5f) * 1.5f;
+    const auto mappedPalmAmount = palmAmount <= 0.5f ? palmAmount * 0.25f
+                                                     : 0.125f + (palmAmount - 0.5f) * 1.75f;
     const auto palmCurve = std::pow (mappedPalmAmount, 1.35f);
     auto palmDecay = 1.0f;
 

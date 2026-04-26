@@ -71,6 +71,17 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     harmonicTouchSlider.setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0xff202832));
     addAndMakeVisible (harmonicTouchSlider);
 
+    for (auto* marker : { &harmonicQuarterLabel, &harmonicThirdLabel, &harmonicHalfLabel })
+    {
+        marker->setColour (juce::Label::textColourId, juce::Colour (0xff9aa8b5));
+        marker->setJustificationType (juce::Justification::centred);
+        addAndMakeVisible (*marker);
+    }
+
+    harmonicQuarterLabel.setText ("1/4", juce::dontSendNotification);
+    harmonicThirdLabel.setText ("1/3", juce::dontSendNotification);
+    harmonicHalfLabel.setText ("1/2", juce::dontSendNotification);
+
     sustainAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                             GuitarAgAudioProcessor::tailSustainParameterId,
                                                             sustainSlider);
@@ -87,7 +98,7 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                                                                  GuitarAgAudioProcessor::harmonicTouchParameterId,
                                                                  harmonicTouchSlider);
 
-    setSize (500, 372);
+    setSize (500, 390);
 }
 
 void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
@@ -105,7 +116,7 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
     graphics.setFont (juce::FontOptions (15.0f));
     graphics.drawFittedText ("MVP string voice: MIDI-triggered plucked model", bounds.removeFromTop (28),
                              juce::Justification::centredLeft, 1);
-    bounds.removeFromTop (204);
+    bounds.removeFromTop (222);
     graphics.drawFittedText ("MPE routing is intentionally not implemented yet.", bounds,
                              juce::Justification::centredLeft, 2);
 
@@ -137,7 +148,21 @@ void GuitarAgAudioProcessorEditor::resized()
     palmMuteLabel.setBounds (palmMuteBounds.removeFromLeft (120));
     palmMuteSlider.setBounds (palmMuteBounds);
 
-    auto harmonicTouchBounds = bounds.removeFromTop (36);
+    auto harmonicTouchBounds = bounds.removeFromTop (54);
     harmonicTouchLabel.setBounds (harmonicTouchBounds.removeFromLeft (120));
-    harmonicTouchSlider.setBounds (harmonicTouchBounds);
+    const auto harmonicSliderBounds = harmonicTouchBounds.removeFromTop (34);
+    harmonicTouchSlider.setBounds (harmonicSliderBounds);
+
+    auto markerTrackBounds = harmonicSliderBounds;
+    markerTrackBounds.removeFromRight (78);
+    const auto markerY = harmonicTouchBounds.getY() - 1;
+    constexpr auto markerWidth = 32;
+    const auto markerX = [&markerTrackBounds] (float normalized)
+    {
+        return markerTrackBounds.getX() + juce::roundToInt (normalized * static_cast<float> (markerTrackBounds.getWidth())) - markerWidth / 2;
+    };
+
+    harmonicQuarterLabel.setBounds (markerX (0.50f), markerY, markerWidth, 18);
+    harmonicThirdLabel.setBounds (markerX (0.75f), markerY, markerWidth, 18);
+    harmonicHalfLabel.setBounds (markerX (1.0f), markerY, markerWidth, 18);
 }

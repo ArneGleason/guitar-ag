@@ -973,6 +973,23 @@ Expected sound:
 
 100% should produce the strongest and clearest octave harmonic. 75% should produce a quieter octave-plus-fifth harmonic. 50% should produce a still quieter two-octave harmonic. Values near the lower edge of each active band should sound less pure and more mixed with the normal string voice.
 
+## 2026-04-26 — Harmonic Gesture Retune
+
+Harmonic touch behavior was adjusted after listening feedback.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-036 HarmonicGesture`.
+- When `Harmonic Touch` is in an active harmonic band, the voice ignores the user-facing `Pick Stiffness` and `Pick Texture` values for that note start.
+- Active harmonics use a soft, low-friction, no-texture excitation to approximate the index-finger touch plus thumb strike gesture.
+- Normal non-harmonic notes still use the pick controls exactly as before.
+- The harmonic slider UI now shows `1/4`, `1/3`, and `1/2` markers at the most accurate point for each harmonic family.
+- The palm mute response was retuned again: 0% to 50% now covers the previous 0% to 25% visible mute range, and 50% to 100% compresses the rest of the mute range.
+
+Expected sound:
+
+Harmonics should no longer inherit coin/texture/stiff-pick artifacts from the normal pick controls. Palm mute should offer more fine control for barely-touching mutes while preserving the full-mute endpoint.
+
 ## Suggested MVP Signal Flow
 
 ```text
