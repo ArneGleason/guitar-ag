@@ -111,6 +111,8 @@ private:
     float pickHeavyPhase = 0.0f;
     float pickHeavyPhaseStep = 0.0f;
     float pickHeavyState = 0.0f;
+    float pickHeavyRaspState = 0.0f;
+    float pickHeavyBodyState = 0.0f;
     float pickHeavyChoke = 0.0f;
     int pickContactSamplesRemaining = 0;
     float attackRampSeconds = 0.0025f;

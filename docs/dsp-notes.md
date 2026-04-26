@@ -905,6 +905,22 @@ Expected sound:
 
 Up to about 95% should remain useful as before. The last 5% should move darker and grindier, with fewer white-noise bursts and less artificial chirp.
 
+## 2026-04-26 — Friction Drag Top-End
+
+The last 5% of `Pick Texture` has been reworked again after KS-031 sounded like it rolled off the texture instead of adding a harsher grind.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-032 FrictionDrag`.
+- The 95% coin texture is preserved much more strongly when entering the 95% to 100% zone.
+- The heavy-contact choke is reduced so the top end does not simply damp the texture away.
+- The new extreme layer is a dense ridged-drag signal: smoothed friction pressure multiplied by a tooth-like carrier, rather than random white-noise bursts.
+- The intent is a continuous coin-edge scrape/grind through the pick-contact duration.
+
+Expected sound:
+
+95% should still sound close to the useful coin texture. 100% should add a darker but harsher continuous grind, not a chirpy burst and not a simple rolloff.
+
 ## Suggested MVP Signal Flow
 
 ```text

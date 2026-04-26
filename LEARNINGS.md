@@ -356,3 +356,7 @@ KS-029 made the full texture range usable, but the user wanted an additional Bri
 ## 2026-04-26 — Extreme contact should choke, not only excite
 
 KS-030's coin zone was useful up to about 95%, but the last few percent became chirpy and bursty. A more plausible extreme-contact model should reduce fast release impulses and partially choke the free string while injecting darker friction energy. For rough materials, "more contact" is not necessarily "more bright transient."
+
+## 2026-04-26 — Choking can erase texture
+
+KS-031 proved that too much choke in the final texture range can read as rolling the texture off, even when a darker friction layer is present. For the coin extreme, preserving the useful 95% coin layer and adding a dense ridged-drag component is a better last experiment than replacing excitation with damping.

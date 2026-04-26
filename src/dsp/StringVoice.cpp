@@ -68,6 +68,8 @@ void StringVoice::reset()
     pickHeavyPhase = 0.0f;
     pickHeavyPhaseStep = 0.0f;
     pickHeavyState = 0.0f;
+    pickHeavyRaspState = 0.0f;
+    pickHeavyBodyState = 0.0f;
     pickHeavyChoke = 0.0f;
     pickContactSamplesRemaining = 0;
     attackRampSeconds = 0.0025f;
@@ -109,7 +111,7 @@ void StringVoice::start (int midiNoteNumber,
     const auto mappedTexture = juce::jlimit (0.0f, 1.0f, textureAmount / 0.8f);
     const auto coinTexture = juce::jlimit (0.0f, 1.0f, (textureAmount - 0.8f) * 5.0f);
     const auto heavyCoinTexture = juce::jlimit (0.0f, 1.0f, (textureAmount - 0.95f) * 20.0f);
-    const auto activeCoinTexture = coinTexture * (1.0f - 0.72f * heavyCoinTexture);
+    const auto activeCoinTexture = coinTexture * (1.0f - 0.18f * heavyCoinTexture);
     const auto highTexture = juce::jlimit (0.0f, 1.0f, (mappedTexture - 0.5f) * 2.0f);
     const auto textureScale = mappedTexture <= 0.5f ? mappedTexture * 2.0f
                                                      : 1.0f + (mappedTexture - 0.5f) * 0.45f;
@@ -157,6 +159,8 @@ void StringVoice::start (int midiNoteNumber,
     pickHeavyPhase = 0.0f;
     pickHeavyPhaseStep = 0.0f;
     pickHeavyState = 0.0f;
+    pickHeavyRaspState = 0.0f;
+    pickHeavyBodyState = 0.0f;
     pickHeavyChoke = 0.0f;
     pickContactSamplesRemaining = 0;
     attackRampSeconds = juce::jmap (stiffnessAmount, 0.0090f, 0.0013f);
@@ -286,15 +290,17 @@ void StringVoice::start (int midiNoteNumber,
     pickCoinImpulse = 0.0f;
     pickCoinImpulseDecay = 0.965f + 0.030f * activeCoinTexture;
     pickCoinCountdown = 0;
-    pickHeavyAmount = (0.018f + 0.095f * brightness) * velocityGain * std::pow (heavyCoinTexture, 1.20f);
-    pickHeavyDecay = 0.99965f + 0.00025f * heavyCoinTexture;
+    pickHeavyAmount = (0.035f + 0.165f * brightness) * velocityGain * std::pow (heavyCoinTexture, 1.08f);
+    pickHeavyDecay = 0.99972f + 0.00022f * heavyCoinTexture;
     pickHeavyPhase = nextNoiseSample() * twoPi;
     pickHeavyPhaseStep = twoPi * juce::jlimit (180.0f,
                                                 static_cast<float> (sampleRate * 0.16),
-                                                static_cast<float> (frequency) * (2.2f + 4.6f * woundAmount + 1.6f * brightness))
+                                                static_cast<float> (frequency) * (3.8f + 6.2f * woundAmount + 2.4f * brightness))
                        / static_cast<float> (sampleRate);
     pickHeavyState = 0.0f;
-    pickHeavyChoke = 0.36f * heavyCoinTexture;
+    pickHeavyRaspState = 0.0f;
+    pickHeavyBodyState = 0.0f;
+    pickHeavyChoke = 0.08f * heavyCoinTexture;
     pickContactSamplesRemaining = textureAmount <= 0.0f ? 0 : static_cast<int> (sampleRate * (0.010f + 0.040f * mappedTexture + 0.055f * highTexture + 0.085f * coinTexture + 0.075f * heavyCoinTexture + 0.010f * brightness));
     configureResonator (0, frequency * 5.0f, 0.9895f);
     configureResonator (1, frequency * 7.0f, 0.9880f);
@@ -527,13 +533,17 @@ float StringVoice::renderSample (float tailSustain) noexcept
 
         if (pickHeavyAmount > 0.000001f)
         {
-            const auto heavyShape = std::tanh (2.2f * (std::sin (pickHeavyPhase)
-                                                     + 0.35f * std::sin (pickHeavyPhase * 0.51f + 1.20f)
-                                                     + 0.22f * std::sin (pickHeavyPhase * 1.73f)));
-            const auto pressureRipple = 0.78f + 0.22f * std::sin (pickHeavyPhase * 0.19f + 0.80f);
-            const auto heavyRaw = pickHeavyAmount * pressureRipple * heavyShape;
-            pickHeavyState += 0.11f * (heavyRaw - pickHeavyState);
-            heavy = pickHeavyState;
+            const auto ridgeCarrier = std::sin (pickHeavyPhase)
+                                    + 0.34f * std::sin (pickHeavyPhase * 0.47f + 1.20f)
+                                    + 0.21f * std::sin (pickHeavyPhase * 1.63f);
+            const auto ridgeTeeth = std::tanh (5.8f * (std::sin (pickHeavyPhase * 5.0f + 0.55f * ridgeCarrier)
+                                                     + 0.24f * std::sin (pickHeavyPhase * 8.0f)));
+            const auto pressure = 0.72f + 0.28f * std::sin (pickHeavyPhase * 0.17f + 0.80f);
+            const auto raspTarget = pressure * ridgeCarrier * ridgeTeeth;
+            pickHeavyRaspState += 0.24f * (raspTarget - pickHeavyRaspState);
+            pickHeavyBodyState += 0.045f * (pickHeavyRaspState - pickHeavyBodyState);
+            pickHeavyState += 0.16f * ((pickHeavyRaspState - pickHeavyBodyState * 0.42f) - pickHeavyState);
+            heavy = pickHeavyAmount * pickHeavyState;
             pickHeavyAmount *= pickHeavyDecay;
         }
 
