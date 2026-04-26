@@ -19,6 +19,7 @@ void StringVoice::reset()
     modalCosine.fill (1.0f);
     modalSinStep.fill (0.0f);
     modalCosStep.fill (1.0f);
+    modalPhaseStep.fill (0.0f);
     modalAmplitude.fill (0.0f);
     modalDecay.fill (1.0f);
     modalTailDampingScale.fill (1.0f);
@@ -93,6 +94,7 @@ void StringVoice::reset()
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
+    vibratoPhase = 0.0f;
     active = false;
     releasing = false;
     woundString = false;
@@ -181,6 +183,7 @@ void StringVoice::start (int midiNoteNumber,
     modalCosine.fill (1.0f);
     modalSinStep.fill (0.0f);
     modalCosStep.fill (1.0f);
+    modalPhaseStep.fill (0.0f);
     modalAmplitude.fill (0.0f);
     modalDecay.fill (1.0f);
     modalTailDampingScale.fill (1.0f);
@@ -192,6 +195,7 @@ void StringVoice::start (int midiNoteNumber,
     leftHandDamping = 1.0f;
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
+    vibratoPhase = 0.0f;
     releasing = false;
     active = true;
     woundString = woundAmount > 0.0f;
@@ -486,7 +490,7 @@ void StringVoice::release (int midiNoteNumber, int midiChannel)
     }
 }
 
-float StringVoice::renderSample (float tailSustain, float palmMute) noexcept
+float StringVoice::renderSample (float tailSustain, float palmMute, float vibratoDepthCents, float vibratoSpeedHz, float vibratoDelaySeconds) noexcept
 {
     if (! active)
         return 0.0f;
@@ -510,20 +514,37 @@ float StringVoice::renderSample (float tailSustain, float palmMute) noexcept
     auto modalOutput = 0.0f;
     const auto heldSeconds = static_cast<float> (samplesSinceStart) / static_cast<float> (sampleRate);
     const auto tailBlend = releasing ? 0.0f : sustainAmount * juce::jlimit (0.0f, 1.0f, (heldSeconds - 0.55f) / 1.60f);
+    const auto clampedVibratoSpeed = juce::jlimit (0.0f, 14.0f, vibratoSpeedHz);
+    const auto clampedVibratoDepth = juce::jlimit (0.0f, 90.0f, vibratoDepthCents);
+    const auto clampedVibratoDelay = juce::jlimit (0.0f, 2.0f, vibratoDelaySeconds);
+    const auto vibratoEnvelope = clampedVibratoDelay <= 0.0001f
+                               ? 1.0f
+                               : heldSeconds <= clampedVibratoDelay
+                                   ? 0.0f
+                                   : juce::jlimit (0.0f, 1.0f, (heldSeconds - clampedVibratoDelay) / clampedVibratoDelay);
+    const auto vibratoCents = clampedVibratoDepth * vibratoEnvelope * std::sin (vibratoPhase);
+    const auto vibratoRatio = std::pow (2.0f, vibratoCents / 1200.0f);
+
+    vibratoPhase += 6.28318530717958647692f * clampedVibratoSpeed / static_cast<float> (sampleRate);
+
+    if (vibratoPhase > 6.28318530717958647692f)
+        vibratoPhase -= 6.28318530717958647692f;
 
     for (auto mode = 0; mode < modalCount; ++mode)
     {
-        modalOutput += modalAmplitude[static_cast<size_t> (mode)] * modalCosine[static_cast<size_t> (mode)];
-
-        const auto nextSine = modalSine[static_cast<size_t> (mode)] * modalCosStep[static_cast<size_t> (mode)]
-                            + modalCosine[static_cast<size_t> (mode)] * modalSinStep[static_cast<size_t> (mode)];
-        const auto nextCosine = modalCosine[static_cast<size_t> (mode)] * modalCosStep[static_cast<size_t> (mode)]
-                              - modalSine[static_cast<size_t> (mode)] * modalSinStep[static_cast<size_t> (mode)];
-
-        modalSine[static_cast<size_t> (mode)] = nextSine;
-        modalCosine[static_cast<size_t> (mode)] = nextCosine;
-
         const auto modeIndex = static_cast<size_t> (mode);
+        modalOutput += modalAmplitude[modeIndex] * modalCosine[modeIndex];
+
+        const auto phaseStep = modalPhaseStep[modeIndex] * vibratoRatio;
+        const auto sinStep = std::sin (phaseStep);
+        const auto cosStep = std::cos (phaseStep);
+
+        const auto nextSine = modalSine[modeIndex] * cosStep + modalCosine[modeIndex] * sinStep;
+        const auto nextCosine = modalCosine[modeIndex] * cosStep - modalSine[modeIndex] * sinStep;
+
+        modalSine[modeIndex] = nextSine;
+        modalCosine[modeIndex] = nextCosine;
+
         const auto normalDecay = modalDecay[modeIndex];
         const auto relaxedDecay = 1.0f - (1.0f - normalDecay) * modalTailDampingScale[modeIndex];
         const auto effectiveDecay = normalDecay + (relaxedDecay - normalDecay) * tailBlend;
@@ -802,6 +823,7 @@ void StringVoice::configureMode (int index, float frequency, float amplitude, fl
     modalCosine[clampedIndex] = std::cos (phase);
     modalSinStep[clampedIndex] = std::sin (step);
     modalCosStep[clampedIndex] = std::cos (step);
+    modalPhaseStep[clampedIndex] = step;
     modalAmplitude[clampedIndex] = amplitude;
     modalDecay[clampedIndex] = juce::jlimit (0.90f, 0.999999f, decay);
     modalTailDampingScale[clampedIndex] = juce::jlimit (0.05f, 1.0f, tailDampingScale);

@@ -30,6 +30,14 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     fretPressure.setCurrentAndTargetValue (0.0f);
     fingerNoise.reset (sampleRate, 0.030);
     fingerNoise.setCurrentAndTargetValue (0.0f);
+    vibratoSpeed.reset (sampleRate, 0.030);
+    vibratoSpeed.setCurrentAndTargetValue (5.5f);
+    vibratoDepth.reset (sampleRate, 0.030);
+    vibratoDepth.setCurrentAndTargetValue (0.0f);
+    vibratoDelay.reset (sampleRate, 0.030);
+    vibratoDelay.setCurrentAndTargetValue (0.0f);
+    modWheel.reset (sampleRate, 0.020);
+    modWheel.setCurrentAndTargetValue (0.0f);
     pickupPosition.reset (sampleRate, 0.050);
     pickupPosition.setCurrentAndTargetValue (0.39f);
     pickupModel = 0;
@@ -62,6 +70,10 @@ void AudioEngine::reset()
     bridgeIntonation.setCurrentAndTargetValue (bridgeIntonation.getTargetValue());
     fretPressure.setCurrentAndTargetValue (fretPressure.getTargetValue());
     fingerNoise.setCurrentAndTargetValue (fingerNoise.getTargetValue());
+    vibratoSpeed.setCurrentAndTargetValue (vibratoSpeed.getTargetValue());
+    vibratoDepth.setCurrentAndTargetValue (vibratoDepth.getTargetValue());
+    vibratoDelay.setCurrentAndTargetValue (vibratoDelay.getTargetValue());
+    modWheel.setCurrentAndTargetValue (modWheel.getTargetValue());
     pickupPosition.setCurrentAndTargetValue (pickupPosition.getTargetValue());
     timelineSample = 0;
     nextVoice = 0;
@@ -124,6 +136,31 @@ void AudioEngine::setFingerNoise (float newFingerNoise) noexcept
     fingerNoise.setTargetValue (juce::jlimit (0.0f, 1.0f, newFingerNoise));
 }
 
+void AudioEngine::setVibratoSpeed (float newVibratoSpeed) noexcept
+{
+    vibratoSpeed.setTargetValue (juce::jlimit (0.10f, 12.0f, newVibratoSpeed));
+}
+
+void AudioEngine::setVibratoDepth (float newVibratoDepth) noexcept
+{
+    vibratoDepth.setTargetValue (juce::jlimit (0.0f, 60.0f, newVibratoDepth));
+}
+
+void AudioEngine::setVibratoDelay (float newVibratoDelay) noexcept
+{
+    vibratoDelay.setTargetValue (juce::jlimit (0.0f, 2.0f, newVibratoDelay));
+}
+
+void AudioEngine::setVibratoModWheelSpeedEnabled (bool enabled) noexcept
+{
+    vibratoModWheelSpeedEnabled = enabled;
+}
+
+void AudioEngine::setVibratoModWheelDepthEnabled (bool enabled) noexcept
+{
+    vibratoModWheelDepthEnabled = enabled;
+}
+
 void AudioEngine::setPickupPosition (float newPickupPosition) noexcept
 {
     pickupPosition.setTargetValue (juce::jlimit (0.0f, 1.0f, newPickupPosition));
@@ -160,6 +197,12 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         const auto sustainAmount = tailSustain.getNextValue();
         const auto palmMuteAmount = palmMute.getNextValue();
         const auto fingerNoiseAmount = fingerNoise.getNextValue();
+        const auto modWheelAmount = modWheel.getNextValue();
+        const auto vibratoSpeedAmount = vibratoSpeed.getNextValue()
+                                      + (vibratoModWheelSpeedEnabled ? modWheelAmount * 6.0f : 0.0f);
+        const auto vibratoDepthAmount = vibratoDepth.getNextValue()
+                                      + (vibratoModWheelDepthEnabled ? modWheelAmount * 55.0f : 0.0f);
+        const auto vibratoDelaySeconds = vibratoDelay.getNextValue();
         pickStiffness.getNextValue();
         pickTexture.getNextValue();
         harmonicTouch.getNextValue();
@@ -171,7 +214,11 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         dispatchScheduledMidiEvents();
 
         for (auto& voice : voices)
-            mixedSample += voice.renderSample (sustainAmount, palmMuteAmount);
+            mixedSample += voice.renderSample (sustainAmount,
+                                               palmMuteAmount,
+                                               vibratoDepthAmount,
+                                               vibratoSpeedAmount,
+                                               vibratoDelaySeconds);
 
         mixedSample += renderFingerNoiseSample() * fingerNoiseAmount;
         mixedSample = tone.processSample (mixedSample);
@@ -185,6 +232,12 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
 
 void AudioEngine::handleIncomingMidiMessage (const juce::MidiMessage& message)
 {
+    if (message.isController() && message.getControllerNumber() == 1)
+    {
+        modWheel.setTargetValue (static_cast<float> (message.getControllerValue()) / 127.0f);
+        return;
+    }
+
     if (lookaheadSamples <= 0)
     {
         handleMidiMessage (message);

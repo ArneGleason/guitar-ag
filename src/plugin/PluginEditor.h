@@ -16,6 +16,7 @@ public:
 private:
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
+    using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
     void configureSectionButton (juce::TextButton& button, const juce::String& title);
     void configureInfoButton (juce::TextButton& button, const juce::String& infoText);
@@ -30,12 +31,16 @@ private:
     juce::TextButton setupSectionButton;
     juce::TextButton pickupSectionButton;
     juce::TextButton performanceSectionButton;
+    juce::TextButton vibratoSectionButton;
     juce::TextButton articulationSectionButton;
     juce::Slider sustainSlider;
     juce::Slider stringAgeSlider;
     juce::Slider bridgeIntonationSlider;
     juce::Slider fretPressureSlider;
     juce::Slider fingerNoiseSlider;
+    juce::Slider vibratoSpeedSlider;
+    juce::Slider vibratoDepthSlider;
+    juce::Slider vibratoDelaySlider;
     juce::Slider pickupPositionSlider;
     juce::Slider pickStiffnessSlider;
     juce::Slider pickTextureSlider;
@@ -47,6 +52,9 @@ private:
     juce::Label fretPressureLabel;
     juce::Label lookaheadLabel;
     juce::Label fingerNoiseLabel;
+    juce::Label vibratoSpeedLabel;
+    juce::Label vibratoDepthLabel;
+    juce::Label vibratoDelayLabel;
     juce::Label pickupModelLabel;
     juce::Label pickupPositionLabel;
     juce::Label pickupSixthLabel;
@@ -66,6 +74,9 @@ private:
     juce::TextButton fretPressureInfoButton;
     juce::TextButton lookaheadInfoButton;
     juce::TextButton fingerNoiseInfoButton;
+    juce::TextButton vibratoSpeedInfoButton;
+    juce::TextButton vibratoDepthInfoButton;
+    juce::TextButton vibratoDelayInfoButton;
     juce::TextButton pickupModelInfoButton;
     juce::TextButton pickupPositionInfoButton;
     juce::TextButton pickStiffnessInfoButton;
@@ -74,12 +85,19 @@ private:
     juce::TextButton harmonicTouchInfoButton;
     juce::ComboBox lookaheadBox;
     juce::ComboBox pickupModelBox;
+    juce::ToggleButton vibratoModWheelSpeedButton;
+    juce::ToggleButton vibratoModWheelDepthButton;
     std::unique_ptr<SliderAttachment> sustainAttachment;
     std::unique_ptr<SliderAttachment> stringAgeAttachment;
     std::unique_ptr<SliderAttachment> bridgeIntonationAttachment;
     std::unique_ptr<SliderAttachment> fretPressureAttachment;
     std::unique_ptr<ComboBoxAttachment> lookaheadAttachment;
     std::unique_ptr<SliderAttachment> fingerNoiseAttachment;
+    std::unique_ptr<SliderAttachment> vibratoSpeedAttachment;
+    std::unique_ptr<SliderAttachment> vibratoDepthAttachment;
+    std::unique_ptr<SliderAttachment> vibratoDelayAttachment;
+    std::unique_ptr<ButtonAttachment> vibratoModWheelSpeedAttachment;
+    std::unique_ptr<ButtonAttachment> vibratoModWheelDepthAttachment;
     std::unique_ptr<SliderAttachment> pickupPositionAttachment;
     std::unique_ptr<ComboBoxAttachment> pickupModelAttachment;
     std::unique_ptr<SliderAttachment> pickStiffnessAttachment;
@@ -89,6 +107,7 @@ private:
     bool setupExpanded = true;
     bool pickupExpanded = true;
     bool performanceExpanded = true;
+    bool vibratoExpanded = true;
     bool articulationExpanded = true;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAgAudioProcessorEditor)

@@ -25,6 +25,11 @@ public:
     void setFretPressure (float newFretPressure) noexcept;
     void setLookaheadSamples (int newLookaheadSamples) noexcept;
     void setFingerNoise (float newFingerNoise) noexcept;
+    void setVibratoSpeed (float newVibratoSpeed) noexcept;
+    void setVibratoDepth (float newVibratoDepth) noexcept;
+    void setVibratoDelay (float newVibratoDelay) noexcept;
+    void setVibratoModWheelSpeedEnabled (bool enabled) noexcept;
+    void setVibratoModWheelDepthEnabled (bool enabled) noexcept;
     void setPickupPosition (float newPickupPosition) noexcept;
     void setPickupModel (int newPickupModel) noexcept;
 
@@ -96,6 +101,10 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> bridgeIntonation { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> fretPressure { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> fingerNoise { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> vibratoSpeed { 5.5f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> vibratoDepth { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> vibratoDelay { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> modWheel { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickupPosition { 0.39f };
     double sampleRate = 44100.0;
     int64_t timelineSample = 0;
@@ -103,6 +112,8 @@ private:
     int pickupModel = 0;
     int nextVoice = 0;
     int nextFingerNoiseVoice = 0;
+    bool vibratoModWheelSpeedEnabled = false;
+    bool vibratoModWheelDepthEnabled = false;
 };
 
 } // namespace guitar_ag

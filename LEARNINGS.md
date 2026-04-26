@@ -407,3 +407,7 @@ Tooltips technically work, but they are a poor fit for controls whose ranges nee
 ## 2026-04-26 — Anticipatory noises require a playback mode
 
 Finger approach and release noises can happen before the musical note boundary, so they need either explicit pre-note MIDI authoring or internal lookahead. Keeping lookahead defaulted to Off preserves live playability, while 150/250 ms modes can serve rendered playback where host latency compensation can align the delayed note.
+
+## 2026-04-26 — Finger vibrato can be global before MPE
+
+MPE will eventually provide per-note expression, but a global CC1 vibrato layer is still useful now. Treating mod wheel as an additive amount on top of baseline speed/depth keeps the sliders musically meaningful while allowing performance automation to intensify vibrato.

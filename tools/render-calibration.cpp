@@ -23,6 +23,7 @@ void printUsage()
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5] [--palm-mute 0.0] "
                  "[--harmonic-touch 0.0] [--string-age 0.0] [--bridge-intonation 0.0] "
                  "[--fret-pressure 0.0] [--lookahead-ms 0] [--finger-noise 0.0] "
+                 "[--vibrato-speed 5.5] [--vibrato-depth 0.0] [--vibrato-delay-ms 0] "
                  "[--pickup-position 0.39] [--pickup-model 0]\n";
 }
 
@@ -120,6 +121,9 @@ int main (int argc, char* argv[])
     auto fretPressure = 0.0f;
     auto lookaheadMs = 0.0f;
     auto fingerNoise = 0.0f;
+    auto vibratoSpeed = 5.5f;
+    auto vibratoDepth = 0.0f;
+    auto vibratoDelayMs = 0.0f;
     auto pickupPosition = 0.39f;
     auto pickupModel = 0;
 
@@ -192,6 +196,18 @@ int main (int argc, char* argv[])
         {
             fingerNoise = juce::String (argv[++i]).getFloatValue();
         }
+        else if (argument == "--vibrato-speed" && hasValue)
+        {
+            vibratoSpeed = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--vibrato-depth" && hasValue)
+        {
+            vibratoDepth = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--vibrato-delay-ms" && hasValue)
+        {
+            vibratoDelayMs = juce::jlimit (0.0f, 2000.0f, juce::String (argv[++i]).getFloatValue());
+        }
         else if (argument == "--pickup-position" && hasValue)
         {
             pickupPosition = juce::String (argv[++i]).getFloatValue();
@@ -238,6 +254,9 @@ int main (int argc, char* argv[])
     engine.setFretPressure (fretPressure);
     engine.setLookaheadSamples (static_cast<int> (std::round (sampleRate * static_cast<double> (lookaheadMs) / 1000.0)));
     engine.setFingerNoise (fingerNoise);
+    engine.setVibratoSpeed (vibratoSpeed);
+    engine.setVibratoDepth (vibratoDepth);
+    engine.setVibratoDelay (vibratoDelayMs / 1000.0f);
     engine.setPickupPosition (pickupPosition);
     engine.setPickupModel (pickupModel);
     engine.reset();

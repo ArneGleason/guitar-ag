@@ -17,6 +17,11 @@ public:
     static constexpr auto fretPressureParameterId = "fretPressure";
     static constexpr auto lookaheadParameterId = "lookahead";
     static constexpr auto fingerNoiseParameterId = "fingerNoise";
+    static constexpr auto vibratoSpeedParameterId = "vibratoSpeed";
+    static constexpr auto vibratoDepthParameterId = "vibratoDepth";
+    static constexpr auto vibratoDelayParameterId = "vibratoDelay";
+    static constexpr auto vibratoModWheelSpeedParameterId = "vibratoModWheelSpeed";
+    static constexpr auto vibratoModWheelDepthParameterId = "vibratoModWheelDepth";
     static constexpr auto pickupPositionParameterId = "pickupPosition";
     static constexpr auto pickupModelParameterId = "pickupModel";
 
@@ -65,6 +70,11 @@ private:
     std::atomic<float>* fretPressureParameter = nullptr;
     std::atomic<float>* lookaheadParameter = nullptr;
     std::atomic<float>* fingerNoiseParameter = nullptr;
+    std::atomic<float>* vibratoSpeedParameter = nullptr;
+    std::atomic<float>* vibratoDepthParameter = nullptr;
+    std::atomic<float>* vibratoDelayParameter = nullptr;
+    std::atomic<float>* vibratoModWheelSpeedParameter = nullptr;
+    std::atomic<float>* vibratoModWheelDepthParameter = nullptr;
     std::atomic<float>* pickupPositionParameter = nullptr;
     std::atomic<float>* pickupModelParameter = nullptr;
     double currentSampleRate = 44100.0;

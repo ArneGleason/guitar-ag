@@ -229,3 +229,17 @@ Accepted
 
 Consequences:
 `Lookahead` defaults to Off. 150 ms and 250 ms modes report plugin latency and delay note-on/note-off synthesis internally. Hosts may require transport restart or plugin reload to fully refresh latency compensation after changing the setting.
+
+## 2026-04-26 — Add global finger vibrato before MPE pitch bend
+
+Decision:
+Add a global finger-vibrato layer controlled by sliders and optional MIDI CC1 modulation before implementing full MPE pitch bend.
+
+Reason:
+The instrument needs musically useful fretting-hand motion before the more complex MPE voice-routing work lands. A global vibrato layer is smaller, easy to audition, and does not conflict with later per-note MPE pitch handling.
+
+Status:
+Accepted
+
+Consequences:
+`Vibrato Speed`, `Vibrato Depth`, and `Vibrato Delay` affect all active voices. Each voice still runs its own vibrato phase. CC1 can add to speed and/or depth when enabled. Future MPE work may add per-note bend on top of this or replace the global layer for MPE channels.

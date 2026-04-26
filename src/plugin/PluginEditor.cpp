@@ -77,6 +77,7 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureSectionButton (setupSectionButton, "Setup");
     configureSectionButton (pickupSectionButton, "Pickup");
     configureSectionButton (performanceSectionButton, "Performance");
+    configureSectionButton (vibratoSectionButton, "Vibrato");
     configureSectionButton (articulationSectionButton, "Articulation");
 
     setupSectionButton.onClick = [this]
@@ -94,6 +95,12 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     performanceSectionButton.onClick = [this]
     {
         performanceExpanded = ! performanceExpanded;
+        updateSectionVisibility();
+    };
+
+    vibratoSectionButton.onClick = [this]
+    {
+        vibratoExpanded = ! vibratoExpanded;
         updateSectionVisibility();
     };
 
@@ -180,6 +187,33 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "0% disables the performance noise layer. 100% adds the strongest modeled finger approach and release noises. "
                          "The noise is most useful with Lookahead enabled, because it can happen before the delayed note onset.");
 
+    configureLabel (vibratoSpeedLabel, "Speed");
+    configureSlider (vibratoSpeedSlider, juce::Colour (0xff82cfff));
+    configureInfoButton (vibratoSpeedInfoButton,
+                         "Finger-vibrato LFO rate in Hz. If Mod Wheel To Speed is enabled, CC1 adds up to about 6 Hz above this baseline.");
+
+    configureLabel (vibratoDepthLabel, "Depth");
+    configureSlider (vibratoDepthSlider, juce::Colour (0xffb9d982));
+    configureInfoButton (vibratoDepthInfoButton,
+                         "Pitch depth in cents. If Mod Wheel To Depth is enabled, CC1 adds up to about 55 cents above this baseline.");
+
+    configureLabel (vibratoDelayLabel, "Delay");
+    configureSlider (vibratoDelaySlider, juce::Colour (0xffe6c077));
+    configureInfoButton (vibratoDelayInfoButton,
+                         "Wait time before vibrato starts on each note. After the wait, vibrato ramps in over the same duration. "
+                         "At 0 ms the vibrato is immediate.");
+
+    for (auto* toggle : { &vibratoModWheelSpeedButton, &vibratoModWheelDepthButton })
+    {
+        toggle->setColour (juce::ToggleButton::textColourId, juce::Colour (0xffd6dee7));
+        toggle->setColour (juce::ToggleButton::tickColourId, juce::Colour (0xff82cfff));
+        toggle->setColour (juce::ToggleButton::tickDisabledColourId, juce::Colour (0xff65717c));
+        addAndMakeVisible (*toggle);
+    }
+
+    vibratoModWheelSpeedButton.setButtonText ("Mod Wheel To Speed");
+    vibratoModWheelDepthButton.setButtonText ("Mod Wheel To Depth");
+
     configureLabel (pickStiffnessLabel, "Pick Stiffness");
     configureSlider (pickStiffnessSlider, juce::Colour (0xffffc56f));
     configureInfoButton (pickStiffnessInfoButton,
@@ -235,6 +269,21 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     fingerNoiseAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::fingerNoiseParameterId,
                                                                fingerNoiseSlider);
+    vibratoSpeedAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                 GuitarAgAudioProcessor::vibratoSpeedParameterId,
+                                                                 vibratoSpeedSlider);
+    vibratoDepthAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                 GuitarAgAudioProcessor::vibratoDepthParameterId,
+                                                                 vibratoDepthSlider);
+    vibratoDelayAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                 GuitarAgAudioProcessor::vibratoDelayParameterId,
+                                                                 vibratoDelaySlider);
+    vibratoModWheelSpeedAttachment = std::make_unique<ButtonAttachment> (audioProcessor.getValueTreeState(),
+                                                                        GuitarAgAudioProcessor::vibratoModWheelSpeedParameterId,
+                                                                        vibratoModWheelSpeedButton);
+    vibratoModWheelDepthAttachment = std::make_unique<ButtonAttachment> (audioProcessor.getValueTreeState(),
+                                                                        GuitarAgAudioProcessor::vibratoModWheelDepthParameterId,
+                                                                        vibratoModWheelDepthButton);
     pickupModelAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
                                                                  GuitarAgAudioProcessor::pickupModelParameterId,
                                                                  pickupModelBox);
@@ -277,14 +326,22 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
     graphics.setFont (juce::FontOptions (15.0f));
     graphics.drawFittedText ("Modeled clean-DI electric guitar voice", bounds.removeFromTop (28),
                              juce::Justification::centredLeft, 1);
-    bounds.removeFromTop (juce::jmax (0, getHeight() - 146));
-    graphics.drawFittedText ("MPE routing is intentionally not implemented yet.", bounds,
-                             juce::Justification::centredLeft, 2);
+
+    auto footerBounds = getLocalBounds().reduced (24).removeFromBottom (48);
+    graphics.setColour (juce::Colour (0xff283340));
+    graphics.drawHorizontalLine (footerBounds.getY() - 8, 24.0f, static_cast<float> (getWidth() - 24));
+
+    graphics.setColour (juce::Colour (0xff9aa8b5));
+    graphics.setFont (juce::FontOptions (12.0f));
+    graphics.drawFittedText ("MPE routing is intentionally not implemented yet.",
+                             footerBounds.removeFromTop (18),
+                             juce::Justification::centredLeft,
+                             1);
 
     graphics.setColour (juce::Colour (0xff65717c));
     graphics.setFont (juce::FontOptions (12.0f));
     const juce::String buildText = "v" JucePlugin_VersionString " / " GUITAR_AG_MODEL_LABEL " / " GUITAR_AG_GIT_COMMIT;
-    graphics.drawFittedText (buildText, getLocalBounds().reduced (24).removeFromBottom (20),
+    graphics.drawFittedText (buildText, footerBounds.removeFromTop (20),
                              juce::Justification::centredLeft, 1);
 }
 
@@ -361,6 +418,29 @@ void GuitarAgAudioProcessorEditor::resized()
         auto fingerNoiseBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (fingerNoiseBounds, fingerNoiseLabel, fingerNoiseInfoButton);
         fingerNoiseSlider.setBounds (fingerNoiseBounds);
+    }
+
+    bounds.removeFromTop (8);
+    vibratoSectionButton.setBounds (bounds.removeFromTop (26));
+
+    if (vibratoExpanded)
+    {
+        auto speedBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (speedBounds, vibratoSpeedLabel, vibratoSpeedInfoButton);
+        vibratoSpeedSlider.setBounds (speedBounds);
+
+        auto depthBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (depthBounds, vibratoDepthLabel, vibratoDepthInfoButton);
+        vibratoDepthSlider.setBounds (depthBounds);
+
+        auto delayBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (delayBounds, vibratoDelayLabel, vibratoDelayInfoButton);
+        vibratoDelaySlider.setBounds (delayBounds);
+
+        auto modBounds = bounds.removeFromTop (34);
+        modBounds.removeFromLeft (158);
+        vibratoModWheelSpeedButton.setBounds (modBounds.removeFromLeft (170));
+        vibratoModWheelDepthButton.setBounds (modBounds.removeFromLeft (170));
     }
 
     bounds.removeFromTop (8);
@@ -448,6 +528,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
     setupSectionButton.setButtonText (getSectionTitle ("Setup", setupExpanded));
     pickupSectionButton.setButtonText (getSectionTitle ("Pickup", pickupExpanded));
     performanceSectionButton.setButtonText (getSectionTitle ("Performance", performanceExpanded));
+    vibratoSectionButton.setButtonText (getSectionTitle ("Vibrato", vibratoExpanded));
     articulationSectionButton.setButtonText (getSectionTitle ("Articulation", articulationExpanded));
 
     for (auto* component : { static_cast<juce::Component*> (&sustainLabel),
@@ -484,6 +565,19 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&fingerNoiseSlider) })
         component->setVisible (performanceExpanded);
 
+    for (auto* component : { static_cast<juce::Component*> (&vibratoSpeedLabel),
+                             static_cast<juce::Component*> (&vibratoSpeedInfoButton),
+                             static_cast<juce::Component*> (&vibratoSpeedSlider),
+                             static_cast<juce::Component*> (&vibratoDepthLabel),
+                             static_cast<juce::Component*> (&vibratoDepthInfoButton),
+                             static_cast<juce::Component*> (&vibratoDepthSlider),
+                             static_cast<juce::Component*> (&vibratoDelayLabel),
+                             static_cast<juce::Component*> (&vibratoDelayInfoButton),
+                             static_cast<juce::Component*> (&vibratoDelaySlider),
+                             static_cast<juce::Component*> (&vibratoModWheelSpeedButton),
+                             static_cast<juce::Component*> (&vibratoModWheelDepthButton) })
+        component->setVisible (vibratoExpanded);
+
     for (auto* component : { static_cast<juce::Component*> (&pickStiffnessLabel),
                              static_cast<juce::Component*> (&pickStiffnessInfoButton),
                              static_cast<juce::Component*> (&pickStiffnessSlider),
@@ -508,7 +602,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
 
 int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
 {
-    auto controlsHeight = 78 + 26 + 8 + 26 + 8 + 26 + 8 + 26;
+    auto controlsHeight = 78 + 26 + 8 + 26 + 8 + 26 + 8 + 26 + 8 + 26;
 
     if (setupExpanded)
         controlsHeight += 108;
@@ -518,6 +612,9 @@ int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
 
     if (performanceExpanded)
         controlsHeight += 108;
+
+    if (vibratoExpanded)
+        controlsHeight += 142;
 
     if (articulationExpanded)
         controlsHeight += 162;

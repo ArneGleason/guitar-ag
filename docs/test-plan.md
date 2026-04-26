@@ -72,3 +72,13 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] `Finger Noise` at 0% is silent or effectively inaudible.
 - [ ] `Finger Noise` at high values creates audible approach/release noises before notes when lookahead is enabled.
 - [ ] Changing `Lookahead` may require transport restart or plugin reload in some hosts; verify the host updates latency compensation.
+
+## Finger Vibrato Checks
+
+- [ ] `Vibrato Depth` at 0 cents leaves notes unmodulated.
+- [ ] Raising `Vibrato Depth` creates audible pitch vibrato.
+- [ ] `Vibrato Speed` changes the vibrato rate.
+- [ ] `Vibrato Delay` waits before vibrato starts, then ramps in smoothly.
+- [ ] `Mod Wheel To Depth` lets MIDI CC1 increase vibrato depth from the slider baseline.
+- [ ] `Mod Wheel To Speed` lets MIDI CC1 increase vibrato speed from the slider baseline.
+- [ ] Footer/version text remains readable and does not overlap other UI text.

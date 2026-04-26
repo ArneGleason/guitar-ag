@@ -35,7 +35,7 @@ public:
     [[nodiscard]] int getNoteNumber() const noexcept { return noteNumber; }
     [[nodiscard]] int getChannel() const noexcept { return channel; }
 
-    float renderSample (float tailSustain, float palmMute) noexcept;
+    float renderSample (float tailSustain, float palmMute, float vibratoDepthCents, float vibratoSpeedHz, float vibratoDelaySeconds) noexcept;
 
 private:
     static constexpr auto maxDelaySamples = 8192;
@@ -65,6 +65,7 @@ private:
     std::array<float, modalCount> modalCosine {};
     std::array<float, modalCount> modalSinStep {};
     std::array<float, modalCount> modalCosStep {};
+    std::array<float, modalCount> modalPhaseStep {};
     std::array<float, modalCount> modalAmplitude {};
     std::array<float, modalCount> modalDecay {};
     std::array<float, modalCount> modalTailDampingScale {};
@@ -145,6 +146,7 @@ private:
     float leftHandDamping = 1.0f;
     float leftHandDampingTarget = 1.0f;
     float leftHandDampingStep = 0.0f;
+    float vibratoPhase = 0.0f;
 
     uint32_t randomState = 0x12345678u;
 

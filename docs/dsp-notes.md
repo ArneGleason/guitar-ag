@@ -1107,6 +1107,30 @@ Expected sound:
 
 With `Lookahead` off, playback should remain immediate and finger noise should effectively stay out of the way. With lookahead on and `Finger Noise` raised, rendered playback should include short pre-note and pre-release motion noises. In a DAW with plugin delay compensation, the delayed note should line up with the MIDI grid while the finger noise appears just before the note.
 
+## 2026-04-26 — Finger Vibrato
+
+Added a first fretting-hand pitch-vibrato control set.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-043 FingerVibrato`.
+- Added a separate `Vibrato` editor section.
+- Added `Vibrato Speed`, in Hz.
+- Added `Vibrato Depth`, in cents.
+- Added `Vibrato Delay`, in milliseconds.
+- The vibrato delay waits for the chosen time after note start, then ramps in over the same duration.
+- At 0 ms delay, vibrato starts immediately.
+- Added `Mod Wheel To Speed` and `Mod Wheel To Depth` toggles.
+- When enabled, MIDI CC1 adds to the selected baseline vibrato parameter instead of replacing it.
+- The implementation modulates per-voice modal oscillator phase increments, so each active voice has its own vibrato phase.
+- This is global MIDI/mod-wheel vibrato for now, not MPE per-note pitch bend.
+- The offline renderer accepts `--vibrato-speed`, `--vibrato-depth`, and `--vibrato-delay-ms`.
+- The footer/version text now draws in a fixed reserved strip to avoid overlap.
+
+Expected sound:
+
+Depth at 0 cents should be unchanged. Raising depth should produce fretting-hand pitch wobble. Delay should keep the note straight at first, then bring vibrato in gradually. Enabling mod-wheel depth and/or speed should allow CC1 to intensify the vibrato from the chosen baseline settings.
+
 ## Suggested MVP Signal Flow
 
 ```text

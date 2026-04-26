@@ -17,6 +17,11 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     fretPressureParameter = parameters.getRawParameterValue (fretPressureParameterId);
     lookaheadParameter = parameters.getRawParameterValue (lookaheadParameterId);
     fingerNoiseParameter = parameters.getRawParameterValue (fingerNoiseParameterId);
+    vibratoSpeedParameter = parameters.getRawParameterValue (vibratoSpeedParameterId);
+    vibratoDepthParameter = parameters.getRawParameterValue (vibratoDepthParameterId);
+    vibratoDelayParameter = parameters.getRawParameterValue (vibratoDelayParameterId);
+    vibratoModWheelSpeedParameter = parameters.getRawParameterValue (vibratoModWheelSpeedParameterId);
+    vibratoModWheelDepthParameter = parameters.getRawParameterValue (vibratoModWheelDepthParameterId);
     pickupPositionParameter = parameters.getRawParameterValue (pickupPositionParameterId);
     pickupModelParameter = parameters.getRawParameterValue (pickupModelParameterId);
 }
@@ -31,6 +36,30 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
     const auto percentValue = [] (const juce::String& text)
     {
         return text.getFloatValue() / 100.0f;
+    };
+    const auto hzString = [] (float value, int)
+    {
+        return juce::String (value, 1) + " Hz";
+    };
+    const auto hzValue = [] (const juce::String& text)
+    {
+        return text.getFloatValue();
+    };
+    const auto centsString = [] (float value, int)
+    {
+        return juce::String (juce::roundToInt (value)) + " c";
+    };
+    const auto centsValue = [] (const juce::String& text)
+    {
+        return text.getFloatValue();
+    };
+    const auto msString = [] (float value, int)
+    {
+        return juce::String (juce::roundToInt (value * 1000.0f)) + " ms";
+    };
+    const auto msValue = [] (const juce::String& text)
+    {
+        return text.getFloatValue() / 1000.0f;
     };
 
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
@@ -98,6 +127,46 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
             .withLabel ("%")
             .withStringFromValueFunction (percentString)
             .withValueFromStringFunction (percentValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { vibratoSpeedParameterId, 1 },
+        "Vibrato Speed",
+        juce::NormalisableRange<float> { 0.10f, 12.0f, 0.01f, 0.72f },
+        5.5f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("Hz")
+            .withStringFromValueFunction (hzString)
+            .withValueFromStringFunction (hzValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { vibratoDepthParameterId, 1 },
+        "Vibrato Depth",
+        juce::NormalisableRange<float> { 0.0f, 60.0f, 0.1f, 0.85f },
+        0.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("c")
+            .withStringFromValueFunction (centsString)
+            .withValueFromStringFunction (centsValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { vibratoDelayParameterId, 1 },
+        "Vibrato Delay",
+        juce::NormalisableRange<float> { 0.0f, 2.0f, 0.001f, 0.60f },
+        0.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("ms")
+            .withStringFromValueFunction (msString)
+            .withValueFromStringFunction (msValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { vibratoModWheelSpeedParameterId, 1 },
+        "Mod Wheel To Vibrato Speed",
+        false));
+
+    layout.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { vibratoModWheelDepthParameterId, 1 },
+        "Mod Wheel To Vibrato Depth",
+        false));
 
     layout.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { pickupModelParameterId, 1 },
@@ -190,6 +259,13 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
     audioEngine.setLookaheadSamples (currentLatencySamples);
     audioEngine.setFingerNoise (fingerNoiseParameter != nullptr ? fingerNoiseParameter->load() : 0.0f);
+    audioEngine.setVibratoSpeed (vibratoSpeedParameter != nullptr ? vibratoSpeedParameter->load() : 5.5f);
+    audioEngine.setVibratoDepth (vibratoDepthParameter != nullptr ? vibratoDepthParameter->load() : 0.0f);
+    audioEngine.setVibratoDelay (vibratoDelayParameter != nullptr ? vibratoDelayParameter->load() : 0.0f);
+    audioEngine.setVibratoModWheelSpeedEnabled (vibratoModWheelSpeedParameter != nullptr
+                                                && vibratoModWheelSpeedParameter->load() >= 0.5f);
+    audioEngine.setVibratoModWheelDepthEnabled (vibratoModWheelDepthParameter != nullptr
+                                                && vibratoModWheelDepthParameter->load() >= 0.5f);
     audioEngine.setPickupPosition (pickupPositionParameter != nullptr ? pickupPositionParameter->load() : 0.39f);
     audioEngine.setPickupModel (pickupModelParameter != nullptr ? juce::roundToInt (pickupModelParameter->load()) : 0);
     audioEngine.render (buffer, midiMessages);
