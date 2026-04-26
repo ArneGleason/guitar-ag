@@ -65,6 +65,7 @@ private:
     int channel = 0;
     int stringIndex = 0;
     int fret = 0;
+    float woundAmount = 0.0f;
 
     float damping = 0.9965f;
     float baseDamping = 0.9965f;

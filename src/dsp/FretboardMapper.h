@@ -10,6 +10,7 @@ struct FretboardAssignment
     int stringIndex = 0;
     int fret = 0;
     bool wound = true;
+    float woundAmount = 1.0f;
 };
 
 class FretboardMapper
@@ -36,6 +37,7 @@ private:
         int stringIndex = 0;
         int fret = 0;
         bool wound = true;
+        float woundAmount = 1.0f;
         float score = 0.0f;
     };
 
@@ -47,6 +49,7 @@ private:
 
     static constexpr std::array<int, stringCount> openNotes { 40, 45, 50, 55, 59, 64 };
     static constexpr std::array<bool, stringCount> woundStrings { true, true, true, false, false, false };
+    static constexpr std::array<float, stringCount> woundAmounts { 1.0f, 0.67f, 0.33f, 0.0f, 0.0f, 0.0f };
 
     std::array<ActiveString, stringCount> activeStrings {};
     float positionFret = 2.0f;

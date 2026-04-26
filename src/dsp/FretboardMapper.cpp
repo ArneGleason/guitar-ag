@@ -16,7 +16,10 @@ void FretboardMapper::reset() noexcept
 FretboardAssignment FretboardMapper::assignNote (int midiNoteNumber, int midiChannel) noexcept
 {
     const auto candidate = findBestCandidate (midiNoteNumber);
-    const FretboardAssignment assignment { candidate.stringIndex, candidate.fret, candidate.wound };
+    const FretboardAssignment assignment { candidate.stringIndex,
+                                           candidate.fret,
+                                           candidate.wound,
+                                           candidate.woundAmount };
 
     rememberAssignment (assignment, midiNoteNumber, midiChannel);
     updatePositionMemory (assignment.fret);
@@ -48,16 +51,20 @@ FretboardMapper::Candidate FretboardMapper::findBestCandidate (int midiNoteNumbe
         const auto score = scoreCandidate (stringIndex, fret);
 
         if (score < best.score)
-            best = { stringIndex, fret, woundStrings[static_cast<size_t> (stringIndex)], score };
+            best = { stringIndex,
+                     fret,
+                     woundStrings[static_cast<size_t> (stringIndex)],
+                     woundAmounts[static_cast<size_t> (stringIndex)],
+                     score };
     }
 
     if (best.score < std::numeric_limits<float>::max())
         return best;
 
     if (midiNoteNumber < openNotes.front())
-        return { 0, 0, woundStrings.front(), 0.0f };
+        return { 0, 0, woundStrings.front(), woundAmounts.front(), 0.0f };
 
-    return { stringCount - 1, maxFret, woundStrings.back(), 0.0f };
+    return { stringCount - 1, maxFret, woundStrings.back(), woundAmounts.back(), 0.0f };
 }
 
 float FretboardMapper::scoreCandidate (int stringIndex, int fret) const noexcept

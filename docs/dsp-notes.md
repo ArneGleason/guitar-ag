@@ -721,6 +721,29 @@ Expected sound:
 
 The loudest notes should keep the useful KS019/KS020 body and dynamics, but with the hard-pick edge restrained to the region that sounded better by ear. Held notes should speak for longer before disappearing, especially through the middle of the decay, without changing the fretboard mapper behavior.
 
+## 2026-04-26 — Wound Taper and Softer Pick Attack
+
+Listening feedback on KS021:
+
+- The fretboard mapper is good.
+- The wound-string character should taper by string: low E full strength, A about two-thirds, D about one-third.
+- The current attack reads more like a hammer/fret impact than a pick.
+- The velocity aggression range is still too wide; the old 68% strike feel should become the new 100% strike feel, with the whole range scaled down rather than only capped at the top.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-022 WoundTaperPick`.
+- `FretboardAssignment` now carries `woundAmount` in addition to a wound/plain flag.
+- Standard tuning wound amounts are low E 1.00, A 0.67, D 0.33, G/B/high E 0.00.
+- Wound amount now scales stiffness, damping curvature, side-mode spread/level, horizontal motion, extra winding modes, and related brightness behavior.
+- Full MIDI velocity is remapped into the previous 0.05 to 0.68 strike-character range.
+- The short pick transient and attack chirp modes are reduced.
+- The modal output has a very short 2.5 ms onset ramp to soften the impact-like first samples.
+
+Expected sound:
+
+The low E should retain the liked wound-string behavior. A should still be wound, but lighter; D should be more subtle again. The top velocity should now feel closer to the previous 67-68% pick aggression, and the note start should be less hammer-like.
+
 ## Suggested MVP Signal Flow
 
 ```text

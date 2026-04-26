@@ -298,3 +298,10 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - Fretboard mapping passed the first listening check, so the next change should leave mapper behavior untouched.
 - Clean DI electric guitar needs more held-note sustain than KS020 provided; the modal bank can decay more slowly without adding compressor behavior yet.
 - The most useful high-velocity strike character appears to be around the previous 67-68% velocity region, so KS021 caps strike timbre there while still allowing full incoming velocity to affect loudness.
+
+## 2026-04-26 — KS-022 wound taper and pick attack
+
+- A single wound/plain boolean is too coarse once the fretboard mapper assigns real strings. The low E, A, and D strings need graduated wound behavior.
+- The intended first taper is low E 1.00, A 0.67, D 0.33.
+- Capping the top of the velocity curve is not the same as scaling the whole curve. KS022 remaps the full MIDI range into the previous 0-68% strike-character range.
+- The hammer-like attack likely comes from too much instantaneous transient/chirp energy, so this pass lowers the transient/chirp layers and adds a very short onset ramp.
