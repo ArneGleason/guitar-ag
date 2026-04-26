@@ -187,3 +187,17 @@ Accepted
 
 Consequences:
 `StringVoice` no longer decides wound/plain behavior from exact open-string MIDI pitches. It receives a string/fret assignment from `AudioEngine`, leaving room for a future phrase-aware performance interpreter, user style controls, MPE-aware routing, and alternate tunings.
+
+## 2026-04-26 — Use JUCE parameter state for adjustable sustain
+
+Decision:
+Expose the first user-facing sound control as a JUCE `AudioProcessorValueTreeState` parameter named `Sustain`.
+
+Reason:
+The KS024 tail sustain is useful but musical context dependent. It should be automatable, saved with host projects, and smoothed before affecting DSP.
+
+Status:
+Accepted
+
+Consequences:
+Plugin state now stores parameter state. Future controls should follow the same APVTS pattern unless a stronger reason emerges.

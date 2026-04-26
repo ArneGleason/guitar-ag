@@ -6,7 +6,24 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     : AudioProcessorEditor (&processor),
       audioProcessor (processor)
 {
-    setSize (420, 180);
+    sustainLabel.setText ("Sustain", juce::dontSendNotification);
+    sustainLabel.setColour (juce::Label::textColourId, juce::Colour (0xffcbd4dc));
+    sustainLabel.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (sustainLabel);
+
+    sustainSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    sustainSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 72, 24);
+    sustainSlider.setColour (juce::Slider::trackColourId, juce::Colour (0xff6fb1ff));
+    sustainSlider.setColour (juce::Slider::thumbColourId, juce::Colour (0xffe8edf2));
+    sustainSlider.setColour (juce::Slider::textBoxTextColourId, juce::Colour (0xffe8edf2));
+    sustainSlider.setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0xff202832));
+    addAndMakeVisible (sustainSlider);
+
+    sustainAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                            GuitarAgAudioProcessor::tailSustainParameterId,
+                                                            sustainSlider);
+
+    setSize (460, 220);
 }
 
 void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
@@ -24,6 +41,7 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
     graphics.setFont (juce::FontOptions (15.0f));
     graphics.drawFittedText ("MVP string voice: MIDI-triggered plucked model", bounds.removeFromTop (28),
                              juce::Justification::centredLeft, 1);
+    bounds.removeFromTop (58);
     graphics.drawFittedText ("MPE routing and pickup modeling are intentionally not implemented yet.", bounds,
                              juce::Justification::centredLeft, 2);
 
@@ -36,4 +54,10 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
 
 void GuitarAgAudioProcessorEditor::resized()
 {
+    auto bounds = getLocalBounds().reduced (24);
+    bounds.removeFromTop (78);
+
+    auto sustainBounds = bounds.removeFromTop (42);
+    sustainLabel.setBounds (sustainBounds.removeFromLeft (82));
+    sustainSlider.setBounds (sustainBounds);
 }

@@ -8,6 +8,8 @@ void AudioEngine::prepare (double sampleRate, int, int)
     for (auto& voice : voices)
         voice.prepare (sampleRate);
 
+    tailSustain.reset (sampleRate, 0.035);
+    tailSustain.setCurrentAndTargetValue (1.0f);
     tone.prepare (sampleRate);
     reset();
 }
@@ -19,7 +21,13 @@ void AudioEngine::reset()
 
     fretboard.reset();
     tone.reset();
+    tailSustain.setCurrentAndTargetValue (tailSustain.getTargetValue());
     nextVoice = 0;
+}
+
+void AudioEngine::setTailSustain (float newTailSustain) noexcept
+{
+    tailSustain.setTargetValue (juce::jlimit (0.0f, 1.0f, newTailSustain));
 }
 
 void AudioEngine::render (juce::AudioBuffer<float>& audio, const juce::MidiBuffer& midi)
@@ -45,9 +53,10 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
     for (auto sampleIndex = startSample; sampleIndex < endSample; ++sampleIndex)
     {
         auto mixedSample = 0.0f;
+        const auto sustainAmount = tailSustain.getNextValue();
 
         for (auto& voice : voices)
-            mixedSample += voice.renderSample();
+            mixedSample += voice.renderSample (sustainAmount);
 
         mixedSample = tone.processSample (mixedSample);
 

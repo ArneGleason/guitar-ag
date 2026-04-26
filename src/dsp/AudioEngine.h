@@ -14,6 +14,7 @@ class AudioEngine
 public:
     void prepare (double sampleRate, int maximumBlockSize, int outputChannels);
     void reset();
+    void setTailSustain (float newTailSustain) noexcept;
 
     void render (juce::AudioBuffer<float>& audio, const juce::MidiBuffer& midi);
 
@@ -28,6 +29,7 @@ private:
     std::array<StringVoice, maxVoices> voices;
     FretboardMapper fretboard;
     ElectricGuitarTone tone;
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> tailSustain { 1.0f };
     int nextVoice = 0;
 };
 

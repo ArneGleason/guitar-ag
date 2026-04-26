@@ -2,8 +2,33 @@
 #include "PluginEditor.h"
 
 GuitarAgAudioProcessor::GuitarAgAudioProcessor()
-    : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true))
+    : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
+      parameters (*this, nullptr, "GuitarAGParameters", createParameterLayout())
 {
+    tailSustainParameter = parameters.getRawParameterValue (tailSustainParameterId);
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::createParameterLayout()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> layout;
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { tailSustainParameterId, 1 },
+        "Sustain",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        1.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction ([] (float value, int)
+            {
+                return juce::String (juce::roundToInt (value * 100.0f)) + "%";
+            })
+            .withValueFromStringFunction ([] (const juce::String& text)
+            {
+                return text.getFloatValue() / 100.0f;
+            })));
+
+    return { layout.begin(), layout.end() };
 }
 
 void GuitarAgAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
@@ -26,6 +51,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 {
     juce::ScopedNoDenormals noDenormals;
     buffer.clear();
+    audioEngine.setTailSustain (tailSustainParameter != nullptr ? tailSustainParameter->load() : 1.0f);
     audioEngine.render (buffer, midiMessages);
 }
 
@@ -61,7 +87,7 @@ bool GuitarAgAudioProcessor::isMidiEffect() const
 
 double GuitarAgAudioProcessor::getTailLengthSeconds() const
 {
-    return 0.0;
+    return 12.0;
 }
 
 int GuitarAgAudioProcessor::getNumPrograms()
@@ -89,14 +115,18 @@ void GuitarAgAudioProcessor::changeProgramName (int, const juce::String&)
 
 void GuitarAgAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    juce::XmlElement state ("GuitarAGState");
-    state.setAttribute ("version", JucePlugin_VersionString);
-    copyXmlToBinary (state, destData);
+    auto state = parameters.copyState();
+    state.setProperty ("version", JucePlugin_VersionString, nullptr);
+    std::unique_ptr<juce::XmlElement> xml (state.createXml());
+    copyXmlToBinary (*xml, destData);
 }
 
 void GuitarAgAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    juce::ignoreUnused (data, sizeInBytes);
+    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+
+    if (xmlState != nullptr)
+        parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
 }
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()

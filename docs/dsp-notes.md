@@ -789,6 +789,24 @@ Expected sound:
 
 Held notes should still decay naturally from the attack, but the later tail should stay audible for longer. This is meant to feel like lower physical damping in the vibrating string, not like a compressor pulling up the tail.
 
+## 2026-04-26 — Automatable Sustain Parameter
+
+The KS024 tail-sustain behavior is now exposed as a VST parameter.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-025 SustainParam`.
+- The parameter is named `Sustain`.
+- Range is 0% to 100%.
+- Default is 100%, preserving the KS024 behavior that sounded good by default.
+- Lower values reduce the late-tail damping relaxation and raise the quiet-tail cutoff back toward the pre-KS024 behavior.
+- The parameter is smoothed inside `AudioEngine` before reaching active voices.
+- The plugin reports a nonzero tail length to the host.
+
+Expected sound:
+
+100% should match the long, supernatural KS024-style sustain. Lower values should move toward a more natural short sustain without compressor artifacts.
+
 ## Suggested MVP Signal Flow
 
 ```text

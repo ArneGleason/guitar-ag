@@ -14,7 +14,12 @@ public:
     void resized() override;
 
 private:
+    using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
+
     GuitarAgAudioProcessor& audioProcessor;
+    juce::Slider sustainSlider;
+    juce::Label sustainLabel;
+    std::unique_ptr<SliderAttachment> sustainAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAgAudioProcessorEditor)
 };

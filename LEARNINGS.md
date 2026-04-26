@@ -320,3 +320,11 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - A compressor could mask this, but the model should first try physically plausible lower late-stage damping.
 - KS024 keeps normal early modal decay, then relaxes damping after the first half-second so the remaining core modes hang on longer.
 - An 8-second open-string render now shows 6-second RMS around 12-16% of the 0.5-second RMS, rather than collapsing as quickly.
+
+## 2026-04-26 — KS-025 sustain parameter
+
+- The long KS024 sustain is musically useful but should be adjustable by patch or automation.
+- `Sustain` is the first real plugin parameter and uses JUCE `AudioProcessorValueTreeState`.
+- Defaulting to 100% preserves the last liked sound, while lower values move back toward the natural/shorter tail.
+- Parameter smoothing belongs in `AudioEngine` so host automation does not step directly into voice damping.
+- Plugin state now stores parameter state instead of only a placeholder XML version node.

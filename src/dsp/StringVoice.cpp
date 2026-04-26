@@ -307,17 +307,19 @@ void StringVoice::release (int midiNoteNumber, int midiChannel)
     }
 }
 
-float StringVoice::renderSample() noexcept
+float StringVoice::renderSample (float tailSustain) noexcept
 {
     if (! active)
         return 0.0f;
+
+    const auto sustainAmount = juce::jlimit (0.0f, 1.0f, tailSustain);
 
     if (releasing)
         modalReleaseDecay = juce::jmin (modalReleaseDecay, 0.99935f);
 
     auto modalOutput = 0.0f;
     const auto heldSeconds = static_cast<float> (samplesSinceStart) / static_cast<float> (sampleRate);
-    const auto tailBlend = releasing ? 0.0f : juce::jlimit (0.0f, 1.0f, (heldSeconds - 0.55f) / 1.60f);
+    const auto tailBlend = releasing ? 0.0f : sustainAmount * juce::jlimit (0.0f, 1.0f, (heldSeconds - 0.55f) / 1.60f);
 
     for (auto mode = 0; mode < modalCount; ++mode)
     {
@@ -350,7 +352,9 @@ float StringVoice::renderSample() noexcept
     ++samplesSinceStart;
     energy = 0.9994f * energy + 0.0006f * std::abs (modalOutput);
 
-    if (energy < 0.000008f)
+    const auto energyCutoff = 0.00004f + (0.000008f - 0.00004f) * sustainAmount;
+
+    if (energy < energyCutoff)
     {
         reset();
         return 0.0f;

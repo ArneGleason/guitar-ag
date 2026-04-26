@@ -7,6 +7,8 @@
 class GuitarAgAudioProcessor final : public juce::AudioProcessor
 {
 public:
+    static constexpr auto tailSustainParameterId = "tailSustain";
+
     GuitarAgAudioProcessor();
     ~GuitarAgAudioProcessor() override = default;
 
@@ -34,8 +36,14 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    juce::AudioProcessorValueTreeState& getValueTreeState() noexcept { return parameters; }
+
 private:
+    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
     guitar_ag::AudioEngine audioEngine;
+    juce::AudioProcessorValueTreeState parameters;
+    std::atomic<float>* tailSustainParameter = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAgAudioProcessor)
 };
