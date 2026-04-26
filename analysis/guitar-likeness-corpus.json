@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "description": "Small labeled corpus for testing whether future analysis tools agree with human judgments about isolated clean DI electric-guitar string realism.",
+  "external_audio_policy": "Audio and derived analysis files live outside the Git repository under /Users/arnegleason/code/reference-audio.",
+  "entries": [
+    {
+      "id": "guitar_techs_p1_di_singlenotes",
+      "bucket": "positive_real_di",
+      "kind": "reference",
+      "wav": "/Users/arnegleason/code/reference-audio/Guitar-TECHS/extracted/P1_singlenotes/audio/directinput/directinput_allsinglenotes.wav",
+      "notes_csv": "/Users/arnegleason/code/reference-audio/Guitar-TECHS/analysis/P1_singlenotes_notes.csv",
+      "source": "Guitar-TECHS P1 single notes direct input",
+      "human_notes": "Real isolated electric-guitar DI note reference."
+    },
+    {
+      "id": "ks017_modalcluster_00c8759",
+      "bucket": "preferred_synth",
+      "kind": "guitar_ag_render",
+      "model_label": "StringVoice KS-017 ModalCluster",
+      "commit": "00c8759",
+      "wav": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-ks017-modalcluster-00c8759-single-note-calibration.wav",
+      "notes_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/single-note-calibration-notes.csv",
+      "equivalent_wav": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-offline-ks016-modalcluster-dirty-single-note-calibration.wav",
+      "analyses": {
+        "perceptual_summary": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks017-modalcluster-dirty-vs-p1-di-perceptual.md",
+        "perceptual_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks017-modalcluster-dirty-vs-p1-di-perceptual.csv",
+        "harmonic_evolution_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks017-modalcluster-dirty-harmonic-evolution.csv"
+      },
+      "human_notes": "Strongly preferred listening result so far. Sounds like an old electric guitar string gently plucked with a soft nylon pick, but dynamics are not expressive yet."
+    },
+    {
+      "id": "ks016_hybridmodal_pickup002_bf09b3f",
+      "bucket": "rejected_synth",
+      "kind": "guitar_ag_render",
+      "model_label": "StringVoice KS-016 HybridModal Pickup-002",
+      "commit": "bf09b3f",
+      "wav": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-ks016-hybridmodal-pickup002-bf09b3f-single-note-calibration.wav",
+      "notes_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/single-note-calibration-notes.csv",
+      "analyses": {
+        "perceptual_summary": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks016-hybridmodal-pickup002-dirty-vs-p1-di-perceptual.md",
+        "perceptual_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks016-hybridmodal-pickup002-dirty-vs-p1-di-perceptual.csv",
+        "harmonic_evolution_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks016-hybridmodal-pickup002-dirty-harmonic-evolution.csv"
+      },
+      "human_notes": "Rejected as nearly the same as the older/original synth-like sound despite better analyzer score than modal cluster."
+    },
+    {
+      "id": "ks015_dualpickup_3457200",
+      "bucket": "rejected_synth",
+      "kind": "guitar_ag_render",
+      "model_label": "StringVoice KS-015 DualPickup",
+      "commit": "3457200",
+      "wav": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-ks015-dualpickup-3457200-single-note-calibration.wav",
+      "notes_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/single-note-calibration-notes.csv",
+      "analyses": {
+        "perceptual_summary": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks015-dualpickup-vs-p1-di-perceptual.md",
+        "perceptual_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks015-dualpickup-vs-p1-di-perceptual.csv",
+        "harmonic_evolution_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks015-dualpickup-vs-p1-di-harmonic-evolution.csv"
+      },
+      "human_notes": "Basin-jump attempt that measured usefully but did not sound convincingly like open electric guitar strings."
+    },
+    {
+      "id": "ks013_woundmotion_b6fc1ba",
+      "bucket": "rejected_synth",
+      "kind": "guitar_ag_render",
+      "model_label": "StringVoice KS-013 WoundMotion",
+      "commit": "b6fc1ba",
+      "wav": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-ks013-woundmotion-b6fc1ba-single-note-calibration.wav",
+      "notes_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/single-note-calibration-notes.csv",
+      "analyses": {
+        "perceptual_summary": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks013-woundmotion-vs-p1-di-perceptual.md",
+        "perceptual_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks013-woundmotion-vs-p1-di-perceptual.csv",
+        "harmonic_evolution_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks013-woundmotion-vs-p1-di-harmonic-evolution.csv"
+      },
+      "human_notes": "Rejected lower-string layer; sounded like a short synthetic white-noise tail rather than metallic wound-string ring."
+    },
+    {
+      "id": "ks003_basic_string_e35bf11",
+      "bucket": "rejected_synth",
+      "kind": "guitar_ag_render",
+      "model_label": "StringVoice KS-003",
+      "commit": "e35bf11",
+      "wav": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-ks003-e35bf11-single-note-calibration.wav",
+      "notes_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/single-note-calibration-notes.csv",
+      "analyses": {
+        "calibration_csv": "/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks003-vs-p1-di.csv"
+      },
+      "human_notes": "Early plucked-string voice; useful as a known old-school synthetic pluck baseline."
+    }
+  ]
+}

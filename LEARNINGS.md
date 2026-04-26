@@ -264,3 +264,10 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The current analyzer penalizes the modal cluster, but several lower-level metrics hint why it can still sound better: strong discrete partials, more metal-like high harmonic structure, and E2 h8 decay close to the DI reference.
 - The current perceptual analyzer should be treated as a diagnostic tool, not the objective. It likely over-weights exact spectral-bin matching and under-weights perceptual string identity.
 - Next analysis work should search for features that correlate with the user's realism judgment rather than forcing the model back toward lower full-spectrum distance.
+
+## 2026-04-25 — Guitar-likeness critic corpus seed
+
+- Added a small labeled corpus manifest for guitar-likeness work before introducing any ML dependency.
+- The first corpus has one positive real DI reference, one preferred synth render, and four rejected synth renders.
+- Running the corpus summary confirms the mismatch we need to solve: `KS017 ModalCluster` is the preferred render even though current full log-spectral distance is worse than several rejected examples.
+- This gives future embedding/classifier experiments a concrete local target: agree with reference DI and human listening labels, not generic internet `electric guitar` labels.
