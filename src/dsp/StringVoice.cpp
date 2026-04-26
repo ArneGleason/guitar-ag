@@ -82,9 +82,12 @@ void StringVoice::start (int midiNoteNumber,
     const auto stiffnessAmount = juce::jlimit (0.0f, 1.0f, pickStiffness);
     const auto textureAmount = juce::jlimit (0.0f, 1.0f, pickTexture);
     const auto stiffnessBipolar = 2.0f * stiffnessAmount - 1.0f;
-    const auto textureScale = 0.15f + 1.70f * textureAmount;
-    const auto pickEdgeScale = 0.65f + 0.70f * stiffnessAmount;
-    const auto partialStiffnessScale = 0.75f + 0.50f * stiffnessAmount;
+    const auto textureScale = textureAmount <= 0.5f ? textureAmount * 2.0f
+                                                     : 1.0f + (textureAmount - 0.5f) * 3.2f;
+    const auto pickEdgeScale = stiffnessAmount <= 0.5f ? 0.18f + stiffnessAmount * 1.64f
+                                                       : 1.0f + (stiffnessAmount - 0.5f) * 0.84f;
+    const auto partialStiffnessScale = stiffnessAmount <= 0.5f ? 0.48f + stiffnessAmount * 1.04f
+                                                               : 1.0f + (stiffnessAmount - 0.5f) * 0.70f;
 
     noteNumber = midiNoteNumber;
     channel = midiChannel;
@@ -103,7 +106,7 @@ void StringVoice::start (int midiNoteNumber,
     pickContactDecay = 0.0f;
     previousContactNoise = 0.0f;
     pickContactSamplesRemaining = 0;
-    attackRampSeconds = juce::jmap (stiffnessAmount, 0.0046f, 0.0014f);
+    attackRampSeconds = juce::jmap (stiffnessAmount, 0.0090f, 0.0013f);
     modalSine.fill (0.0f);
     modalCosine.fill (1.0f);
     modalSinStep.fill (0.0f);
@@ -141,7 +144,7 @@ void StringVoice::start (int midiNoteNumber,
     const auto pickupWidth = 0.026f;
     const auto displacementAmount = 0.70f * velocityGain;
     const auto horizontalAmount = (0.28f + 0.06f * woundAmount) * velocityGain;
-    const auto noiseAmount = (0.006f + 0.014f * brightness) * (1.0f + 0.2f * woundAmount) * textureScale;
+    const auto noiseAmount = (0.004f + 0.014f * brightness) * (1.0f + 0.2f * woundAmount) * textureScale;
     constexpr auto twoPi = 6.28318530717958647692f;
     const auto steelPartialAmount = (0.012f + 0.032f * brightness) * velocityGain * partialStiffnessScale;
     auto mean = 0.0f;
@@ -155,7 +158,7 @@ void StringVoice::start (int midiNoteNumber,
         const auto shape = pluckShapeAt (x, pluckPosition);
         const auto horizontalShape = pluckShapeAt (std::fmod (x + 0.017f, 1.0f), pluckPosition);
         const auto pickDistance = std::abs (x - pluckPosition);
-        const auto localPickContact = std::exp (-pickDistance * static_cast<float> (delayLength) * (0.12f + 0.12f * stiffnessAmount));
+        const auto localPickContact = std::exp (-pickDistance * static_cast<float> (delayLength) * (0.055f + 0.190f * stiffnessAmount));
         const auto scrapeNoise = nextNoiseSample() * localPickContact * noiseAmount;
         const auto steelPartials = 0.46f * std::sin (twoPi * 5.0f * x)
                                  + 0.34f * std::sin (twoPi * 7.0f * x)
@@ -198,9 +201,9 @@ void StringVoice::start (int midiNoteNumber,
     energy = velocityGain;
     pickTransient = (0.004f + 0.014f * brightness) * pickEdgeScale * (nextNoiseSample() >= 0.0f ? 1.0f : -1.0f);
     pickTransientDecay = 0.9990f - 0.0015f * brightness - 0.00025f * stiffnessBipolar;
-    pickContact = (0.003f + 0.012f * brightness) * velocityGain * textureScale;
-    pickContactDecay = 0.9993f - 0.00025f * brightness + 0.00018f * textureAmount;
-    pickContactSamplesRemaining = static_cast<int> (sampleRate * (0.005f + 0.011f * textureAmount + 0.006f * brightness));
+    pickContact = (0.0015f + 0.0180f * brightness) * velocityGain * textureScale;
+    pickContactDecay = 0.9989f - 0.00020f * brightness + 0.00045f * textureAmount;
+    pickContactSamplesRemaining = textureAmount <= 0.0f ? 0 : static_cast<int> (sampleRate * (0.002f + 0.024f * textureAmount + 0.006f * brightness));
     configureResonator (0, frequency * 5.0f, 0.9895f);
     configureResonator (1, frequency * 7.0f, 0.9880f);
     configureResonator (2, frequency * 11.0f, 0.9860f);
@@ -220,7 +223,7 @@ void StringVoice::start (int midiNoteNumber,
     auto modeIndex = 0;
     const auto stiffness = 0.000045f + (0.000080f - 0.000045f) * woundAmount;
     const auto modalGain = (0.020f + 0.070f * std::pow (velocityNormal, 0.62f)) * (0.70f + 0.85f * velocityGain);
-    const auto contactWidth = juce::jmap (strikeAmount, 0.070f, 0.006f) * (1.0f - 0.45f * stiffnessBipolar);
+    const auto contactWidth = juce::jmap (strikeAmount, 0.070f, 0.006f) * (1.0f - 0.60f * stiffnessBipolar);
     const auto attackModeGain = (juce::jmap (strikeAmount, 0.008f, 0.075f) + 0.045f * hardStrike)
                               * pickEdgeScale
                               * (0.82f + 0.36f * textureAmount);
@@ -360,6 +363,17 @@ float StringVoice::renderSample (float tailSustain) noexcept
     {
         modalOutput += pickTransient;
         pickTransient *= pickTransientDecay;
+    }
+
+    if (pickContactSamplesRemaining > 0)
+    {
+        const auto rawContact = nextNoiseSample();
+        const auto contactScratch = rawContact - previousContactNoise * 0.72f;
+        previousContactNoise = rawContact;
+
+        modalOutput += contactScratch * pickContact * 0.42f;
+        pickContact *= pickContactDecay;
+        --pickContactSamplesRemaining;
     }
 
     const auto attackRampSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * attackRampSeconds);

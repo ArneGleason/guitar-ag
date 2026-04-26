@@ -336,3 +336,7 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - Stiffness maps to contact sharpness and upper-mode attack energy.
 - Texture maps to friction/scrape and tangential/horizontal excitation.
 - Since the current voice is modal rather than a full string-contact solver, these controls are an excitation-layer approximation, not yet a physically complete plectrum/string interaction.
+
+## 2026-04-26 — KS-027 pick texture needs an audible contact path
+
+The `Pick Texture` control can feel inactive if it only changes the initial delay-line noise distribution. A short rendered contact/scratch component gives the ear a clearer friction cue, and setting the low end to true zero better matches the idea of a frictionless plectrum. The 50% default remains the anchor point for continuity while the extremes are widened for meaningful auditioning.

@@ -825,6 +825,22 @@ Expected sound:
 
 Lower stiffness should feel softer and rounder. Higher stiffness should feel sharper and more snappy. Lower texture should approach a cleaner/slipperier release. Higher texture should add more pick-contact scrape and friction detail without changing the sustain model.
 
+## 2026-04-26 — Pick Range Retune
+
+The pick/excitation layer has been retuned after listening feedback on the first parameterized version.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-027 PickRange`.
+- `Pick Stiffness` keeps the useful hard-pick range but extends the soft end with a longer onset ramp, wider contact, and lower pick-edge/partial gains.
+- `Pick Texture` now has a stronger perceptual range: 0% is effectively frictionless/no texture, 50% is close to the previous default, and 100% adds an intentionally audible scrape/contact component.
+- The existing pick-contact envelope is now rendered into the output as a short high-passed scratch term; previously it was initialized but not mixed directly into `renderSample`.
+- Texture still affects new note starts rather than reshaping already-ringing notes.
+
+Expected sound:
+
+The lowest stiffness should feel more flexible than KS-026. Texture should be much easier to hear at the extremes, with high values moving toward a rougher pick/coin-like contact and low values sounding cleaner.
+
 ## Suggested MVP Signal Flow
 
 ```text
