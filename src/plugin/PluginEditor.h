@@ -18,14 +18,14 @@ private:
     using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
 
     void configureSectionButton (juce::TextButton& button, const juce::String& title);
-    void configureInfoButton (juce::TextButton& button, const juce::String& tooltip);
+    void configureInfoButton (juce::TextButton& button, const juce::String& infoText);
+    void showInfoPopover (juce::Component& source, const juce::String& infoText);
     void layoutLabelAndInfo (juce::Rectangle<int>& row, juce::Label& label, juce::TextButton& infoButton) noexcept;
     void updateSectionVisibility();
     [[nodiscard]] int getPreferredHeight() const noexcept;
     [[nodiscard]] juce::String getSectionTitle (const juce::String& title, bool expanded) const;
 
     GuitarAgAudioProcessor& audioProcessor;
-    juce::TooltipWindow tooltipWindow { this, 700 };
     juce::TextButton projectInfoButton;
     juce::TextButton setupSectionButton;
     juce::TextButton pickupSectionButton;

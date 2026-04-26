@@ -1069,6 +1069,22 @@ Expected sound:
 
 At low settings the control should add a little human pitch sharpness to fretted notes. At high settings, fretted notes should become noticeably over-gripped, especially on lower strings and higher frets, while open strings stay stable.
 
+## 2026-04-26 — UI Popovers and Stronger Fret Pressure
+
+Polished the parameter help and widened the practical range of `Fret Pressure`.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-041 UIPopovers`.
+- Info buttons now open click-to-dismiss JUCE callout popovers instead of relying on hover tooltips.
+- The editor is slightly wider, uses a cleaner header band, and gives labels more room.
+- `Fret Pressure` still leaves open strings untouched, but 100% now produces a more obvious sharp bend on fretted notes.
+- The pressure curve remains strongest on lower strings and higher frets.
+
+Expected sound:
+
+The top of the `Fret Pressure` range should be clearly audible as over-gripped fretted sharpness rather than only a barely detectable drift. Lower settings should still be useful for subtle human pitch error.
+
 ## Suggested MVP Signal Flow
 
 ```text

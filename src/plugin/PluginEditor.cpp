@@ -2,6 +2,50 @@
 
 #include "BuildInfo.h"
 
+namespace
+{
+
+class InfoPopoverContent final : public juce::Component
+{
+public:
+    explicit InfoPopoverContent (juce::String infoText)
+    {
+        message.setMultiLine (true);
+        message.setReadOnly (true);
+        message.setScrollbarsShown (false);
+        message.setCaretVisible (false);
+        message.setPopupMenuEnabled (false);
+        message.setText (infoText, false);
+        message.setColour (juce::TextEditor::backgroundColourId, juce::Colour (0xff202832));
+        message.setColour (juce::TextEditor::textColourId, juce::Colour (0xffe8edf2));
+        message.setColour (juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
+        message.setColour (juce::TextEditor::focusedOutlineColourId, juce::Colours::transparentBlack);
+        message.setFont (juce::FontOptions (14.0f));
+        addAndMakeVisible (message);
+
+        const auto height = juce::jlimit (104, 230, 62 + (infoText.length() / 46) * 18);
+        setSize (360, height);
+    }
+
+    void paint (juce::Graphics& graphics) override
+    {
+        graphics.setColour (juce::Colour (0xff202832));
+        graphics.fillRoundedRectangle (getLocalBounds().toFloat(), 7.0f);
+        graphics.setColour (juce::Colour (0xff65717c));
+        graphics.drawRoundedRectangle (getLocalBounds().toFloat().reduced (0.5f), 7.0f, 1.0f);
+    }
+
+    void resized() override
+    {
+        message.setBounds (getLocalBounds().reduced (14, 12));
+    }
+
+private:
+    juce::TextEditor message;
+};
+
+} // namespace
+
 GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcessor& processor)
     : AudioProcessorEditor (&processor),
       audioProcessor (processor)
@@ -9,7 +53,7 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     const auto configureLabel = [this] (juce::Label& label, const juce::String& text)
     {
         label.setText (text, juce::dontSendNotification);
-        label.setColour (juce::Label::textColourId, juce::Colour (0xffcbd4dc));
+        label.setColour (juce::Label::textColourId, juce::Colour (0xffd6dee7));
         label.setJustificationType (juce::Justification::centredLeft);
         addAndMakeVisible (label);
     };
@@ -17,7 +61,7 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     const auto configureSlider = [this] (juce::Slider& slider, juce::Colour colour)
     {
         slider.setSliderStyle (juce::Slider::LinearHorizontal);
-        slider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 72, 24);
+        slider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 70, 24);
         slider.setColour (juce::Slider::trackColourId, colour);
         slider.setColour (juce::Slider::thumbColourId, juce::Colour (0xffe8edf2));
         slider.setColour (juce::Slider::textBoxTextColourId, juce::Colour (0xffe8edf2));
@@ -115,7 +159,7 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureSlider (fretPressureSlider, juce::Colour (0xffd7a0ff));
     configureInfoButton (fretPressureInfoButton,
                          "0% adds no fretting-pressure pitch error. 100% models over-gripping/mid-fret pressure by bending fretted notes sharp. "
-                         "Open strings are unaffected; lower strings and higher frets receive more shift.");
+                         "Open strings are unaffected; lower strings and higher frets receive more shift. The top of the range is intentionally obvious.");
 
     configureLabel (pickStiffnessLabel, "Pick Stiffness");
     configureSlider (pickStiffnessSlider, juce::Colour (0xffffc56f));
@@ -192,16 +236,21 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
 {
     juce::ignoreUnused (audioProcessor);
 
-    graphics.fillAll (juce::Colour (0xff171a1f));
+    graphics.fillAll (juce::Colour (0xff12171d));
+
+    graphics.setColour (juce::Colour (0xff1b232d));
+    graphics.fillRect (getLocalBounds().removeFromTop (90));
+    graphics.setColour (juce::Colour (0xff283340));
+    graphics.drawHorizontalLine (89, 24.0f, static_cast<float> (getWidth() - 24));
 
     auto bounds = getLocalBounds().reduced (24);
     graphics.setColour (juce::Colour (0xffe8edf2));
-    graphics.setFont (juce::FontOptions (24.0f, juce::Font::bold));
+    graphics.setFont (juce::FontOptions (25.0f, juce::Font::bold));
     graphics.drawFittedText ("Guitar AG", bounds.removeFromTop (40), juce::Justification::centredLeft, 1);
 
     graphics.setColour (juce::Colour (0xff9aa8b5));
     graphics.setFont (juce::FontOptions (15.0f));
-    graphics.drawFittedText ("MVP string voice: MIDI-triggered plucked model", bounds.removeFromTop (28),
+    graphics.drawFittedText ("Modeled clean-DI electric guitar voice", bounds.removeFromTop (28),
                              juce::Justification::centredLeft, 1);
     bounds.removeFromTop (juce::jmax (0, getHeight() - 146));
     graphics.drawFittedText ("MPE routing is intentionally not implemented yet.", bounds,
@@ -323,33 +372,42 @@ void GuitarAgAudioProcessorEditor::resized()
 void GuitarAgAudioProcessorEditor::configureSectionButton (juce::TextButton& button, const juce::String& title)
 {
     button.setButtonText (title);
-    button.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff202832));
-    button.setColour (juce::TextButton::buttonOnColourId, juce::Colour (0xff283340));
+    button.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff222b36));
+    button.setColour (juce::TextButton::buttonOnColourId, juce::Colour (0xff2d3845));
     button.setColour (juce::TextButton::textColourOffId, juce::Colour (0xffe8edf2));
     button.setColour (juce::TextButton::textColourOnId, juce::Colour (0xffe8edf2));
     button.setTriggeredOnMouseDown (false);
     addAndMakeVisible (button);
 }
 
-void GuitarAgAudioProcessorEditor::configureInfoButton (juce::TextButton& button, const juce::String& tooltip)
+void GuitarAgAudioProcessorEditor::configureInfoButton (juce::TextButton& button, const juce::String& infoText)
 {
     button.setButtonText ("i");
-    button.setTooltip (tooltip);
-    button.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff283340));
-    button.setColour (juce::TextButton::buttonOnColourId, juce::Colour (0xff334151));
-    button.setColour (juce::TextButton::textColourOffId, juce::Colour (0xffcbd4dc));
+    button.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff2a3542));
+    button.setColour (juce::TextButton::buttonOnColourId, juce::Colour (0xff3a4a5c));
+    button.setColour (juce::TextButton::textColourOffId, juce::Colour (0xffd6dee7));
     button.setColour (juce::TextButton::textColourOnId, juce::Colour (0xffe8edf2));
     button.setTriggeredOnMouseDown (false);
+    button.onClick = [this, &button, infoText]
+    {
+        showInfoPopover (button, infoText);
+    };
     addAndMakeVisible (button);
+}
+
+void GuitarAgAudioProcessorEditor::showInfoPopover (juce::Component& source, const juce::String& infoText)
+{
+    auto content = std::make_unique<InfoPopoverContent> (infoText);
+    juce::CallOutBox::launchAsynchronously (std::move (content), source.getScreenBounds(), this);
 }
 
 void GuitarAgAudioProcessorEditor::layoutLabelAndInfo (juce::Rectangle<int>& row,
                                                        juce::Label& label,
                                                        juce::TextButton& infoButton) noexcept
 {
-    auto labelArea = row.removeFromLeft (134);
-    label.setBounds (labelArea.removeFromLeft (108));
-    infoButton.setBounds (labelArea.removeFromLeft (22).reduced (2, 8));
+    auto labelArea = row.removeFromLeft (158);
+    label.setBounds (labelArea.removeFromLeft (130));
+    infoButton.setBounds (labelArea.removeFromLeft (22).reduced (2, 7));
 }
 
 void GuitarAgAudioProcessorEditor::updateSectionVisibility()
@@ -404,7 +462,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&harmonicHalfLabel) })
         component->setVisible (articulationExpanded);
 
-    setSize (500, getPreferredHeight());
+    setSize (560, getPreferredHeight());
     resized();
     repaint();
 }

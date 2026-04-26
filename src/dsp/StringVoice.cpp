@@ -847,11 +847,11 @@ float StringVoice::getFretPressureRatio (const FretboardAssignment& assignment, 
         return 1.0f;
 
     constexpr std::array<float, 6> maxStringCents {
-        18.0f, 15.0f, 12.0f, 8.0f, 6.0f, 5.0f
+        38.0f, 32.0f, 26.0f, 18.0f, 14.0f, 11.0f
     };
 
-    const auto amount = std::pow (juce::jlimit (0.0f, 1.0f, fretPressure), 1.18f);
-    const auto fretFactor = std::pow (juce::jlimit (0.0f, 1.0f, static_cast<float> (assignment.fret) / 24.0f), 0.82f);
+    const auto amount = std::pow (juce::jlimit (0.0f, 1.0f, fretPressure), 1.05f);
+    const auto fretFactor = std::pow (juce::jlimit (0.0f, 1.0f, static_cast<float> (assignment.fret) / 24.0f), 0.72f);
     const auto cents = maxStringCents[static_cast<size_t> (juce::jlimit (0, 5, assignment.stringIndex))]
                      * amount
                      * fretFactor;

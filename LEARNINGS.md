@@ -399,3 +399,7 @@ The first palm mute extremes were good, but the useful light range was too compr
 ## 2026-04-26 — Separate setup intonation from performance pressure
 
 Bridge/saddle intonation and fretting overpressure both change pitch, but they should remain separate controls. Bridge intonation is a stable instrument setup error; fret pressure is a player/performance error that only affects fretted notes and should probably become continuous later if we want to model squeezing a note sharp after attack.
+
+## 2026-04-26 — Hover help is too hidden for plugin parameters
+
+Tooltips technically work, but they are a poor fit for controls whose ranges need musical explanation. Clickable info popovers are more discoverable, easier to read, and should scale better as the parameter set grows.
