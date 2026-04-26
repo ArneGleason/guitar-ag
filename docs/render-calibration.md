@@ -134,3 +134,35 @@ E2 A2 D3 G3 B3 E4  short notes, about 0.12 seconds each
 ```
 
 All notes are on MIDI channel 1 at velocity 100.
+
+## Velocity Ladder MIDI
+
+Use this file when testing whether velocity changes the character of the pluck rather than only loudness:
+
+```text
+tests/midi/velocity-ladder-open-strings.mid
+```
+
+The MIDI contains each open string as six 1.2-second notes:
+
+```text
+E2 A2 D3 G3 B3 E4 at velocities 25, 45, 65, 85, 110, 127
+```
+
+Extract its note regions with:
+
+```sh
+scripts/extract-midi-notes.py \
+  tests/midi/velocity-ladder-open-strings.mid \
+  --output /Users/arnegleason/code/reference-audio/Guitar-AG-renders/velocity-ladder-open-strings-notes.csv
+```
+
+Analyze a velocity-ladder render with:
+
+```sh
+scripts/analyze-velocity-ladder.py \
+  --render-wav /Users/arnegleason/code/reference-audio/Guitar-AG-renders/<render>.wav \
+  --notes /Users/arnegleason/code/reference-audio/Guitar-AG-renders/velocity-ladder-open-strings-notes.csv \
+  --output /Users/arnegleason/code/reference-audio/Guitar-AG-renders/<analysis>.csv \
+  --summary /Users/arnegleason/code/reference-audio/Guitar-AG-renders/<summary>.md
+```

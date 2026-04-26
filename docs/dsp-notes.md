@@ -622,6 +622,31 @@ Follow-up:
 
 Use `KS-017 ModalCluster` as the next listening baseline. The next analysis pass should try to explain why it sounds better by adding or emphasizing metrics for modal partial stability, inharmonic side-mode spacing, attack partial onset, and decay shape rather than optimizing only full-spectrum distance.
 
+## 2026-04-25 — Pick Regime Velocity Experiment
+
+Listening feedback on KS017: the ringing string core is much closer to an electric guitar string, but MIDI velocity only changes loudness. Real guitar picking changes the excitation regime: a gentle pluck and an aggressive strike have different contact width, release speed, partial balance, and short-lived attack content.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-018 PickRegimes`.
+- The KS017 modal-cluster structure remains the main sound source.
+- Velocity now changes pluck position, moving harder strikes closer to the bridge.
+- Velocity changes a synthetic contact width: gentle notes filter upper modes more, hard notes allow narrower, sharper excitation.
+- Velocity changes harmonic tilt so hard strikes excite upper partials and air-band modes more strongly.
+- Velocity increases inharmonic side-mode and wound-side cluster strength.
+- High velocities add short-lived upper attack modes intended to resemble a sharper pick-release event.
+
+Initial values:
+
+- velocity ladder test: velocities 25, 45, 65, 85, 110, 127
+- pluck position: about 0.24 at gentle velocity to 0.13 at hard velocity
+- contact width: about 0.105 at gentle velocity to 0.020 at hard velocity
+- modal tilt exponent: about 1.05/1.12 at gentle velocity to 0.56/0.68 at hard velocity for wound/plain strings
+
+Expected sound:
+
+Low velocities should keep the soft, old-string KS017 character. High velocities should sound brighter, more metallic, less polite, and more like the string is being shocked by the pick. This pass may be too extreme; the important listening question is whether velocity now changes playing character at all.
+
 ## Suggested MVP Signal Flow
 
 ```text

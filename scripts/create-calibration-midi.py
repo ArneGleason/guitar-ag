@@ -10,7 +10,8 @@ from pathlib import Path
 TICKS_PER_QUARTER = 480
 BPM = 120
 TICKS_PER_SECOND = TICKS_PER_QUARTER * BPM // 60
-MIDI_PATH = Path("tests/midi/single-note-calibration.mid")
+SINGLE_NOTE_MIDI_PATH = Path("tests/midi/single-note-calibration.mid")
+VELOCITY_LADDER_MIDI_PATH = Path("tests/midi/velocity-ladder-open-strings.mid")
 
 
 def varlen(value: int) -> bytes:
@@ -52,7 +53,7 @@ def text_event(delta_ticks: int, text: str) -> bytes:
     return event(delta_ticks, bytes([0xff, 0x01]) + varlen(len(encoded)) + encoded)
 
 
-def build_track() -> bytes:
+def build_single_note_track() -> bytes:
     notes = [
         (40, "E2"),
         (45, "A2"),
@@ -94,8 +95,46 @@ def build_track() -> bytes:
     return bytes(data)
 
 
+def build_velocity_ladder_track() -> bytes:
+    notes = [
+        (40, "E2"),
+        (45, "A2"),
+        (50, "D3"),
+        (55, "G3"),
+        (59, "B3"),
+        (64, "E4"),
+    ]
+    velocities = [25, 45, 65, 85, 110, 127]
+    duration = int(1.2 * TICKS_PER_SECOND)
+    note_gap = int(0.65 * TICKS_PER_SECOND)
+    string_gap = int(1.15 * TICKS_PER_SECOND)
+
+    data = bytearray()
+    data += event(0, b"\xff\x03" + varlen(len(b"Guitar AG velocity ladder")) + b"Guitar AG velocity ladder")
+    data += event(0, b"\xff\x51\x03" + (500000).to_bytes(3, byteorder="big"))
+    data += event(0, b"\xff\x58\x04\x04\x02\x18\x08")
+    data += text_event(0, "Velocity ladder: 25 45 65 85 110 127")
+
+    pending_delta = 0
+
+    for note, name in notes:
+        data += text_event(pending_delta, f"string {name}")
+        pending_delta = 0
+
+        for velocity in velocities:
+            data += text_event(pending_delta, f"{name} velocity {velocity}")
+            data += event(0, note_on(note, velocity))
+            data += event(duration, note_off(note))
+            pending_delta = note_gap
+
+        pending_delta = string_gap
+
+    data += event(pending_delta, b"\xff\x2f\x00")
+    return bytes(data)
+
+
 def write_midi(path: Path) -> None:
-    track = build_track()
+    track = build_single_note_track() if path == SINGLE_NOTE_MIDI_PATH else build_velocity_ladder_track()
     header = b"MThd" + struct.pack(">IHHH", 6, 0, 1, TICKS_PER_QUARTER)
     chunk = b"MTrk" + struct.pack(">I", len(track)) + track
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -103,8 +142,9 @@ def write_midi(path: Path) -> None:
 
 
 def main() -> int:
-    write_midi(MIDI_PATH)
-    print(f"Wrote {MIDI_PATH}")
+    for path in (SINGLE_NOTE_MIDI_PATH, VELOCITY_LADDER_MIDI_PATH):
+        write_midi(path)
+        print(f"Wrote {path}")
     return 0
 
 

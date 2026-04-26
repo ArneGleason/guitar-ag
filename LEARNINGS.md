@@ -271,3 +271,10 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The first corpus has one positive real DI reference, one preferred synth render, and four rejected synth renders.
 - Running the corpus summary confirms the mismatch we need to solve: `KS017 ModalCluster` is the preferred render even though current full log-spectral distance is worse than several rejected examples.
 - This gives future embedding/classifier experiments a concrete local target: agree with reference DI and human listening labels, not generic internet `electric guitar` labels.
+
+## 2026-04-25 — KS-018 pick regime implementation
+
+- Added `tests/midi/velocity-ladder-open-strings.mid` to make velocity expression easier to test by ear.
+- `StringVoice KS-018 PickRegimes` keeps the KS017 modal-cluster core but maps velocity into pluck position, contact width, harmonic tilt, side-mode strength, and short-lived attack modes.
+- The first velocity-ladder analysis confirms the render changes more than loudness: upper-to-low harmonic balance increases roughly 5x to 7x from velocity 25 to 127 across the open strings.
+- The old DI spectral-distance analyzer dislikes KS018 more than KS017, which is expected because this experiment intentionally changes excitation regime rather than matching the previous velocity-100 spectrum.
