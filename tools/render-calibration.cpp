@@ -4,6 +4,7 @@
 #include <juce_core/juce_core.h>
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <vector>
 
@@ -24,6 +25,7 @@ void printUsage()
                  "[--harmonic-touch 0.0] [--string-age 0.0] [--bridge-intonation 0.0] "
                  "[--fret-pressure 0.0] [--lookahead-ms 0] [--finger-noise 0.0] "
                  "[--vibrato-speed 5.5] [--vibrato-depth 0.0] [--vibrato-delay-ms 0] "
+                 "[--pitch-wheel 0.0] [--whammy-up 6.0] [--whammy-down 12.0] [--whammy-spread 0.35] "
                  "[--pickup-position 0.39] [--pickup-model 0]\n";
 }
 
@@ -124,6 +126,10 @@ int main (int argc, char* argv[])
     auto vibratoSpeed = 5.5f;
     auto vibratoDepth = 0.0f;
     auto vibratoDelayMs = 0.0f;
+    auto pitchWheel = 0.0f;
+    auto whammyUp = 6.0f;
+    auto whammyDown = 12.0f;
+    auto whammySpread = 0.35f;
     auto pickupPosition = 0.39f;
     auto pickupModel = 0;
 
@@ -208,6 +214,22 @@ int main (int argc, char* argv[])
         {
             vibratoDelayMs = juce::jlimit (0.0f, 2000.0f, juce::String (argv[++i]).getFloatValue());
         }
+        else if (argument == "--pitch-wheel" && hasValue)
+        {
+            pitchWheel = juce::jlimit (-1.0f, 1.0f, juce::String (argv[++i]).getFloatValue());
+        }
+        else if (argument == "--whammy-up" && hasValue)
+        {
+            whammyUp = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--whammy-down" && hasValue)
+        {
+            whammyDown = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--whammy-spread" && hasValue)
+        {
+            whammySpread = juce::String (argv[++i]).getFloatValue();
+        }
         else if (argument == "--pickup-position" && hasValue)
         {
             pickupPosition = juce::String (argv[++i]).getFloatValue();
@@ -238,6 +260,16 @@ int main (int argc, char* argv[])
         return 1;
     }
 
+    if (std::abs (pitchWheel) > 0.0001f)
+    {
+        const auto pitchWheelValue = juce::jlimit (0, 16383, juce::roundToInt (8192.0f + pitchWheel * 8191.0f));
+        events.push_back ({ 0, juce::MidiMessage::pitchWheel (1, pitchWheelValue) });
+        std::sort (events.begin(), events.end(), [] (const auto& left, const auto& right)
+        {
+            return left.sample < right.sample;
+        });
+    }
+
     const auto totalSamples = lastEventSample + static_cast<int> (std::round (tailSeconds * sampleRate));
     juce::AudioBuffer<float> output (2, totalSamples);
     output.clear();
@@ -257,6 +289,10 @@ int main (int argc, char* argv[])
     engine.setVibratoSpeed (vibratoSpeed);
     engine.setVibratoDepth (vibratoDepth);
     engine.setVibratoDelay (vibratoDelayMs / 1000.0f);
+    engine.setWhammyEnabled (true);
+    engine.setWhammyUpSemitones (whammyUp);
+    engine.setWhammyDownSemitones (whammyDown);
+    engine.setWhammySpread (whammySpread);
     engine.setPickupPosition (pickupPosition);
     engine.setPickupModel (pickupModel);
     engine.reset();

@@ -22,6 +22,10 @@ public:
     static constexpr auto vibratoDelayParameterId = "vibratoDelay";
     static constexpr auto vibratoModWheelSpeedParameterId = "vibratoModWheelSpeed";
     static constexpr auto vibratoModWheelDepthParameterId = "vibratoModWheelDepth";
+    static constexpr auto whammyEnabledParameterId = "whammyEnabled";
+    static constexpr auto whammyUpRangeParameterId = "whammyUpRange";
+    static constexpr auto whammyDownRangeParameterId = "whammyDownRange";
+    static constexpr auto whammySpreadParameterId = "whammySpread";
     static constexpr auto pickupPositionParameterId = "pickupPosition";
     static constexpr auto pickupModelParameterId = "pickupModel";
 
@@ -75,6 +79,10 @@ private:
     std::atomic<float>* vibratoDelayParameter = nullptr;
     std::atomic<float>* vibratoModWheelSpeedParameter = nullptr;
     std::atomic<float>* vibratoModWheelDepthParameter = nullptr;
+    std::atomic<float>* whammyEnabledParameter = nullptr;
+    std::atomic<float>* whammyUpRangeParameter = nullptr;
+    std::atomic<float>* whammyDownRangeParameter = nullptr;
+    std::atomic<float>* whammySpreadParameter = nullptr;
     std::atomic<float>* pickupPositionParameter = nullptr;
     std::atomic<float>* pickupModelParameter = nullptr;
     double currentSampleRate = 44100.0;

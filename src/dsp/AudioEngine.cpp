@@ -38,6 +38,14 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     vibratoDelay.setCurrentAndTargetValue (0.0f);
     modWheel.reset (sampleRate, 0.020);
     modWheel.setCurrentAndTargetValue (0.0f);
+    pitchWheel.reset (sampleRate, 0.010);
+    pitchWheel.setCurrentAndTargetValue (0.0f);
+    whammyUpSemitones.reset (sampleRate, 0.030);
+    whammyUpSemitones.setCurrentAndTargetValue (6.0f);
+    whammyDownSemitones.reset (sampleRate, 0.030);
+    whammyDownSemitones.setCurrentAndTargetValue (12.0f);
+    whammySpread.reset (sampleRate, 0.030);
+    whammySpread.setCurrentAndTargetValue (0.35f);
     pickupPosition.reset (sampleRate, 0.050);
     pickupPosition.setCurrentAndTargetValue (0.39f);
     pickupModel = 0;
@@ -74,6 +82,10 @@ void AudioEngine::reset()
     vibratoDepth.setCurrentAndTargetValue (vibratoDepth.getTargetValue());
     vibratoDelay.setCurrentAndTargetValue (vibratoDelay.getTargetValue());
     modWheel.setCurrentAndTargetValue (modWheel.getTargetValue());
+    pitchWheel.setCurrentAndTargetValue (pitchWheel.getTargetValue());
+    whammyUpSemitones.setCurrentAndTargetValue (whammyUpSemitones.getTargetValue());
+    whammyDownSemitones.setCurrentAndTargetValue (whammyDownSemitones.getTargetValue());
+    whammySpread.setCurrentAndTargetValue (whammySpread.getTargetValue());
     pickupPosition.setCurrentAndTargetValue (pickupPosition.getTargetValue());
     timelineSample = 0;
     nextVoice = 0;
@@ -161,6 +173,26 @@ void AudioEngine::setVibratoModWheelDepthEnabled (bool enabled) noexcept
     vibratoModWheelDepthEnabled = enabled;
 }
 
+void AudioEngine::setWhammyEnabled (bool enabled) noexcept
+{
+    whammyEnabled = enabled;
+}
+
+void AudioEngine::setWhammyUpSemitones (float newWhammyUpSemitones) noexcept
+{
+    whammyUpSemitones.setTargetValue (juce::jlimit (0.0f, 24.0f, newWhammyUpSemitones));
+}
+
+void AudioEngine::setWhammyDownSemitones (float newWhammyDownSemitones) noexcept
+{
+    whammyDownSemitones.setTargetValue (juce::jlimit (0.0f, 36.0f, newWhammyDownSemitones));
+}
+
+void AudioEngine::setWhammySpread (float newWhammySpread) noexcept
+{
+    whammySpread.setTargetValue (juce::jlimit (0.0f, 1.0f, newWhammySpread));
+}
+
 void AudioEngine::setPickupPosition (float newPickupPosition) noexcept
 {
     pickupPosition.setTargetValue (juce::jlimit (0.0f, 1.0f, newPickupPosition));
@@ -203,6 +235,13 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         const auto vibratoDepthAmount = vibratoDepth.getNextValue()
                                       + (vibratoModWheelDepthEnabled ? modWheelAmount * 55.0f : 0.0f);
         const auto vibratoDelaySeconds = vibratoDelay.getNextValue();
+        const auto pitchWheelAmount = pitchWheel.getNextValue();
+        const auto whammyUpAmount = whammyUpSemitones.getNextValue();
+        const auto whammyDownAmount = whammyDownSemitones.getNextValue();
+        const auto whammySemitones = whammyEnabled
+                                   ? pitchWheelAmount * (pitchWheelAmount >= 0.0f ? whammyUpAmount : whammyDownAmount)
+                                   : 0.0f;
+        const auto whammySpreadAmount = whammySpread.getNextValue();
         pickStiffness.getNextValue();
         pickTexture.getNextValue();
         harmonicTouch.getNextValue();
@@ -218,7 +257,9 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
                                                palmMuteAmount,
                                                vibratoDepthAmount,
                                                vibratoSpeedAmount,
-                                               vibratoDelaySeconds);
+                                               vibratoDelaySeconds,
+                                               whammySemitones,
+                                               whammySpreadAmount);
 
         mixedSample += renderFingerNoiseSample() * fingerNoiseAmount;
         mixedSample = tone.processSample (mixedSample);
@@ -235,6 +276,15 @@ void AudioEngine::handleIncomingMidiMessage (const juce::MidiMessage& message)
     if (message.isController() && message.getControllerNumber() == 1)
     {
         modWheel.setTargetValue (static_cast<float> (message.getControllerValue()) / 127.0f);
+        return;
+    }
+
+    if (message.isPitchWheel())
+    {
+        constexpr auto pitchWheelCenter = 8192.0f;
+        const auto bend = (static_cast<float> (message.getPitchWheelValue()) - pitchWheelCenter)
+                        / pitchWheelCenter;
+        pitchWheel.setTargetValue (juce::jlimit (-1.0f, 1.0f, bend));
         return;
     }
 

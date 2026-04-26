@@ -35,7 +35,13 @@ public:
     [[nodiscard]] int getNoteNumber() const noexcept { return noteNumber; }
     [[nodiscard]] int getChannel() const noexcept { return channel; }
 
-    float renderSample (float tailSustain, float palmMute, float vibratoDepthCents, float vibratoSpeedHz, float vibratoDelaySeconds) noexcept;
+    float renderSample (float tailSustain,
+                        float palmMute,
+                        float vibratoDepthCents,
+                        float vibratoSpeedHz,
+                        float vibratoDelaySeconds,
+                        float whammySemitones,
+                        float whammySpread) noexcept;
 
 private:
     static constexpr auto maxDelaySamples = 8192;
@@ -58,6 +64,7 @@ private:
     float getHarmonicTouchMask (int harmonic, int harmonicDivision, float harmonicAccuracy) const noexcept;
     float getBridgeIntonationRatio (const FretboardAssignment& assignment, float bridgeIntonation) const noexcept;
     float getFretPressureRatio (const FretboardAssignment& assignment, float fretPressure) const noexcept;
+    float getWhammyRatio (float whammySemitones, float whammySpread) const noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
     std::array<float, maxDelaySamples> secondaryDelayLine {};

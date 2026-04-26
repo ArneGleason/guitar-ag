@@ -30,6 +30,10 @@ public:
     void setVibratoDelay (float newVibratoDelay) noexcept;
     void setVibratoModWheelSpeedEnabled (bool enabled) noexcept;
     void setVibratoModWheelDepthEnabled (bool enabled) noexcept;
+    void setWhammyEnabled (bool enabled) noexcept;
+    void setWhammyUpSemitones (float newWhammyUpSemitones) noexcept;
+    void setWhammyDownSemitones (float newWhammyDownSemitones) noexcept;
+    void setWhammySpread (float newWhammySpread) noexcept;
     void setPickupPosition (float newPickupPosition) noexcept;
     void setPickupModel (int newPickupModel) noexcept;
 
@@ -105,6 +109,10 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> vibratoDepth { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> vibratoDelay { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> modWheel { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pitchWheel { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> whammyUpSemitones { 6.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> whammyDownSemitones { 12.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> whammySpread { 0.35f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickupPosition { 0.39f };
     double sampleRate = 44100.0;
     int64_t timelineSample = 0;
@@ -114,6 +122,7 @@ private:
     int nextFingerNoiseVoice = 0;
     bool vibratoModWheelSpeedEnabled = false;
     bool vibratoModWheelDepthEnabled = false;
+    bool whammyEnabled = true;
 };
 
 } // namespace guitar_ag

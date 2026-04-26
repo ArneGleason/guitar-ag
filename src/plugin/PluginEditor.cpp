@@ -78,6 +78,7 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureSectionButton (pickupSectionButton, "Pickup");
     configureSectionButton (performanceSectionButton, "Performance");
     configureSectionButton (vibratoSectionButton, "Vibrato");
+    configureSectionButton (whammySectionButton, "Whammy");
     configureSectionButton (articulationSectionButton, "Articulation");
 
     setupSectionButton.onClick = [this]
@@ -101,6 +102,12 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     vibratoSectionButton.onClick = [this]
     {
         vibratoExpanded = ! vibratoExpanded;
+        updateSectionVisibility();
+    };
+
+    whammySectionButton.onClick = [this]
+    {
+        whammyExpanded = ! whammyExpanded;
         updateSectionVisibility();
     };
 
@@ -214,6 +221,28 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     vibratoModWheelSpeedButton.setButtonText ("Mod Wheel To Speed");
     vibratoModWheelDepthButton.setButtonText ("Mod Wheel To Depth");
 
+    whammyEnabledButton.setButtonText ("Pitch Wheel Whammy");
+    whammyEnabledButton.setColour (juce::ToggleButton::textColourId, juce::Colour (0xffd6dee7));
+    whammyEnabledButton.setColour (juce::ToggleButton::tickColourId, juce::Colour (0xfff0a36e));
+    whammyEnabledButton.setColour (juce::ToggleButton::tickDisabledColourId, juce::Colour (0xff65717c));
+    addAndMakeVisible (whammyEnabledButton);
+
+    configureLabel (whammyUpRangeLabel, "Up Range");
+    configureSlider (whammyUpRangeSlider, juce::Colour (0xffffa56f));
+    configureInfoButton (whammyUpRangeInfoButton,
+                         "Maximum upward pitch-wheel bend in semitones. Default is +6 semitones.");
+
+    configureLabel (whammyDownRangeLabel, "Down Range");
+    configureSlider (whammyDownRangeSlider, juce::Colour (0xff6fb1ff));
+    configureInfoButton (whammyDownRangeInfoButton,
+                         "Maximum downward pitch-wheel bend in semitones. Default is -12 semitones.");
+
+    configureLabel (whammySpreadLabel, "String Spread");
+    configureSlider (whammySpreadSlider, juce::Colour (0xffd5a36f));
+    configureInfoButton (whammySpreadInfoButton,
+                         "0% makes pitch wheel act like a perfect pitch shifter. Higher values make strings respond by slightly different amounts, "
+                         "like a tremolo bridge changing string tension mechanically.");
+
     configureLabel (pickStiffnessLabel, "Pick Stiffness");
     configureSlider (pickStiffnessSlider, juce::Colour (0xffffc56f));
     configureInfoButton (pickStiffnessInfoButton,
@@ -284,6 +313,18 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     vibratoModWheelDepthAttachment = std::make_unique<ButtonAttachment> (audioProcessor.getValueTreeState(),
                                                                         GuitarAgAudioProcessor::vibratoModWheelDepthParameterId,
                                                                         vibratoModWheelDepthButton);
+    whammyEnabledAttachment = std::make_unique<ButtonAttachment> (audioProcessor.getValueTreeState(),
+                                                                  GuitarAgAudioProcessor::whammyEnabledParameterId,
+                                                                  whammyEnabledButton);
+    whammyUpRangeAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                  GuitarAgAudioProcessor::whammyUpRangeParameterId,
+                                                                  whammyUpRangeSlider);
+    whammyDownRangeAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                    GuitarAgAudioProcessor::whammyDownRangeParameterId,
+                                                                    whammyDownRangeSlider);
+    whammySpreadAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                 GuitarAgAudioProcessor::whammySpreadParameterId,
+                                                                 whammySpreadSlider);
     pickupModelAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
                                                                  GuitarAgAudioProcessor::pickupModelParameterId,
                                                                  pickupModelBox);
@@ -327,22 +368,21 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
     graphics.drawFittedText ("Modeled clean-DI electric guitar voice", bounds.removeFromTop (28),
                              juce::Justification::centredLeft, 1);
 
-    auto footerBounds = getLocalBounds().reduced (24).removeFromBottom (48);
-    graphics.setColour (juce::Colour (0xff283340));
-    graphics.drawHorizontalLine (footerBounds.getY() - 8, 24.0f, static_cast<float> (getWidth() - 24));
+    auto headerInfoBounds = getLocalBounds().reduced (24);
+    headerInfoBounds.removeFromLeft (170);
+    headerInfoBounds = headerInfoBounds.removeFromTop (64);
 
-    graphics.setColour (juce::Colour (0xff9aa8b5));
-    graphics.setFont (juce::FontOptions (12.0f));
-    graphics.drawFittedText ("MPE routing is intentionally not implemented yet.",
-                             footerBounds.removeFromTop (18),
-                             juce::Justification::centredLeft,
-                             1);
-
-    graphics.setColour (juce::Colour (0xff65717c));
-    graphics.setFont (juce::FontOptions (12.0f));
     const juce::String buildText = "v" JucePlugin_VersionString " / " GUITAR_AG_MODEL_LABEL " / " GUITAR_AG_GIT_COMMIT;
-    graphics.drawFittedText (buildText, footerBounds.removeFromTop (20),
-                             juce::Justification::centredLeft, 1);
+    graphics.setColour (juce::Colour (0xffc2ccd6));
+    graphics.setFont (juce::FontOptions (12.0f));
+    graphics.drawFittedText (buildText, headerInfoBounds.removeFromTop (20),
+                             juce::Justification::centredRight, 1);
+
+    graphics.setColour (juce::Colour (0xff7f8d99));
+    graphics.drawFittedText ("MPE routing is intentionally not implemented yet.",
+                             headerInfoBounds.removeFromTop (18),
+                             juce::Justification::centredRight,
+                             1);
 }
 
 void GuitarAgAudioProcessorEditor::resized()
@@ -444,6 +484,28 @@ void GuitarAgAudioProcessorEditor::resized()
     }
 
     bounds.removeFromTop (8);
+    whammySectionButton.setBounds (bounds.removeFromTop (26));
+
+    if (whammyExpanded)
+    {
+        auto enableBounds = bounds.removeFromTop (34);
+        enableBounds.removeFromLeft (158);
+        whammyEnabledButton.setBounds (enableBounds.removeFromLeft (190));
+
+        auto upBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (upBounds, whammyUpRangeLabel, whammyUpRangeInfoButton);
+        whammyUpRangeSlider.setBounds (upBounds);
+
+        auto downBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (downBounds, whammyDownRangeLabel, whammyDownRangeInfoButton);
+        whammyDownRangeSlider.setBounds (downBounds);
+
+        auto spreadBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (spreadBounds, whammySpreadLabel, whammySpreadInfoButton);
+        whammySpreadSlider.setBounds (spreadBounds);
+    }
+
+    bounds.removeFromTop (8);
     articulationSectionButton.setBounds (bounds.removeFromTop (26));
 
     if (articulationExpanded)
@@ -529,6 +591,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
     pickupSectionButton.setButtonText (getSectionTitle ("Pickup", pickupExpanded));
     performanceSectionButton.setButtonText (getSectionTitle ("Performance", performanceExpanded));
     vibratoSectionButton.setButtonText (getSectionTitle ("Vibrato", vibratoExpanded));
+    whammySectionButton.setButtonText (getSectionTitle ("Whammy", whammyExpanded));
     articulationSectionButton.setButtonText (getSectionTitle ("Articulation", articulationExpanded));
 
     for (auto* component : { static_cast<juce::Component*> (&sustainLabel),
@@ -578,6 +641,18 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&vibratoModWheelDepthButton) })
         component->setVisible (vibratoExpanded);
 
+    for (auto* component : { static_cast<juce::Component*> (&whammyEnabledButton),
+                             static_cast<juce::Component*> (&whammyUpRangeLabel),
+                             static_cast<juce::Component*> (&whammyUpRangeInfoButton),
+                             static_cast<juce::Component*> (&whammyUpRangeSlider),
+                             static_cast<juce::Component*> (&whammyDownRangeLabel),
+                             static_cast<juce::Component*> (&whammyDownRangeInfoButton),
+                             static_cast<juce::Component*> (&whammyDownRangeSlider),
+                             static_cast<juce::Component*> (&whammySpreadLabel),
+                             static_cast<juce::Component*> (&whammySpreadInfoButton),
+                             static_cast<juce::Component*> (&whammySpreadSlider) })
+        component->setVisible (whammyExpanded);
+
     for (auto* component : { static_cast<juce::Component*> (&pickStiffnessLabel),
                              static_cast<juce::Component*> (&pickStiffnessInfoButton),
                              static_cast<juce::Component*> (&pickStiffnessSlider),
@@ -602,7 +677,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
 
 int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
 {
-    auto controlsHeight = 78 + 26 + 8 + 26 + 8 + 26 + 8 + 26 + 8 + 26;
+    auto controlsHeight = 78 + 26 + 8 + 26 + 8 + 26 + 8 + 26 + 8 + 26 + 8 + 26;
 
     if (setupExpanded)
         controlsHeight += 108;
@@ -616,10 +691,13 @@ int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
     if (vibratoExpanded)
         controlsHeight += 142;
 
+    if (whammyExpanded)
+        controlsHeight += 142;
+
     if (articulationExpanded)
         controlsHeight += 162;
 
-    return controlsHeight + 72;
+    return controlsHeight + 28;
 }
 
 juce::String GuitarAgAudioProcessorEditor::getSectionTitle (const juce::String& title, bool expanded) const

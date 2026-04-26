@@ -243,3 +243,17 @@ Accepted
 
 Consequences:
 `Vibrato Speed`, `Vibrato Depth`, and `Vibrato Delay` affect all active voices. Each voice still runs its own vibrato phase. CC1 can add to speed and/or depth when enabled. Future MPE work may add per-note bend on top of this or replace the global layer for MPE channels.
+
+## 2026-04-26 — Treat standard pitch wheel as global whammy before MPE
+
+Decision:
+Use the standard MIDI pitch wheel as an optional global whammy-bar control before implementing MPE per-note pitch bend.
+
+Reason:
+The user wants normal pitch-wheel motion to behave like a tremolo/vibrato arm affecting all currently ringing strings. This is musically useful now and remains distinct from the future MPE requirement, where per-note pitch bend must only affect the intended voice.
+
+Status:
+Accepted
+
+Consequences:
+Pitch wheel currently drives all active voices through `Whammy Up Range`, `Whammy Down Range`, and `Whammy String Spread`. MPE pitch bend is still intentionally not implemented, and later MPE work must avoid confusing global whammy behavior with per-note expression routing.

@@ -22,6 +22,10 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     vibratoDelayParameter = parameters.getRawParameterValue (vibratoDelayParameterId);
     vibratoModWheelSpeedParameter = parameters.getRawParameterValue (vibratoModWheelSpeedParameterId);
     vibratoModWheelDepthParameter = parameters.getRawParameterValue (vibratoModWheelDepthParameterId);
+    whammyEnabledParameter = parameters.getRawParameterValue (whammyEnabledParameterId);
+    whammyUpRangeParameter = parameters.getRawParameterValue (whammyUpRangeParameterId);
+    whammyDownRangeParameter = parameters.getRawParameterValue (whammyDownRangeParameterId);
+    whammySpreadParameter = parameters.getRawParameterValue (whammySpreadParameterId);
     pickupPositionParameter = parameters.getRawParameterValue (pickupPositionParameterId);
     pickupModelParameter = parameters.getRawParameterValue (pickupModelParameterId);
 }
@@ -50,6 +54,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
         return juce::String (juce::roundToInt (value)) + " c";
     };
     const auto centsValue = [] (const juce::String& text)
+    {
+        return text.getFloatValue();
+    };
+    const auto semitoneString = [] (float value, int)
+    {
+        return juce::String (value, 1) + " st";
+    };
+    const auto semitoneValue = [] (const juce::String& text)
     {
         return text.getFloatValue();
     };
@@ -168,6 +180,41 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
         "Mod Wheel To Vibrato Depth",
         false));
 
+    layout.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { whammyEnabledParameterId, 1 },
+        "Pitch Wheel Whammy",
+        true));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { whammyUpRangeParameterId, 1 },
+        "Whammy Up Range",
+        juce::NormalisableRange<float> { 0.0f, 24.0f, 0.1f, 0.75f },
+        6.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("st")
+            .withStringFromValueFunction (semitoneString)
+            .withValueFromStringFunction (semitoneValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { whammyDownRangeParameterId, 1 },
+        "Whammy Down Range",
+        juce::NormalisableRange<float> { 0.0f, 36.0f, 0.1f, 0.75f },
+        12.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("st")
+            .withStringFromValueFunction (semitoneString)
+            .withValueFromStringFunction (semitoneValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { whammySpreadParameterId, 1 },
+        "Whammy String Spread",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.35f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
+
     layout.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { pickupModelParameterId, 1 },
         "Pickup Model",
@@ -266,6 +313,10 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
                                                 && vibratoModWheelSpeedParameter->load() >= 0.5f);
     audioEngine.setVibratoModWheelDepthEnabled (vibratoModWheelDepthParameter != nullptr
                                                 && vibratoModWheelDepthParameter->load() >= 0.5f);
+    audioEngine.setWhammyEnabled (whammyEnabledParameter == nullptr || whammyEnabledParameter->load() >= 0.5f);
+    audioEngine.setWhammyUpSemitones (whammyUpRangeParameter != nullptr ? whammyUpRangeParameter->load() : 6.0f);
+    audioEngine.setWhammyDownSemitones (whammyDownRangeParameter != nullptr ? whammyDownRangeParameter->load() : 12.0f);
+    audioEngine.setWhammySpread (whammySpreadParameter != nullptr ? whammySpreadParameter->load() : 0.35f);
     audioEngine.setPickupPosition (pickupPositionParameter != nullptr ? pickupPositionParameter->load() : 0.39f);
     audioEngine.setPickupModel (pickupModelParameter != nullptr ? juce::roundToInt (pickupModelParameter->load()) : 0);
     audioEngine.render (buffer, midiMessages);

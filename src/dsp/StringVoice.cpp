@@ -490,7 +490,13 @@ void StringVoice::release (int midiNoteNumber, int midiChannel)
     }
 }
 
-float StringVoice::renderSample (float tailSustain, float palmMute, float vibratoDepthCents, float vibratoSpeedHz, float vibratoDelaySeconds) noexcept
+float StringVoice::renderSample (float tailSustain,
+                                 float palmMute,
+                                 float vibratoDepthCents,
+                                 float vibratoSpeedHz,
+                                 float vibratoDelaySeconds,
+                                 float whammySemitones,
+                                 float whammySpread) noexcept
 {
     if (! active)
         return 0.0f;
@@ -523,7 +529,7 @@ float StringVoice::renderSample (float tailSustain, float palmMute, float vibrat
                                    ? 0.0f
                                    : juce::jlimit (0.0f, 1.0f, (heldSeconds - clampedVibratoDelay) / clampedVibratoDelay);
     const auto vibratoCents = clampedVibratoDepth * vibratoEnvelope * std::sin (vibratoPhase);
-    const auto vibratoRatio = std::pow (2.0f, vibratoCents / 1200.0f);
+    const auto pitchRatio = std::pow (2.0f, vibratoCents / 1200.0f) * getWhammyRatio (whammySemitones, whammySpread);
 
     vibratoPhase += 6.28318530717958647692f * clampedVibratoSpeed / static_cast<float> (sampleRate);
 
@@ -535,7 +541,7 @@ float StringVoice::renderSample (float tailSustain, float palmMute, float vibrat
         const auto modeIndex = static_cast<size_t> (mode);
         modalOutput += modalAmplitude[modeIndex] * modalCosine[modeIndex];
 
-        const auto phaseStep = modalPhaseStep[modeIndex] * vibratoRatio;
+        const auto phaseStep = modalPhaseStep[modeIndex] * pitchRatio;
         const auto sinStep = std::sin (phaseStep);
         const auto cosStep = std::cos (phaseStep);
 
@@ -879,6 +885,21 @@ float StringVoice::getFretPressureRatio (const FretboardAssignment& assignment, 
                      * fretFactor;
 
     return std::pow (2.0f, cents / 1200.0f);
+}
+
+float StringVoice::getWhammyRatio (float whammySemitones, float whammySpread) const noexcept
+{
+    constexpr std::array<float, 6> stringResponseOffset {
+        -0.055f, -0.030f, -0.010f, 0.015f, 0.035f, 0.055f
+    };
+
+    const auto spread = juce::jlimit (0.0f, 1.0f, whammySpread);
+    const auto clampedBend = juce::jlimit (-36.0f, 24.0f, whammySemitones);
+    const auto response = 1.0f
+                        + spread * stringResponseOffset[static_cast<size_t> (juce::jlimit (0, 5, stringIndex))];
+    const auto adjustedSemitones = clampedBend * response;
+
+    return std::pow (2.0f, adjustedSemitones / 12.0f);
 }
 
 } // namespace guitar_ag

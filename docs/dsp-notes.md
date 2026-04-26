@@ -1131,6 +1131,27 @@ Expected sound:
 
 Depth at 0 cents should be unchanged. Raising depth should produce fretting-hand pitch wobble. Delay should keep the note straight at first, then bring vibrato in gradually. Enabling mod-wheel depth and/or speed should allow CC1 to intensify the vibrato from the chosen baseline settings.
 
+## 2026-04-26 — Whammy Pitch Wheel
+
+Added a first global pitch-wheel bend layer that behaves like a simplified tremolo/vibrato-arm gesture.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-044 WhammyBend`.
+- The build/version identity moved from the crowded footer into the editor header.
+- Added a separate `Whammy` editor section.
+- Added `Pitch Wheel Whammy`, which enables or disables pitch-wheel control.
+- Added `Whammy Up Range`, in semitones, defaulting to +6.
+- Added `Whammy Down Range`, in semitones, defaulting to -12.
+- Added `Whammy String Spread`, which makes strings respond by slightly different intervals under larger pitch-wheel moves.
+- Pitch wheel is still global MIDI pitch behavior, not MPE per-note bend.
+- The simplified spread model is inspired by tremolo-arm physics: bridge motion changes string tension, and wound/unwound string construction can produce different pitch intervals for the same bridge motion.
+- The offline renderer accepts `--pitch-wheel`, `--whammy-up`, `--whammy-down`, and `--whammy-spread`.
+
+Expected sound:
+
+With `Pitch Wheel Whammy` enabled, the MIDI pitch wheel should bend all active notes together. With spread at 0%, bends should behave like a clean global pitch shifter. Raising spread should make wider bends sound less perfectly parallel across strings, especially in chords, while remaining subtle near the default.
+
 ## Suggested MVP Signal Flow
 
 ```text

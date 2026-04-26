@@ -411,3 +411,7 @@ Finger approach and release noises can happen before the musical note boundary, 
 ## 2026-04-26 — Finger vibrato can be global before MPE
 
 MPE will eventually provide per-note expression, but a global CC1 vibrato layer is still useful now. Treating mod wheel as an additive amount on top of baseline speed/depth keeps the sliders musically meaningful while allowing performance automation to intensify vibrato.
+
+## 2026-04-26 — Whammy bend should not be perfectly parallel by default
+
+The relevant tremolo-arm physics are string-tension changes, not a clean digital pitch shifter. A PLOS One paper by Jonathan Kemp on Fender-style tremolo systems supports the important modeling intuition: different strings can produce different pitch intervals for the same bridge motion, especially across wound and unwound string construction. For this pass, a single `Whammy String Spread` control is the smallest useful approximation.

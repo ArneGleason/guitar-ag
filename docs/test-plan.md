@@ -81,4 +81,14 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] `Vibrato Delay` waits before vibrato starts, then ramps in smoothly.
 - [ ] `Mod Wheel To Depth` lets MIDI CC1 increase vibrato depth from the slider baseline.
 - [ ] `Mod Wheel To Speed` lets MIDI CC1 increase vibrato speed from the slider baseline.
-- [ ] Footer/version text remains readable and does not overlap other UI text.
+- [ ] Header/version text remains readable and does not overlap other UI text.
+
+## Whammy Pitch Wheel Checks
+
+- [ ] `Pitch Wheel Whammy` Off leaves pitch wheel movement inactive.
+- [ ] `Pitch Wheel Whammy` On bends all active notes globally.
+- [ ] `Whammy Up Range` defaults to +6 semitones.
+- [ ] `Whammy Down Range` defaults to -12 semitones.
+- [ ] `Whammy String Spread` at 0% bends chord tones in parallel.
+- [ ] Raising `Whammy String Spread` makes wide chord bends slightly imperfect across strings.
+- [ ] Returning the pitch wheel to center settles smoothly without clicks or stuck detune.

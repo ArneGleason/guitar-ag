@@ -32,6 +32,7 @@ private:
     juce::TextButton pickupSectionButton;
     juce::TextButton performanceSectionButton;
     juce::TextButton vibratoSectionButton;
+    juce::TextButton whammySectionButton;
     juce::TextButton articulationSectionButton;
     juce::Slider sustainSlider;
     juce::Slider stringAgeSlider;
@@ -41,6 +42,9 @@ private:
     juce::Slider vibratoSpeedSlider;
     juce::Slider vibratoDepthSlider;
     juce::Slider vibratoDelaySlider;
+    juce::Slider whammyUpRangeSlider;
+    juce::Slider whammyDownRangeSlider;
+    juce::Slider whammySpreadSlider;
     juce::Slider pickupPositionSlider;
     juce::Slider pickStiffnessSlider;
     juce::Slider pickTextureSlider;
@@ -55,6 +59,9 @@ private:
     juce::Label vibratoSpeedLabel;
     juce::Label vibratoDepthLabel;
     juce::Label vibratoDelayLabel;
+    juce::Label whammyUpRangeLabel;
+    juce::Label whammyDownRangeLabel;
+    juce::Label whammySpreadLabel;
     juce::Label pickupModelLabel;
     juce::Label pickupPositionLabel;
     juce::Label pickupSixthLabel;
@@ -77,6 +84,9 @@ private:
     juce::TextButton vibratoSpeedInfoButton;
     juce::TextButton vibratoDepthInfoButton;
     juce::TextButton vibratoDelayInfoButton;
+    juce::TextButton whammyUpRangeInfoButton;
+    juce::TextButton whammyDownRangeInfoButton;
+    juce::TextButton whammySpreadInfoButton;
     juce::TextButton pickupModelInfoButton;
     juce::TextButton pickupPositionInfoButton;
     juce::TextButton pickStiffnessInfoButton;
@@ -87,6 +97,7 @@ private:
     juce::ComboBox pickupModelBox;
     juce::ToggleButton vibratoModWheelSpeedButton;
     juce::ToggleButton vibratoModWheelDepthButton;
+    juce::ToggleButton whammyEnabledButton;
     std::unique_ptr<SliderAttachment> sustainAttachment;
     std::unique_ptr<SliderAttachment> stringAgeAttachment;
     std::unique_ptr<SliderAttachment> bridgeIntonationAttachment;
@@ -98,6 +109,10 @@ private:
     std::unique_ptr<SliderAttachment> vibratoDelayAttachment;
     std::unique_ptr<ButtonAttachment> vibratoModWheelSpeedAttachment;
     std::unique_ptr<ButtonAttachment> vibratoModWheelDepthAttachment;
+    std::unique_ptr<ButtonAttachment> whammyEnabledAttachment;
+    std::unique_ptr<SliderAttachment> whammyUpRangeAttachment;
+    std::unique_ptr<SliderAttachment> whammyDownRangeAttachment;
+    std::unique_ptr<SliderAttachment> whammySpreadAttachment;
     std::unique_ptr<SliderAttachment> pickupPositionAttachment;
     std::unique_ptr<ComboBoxAttachment> pickupModelAttachment;
     std::unique_ptr<SliderAttachment> pickStiffnessAttachment;
@@ -108,6 +123,7 @@ private:
     bool pickupExpanded = true;
     bool performanceExpanded = true;
     bool vibratoExpanded = true;
+    bool whammyExpanded = true;
     bool articulationExpanded = true;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAgAudioProcessorEditor)
