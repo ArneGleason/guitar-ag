@@ -49,3 +49,19 @@ KS017 has a promising electric-string ring, but listening feedback says it behav
 ```text
 /Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks018-pickregimes-dirty-velocity-ladder-summary.md
 ```
+
+2026-04-25 retune:
+
+- Implemented `StringVoice KS-019 HardPickRegimes` after listening feedback that KS018 was still too soft across the whole range.
+- Shifted the velocity curve upward and added a high-velocity hard-strike region.
+- Offline render for velocity-ladder audition:
+
+```text
+/Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-ks019-hardpickregimes-dirty-velocity-ladder-open-strings.wav
+```
+
+- Velocity-ladder summary:
+
+```text
+/Users/arnegleason/code/reference-audio/Guitar-AG-renders/ks019-hardpickregimes-dirty-velocity-ladder-summary.md
+```

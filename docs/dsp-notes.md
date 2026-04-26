@@ -647,6 +647,30 @@ Expected sound:
 
 Low velocities should keep the soft, old-string KS017 character. High velocities should sound brighter, more metallic, less polite, and more like the string is being shocked by the pick. This pass may be too extreme; the important listening question is whether velocity now changes playing character at all.
 
+## 2026-04-25 — Hard Pick Regime Retune
+
+Listening feedback on KS018: the dynamics became much more convincing, but the whole velocity range still felt weighted toward soft picking. Even the loudest notes sounded like medium-soft/casual pick strokes, and the lower half of the velocity range collapsed into extremely light touch.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-019 HardPickRegimes`.
+- The velocity-to-strike curve is shifted upward so mid velocities reach the prior light-pick region sooner.
+- High velocities get an extra `hardStrike` region that boosts upper modal attack and inharmonic side clusters.
+- Hard strikes move closer to the bridge than KS018.
+- Contact width narrows more at high velocity, allowing more high-order modes.
+- Overall modal gain is raised to address the quietness of KS018.
+
+Offline analysis:
+
+- KS018 velocity 25 to 127 raised upper-to-low harmonic balance by roughly 5x to 7x.
+- KS019 raises upper-to-low harmonic balance by roughly 11x to 13x.
+- KS019 attack/sustain now increases from low to high velocity, whereas KS018's attack/sustain ratio fell.
+- The air-band increase is very large on wound strings, so KS019 may overshoot into clang/fizz. That is acceptable for this audition because the question is whether truly aggressive picking is now available.
+
+Expected sound:
+
+KS019 should make the top velocities much more forceful than KS018. If it is too bright or clangy, the next pass should keep the shifted velocity curve but reduce the air-band side modes rather than returning to the compressed soft-pick behavior.
+
 ## Suggested MVP Signal Flow
 
 ```text

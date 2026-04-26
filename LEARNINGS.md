@@ -278,3 +278,10 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - `StringVoice KS-018 PickRegimes` keeps the KS017 modal-cluster core but maps velocity into pluck position, contact width, harmonic tilt, side-mode strength, and short-lived attack modes.
 - The first velocity-ladder analysis confirms the render changes more than loudness: upper-to-low harmonic balance increases roughly 5x to 7x from velocity 25 to 127 across the open strings.
 - The old DI spectral-distance analyzer dislikes KS018 more than KS017, which is expected because this experiment intentionally changes excitation regime rather than matching the previous velocity-100 spectrum.
+
+## 2026-04-25 — KS-019 hard pick retune
+
+- Listening feedback said KS018 improved dynamics but compressed the whole range into gentle picking; even the loudest notes felt like medium-soft strokes.
+- `StringVoice KS-019 HardPickRegimes` shifts the velocity curve upward, adds a high-velocity hard-strike region, raises output, and boosts high modal/side-cluster excitation.
+- Velocity-ladder analysis confirms a much stronger regime spread: upper-to-low harmonic balance rises roughly 11x to 13x from velocity 25 to 127.
+- KS019 may overshoot on wound-string air-band content, but it should answer the immediate listening question: can the model produce genuinely aggressive picking at the top of the velocity range?
