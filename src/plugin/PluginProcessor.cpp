@@ -12,6 +12,7 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     harmonicTouchParameter = parameters.getRawParameterValue (harmonicTouchParameterId);
     stringAgeParameter = parameters.getRawParameterValue (stringAgeParameterId);
     bridgeIntonationParameter = parameters.getRawParameterValue (bridgeIntonationParameterId);
+    fretPressureParameter = parameters.getRawParameterValue (fretPressureParameterId);
     pickupPositionParameter = parameters.getRawParameterValue (pickupPositionParameterId);
     pickupModelParameter = parameters.getRawParameterValue (pickupModelParameterId);
 }
@@ -61,6 +62,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { bridgeIntonationParameterId, 1 },
         "Bridge Intonation",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { fretPressureParameterId, 1 },
+        "Fret Pressure",
         juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
         0.0f,
         juce::AudioParameterFloatAttributes()
@@ -144,6 +155,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setHarmonicTouch (harmonicTouchParameter != nullptr ? harmonicTouchParameter->load() : 0.0f);
     audioEngine.setStringAge (stringAgeParameter != nullptr ? stringAgeParameter->load() : 0.0f);
     audioEngine.setBridgeIntonation (bridgeIntonationParameter != nullptr ? bridgeIntonationParameter->load() : 0.0f);
+    audioEngine.setFretPressure (fretPressureParameter != nullptr ? fretPressureParameter->load() : 0.0f);
     audioEngine.setPickupPosition (pickupPositionParameter != nullptr ? pickupPositionParameter->load() : 0.39f);
     audioEngine.setPickupModel (pickupModelParameter != nullptr ? juce::roundToInt (pickupModelParameter->load()) : 0);
     audioEngine.render (buffer, midiMessages);

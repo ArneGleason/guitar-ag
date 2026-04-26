@@ -395,3 +395,7 @@ Palm muting is a performance control, not only a note-start articulation. The fi
 ## 2026-04-26 — Palm mute needs more light-range resolution
 
 The first palm mute extremes were good, but the useful light range was too compressed near the bottom of the slider. Mapping the visible 0-50% range onto the previous 0-25% mute amount gives more control over barely-touching palm positions while preserving the full mute at 100%.
+
+## 2026-04-26 — Separate setup intonation from performance pressure
+
+Bridge/saddle intonation and fretting overpressure both change pitch, but they should remain separate controls. Bridge intonation is a stable instrument setup error; fret pressure is a player/performance error that only affects fretted notes and should probably become continuous later if we want to model squeezing a note sharp after attack.

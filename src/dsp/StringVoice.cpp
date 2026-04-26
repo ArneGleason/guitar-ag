@@ -107,12 +107,14 @@ void StringVoice::start (int midiNoteNumber,
                          float harmonicTouch,
                          float stringAge,
                          float bridgeIntonation,
+                         float fretPressure,
                          float pickupPositionControl,
                          int pickupModel)
 {
     const auto harmonicTouchAmount = juce::jlimit (0.0f, 1.0f, harmonicTouch);
     const auto stringAgeAmount = juce::jlimit (0.0f, 1.0f, stringAge);
     const auto intonationRatio = getBridgeIntonationRatio (assignment, bridgeIntonation);
+    const auto fretPressureRatio = getFretPressureRatio (assignment, fretPressure);
     const auto pickupAmount = juce::jlimit (0.0f, 1.0f, pickupPositionControl);
     const auto pickupModelIndex = juce::jlimit (0, 2, pickupModel);
     const auto harmonicActive = harmonicTouchAmount > 0.25f;
@@ -197,7 +199,7 @@ void StringVoice::start (int midiNoteNumber,
     const auto frequency = juce::jlimit (20.0,
                                          8000.0,
                                          juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber)
-                                             * static_cast<double> (intonationRatio));
+                                             * static_cast<double> (intonationRatio * fretPressureRatio));
     delayLength = juce::jlimit (2, maxDelaySamples, static_cast<int> (std::round (sampleRate / frequency)));
     pickupOffsetSamples = juce::jlimit (1, delayLength - 1, static_cast<int> (std::round (delayLength * 0.18f)));
     secondaryPickupOffsetSamples = juce::jlimit (1, delayLength - 1, static_cast<int> (std::round (delayLength * 0.205f)));
@@ -837,6 +839,24 @@ float StringVoice::getBridgeIntonationRatio (const FretboardAssignment& assignme
         return 1.0f;
 
     return juce::jlimit (0.970f, 1.030f, idealLengthRatio * (1.0f + stringOffset) / actualLengthRatio);
+}
+
+float StringVoice::getFretPressureRatio (const FretboardAssignment& assignment, float fretPressure) const noexcept
+{
+    if (assignment.fret <= 0)
+        return 1.0f;
+
+    constexpr std::array<float, 6> maxStringCents {
+        18.0f, 15.0f, 12.0f, 8.0f, 6.0f, 5.0f
+    };
+
+    const auto amount = std::pow (juce::jlimit (0.0f, 1.0f, fretPressure), 1.18f);
+    const auto fretFactor = std::pow (juce::jlimit (0.0f, 1.0f, static_cast<float> (assignment.fret) / 24.0f), 0.82f);
+    const auto cents = maxStringCents[static_cast<size_t> (juce::jlimit (0, 5, assignment.stringIndex))]
+                     * amount
+                     * fretFactor;
+
+    return std::pow (2.0f, cents / 1200.0f);
 }
 
 } // namespace guitar_ag

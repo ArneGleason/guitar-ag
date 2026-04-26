@@ -21,6 +21,7 @@ public:
     void setHarmonicTouch (float newHarmonicTouch) noexcept;
     void setStringAge (float newStringAge) noexcept;
     void setBridgeIntonation (float newBridgeIntonation) noexcept;
+    void setFretPressure (float newFretPressure) noexcept;
     void setPickupPosition (float newPickupPosition) noexcept;
     void setPickupModel (int newPickupModel) noexcept;
 
@@ -44,6 +45,7 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> harmonicTouch { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> stringAge { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> bridgeIntonation { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> fretPressure { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickupPosition { 0.39f };
     int pickupModel = 0;
     int nextVoice = 0;

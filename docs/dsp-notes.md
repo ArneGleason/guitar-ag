@@ -1049,6 +1049,26 @@ Expected sound:
 
 Low-position playing should remain close to normal. Higher fretted notes should reveal more pitch disagreement between strings as the control increases.
 
+## 2026-04-26 — Fret Pressure and Parameter Info
+
+Added the first fretting-performance pitch imperfection control and lightweight in-plugin help.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-040 FretPressure`.
+- Added a `Fret Pressure` VST parameter, default 0%.
+- 0% adds no fretting-pressure pitch error.
+- 100% models over-gripping or landing too far behind the fret by bending fretted notes sharp.
+- Open strings are unaffected.
+- The sharp offset scales with the current fretboard assignment: lower strings receive more shift than higher strings, and higher frets receive more shift than lower frets.
+- The current implementation samples `Fret Pressure` at note start, like `Bridge Intonation`; automation affects newly struck notes, not already-ringing voices.
+- Added small info buttons and marker tooltips in the editor so parameter ranges, harmonic bands, pickup landmarks, and project intent are visible without filling the UI with explanatory text.
+- The offline renderer accepts `--fret-pressure`.
+
+Expected sound:
+
+At low settings the control should add a little human pitch sharpness to fretted notes. At high settings, fretted notes should become noticeably over-gripped, especially on lower strings and higher frets, while open strings stay stable.
+
 ## Suggested MVP Signal Flow
 
 ```text

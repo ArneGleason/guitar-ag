@@ -22,7 +22,7 @@ void printUsage()
                  "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5] [--palm-mute 0.0] "
                  "[--harmonic-touch 0.0] [--string-age 0.0] [--bridge-intonation 0.0] "
-                 "[--pickup-position 0.39] [--pickup-model 0]\n";
+                 "[--fret-pressure 0.0] [--pickup-position 0.39] [--pickup-model 0]\n";
 }
 
 bool readMidiEvents (const juce::File& midiFile, double sampleRate, std::vector<MidiEvent>& events, int& lastEventSample)
@@ -116,6 +116,7 @@ int main (int argc, char* argv[])
     auto harmonicTouch = 0.0f;
     auto stringAge = 0.0f;
     auto bridgeIntonation = 0.0f;
+    auto fretPressure = 0.0f;
     auto pickupPosition = 0.39f;
     auto pickupModel = 0;
 
@@ -176,6 +177,10 @@ int main (int argc, char* argv[])
         {
             bridgeIntonation = juce::String (argv[++i]).getFloatValue();
         }
+        else if (argument == "--fret-pressure" && hasValue)
+        {
+            fretPressure = juce::String (argv[++i]).getFloatValue();
+        }
         else if (argument == "--pickup-position" && hasValue)
         {
             pickupPosition = juce::String (argv[++i]).getFloatValue();
@@ -219,6 +224,7 @@ int main (int argc, char* argv[])
     engine.setHarmonicTouch (harmonicTouch);
     engine.setStringAge (stringAge);
     engine.setBridgeIntonation (bridgeIntonation);
+    engine.setFretPressure (fretPressure);
     engine.setPickupPosition (pickupPosition);
     engine.setPickupModel (pickupModel);
     engine.reset();
