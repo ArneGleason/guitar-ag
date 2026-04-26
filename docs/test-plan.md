@@ -92,3 +92,12 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] `Whammy String Spread` at 0% bends chord tones in parallel.
 - [ ] Raising `Whammy String Spread` makes wide chord bends slightly imperfect across strings.
 - [ ] Returning the pitch wheel to center settles smoothly without clicks or stuck detune.
+
+## Per-Note Aftertouch Checks
+
+- [ ] `Aftertouch Bend` defaults to +2 semitones.
+- [ ] `Aftertouch Bend` at 0 semitones leaves key/poly aftertouch inactive.
+- [ ] Pressing into a held note with key/poly aftertouch bends that note smoothly upward.
+- [ ] In a chord, key/poly aftertouch on one note does not bend the other held notes.
+- [ ] Negative `Aftertouch Bend` values bend downward if deliberately selected.
+- [ ] Channel pressure remains unmapped for now.

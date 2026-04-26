@@ -175,6 +175,12 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "0% adds no fretting-pressure pitch error. 100% models over-gripping/mid-fret pressure by bending fretted notes sharp. "
                          "Open strings are unaffected; lower strings and higher frets receive more shift. The top of the range is intentionally obvious.");
 
+    configureLabel (aftertouchBendLabel, "Aftertouch Bend");
+    configureSlider (aftertouchBendSlider, juce::Colour (0xffffb36f));
+    configureInfoButton (aftertouchBendInfoButton,
+                         "Poly/key aftertouch bends the matching active note by this many semitones at full pressure. "
+                         "Default is +2 for a normal upward bend; 0 disables it. Negative values are allowed for experimental downward pressure bends.");
+
     configureLabel (lookaheadLabel, "Lookahead");
     configureInfoButton (lookaheadInfoButton,
                          "Off keeps live response. 150 ms and 250 ms delay note events internally, report matching plugin latency, "
@@ -292,6 +298,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     fretPressureAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                  GuitarAgAudioProcessor::fretPressureParameterId,
                                                                  fretPressureSlider);
+    aftertouchBendAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                   GuitarAgAudioProcessor::aftertouchBendParameterId,
+                                                                   aftertouchBendSlider);
     lookaheadAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::lookaheadParameterId,
                                                                lookaheadBox);
@@ -450,6 +459,10 @@ void GuitarAgAudioProcessorEditor::resized()
         auto pressureBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (pressureBounds, fretPressureLabel, fretPressureInfoButton);
         fretPressureSlider.setBounds (pressureBounds);
+
+        auto aftertouchBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (aftertouchBounds, aftertouchBendLabel, aftertouchBendInfoButton);
+        aftertouchBendSlider.setBounds (aftertouchBounds);
 
         auto lookaheadBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (lookaheadBounds, lookaheadLabel, lookaheadInfoButton);
@@ -620,6 +633,9 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
     for (auto* component : { static_cast<juce::Component*> (&fretPressureLabel),
                              static_cast<juce::Component*> (&fretPressureInfoButton),
                              static_cast<juce::Component*> (&fretPressureSlider),
+                             static_cast<juce::Component*> (&aftertouchBendLabel),
+                             static_cast<juce::Component*> (&aftertouchBendInfoButton),
+                             static_cast<juce::Component*> (&aftertouchBendSlider),
                              static_cast<juce::Component*> (&lookaheadLabel),
                              static_cast<juce::Component*> (&lookaheadInfoButton),
                              static_cast<juce::Component*> (&lookaheadBox),
@@ -686,7 +702,7 @@ int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
         controlsHeight += 90;
 
     if (performanceExpanded)
-        controlsHeight += 108;
+        controlsHeight += 144;
 
     if (vibratoExpanded)
         controlsHeight += 142;

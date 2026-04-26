@@ -34,6 +34,7 @@ public:
     void setWhammyUpSemitones (float newWhammyUpSemitones) noexcept;
     void setWhammyDownSemitones (float newWhammyDownSemitones) noexcept;
     void setWhammySpread (float newWhammySpread) noexcept;
+    void setAftertouchBendSemitones (float newAftertouchBendSemitones) noexcept;
     void setPickupPosition (float newPickupPosition) noexcept;
     void setPickupModel (int newPickupModel) noexcept;
 
@@ -49,6 +50,7 @@ private:
     void handleMidiMessage (const juce::MidiMessage& message);
     void noteOn (int noteNumber, int channel, float velocity);
     void noteOff (int noteNumber, int channel);
+    void applyAftertouch (int noteNumber, int channel, float pressure) noexcept;
     void scheduleMidiMessage (const juce::MidiMessage& message, int64_t sampleTime) noexcept;
     void dispatchScheduledMidiEvents() noexcept;
     void clearScheduledMidiEvents() noexcept;
@@ -113,6 +115,7 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> whammyUpSemitones { 6.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> whammyDownSemitones { 12.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> whammySpread { 0.35f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> aftertouchBendSemitones { 2.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickupPosition { 0.39f };
     double sampleRate = 44100.0;
     int64_t timelineSample = 0;

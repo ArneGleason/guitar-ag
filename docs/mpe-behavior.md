@@ -72,6 +72,13 @@ Suggested mappings:
 - pressure brightens tone
 - pressure increases pickup intensity
 
+Current pre-MPE behavior:
+
+- MIDI key/poly aftertouch is routed by note number and channel to matching active voices.
+- The `Aftertouch Bend` parameter maps full key/poly aftertouch pressure to a configurable pitch bend, defaulting to +2 semitones.
+- Channel pressure is not mapped yet.
+- This does not replace the planned MPE member-channel pressure routing.
+
 ### CC74 / Timbre
 
 In MPE mode:

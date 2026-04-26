@@ -38,6 +38,7 @@ private:
     juce::Slider stringAgeSlider;
     juce::Slider bridgeIntonationSlider;
     juce::Slider fretPressureSlider;
+    juce::Slider aftertouchBendSlider;
     juce::Slider fingerNoiseSlider;
     juce::Slider vibratoSpeedSlider;
     juce::Slider vibratoDepthSlider;
@@ -54,6 +55,7 @@ private:
     juce::Label stringAgeLabel;
     juce::Label bridgeIntonationLabel;
     juce::Label fretPressureLabel;
+    juce::Label aftertouchBendLabel;
     juce::Label lookaheadLabel;
     juce::Label fingerNoiseLabel;
     juce::Label vibratoSpeedLabel;
@@ -79,6 +81,7 @@ private:
     juce::TextButton stringAgeInfoButton;
     juce::TextButton bridgeIntonationInfoButton;
     juce::TextButton fretPressureInfoButton;
+    juce::TextButton aftertouchBendInfoButton;
     juce::TextButton lookaheadInfoButton;
     juce::TextButton fingerNoiseInfoButton;
     juce::TextButton vibratoSpeedInfoButton;
@@ -102,6 +105,7 @@ private:
     std::unique_ptr<SliderAttachment> stringAgeAttachment;
     std::unique_ptr<SliderAttachment> bridgeIntonationAttachment;
     std::unique_ptr<SliderAttachment> fretPressureAttachment;
+    std::unique_ptr<SliderAttachment> aftertouchBendAttachment;
     std::unique_ptr<ComboBoxAttachment> lookaheadAttachment;
     std::unique_ptr<SliderAttachment> fingerNoiseAttachment;
     std::unique_ptr<SliderAttachment> vibratoSpeedAttachment;

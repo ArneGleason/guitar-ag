@@ -1152,6 +1152,27 @@ Expected sound:
 
 With `Pitch Wheel Whammy` enabled, the MIDI pitch wheel should bend all active notes together. With spread at 0%, bends should behave like a clean global pitch shifter. Raising spread should make wider bends sound less perfectly parallel across strings, especially in chords, while remaining subtle near the default.
 
+## 2026-04-26 — Per-Note Aftertouch Bend
+
+Added a first key/poly aftertouch pitch-bend mapping.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-045 AftertouchBend`.
+- Added `Aftertouch Bend` to the `Performance` editor section.
+- The parameter range is -12 to +12 semitones, defaulting to +2 semitones.
+- 0 semitones effectively disables the mapping.
+- Incoming MIDI key/poly aftertouch is routed by note number and channel to matching active voices.
+- Full aftertouch pressure bends by the selected range; partial pressure scales proportionally.
+- Each voice smooths its own aftertouch pressure amount to avoid zippery pitch movement.
+- Channel pressure is intentionally not mapped yet.
+- This is a small pre-MPE feature. Full MPE pressure routing remains a separate later milestone.
+- The offline renderer accepts `--aftertouch-bend` and `--aftertouch` for quick diagnostics.
+
+Expected sound:
+
+With the default +2 semitone range, increasing key/poly aftertouch on a held note should smoothly bend only that note upward. Chords should reveal whether a host or controller is truly sending per-note aftertouch: pressure on one note should not move the others.
+
 ## Suggested MVP Signal Flow
 
 ```text

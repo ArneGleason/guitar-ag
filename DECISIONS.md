@@ -257,3 +257,17 @@ Accepted
 
 Consequences:
 Pitch wheel currently drives all active voices through `Whammy Up Range`, `Whammy Down Range`, and `Whammy String Spread`. MPE pitch bend is still intentionally not implemented, and later MPE work must avoid confusing global whammy behavior with per-note expression routing.
+
+## 2026-04-26 — Add key aftertouch bend before full MPE pressure
+
+Decision:
+Map MIDI key/poly aftertouch to a configurable per-note pitch bend before implementing the full MPE pressure and CC74 routing layer.
+
+Reason:
+Keyboard players can use per-note pressure as a practical upward bend gesture now. JUCE exposes key/poly aftertouch with both note number and channel, so it can be routed to the matching active voice without requiring the full MPE member-channel allocator yet.
+
+Status:
+Accepted
+
+Consequences:
+`Aftertouch Bend` defaults to +2 semitones and allows -12 to +12 semitones. Channel pressure remains unmapped. Future MPE work should preserve this behavior where useful, but distinguish key aftertouch from MPE channel pressure on member channels.

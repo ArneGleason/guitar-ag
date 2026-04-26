@@ -95,6 +95,8 @@ void StringVoice::reset()
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
     vibratoPhase = 0.0f;
+    aftertouchPressure = 0.0f;
+    aftertouchPressureTarget = 0.0f;
     active = false;
     releasing = false;
     woundString = false;
@@ -196,6 +198,8 @@ void StringVoice::start (int midiNoteNumber,
     leftHandDampingTarget = 1.0f;
     leftHandDampingStep = 0.0f;
     vibratoPhase = 0.0f;
+    aftertouchPressure = 0.0f;
+    aftertouchPressureTarget = 0.0f;
     releasing = false;
     active = true;
     woundString = woundAmount > 0.0f;
@@ -490,13 +494,22 @@ void StringVoice::release (int midiNoteNumber, int midiChannel)
     }
 }
 
+void StringVoice::setAftertouchPressure (int midiNoteNumber, int midiChannel, float pressure) noexcept
+{
+    if (! active || noteNumber != midiNoteNumber || channel != midiChannel)
+        return;
+
+    aftertouchPressureTarget = juce::jlimit (0.0f, 1.0f, pressure);
+}
+
 float StringVoice::renderSample (float tailSustain,
                                  float palmMute,
                                  float vibratoDepthCents,
                                  float vibratoSpeedHz,
                                  float vibratoDelaySeconds,
                                  float whammySemitones,
-                                 float whammySpread) noexcept
+                                 float whammySpread,
+                                 float aftertouchBendSemitones) noexcept
 {
     if (! active)
         return 0.0f;
@@ -529,7 +542,11 @@ float StringVoice::renderSample (float tailSustain,
                                    ? 0.0f
                                    : juce::jlimit (0.0f, 1.0f, (heldSeconds - clampedVibratoDelay) / clampedVibratoDelay);
     const auto vibratoCents = clampedVibratoDepth * vibratoEnvelope * std::sin (vibratoPhase);
-    const auto pitchRatio = std::pow (2.0f, vibratoCents / 1200.0f) * getWhammyRatio (whammySemitones, whammySpread);
+    aftertouchPressure += (aftertouchPressureTarget - aftertouchPressure) * 0.0025f;
+    const auto aftertouchRatio = std::pow (2.0f, aftertouchPressure * aftertouchBendSemitones / 12.0f);
+    const auto pitchRatio = std::pow (2.0f, vibratoCents / 1200.0f)
+                          * getWhammyRatio (whammySemitones, whammySpread)
+                          * aftertouchRatio;
 
     vibratoPhase += 6.28318530717958647692f * clampedVibratoSpeed / static_cast<float> (sampleRate);
 

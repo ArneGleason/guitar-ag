@@ -26,6 +26,7 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     whammyUpRangeParameter = parameters.getRawParameterValue (whammyUpRangeParameterId);
     whammyDownRangeParameter = parameters.getRawParameterValue (whammyDownRangeParameterId);
     whammySpreadParameter = parameters.getRawParameterValue (whammySpreadParameterId);
+    aftertouchBendParameter = parameters.getRawParameterValue (aftertouchBendParameterId);
     pickupPositionParameter = parameters.getRawParameterValue (pickupPositionParameterId);
     pickupModelParameter = parameters.getRawParameterValue (pickupModelParameterId);
 }
@@ -123,6 +124,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
             .withLabel ("%")
             .withStringFromValueFunction (percentString)
             .withValueFromStringFunction (percentValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { aftertouchBendParameterId, 1 },
+        "Aftertouch Bend",
+        juce::NormalisableRange<float> { -12.0f, 12.0f, 0.1f, 1.0f },
+        2.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("st")
+            .withStringFromValueFunction (semitoneString)
+            .withValueFromStringFunction (semitoneValue)));
 
     layout.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { lookaheadParameterId, 1 },
@@ -296,6 +307,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setStringAge (stringAgeParameter != nullptr ? stringAgeParameter->load() : 0.0f);
     audioEngine.setBridgeIntonation (bridgeIntonationParameter != nullptr ? bridgeIntonationParameter->load() : 0.0f);
     audioEngine.setFretPressure (fretPressureParameter != nullptr ? fretPressureParameter->load() : 0.0f);
+    audioEngine.setAftertouchBendSemitones (aftertouchBendParameter != nullptr ? aftertouchBendParameter->load() : 2.0f);
     const auto newLatencySamples = getLookaheadSamples();
 
     if (newLatencySamples != currentLatencySamples)

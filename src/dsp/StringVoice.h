@@ -34,6 +34,7 @@ public:
     [[nodiscard]] bool isActive() const noexcept { return active; }
     [[nodiscard]] int getNoteNumber() const noexcept { return noteNumber; }
     [[nodiscard]] int getChannel() const noexcept { return channel; }
+    void setAftertouchPressure (int midiNoteNumber, int midiChannel, float pressure) noexcept;
 
     float renderSample (float tailSustain,
                         float palmMute,
@@ -41,7 +42,8 @@ public:
                         float vibratoSpeedHz,
                         float vibratoDelaySeconds,
                         float whammySemitones,
-                        float whammySpread) noexcept;
+                        float whammySpread,
+                        float aftertouchBendSemitones) noexcept;
 
 private:
     static constexpr auto maxDelaySamples = 8192;
@@ -154,6 +156,8 @@ private:
     float leftHandDampingTarget = 1.0f;
     float leftHandDampingStep = 0.0f;
     float vibratoPhase = 0.0f;
+    float aftertouchPressure = 0.0f;
+    float aftertouchPressureTarget = 0.0f;
 
     uint32_t randomState = 0x12345678u;
 

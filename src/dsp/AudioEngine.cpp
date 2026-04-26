@@ -46,6 +46,8 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     whammyDownSemitones.setCurrentAndTargetValue (12.0f);
     whammySpread.reset (sampleRate, 0.030);
     whammySpread.setCurrentAndTargetValue (0.35f);
+    aftertouchBendSemitones.reset (sampleRate, 0.030);
+    aftertouchBendSemitones.setCurrentAndTargetValue (2.0f);
     pickupPosition.reset (sampleRate, 0.050);
     pickupPosition.setCurrentAndTargetValue (0.39f);
     pickupModel = 0;
@@ -86,6 +88,7 @@ void AudioEngine::reset()
     whammyUpSemitones.setCurrentAndTargetValue (whammyUpSemitones.getTargetValue());
     whammyDownSemitones.setCurrentAndTargetValue (whammyDownSemitones.getTargetValue());
     whammySpread.setCurrentAndTargetValue (whammySpread.getTargetValue());
+    aftertouchBendSemitones.setCurrentAndTargetValue (aftertouchBendSemitones.getTargetValue());
     pickupPosition.setCurrentAndTargetValue (pickupPosition.getTargetValue());
     timelineSample = 0;
     nextVoice = 0;
@@ -193,6 +196,11 @@ void AudioEngine::setWhammySpread (float newWhammySpread) noexcept
     whammySpread.setTargetValue (juce::jlimit (0.0f, 1.0f, newWhammySpread));
 }
 
+void AudioEngine::setAftertouchBendSemitones (float newAftertouchBendSemitones) noexcept
+{
+    aftertouchBendSemitones.setTargetValue (juce::jlimit (-12.0f, 12.0f, newAftertouchBendSemitones));
+}
+
 void AudioEngine::setPickupPosition (float newPickupPosition) noexcept
 {
     pickupPosition.setTargetValue (juce::jlimit (0.0f, 1.0f, newPickupPosition));
@@ -242,6 +250,7 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
                                    ? pitchWheelAmount * (pitchWheelAmount >= 0.0f ? whammyUpAmount : whammyDownAmount)
                                    : 0.0f;
         const auto whammySpreadAmount = whammySpread.getNextValue();
+        const auto aftertouchBendAmount = aftertouchBendSemitones.getNextValue();
         pickStiffness.getNextValue();
         pickTexture.getNextValue();
         harmonicTouch.getNextValue();
@@ -259,7 +268,8 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
                                                vibratoSpeedAmount,
                                                vibratoDelaySeconds,
                                                whammySemitones,
-                                               whammySpreadAmount);
+                                               whammySpreadAmount,
+                                               aftertouchBendAmount);
 
         mixedSample += renderFingerNoiseSample() * fingerNoiseAmount;
         mixedSample = tone.processSample (mixedSample);
@@ -299,7 +309,7 @@ void AudioEngine::handleIncomingMidiMessage (const juce::MidiMessage& message)
     else if (message.isNoteOff())
         triggerFingerRelease (message.getNoteNumber(), message.getChannel());
 
-    if (message.isNoteOnOrOff())
+    if (message.isNoteOnOrOff() || message.isAftertouch())
         scheduleMidiMessage (message, timelineSample + static_cast<int64_t> (lookaheadSamples));
 }
 
@@ -312,7 +322,15 @@ void AudioEngine::handleMidiMessage (const juce::MidiMessage& message)
     }
 
     if (message.isNoteOff())
+    {
         noteOff (message.getNoteNumber(), message.getChannel());
+        return;
+    }
+
+    if (message.isAftertouch())
+        applyAftertouch (message.getNoteNumber(),
+                         message.getChannel(),
+                         static_cast<float> (message.getAfterTouchValue()) / 127.0f);
 }
 
 void AudioEngine::scheduleMidiMessage (const juce::MidiMessage& message, int64_t sampleTime) noexcept
@@ -539,6 +557,12 @@ void AudioEngine::noteOff (int noteNumber, int channel)
 
     for (auto& voice : voices)
         voice.release (noteNumber, channel);
+}
+
+void AudioEngine::applyAftertouch (int noteNumber, int channel, float pressure) noexcept
+{
+    for (auto& voice : voices)
+        voice.setAftertouchPressure (noteNumber, channel, pressure);
 }
 
 } // namespace guitar_ag

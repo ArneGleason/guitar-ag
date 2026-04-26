@@ -415,3 +415,7 @@ MPE will eventually provide per-note expression, but a global CC1 vibrato layer 
 ## 2026-04-26 — Whammy bend should not be perfectly parallel by default
 
 The relevant tremolo-arm physics are string-tension changes, not a clean digital pitch shifter. A PLOS One paper by Jonathan Kemp on Fender-style tremolo systems supports the important modeling intuition: different strings can produce different pitch intervals for the same bridge motion, especially across wound and unwound string construction. For this pass, a single `Whammy String Spread` control is the smallest useful approximation.
+
+## 2026-04-26 — Key aftertouch is useful before MPE
+
+JUCE key/poly aftertouch includes note number and channel, so it can be routed directly to a matching active voice. That gives the instrument a useful pressure-to-bend gesture now without solving MPE channel allocation yet. Channel pressure is different and should stay unmapped until the MPE/member-channel behavior is designed.
