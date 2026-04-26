@@ -63,6 +63,12 @@ void StringVoice::reset()
     pickCoinImpulse = 0.0f;
     pickCoinImpulseDecay = 0.0f;
     pickCoinCountdown = 0;
+    pickHeavyAmount = 0.0f;
+    pickHeavyDecay = 0.0f;
+    pickHeavyPhase = 0.0f;
+    pickHeavyPhaseStep = 0.0f;
+    pickHeavyState = 0.0f;
+    pickHeavyChoke = 0.0f;
     pickContactSamplesRemaining = 0;
     attackRampSeconds = 0.0025f;
     modalReleaseDecay = 1.0f;
@@ -102,6 +108,8 @@ void StringVoice::start (int midiNoteNumber,
     const auto stiffnessBipolar = 2.0f * stiffnessAmount - 1.0f;
     const auto mappedTexture = juce::jlimit (0.0f, 1.0f, textureAmount / 0.8f);
     const auto coinTexture = juce::jlimit (0.0f, 1.0f, (textureAmount - 0.8f) * 5.0f);
+    const auto heavyCoinTexture = juce::jlimit (0.0f, 1.0f, (textureAmount - 0.95f) * 20.0f);
+    const auto activeCoinTexture = coinTexture * (1.0f - 0.72f * heavyCoinTexture);
     const auto highTexture = juce::jlimit (0.0f, 1.0f, (mappedTexture - 0.5f) * 2.0f);
     const auto textureScale = mappedTexture <= 0.5f ? mappedTexture * 2.0f
                                                      : 1.0f + (mappedTexture - 0.5f) * 0.45f;
@@ -144,6 +152,12 @@ void StringVoice::start (int midiNoteNumber,
     pickCoinImpulse = 0.0f;
     pickCoinImpulseDecay = 0.0f;
     pickCoinCountdown = 0;
+    pickHeavyAmount = 0.0f;
+    pickHeavyDecay = 0.0f;
+    pickHeavyPhase = 0.0f;
+    pickHeavyPhaseStep = 0.0f;
+    pickHeavyState = 0.0f;
+    pickHeavyChoke = 0.0f;
     pickContactSamplesRemaining = 0;
     attackRampSeconds = juce::jmap (stiffnessAmount, 0.0090f, 0.0013f);
     modalSine.fill (0.0f);
@@ -262,17 +276,26 @@ void StringVoice::start (int midiNoteNumber,
     pickSlipImpulse = 0.0f;
     pickSlipDecay = 0.92f + 0.065f * highTexture;
     pickSlipCountdown = 0;
-    pickCoinAmount = (0.020f + 0.125f * brightness) * velocityGain * std::pow (coinTexture, 1.25f);
-    pickCoinDecay = 0.99945f + 0.00030f * coinTexture;
+    pickCoinAmount = (0.020f + 0.125f * brightness) * velocityGain * std::pow (activeCoinTexture, 1.25f);
+    pickCoinDecay = 0.99945f + 0.00030f * activeCoinTexture;
     pickCoinPhase = nextNoiseSample() * twoPi;
     pickCoinPhaseStep = twoPi * juce::jlimit (1400.0f,
                                                static_cast<float> (sampleRate * 0.40),
-                                               static_cast<float> (frequency) * (18.0f + 20.0f * coinTexture + 5.0f * woundAmount))
+                                               static_cast<float> (frequency) * (18.0f + 20.0f * activeCoinTexture + 5.0f * woundAmount))
                       / static_cast<float> (sampleRate);
     pickCoinImpulse = 0.0f;
-    pickCoinImpulseDecay = 0.965f + 0.030f * coinTexture;
+    pickCoinImpulseDecay = 0.965f + 0.030f * activeCoinTexture;
     pickCoinCountdown = 0;
-    pickContactSamplesRemaining = textureAmount <= 0.0f ? 0 : static_cast<int> (sampleRate * (0.010f + 0.040f * mappedTexture + 0.055f * highTexture + 0.085f * coinTexture + 0.010f * brightness));
+    pickHeavyAmount = (0.018f + 0.095f * brightness) * velocityGain * std::pow (heavyCoinTexture, 1.20f);
+    pickHeavyDecay = 0.99965f + 0.00025f * heavyCoinTexture;
+    pickHeavyPhase = nextNoiseSample() * twoPi;
+    pickHeavyPhaseStep = twoPi * juce::jlimit (180.0f,
+                                                static_cast<float> (sampleRate * 0.16),
+                                                static_cast<float> (frequency) * (2.2f + 4.6f * woundAmount + 1.6f * brightness))
+                       / static_cast<float> (sampleRate);
+    pickHeavyState = 0.0f;
+    pickHeavyChoke = 0.36f * heavyCoinTexture;
+    pickContactSamplesRemaining = textureAmount <= 0.0f ? 0 : static_cast<int> (sampleRate * (0.010f + 0.040f * mappedTexture + 0.055f * highTexture + 0.085f * coinTexture + 0.075f * heavyCoinTexture + 0.010f * brightness));
     configureResonator (0, frequency * 5.0f, 0.9895f);
     configureResonator (1, frequency * 7.0f, 0.9880f);
     configureResonator (2, frequency * 11.0f, 0.9860f);
@@ -444,6 +467,7 @@ float StringVoice::renderSample (float tailSustain) noexcept
         pickContactPhase += pickContactPhaseStep * (1.0f + 0.035f * rawContact);
         pickGrindPhase += pickGrindPhaseStep * (1.0f + 0.12f * rawContact);
         pickCoinPhase += pickCoinPhaseStep * (1.0f + 0.18f * rawContact);
+        pickHeavyPhase += pickHeavyPhaseStep * (1.0f + 0.035f * rawContact);
 
         if (pickContactPhase > 6.28318530717958647692f)
             pickContactPhase -= 6.28318530717958647692f;
@@ -453,6 +477,9 @@ float StringVoice::renderSample (float tailSustain) noexcept
 
         if (pickCoinPhase > 6.28318530717958647692f)
             pickCoinPhase -= 6.28318530717958647692f;
+
+        if (pickHeavyPhase > 6.28318530717958647692f)
+            pickHeavyPhase -= 6.28318530717958647692f;
 
         const auto ring = std::sin (pickContactPhase) + 0.32f * std::sin (pickContactPhase * 2.37f);
         auto grind = 0.0f;
@@ -496,7 +523,22 @@ float StringVoice::renderSample (float tailSustain) noexcept
             --pickCoinCountdown;
         }
 
-        contactOutput = softClip (contactScratch * pickContact + ring * pickContactRing + grind + coin);
+        auto heavy = 0.0f;
+
+        if (pickHeavyAmount > 0.000001f)
+        {
+            const auto heavyShape = std::tanh (2.2f * (std::sin (pickHeavyPhase)
+                                                     + 0.35f * std::sin (pickHeavyPhase * 0.51f + 1.20f)
+                                                     + 0.22f * std::sin (pickHeavyPhase * 1.73f)));
+            const auto pressureRipple = 0.78f + 0.22f * std::sin (pickHeavyPhase * 0.19f + 0.80f);
+            const auto heavyRaw = pickHeavyAmount * pressureRipple * heavyShape;
+            pickHeavyState += 0.11f * (heavyRaw - pickHeavyState);
+            heavy = pickHeavyState;
+            pickHeavyAmount *= pickHeavyDecay;
+        }
+
+        const auto lightContact = contactScratch * pickContact + ring * pickContactRing + grind + coin;
+        contactOutput = softClip (lightContact * (1.0f - pickHeavyChoke) + heavy);
         pickContact *= pickContactDecay;
         pickContactRing *= pickContactRingDecay;
         --pickContactSamplesRemaining;
@@ -504,6 +546,7 @@ float StringVoice::renderSample (float tailSustain) noexcept
 
     const auto attackRampSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * attackRampSeconds);
     modalOutput *= juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / attackRampSamples);
+    modalOutput *= 1.0f - 0.22f * pickHeavyChoke;
     modalOutput += contactOutput;
 
     ++samplesSinceStart;

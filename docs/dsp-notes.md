@@ -889,6 +889,22 @@ Expected sound:
 
 Below 80%, the texture control should preserve the useful KS-029 behavior. From 80% to 100%, the sound should move into a more overt gritty grind rather than only becoming brighter or louder.
 
+## 2026-04-26 — Heavy Coin Grind Top-End
+
+The top 5% of `Pick Texture` has been retuned after listening feedback that KS-030 became chirpy and bursty above about 95%.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-031 HeavyCoinGrind`.
+- The 80% to 95% coin-pick range remains mostly the KS-030 behavior.
+- From 95% to 100%, the fast coin impulse layer is reduced instead of intensified.
+- A darker heavy-contact layer fades in: low-frequency ridged friction, smoothed pressure variation, and mild choking of the freely ringing modal output.
+- The intent is a coin that stays in heavier contact with the string rather than releasing bright chirps.
+
+Expected sound:
+
+Up to about 95% should remain useful as before. The last 5% should move darker and grindier, with fewer white-noise bursts and less artificial chirp.
+
 ## Suggested MVP Signal Flow
 
 ```text

@@ -352,3 +352,7 @@ Manual testing of KS-028 confirmed that `Pick Texture` was audible, but the top 
 ## 2026-04-26 — Reserve parameter extremes for special materials
 
 KS-029 made the full texture range usable, but the user wanted an additional Brian May/coin-pick extreme. Compressing the normal range to end around 80% leaves room for a deliberately nonstandard material model from 80% to 100% without damaging the regular plastic-pick control range.
+
+## 2026-04-26 — Extreme contact should choke, not only excite
+
+KS-030's coin zone was useful up to about 95%, but the last few percent became chirpy and bursty. A more plausible extreme-contact model should reduce fast release impulses and partially choke the free string while injecting darker friction energy. For rough materials, "more contact" is not necessarily "more bright transient."
