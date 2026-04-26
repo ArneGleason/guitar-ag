@@ -201,3 +201,17 @@ Accepted
 
 Consequences:
 Plugin state now stores parameter state. Future controls should follow the same APVTS pattern unless a stronger reason emerges.
+
+## 2026-04-26 — Model pick material as excitation parameters first
+
+Decision:
+Add `Pick Stiffness` and `Pick Texture` as VST parameters that shape note-start excitation.
+
+Reason:
+The current sound engine does not yet have a full pick/string contact solver. A bounded excitation-layer approximation is the smallest useful step that lets us audition pick material behavior without risking the core string sustain and tone work.
+
+Status:
+Accepted
+
+Consequences:
+The controls affect newly triggered notes. A future physical contact model may replace or reinterpret these parameters while preserving their musical intent.

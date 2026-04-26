@@ -15,6 +15,8 @@ public:
     void prepare (double sampleRate, int maximumBlockSize, int outputChannels);
     void reset();
     void setTailSustain (float newTailSustain) noexcept;
+    void setPickStiffness (float newPickStiffness) noexcept;
+    void setPickTexture (float newPickTexture) noexcept;
 
     void render (juce::AudioBuffer<float>& audio, const juce::MidiBuffer& midi);
 
@@ -30,6 +32,8 @@ private:
     FretboardMapper fretboard;
     ElectricGuitarTone tone;
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> tailSustain { 1.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickStiffness { 0.5f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickTexture { 0.5f };
     int nextVoice = 0;
 };
 

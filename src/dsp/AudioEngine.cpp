@@ -10,6 +10,10 @@ void AudioEngine::prepare (double sampleRate, int, int)
 
     tailSustain.reset (sampleRate, 0.035);
     tailSustain.setCurrentAndTargetValue (1.0f);
+    pickStiffness.reset (sampleRate, 0.035);
+    pickStiffness.setCurrentAndTargetValue (0.5f);
+    pickTexture.reset (sampleRate, 0.035);
+    pickTexture.setCurrentAndTargetValue (0.5f);
     tone.prepare (sampleRate);
     reset();
 }
@@ -22,12 +26,24 @@ void AudioEngine::reset()
     fretboard.reset();
     tone.reset();
     tailSustain.setCurrentAndTargetValue (tailSustain.getTargetValue());
+    pickStiffness.setCurrentAndTargetValue (pickStiffness.getTargetValue());
+    pickTexture.setCurrentAndTargetValue (pickTexture.getTargetValue());
     nextVoice = 0;
 }
 
 void AudioEngine::setTailSustain (float newTailSustain) noexcept
 {
     tailSustain.setTargetValue (juce::jlimit (0.0f, 1.0f, newTailSustain));
+}
+
+void AudioEngine::setPickStiffness (float newPickStiffness) noexcept
+{
+    pickStiffness.setTargetValue (juce::jlimit (0.0f, 1.0f, newPickStiffness));
+}
+
+void AudioEngine::setPickTexture (float newPickTexture) noexcept
+{
+    pickTexture.setTargetValue (juce::jlimit (0.0f, 1.0f, newPickTexture));
 }
 
 void AudioEngine::render (juce::AudioBuffer<float>& audio, const juce::MidiBuffer& midi)
@@ -54,6 +70,8 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
     {
         auto mixedSample = 0.0f;
         const auto sustainAmount = tailSustain.getNextValue();
+        pickStiffness.getNextValue();
+        pickTexture.getNextValue();
 
         for (auto& voice : voices)
             mixedSample += voice.renderSample (sustainAmount);
@@ -85,14 +103,24 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
     {
         if (! voice.isActive())
         {
-            voice.start (noteNumber, channel, velocity, assignment);
+            voice.start (noteNumber,
+                         channel,
+                         velocity,
+                         assignment,
+                         pickStiffness.getCurrentValue(),
+                         pickTexture.getCurrentValue());
             return;
         }
     }
 
     auto& stolenVoice = voices[static_cast<size_t> (nextVoice)];
     fretboard.releaseNote (stolenVoice.getNoteNumber(), stolenVoice.getChannel());
-    stolenVoice.start (noteNumber, channel, velocity, assignment);
+    stolenVoice.start (noteNumber,
+                       channel,
+                       velocity,
+                       assignment,
+                       pickStiffness.getCurrentValue(),
+                       pickTexture.getCurrentValue());
     nextVoice = (nextVoice + 1) % maxVoices;
 }
 

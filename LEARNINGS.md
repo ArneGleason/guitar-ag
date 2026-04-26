@@ -328,3 +328,11 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - Defaulting to 100% preserves the last liked sound, while lower values move back toward the natural/shorter tail.
 - Parameter smoothing belongs in `AudioEngine` so host automation does not step directly into voice damping.
 - Plugin state now stores parameter state instead of only a placeholder XML version node.
+
+## 2026-04-26 — KS-026 pick material controls
+
+- Pick stiffness and pick texture are best treated as note-start excitation controls for now.
+- Default 50%/50% should preserve the current pick sound while allowing audition range on either side.
+- Stiffness maps to contact sharpness and upper-mode attack energy.
+- Texture maps to friction/scrape and tangential/horizontal excitation.
+- Since the current voice is modal rather than a full string-contact solver, these controls are an excitation-layer approximation, not yet a physically complete plectrum/string interaction.

@@ -6,11 +6,21 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
       parameters (*this, nullptr, "GuitarAGParameters", createParameterLayout())
 {
     tailSustainParameter = parameters.getRawParameterValue (tailSustainParameterId);
+    pickStiffnessParameter = parameters.getRawParameterValue (pickStiffnessParameterId);
+    pickTextureParameter = parameters.getRawParameterValue (pickTextureParameterId);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> layout;
+    const auto percentString = [] (float value, int)
+    {
+        return juce::String (juce::roundToInt (value * 100.0f)) + "%";
+    };
+    const auto percentValue = [] (const juce::String& text)
+    {
+        return text.getFloatValue() / 100.0f;
+    };
 
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { tailSustainParameterId, 1 },
@@ -19,14 +29,28 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
         1.0f,
         juce::AudioParameterFloatAttributes()
             .withLabel ("%")
-            .withStringFromValueFunction ([] (float value, int)
-            {
-                return juce::String (juce::roundToInt (value * 100.0f)) + "%";
-            })
-            .withValueFromStringFunction ([] (const juce::String& text)
-            {
-                return text.getFloatValue() / 100.0f;
-            })));
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { pickStiffnessParameterId, 1 },
+        "Pick Stiffness",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.5f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { pickTextureParameterId, 1 },
+        "Pick Texture",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.5f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
 
     return { layout.begin(), layout.end() };
 }
@@ -52,6 +76,8 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     juce::ScopedNoDenormals noDenormals;
     buffer.clear();
     audioEngine.setTailSustain (tailSustainParameter != nullptr ? tailSustainParameter->load() : 1.0f);
+    audioEngine.setPickStiffness (pickStiffnessParameter != nullptr ? pickStiffnessParameter->load() : 0.5f);
+    audioEngine.setPickTexture (pickTextureParameter != nullptr ? pickTextureParameter->load() : 0.5f);
     audioEngine.render (buffer, midiMessages);
 }
 

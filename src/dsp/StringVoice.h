@@ -17,7 +17,12 @@ public:
     void prepare (double newSampleRate);
     void reset();
 
-    void start (int midiNoteNumber, int midiChannel, float velocity, const FretboardAssignment& assignment);
+    void start (int midiNoteNumber,
+                int midiChannel,
+                float velocity,
+                const FretboardAssignment& assignment,
+                float pickStiffness,
+                float pickTexture);
     void release (int midiNoteNumber, int midiChannel);
 
     [[nodiscard]] bool isActive() const noexcept { return active; }
@@ -84,6 +89,7 @@ private:
     float pickContactDecay = 0.0f;
     float previousContactNoise = 0.0f;
     int pickContactSamplesRemaining = 0;
+    float attackRampSeconds = 0.0025f;
     float modalReleaseDecay = 1.0f;
     std::array<float, resonanceCount> resonanceCoefficient {};
     std::array<float, resonanceCount> resonanceRadiusSquared {};

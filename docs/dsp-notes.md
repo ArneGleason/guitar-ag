@@ -807,6 +807,24 @@ Expected sound:
 
 100% should match the long, supernatural KS024-style sustain. Lower values should move toward a more natural short sustain without compressor artifacts.
 
+## 2026-04-26 — Pick Stiffness and Texture Parameters
+
+The current pick/excitation layer now has two VST parameters.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-026 PickMaterial`.
+- Added `Pick Stiffness`, default 50%.
+- Added `Pick Texture`, default 50%.
+- 50%/50% is intended to preserve the KS025 pick feel.
+- Stiffness affects contact width, onset ramp time, pick-edge transient, steel partial excitation, and attack-mode strength.
+- Texture affects scrape/contact noise, horizontal excitation, and contact duration/decay.
+- These values are sampled at note start, so changing them affects new plucks rather than reshaping already-ringing notes.
+
+Expected sound:
+
+Lower stiffness should feel softer and rounder. Higher stiffness should feel sharper and more snappy. Lower texture should approach a cleaner/slipperier release. Higher texture should add more pick-contact scrape and friction detail without changing the sustain model.
+
 ## Suggested MVP Signal Flow
 
 ```text

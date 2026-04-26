@@ -18,8 +18,14 @@ private:
 
     GuitarAgAudioProcessor& audioProcessor;
     juce::Slider sustainSlider;
+    juce::Slider pickStiffnessSlider;
+    juce::Slider pickTextureSlider;
     juce::Label sustainLabel;
+    juce::Label pickStiffnessLabel;
+    juce::Label pickTextureLabel;
     std::unique_ptr<SliderAttachment> sustainAttachment;
+    std::unique_ptr<SliderAttachment> pickStiffnessAttachment;
+    std::unique_ptr<SliderAttachment> pickTextureAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAgAudioProcessorEditor)
 };

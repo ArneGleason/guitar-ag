@@ -19,11 +19,43 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     sustainSlider.setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0xff202832));
     addAndMakeVisible (sustainSlider);
 
+    pickStiffnessLabel.setText ("Pick Stiffness", juce::dontSendNotification);
+    pickStiffnessLabel.setColour (juce::Label::textColourId, juce::Colour (0xffcbd4dc));
+    pickStiffnessLabel.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (pickStiffnessLabel);
+
+    pickStiffnessSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    pickStiffnessSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 72, 24);
+    pickStiffnessSlider.setColour (juce::Slider::trackColourId, juce::Colour (0xffffc56f));
+    pickStiffnessSlider.setColour (juce::Slider::thumbColourId, juce::Colour (0xffe8edf2));
+    pickStiffnessSlider.setColour (juce::Slider::textBoxTextColourId, juce::Colour (0xffe8edf2));
+    pickStiffnessSlider.setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0xff202832));
+    addAndMakeVisible (pickStiffnessSlider);
+
+    pickTextureLabel.setText ("Pick Texture", juce::dontSendNotification);
+    pickTextureLabel.setColour (juce::Label::textColourId, juce::Colour (0xffcbd4dc));
+    pickTextureLabel.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (pickTextureLabel);
+
+    pickTextureSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    pickTextureSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 72, 24);
+    pickTextureSlider.setColour (juce::Slider::trackColourId, juce::Colour (0xff7bd88f));
+    pickTextureSlider.setColour (juce::Slider::thumbColourId, juce::Colour (0xffe8edf2));
+    pickTextureSlider.setColour (juce::Slider::textBoxTextColourId, juce::Colour (0xffe8edf2));
+    pickTextureSlider.setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0xff202832));
+    addAndMakeVisible (pickTextureSlider);
+
     sustainAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                             GuitarAgAudioProcessor::tailSustainParameterId,
                                                             sustainSlider);
+    pickStiffnessAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                  GuitarAgAudioProcessor::pickStiffnessParameterId,
+                                                                  pickStiffnessSlider);
+    pickTextureAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                               GuitarAgAudioProcessor::pickTextureParameterId,
+                                                               pickTextureSlider);
 
-    setSize (460, 220);
+    setSize (500, 300);
 }
 
 void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
@@ -41,7 +73,7 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
     graphics.setFont (juce::FontOptions (15.0f));
     graphics.drawFittedText ("MVP string voice: MIDI-triggered plucked model", bounds.removeFromTop (28),
                              juce::Justification::centredLeft, 1);
-    bounds.removeFromTop (58);
+    bounds.removeFromTop (132);
     graphics.drawFittedText ("MPE routing and pickup modeling are intentionally not implemented yet.", bounds,
                              juce::Justification::centredLeft, 2);
 
@@ -57,7 +89,15 @@ void GuitarAgAudioProcessorEditor::resized()
     auto bounds = getLocalBounds().reduced (24);
     bounds.removeFromTop (78);
 
-    auto sustainBounds = bounds.removeFromTop (42);
-    sustainLabel.setBounds (sustainBounds.removeFromLeft (82));
+    auto sustainBounds = bounds.removeFromTop (36);
+    sustainLabel.setBounds (sustainBounds.removeFromLeft (120));
     sustainSlider.setBounds (sustainBounds);
+
+    auto stiffnessBounds = bounds.removeFromTop (36);
+    pickStiffnessLabel.setBounds (stiffnessBounds.removeFromLeft (120));
+    pickStiffnessSlider.setBounds (stiffnessBounds);
+
+    auto textureBounds = bounds.removeFromTop (36);
+    pickTextureLabel.setBounds (textureBounds.removeFromLeft (120));
+    pickTextureSlider.setBounds (textureBounds);
 }
