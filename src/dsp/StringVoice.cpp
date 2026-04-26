@@ -15,6 +15,12 @@ void StringVoice::reset()
 {
     delayLine.fill (0.0f);
     secondaryDelayLine.fill (0.0f);
+    modalSine.fill (0.0f);
+    modalCosine.fill (1.0f);
+    modalSinStep.fill (0.0f);
+    modalCosStep.fill (1.0f);
+    modalAmplitude.fill (0.0f);
+    modalDecay.fill (1.0f);
 
     delayLength = 1;
     writeIndex = 0;
@@ -36,6 +42,7 @@ void StringVoice::reset()
     pickContactDecay = 0.0f;
     previousContactNoise = 0.0f;
     pickContactSamplesRemaining = 0;
+    modalReleaseDecay = 1.0f;
     resonanceCoefficient.fill (0.0f);
     resonanceRadiusSquared.fill (0.0f);
     resonanceState1.fill (0.0f);
@@ -76,6 +83,13 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     pickContactDecay = 0.0f;
     previousContactNoise = 0.0f;
     pickContactSamplesRemaining = 0;
+    modalSine.fill (0.0f);
+    modalCosine.fill (1.0f);
+    modalSinStep.fill (0.0f);
+    modalCosStep.fill (1.0f);
+    modalAmplitude.fill (0.0f);
+    modalDecay.fill (1.0f);
+    modalReleaseDecay = 1.0f;
     resonanceState1.fill (0.0f);
     resonanceState2.fill (0.0f);
     dampingTiltState = 0.0f;
@@ -96,6 +110,8 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     const auto velocityGain = juce::jlimit (0.05f, 1.0f, velocity);
     const auto brightness = juce::jlimit (0.0f, 1.0f, velocityGain);
     const auto pluckPosition = 0.20f;
+    const auto pickupPosition = 0.165f;
+    const auto pickupWidth = 0.038f;
     const auto displacementAmount = 0.70f * velocityGain;
     const auto horizontalAmount = (0.28f + (woundString ? 0.06f : 0.0f)) * velocityGain;
     const auto noiseAmount = (0.006f + 0.014f * brightness) * (woundString ? 1.2f : 1.0f);
@@ -173,6 +189,62 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     secondaryHighFeedbackGainTarget = 0.9955f - 0.0010f * brightness + (woundString ? 0.0010f : 0.0f);
     secondaryHighFeedbackGainStep = (secondaryHighFeedbackGainTarget - secondaryHighFeedbackGain)
                                   / juce::jmax (1.0f, static_cast<float> (highFeedbackGainSamplesRemaining));
+
+    auto modeIndex = 0;
+    const auto stiffness = woundString ? 0.000080f : 0.000045f;
+    const auto modalGain = 0.012f * velocityGain;
+
+    for (auto harmonic = 1; harmonic <= 32 && modeIndex < modalCount; ++harmonic)
+    {
+        const auto harmonicFloat = static_cast<float> (harmonic);
+        const auto stiffFrequency = static_cast<float> (frequency) * harmonicFloat
+                                  * std::sqrt (1.0f + stiffness * harmonicFloat * harmonicFloat);
+
+        if (stiffFrequency >= sampleRate * 0.43)
+            break;
+
+        const auto pluckShape = std::sin (twoPi * 0.5f * harmonicFloat * pluckPosition);
+        const auto pickupShape = std::sin (twoPi * 0.5f * harmonicFloat * pickupPosition);
+        const auto aperture = std::abs (harmonicFloat * pickupWidth) < 0.0001f
+                            ? 1.0f
+                            : std::sin (twoPi * 0.5f * harmonicFloat * pickupWidth)
+                                / (twoPi * 0.5f * harmonicFloat * pickupWidth);
+        const auto decaySeconds = (woundString ? 4.6f : 3.4f)
+                                / (1.0f + (woundString ? 0.012f : 0.018f) * harmonicFloat * harmonicFloat);
+        const auto decay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * decaySeconds));
+        const auto partialTilt = 1.0f / std::pow (harmonicFloat, woundString ? 0.70f : 0.86f);
+        const auto velocityScale = juce::jlimit (0.15f, 2.4f, stiffFrequency / 520.0f);
+        const auto amplitude = modalGain * pluckShape * pickupShape * aperture * partialTilt * velocityScale;
+        const auto phase = (harmonic % 2 == 0 ? 0.18f : -0.11f) * harmonicFloat;
+
+        configureMode (modeIndex++, stiffFrequency, amplitude, decay, phase);
+
+        if (modeIndex < modalCount && harmonic >= 4)
+        {
+            const auto sideFrequency = stiffFrequency * (1.0035f + (woundString ? 0.00070f : 0.00025f) * harmonicFloat);
+            const auto sideDecay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * decaySeconds * 0.82f));
+            configureMode (modeIndex++,
+                           sideFrequency,
+                           amplitude * (woundString ? (0.12f + 0.014f * harmonicFloat) : 0.045f),
+                           sideDecay,
+                           phase + 1.7f);
+        }
+
+        if (woundString && harmonic >= 2 && harmonic <= 18 && modeIndex < modalCount)
+        {
+            const auto windingFrequency = static_cast<float> (frequency)
+                                        * (harmonicFloat + 0.34f + 0.011f * harmonicFloat * harmonicFloat);
+            const auto windingDecaySeconds = 0.42f + 0.035f * harmonicFloat;
+            const auto windingDecay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * windingDecaySeconds));
+            const auto windingAperture = 1.0f / std::sqrt (harmonicFloat);
+
+            configureMode (modeIndex++,
+                           windingFrequency,
+                           std::abs (amplitude) * (0.12f + 0.008f * harmonicFloat) * windingAperture,
+                           windingDecay,
+                           phase + 2.35f + 0.29f * harmonicFloat);
+        }
+    }
 
     updateDamping();
 }
@@ -275,12 +347,32 @@ float StringVoice::renderSample() noexcept
     const auto secondaryPickupVelocity = secondaryPickupSample - previousSecondaryPickupSample;
     previousSecondaryPickupSample = secondaryPickupSample;
 
+    if (releasing)
+        modalReleaseDecay = juce::jmin (modalReleaseDecay, 0.99935f);
+
+    auto modalResidual = 0.0f;
+
+    for (auto mode = 0; mode < modalCount; ++mode)
+    {
+        modalResidual += modalAmplitude[static_cast<size_t> (mode)] * modalCosine[static_cast<size_t> (mode)];
+
+        const auto nextSine = modalSine[static_cast<size_t> (mode)] * modalCosStep[static_cast<size_t> (mode)]
+                            + modalCosine[static_cast<size_t> (mode)] * modalSinStep[static_cast<size_t> (mode)];
+        const auto nextCosine = modalCosine[static_cast<size_t> (mode)] * modalCosStep[static_cast<size_t> (mode)]
+                              - modalSine[static_cast<size_t> (mode)] * modalSinStep[static_cast<size_t> (mode)];
+
+        modalSine[static_cast<size_t> (mode)] = nextSine;
+        modalCosine[static_cast<size_t> (mode)] = nextCosine;
+        modalAmplitude[static_cast<size_t> (mode)] *= modalDecay[static_cast<size_t> (mode)] * modalReleaseDecay;
+    }
+
     const auto pickupReadout = 0.24f * pickupSample
                              + 1.05f * pickupVelocity
                              + 0.18f * secondaryPickupSample
                              + 0.72f * secondaryPickupVelocity
                              + 0.16f * contactOutput
-                             + 0.42f * movingResonance;
+                             + 0.42f * movingResonance
+                             + 0.22f * modalResidual;
     return pickupReadout * outputGain;
 }
 
@@ -305,6 +397,7 @@ void StringVoice::startLeftHandRelease() noexcept
     if (heldSeconds < 0.12f)
     {
         leftHandDampingTarget = 0.55f;
+        modalReleaseDecay = 0.9935f;
         const auto transitionSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * 0.008f);
         leftHandDampingStep = (leftHandDamping - leftHandDampingTarget) / transitionSamples;
         energy *= 0.35f;
@@ -315,6 +408,7 @@ void StringVoice::startLeftHandRelease() noexcept
     {
         const auto blend = (heldSeconds - 0.12f) / 0.33f;
         leftHandDampingTarget = juce::jmap (blend, 0.55f, 0.82f);
+        modalReleaseDecay = juce::jmap (blend, 0.9955f, 0.9988f);
         const auto transitionSeconds = juce::jmap (blend, 0.012f, 0.035f);
         const auto transitionSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * transitionSeconds);
         leftHandDampingStep = (leftHandDamping - leftHandDampingTarget) / transitionSamples;
@@ -323,6 +417,7 @@ void StringVoice::startLeftHandRelease() noexcept
     }
 
     leftHandDampingTarget = 0.90f;
+    modalReleaseDecay = 0.99935f;
     const auto transitionSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * 0.06f);
     leftHandDampingStep = (leftHandDamping - leftHandDampingTarget) / transitionSamples;
 }
@@ -414,6 +509,20 @@ float StringVoice::processMovingResonance (float input) noexcept
 float StringVoice::softClip (float value) const noexcept
 {
     return std::tanh (value);
+}
+
+void StringVoice::configureMode (int index, float frequency, float amplitude, float decay, float phase) noexcept
+{
+    const auto clampedIndex = static_cast<size_t> (juce::jlimit (0, modalCount - 1, index));
+    const auto clampedFrequency = juce::jlimit (20.0f, static_cast<float> (sampleRate * 0.45), frequency);
+    const auto step = 2.0f * 3.14159265358979323846f * clampedFrequency / static_cast<float> (sampleRate);
+
+    modalSine[clampedIndex] = std::sin (phase);
+    modalCosine[clampedIndex] = std::cos (phase);
+    modalSinStep[clampedIndex] = std::sin (step);
+    modalCosStep[clampedIndex] = std::cos (step);
+    modalAmplitude[clampedIndex] = amplitude;
+    modalDecay[clampedIndex] = juce::jlimit (0.90f, 0.999999f, decay);
 }
 
 } // namespace guitar_ag

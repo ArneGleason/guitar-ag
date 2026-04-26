@@ -569,6 +569,30 @@ Expected sound:
 
 This is a deliberate jump away from the KS011-KS014 local search. It may score worse on some previous metrics, but it should test whether two-polarization motion plus physical pickup velocity/aperture readout produces a less synthetic open-string base.
 
+## 2026-04-25 — Hybrid Modal / Pickup Resonance Experiment
+
+Tested a more radical hypothesis after KS015 still sounded too synthetic: convincing electric-guitar DI may depend less on a single Karplus-Strong loop sounding "stringy" and more on the combined behavior of transverse string motion, sparse inharmonic side modes, pickup aperture/position, and pickup/cable resonance.
+
+Current behavior:
+
+- `StringVoice` keeps the KS015 two-polarization delay-loop core as the main string motion.
+- Each voice also initializes a quiet modal residual bank.
+- The modal residual uses harmonic modes plus sparse, slightly inharmonic side modes, with extra side modes on E2/A2/D3 treated as wound open strings.
+- The modal residual is mixed into pickup readout at low level instead of replacing the waveguide loop.
+- `ElectricGuitarTone` now includes a simple fixed pickup/cable-style resonator around 3.1 kHz, plus stronger presence shaping.
+- The visible model label is now `StringVoice KS-016 HybridModal Pickup-002`.
+
+Offline experiment notes:
+
+- Pure modal replacement was rejected for now. It became too clean, too harmonically organized, and farther from the DI references by log-spectral distance.
+- Modal residual on top of the KS015 loop was also modest by itself; it did not explain the missing electric character.
+- Adding a simple pickup/cable resonant output stage improved the KS015 perceptual distance from about 30.16 dB to about 29.34 dB in the current analyzer.
+- This is not yet a full pickup model and should be judged by listening, especially for twang/quack and lower-string metal character.
+
+Expected sound:
+
+This candidate should sound more electrically voiced than KS015, with more upper-mid pickup emphasis. It may still lack realistic open-string complexity; if so, the next bigger hypothesis should focus on coupling the pick/string contact into the loop over time rather than adding independent residual layers.
+
 ## Suggested MVP Signal Flow
 
 ```text

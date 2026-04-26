@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(JUCE_PATH "" CACHE PATH "Optional path to a local JUCE checkout")
-set(GUITAR_AG_MODEL_LABEL "StringVoice KS-015 DualPickup")
+set(GUITAR_AG_MODEL_LABEL "StringVoice KS-016 HybridModal Pickup-002")
 
 find_package(Git QUIET)
 

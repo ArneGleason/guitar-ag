@@ -248,3 +248,11 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The report includes log-spectral distance, attack/early/late distance, spectral flatness, harmonic-band fraction, and spectral flux.
 - Initial results line up better with listening feedback: KS013 is closer on some wound-string spectral distances but too flat/noise-like, KS014 reduces that noise but still does not become realistic, and KS015 is too spectrally sparse/static.
 - This supports the hypothesis that the missing property is not just "more high frequency"; the model needs coherent electric-guitar string/pickup behavior with the right amount of broadband complexity.
+
+## 2026-04-25 — KS-016 radical experiment loop
+
+- A pure explicit-modal DI string bank was a useful falsification: it moved away from the desired sound analytically, becoming too clean and too harmonically stable.
+- Adding sparse inharmonic side modes as independent layers did not solve the lower-string realism problem; those modes likely need to be coupled into the string/contact dynamics rather than sprinkled on top.
+- A hybrid waveguide plus quiet modal residual preserved the KS015 behavior but was not a large enough jump on its own.
+- A simple pickup/cable resonance in the DI tone stage was the first candidate in this loop to improve the current perceptual distance versus KS015, moving mean full log-spectral distance from about 30.16 dB to about 29.34 dB.
+- The broader hypothesis is that physically modeled electric guitar may be hard because DI pickup output exposes raw string/pickup/circuit interactions that acoustic bodies, amp chains, or sample layers often mask.

@@ -25,6 +25,7 @@ public:
 private:
     static constexpr auto maxDelaySamples = 8192;
     static constexpr auto resonanceCount = 3;
+    static constexpr auto modalCount = 96;
 
     float nextNoiseSample() noexcept;
     void updateDamping() noexcept;
@@ -38,9 +39,16 @@ private:
     float processHarmonicDamping (float input, float& state, float highGain, float splitCoefficient) noexcept;
     float processMovingResonance (float input) noexcept;
     float softClip (float value) const noexcept;
+    void configureMode (int index, float frequency, float amplitude, float decay, float phase) noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
     std::array<float, maxDelaySamples> secondaryDelayLine {};
+    std::array<float, modalCount> modalSine {};
+    std::array<float, modalCount> modalCosine {};
+    std::array<float, modalCount> modalSinStep {};
+    std::array<float, modalCount> modalCosStep {};
+    std::array<float, modalCount> modalAmplitude {};
+    std::array<float, modalCount> modalDecay {};
 
     double sampleRate = 44100.0;
     int delayLength = 1;
@@ -68,6 +76,7 @@ private:
     float pickContactDecay = 0.0f;
     float previousContactNoise = 0.0f;
     int pickContactSamplesRemaining = 0;
+    float modalReleaseDecay = 1.0f;
     std::array<float, resonanceCount> resonanceCoefficient {};
     std::array<float, resonanceCount> resonanceRadiusSquared {};
     std::array<float, resonanceCount> resonanceState1 {};
