@@ -13,6 +13,16 @@ Finger approach/release noises are not just note-start transients. A realistic p
 - `Lookahead`: Off, 150 ms, 250 ms.
 - `Finger Noise`: 0-100% amount for pre-note approach and release/fret-contact noise.
 
+## Implemented
+
+- Added `Lookahead` as an APVTS choice parameter.
+- Added `Finger Noise` as an APVTS percent parameter.
+- Added matching editor controls and info popovers in the `Performance` section.
+- Added JUCE latency reporting for 150 ms and 250 ms modes.
+- Added a fixed-size MIDI lookahead scheduler in `AudioEngine`.
+- Added fixed-size finger-noise voices that render filtered scrape/ridge noise before delayed note-on and note-off events.
+- Added offline renderer flags `--lookahead-ms` and `--finger-noise`.
+
 ## Proposed Implementation
 
 - Keep `Lookahead` defaulted to Off for live playability.
@@ -36,6 +46,9 @@ Finger approach/release noises are not just note-start transients. A realistic p
 
 ## Verification
 
-- Confirm Off mode is bit-identical or audibly unchanged aside from intentional refactors.
-- Confirm 150/250 ms modes report latency and keep note onset aligned in Bitwig render.
-- Render MIDI with quick position changes and compare finger-noise timing before note attacks.
+- Built `GuitarAGOfflineRender`.
+- Rendered `build/diagnostics/guitar-ag-eg042-lookahead-off.wav`.
+- Rendered `build/diagnostics/guitar-ag-eg042-lookahead-150-finger100.wav`.
+- Confirmed the off/on WAV files differ.
+- Built `GuitarAG_VST3`.
+- Remaining human check: verify Bitwig compensation and subjective usefulness of the noise layer.

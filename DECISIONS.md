@@ -215,3 +215,17 @@ Accepted
 
 Consequences:
 The controls affect newly triggered notes. A future physical contact model may replace or reinterpret these parameters while preserving their musical intent.
+
+## 2026-04-26 — Make anticipatory finger noise an optional latency mode
+
+Decision:
+Add finger approach/release noise through an optional lookahead mode rather than always delaying the instrument.
+
+Reason:
+Human finger noises can occur before the note or release they imply. A plugin can only synthesize those anticipatory sounds from MIDI by delaying the musical event and reporting latency to the host. That is useful for rendered playback, but it would make live playing feel delayed.
+
+Status:
+Accepted
+
+Consequences:
+`Lookahead` defaults to Off. 150 ms and 250 ms modes report plugin latency and delay note-on/note-off synthesis internally. Hosts may require transport restart or plugin reload to fully refresh latency compensation after changing the setting.

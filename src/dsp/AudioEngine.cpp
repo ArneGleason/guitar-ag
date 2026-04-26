@@ -1,10 +1,14 @@
 #include "AudioEngine.h"
 
+#include <cmath>
+
 namespace guitar_ag
 {
 
-void AudioEngine::prepare (double sampleRate, int, int)
+void AudioEngine::prepare (double newSampleRate, int, int)
 {
+    sampleRate = newSampleRate > 0.0 ? newSampleRate : 44100.0;
+
     for (auto& voice : voices)
         voice.prepare (sampleRate);
 
@@ -24,6 +28,8 @@ void AudioEngine::prepare (double sampleRate, int, int)
     bridgeIntonation.setCurrentAndTargetValue (0.0f);
     fretPressure.reset (sampleRate, 0.050);
     fretPressure.setCurrentAndTargetValue (0.0f);
+    fingerNoise.reset (sampleRate, 0.030);
+    fingerNoise.setCurrentAndTargetValue (0.0f);
     pickupPosition.reset (sampleRate, 0.050);
     pickupPosition.setCurrentAndTargetValue (0.39f);
     pickupModel = 0;
@@ -37,7 +43,16 @@ void AudioEngine::reset()
         voice.reset();
 
     fretboard.reset();
+    fingerNoiseFretboard.reset();
     tone.reset();
+    clearScheduledMidiEvents();
+
+    for (auto& assignment : fingerAssignments)
+        assignment = {};
+
+    for (auto& voice : fingerNoiseVoices)
+        voice = {};
+
     tailSustain.setCurrentAndTargetValue (tailSustain.getTargetValue());
     pickStiffness.setCurrentAndTargetValue (pickStiffness.getTargetValue());
     pickTexture.setCurrentAndTargetValue (pickTexture.getTargetValue());
@@ -46,8 +61,11 @@ void AudioEngine::reset()
     stringAge.setCurrentAndTargetValue (stringAge.getTargetValue());
     bridgeIntonation.setCurrentAndTargetValue (bridgeIntonation.getTargetValue());
     fretPressure.setCurrentAndTargetValue (fretPressure.getTargetValue());
+    fingerNoise.setCurrentAndTargetValue (fingerNoise.getTargetValue());
     pickupPosition.setCurrentAndTargetValue (pickupPosition.getTargetValue());
+    timelineSample = 0;
     nextVoice = 0;
+    nextFingerNoiseVoice = 0;
 }
 
 void AudioEngine::setTailSustain (float newTailSustain) noexcept
@@ -90,6 +108,22 @@ void AudioEngine::setFretPressure (float newFretPressure) noexcept
     fretPressure.setTargetValue (juce::jlimit (0.0f, 1.0f, newFretPressure));
 }
 
+void AudioEngine::setLookaheadSamples (int newLookaheadSamples) noexcept
+{
+    const auto clampedLookahead = juce::jlimit (0, 48000, newLookaheadSamples);
+
+    if (lookaheadSamples != clampedLookahead)
+    {
+        lookaheadSamples = clampedLookahead;
+        clearScheduledMidiEvents();
+    }
+}
+
+void AudioEngine::setFingerNoise (float newFingerNoise) noexcept
+{
+    fingerNoise.setTargetValue (juce::jlimit (0.0f, 1.0f, newFingerNoise));
+}
+
 void AudioEngine::setPickupPosition (float newPickupPosition) noexcept
 {
     pickupPosition.setTargetValue (juce::jlimit (0.0f, 1.0f, newPickupPosition));
@@ -109,7 +143,7 @@ void AudioEngine::render (juce::AudioBuffer<float>& audio, const juce::MidiBuffe
     {
         const auto eventSample = juce::jlimit (0, totalSamples, metadata.samplePosition);
         renderRange (audio, currentSample, eventSample);
-        handleMidiMessage (metadata.getMessage());
+        handleIncomingMidiMessage (metadata.getMessage());
         currentSample = eventSample;
     }
 
@@ -125,6 +159,7 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         auto mixedSample = 0.0f;
         const auto sustainAmount = tailSustain.getNextValue();
         const auto palmMuteAmount = palmMute.getNextValue();
+        const auto fingerNoiseAmount = fingerNoise.getNextValue();
         pickStiffness.getNextValue();
         pickTexture.getNextValue();
         harmonicTouch.getNextValue();
@@ -133,14 +168,36 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         fretPressure.getNextValue();
         pickupPosition.getNextValue();
 
+        dispatchScheduledMidiEvents();
+
         for (auto& voice : voices)
             mixedSample += voice.renderSample (sustainAmount, palmMuteAmount);
 
+        mixedSample += renderFingerNoiseSample() * fingerNoiseAmount;
         mixedSample = tone.processSample (mixedSample);
 
         for (auto channel = 0; channel < numChannels; ++channel)
             audio.addSample (channel, sampleIndex, mixedSample);
+
+        ++timelineSample;
     }
+}
+
+void AudioEngine::handleIncomingMidiMessage (const juce::MidiMessage& message)
+{
+    if (lookaheadSamples <= 0)
+    {
+        handleMidiMessage (message);
+        return;
+    }
+
+    if (message.isNoteOn())
+        triggerFingerApproach (message.getNoteNumber(), message.getChannel(), message.getFloatVelocity());
+    else if (message.isNoteOff())
+        triggerFingerRelease (message.getNoteNumber(), message.getChannel());
+
+    if (message.isNoteOnOrOff())
+        scheduleMidiMessage (message, timelineSample + static_cast<int64_t> (lookaheadSamples));
 }
 
 void AudioEngine::handleMidiMessage (const juce::MidiMessage& message)
@@ -153,6 +210,41 @@ void AudioEngine::handleMidiMessage (const juce::MidiMessage& message)
 
     if (message.isNoteOff())
         noteOff (message.getNoteNumber(), message.getChannel());
+}
+
+void AudioEngine::scheduleMidiMessage (const juce::MidiMessage& message, int64_t sampleTime) noexcept
+{
+    for (auto& event : scheduledMidiEvents)
+    {
+        if (! event.active)
+        {
+            event.sampleTime = sampleTime;
+            event.message = message;
+            event.active = true;
+            return;
+        }
+    }
+
+    handleMidiMessage (message);
+}
+
+void AudioEngine::dispatchScheduledMidiEvents() noexcept
+{
+    for (auto& event : scheduledMidiEvents)
+    {
+        if (event.active && event.sampleTime <= timelineSample)
+        {
+            const auto message = event.message;
+            event.active = false;
+            handleMidiMessage (message);
+        }
+    }
+}
+
+void AudioEngine::clearScheduledMidiEvents() noexcept
+{
+    for (auto& event : scheduledMidiEvents)
+        event.active = false;
 }
 
 void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
@@ -202,6 +294,140 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                        notePickupPosition,
                        notePickupModel);
     nextVoice = (nextVoice + 1) % maxVoices;
+}
+
+void AudioEngine::triggerFingerApproach (int noteNumber, int channel, float velocity) noexcept
+{
+    const auto assignment = fingerNoiseFretboard.assignNote (noteNumber, channel);
+    rememberFingerAssignment (noteNumber, channel, assignment);
+
+    const auto velocityScale = 0.35f + 0.65f * juce::jlimit (0.0f, 1.0f, velocity);
+    const auto fretScale = 0.55f + 0.45f * juce::jlimit (0.0f, 1.0f, static_cast<float> (assignment.fret) / 12.0f);
+    const auto stringScale = 1.0f + 0.28f * static_cast<float> (5 - juce::jlimit (0, 5, assignment.stringIndex)) / 5.0f;
+    const auto openScale = assignment.fret <= 0 ? 0.42f : 1.0f;
+
+    startFingerNoise (assignment, velocityScale * fretScale * stringScale * openScale, false);
+}
+
+void AudioEngine::triggerFingerRelease (int noteNumber, int channel) noexcept
+{
+    const auto assignment = findFingerAssignment (noteNumber, channel);
+    const auto openScale = assignment.fret <= 0 ? 0.30f : 1.0f;
+    startFingerNoise (assignment, openScale * (0.55f + 0.45f * assignment.woundAmount), true);
+    releaseFingerAssignment (noteNumber, channel);
+    fingerNoiseFretboard.releaseNote (noteNumber, channel);
+}
+
+void AudioEngine::rememberFingerAssignment (int noteNumber, int channel, const FretboardAssignment& assignment) noexcept
+{
+    for (auto& stored : fingerAssignments)
+    {
+        if (! stored.active || (stored.noteNumber == noteNumber && stored.channel == channel))
+        {
+            stored = { noteNumber, channel, assignment, true };
+            return;
+        }
+    }
+
+    fingerAssignments[0] = { noteNumber, channel, assignment, true };
+}
+
+FretboardAssignment AudioEngine::findFingerAssignment (int noteNumber, int channel) const noexcept
+{
+    for (const auto& stored : fingerAssignments)
+    {
+        if (stored.active && stored.noteNumber == noteNumber && stored.channel == channel)
+            return stored.assignment;
+    }
+
+    return {};
+}
+
+void AudioEngine::releaseFingerAssignment (int noteNumber, int channel) noexcept
+{
+    for (auto& stored : fingerAssignments)
+    {
+        if (stored.active && stored.noteNumber == noteNumber && stored.channel == channel)
+            stored = {};
+    }
+}
+
+void AudioEngine::startFingerNoise (const FretboardAssignment& assignment, float intensity, bool releaseNoise) noexcept
+{
+    const auto amount = fingerNoise.getTargetValue();
+
+    if (amount <= 0.0001f)
+        return;
+
+    auto& voice = fingerNoiseVoices[static_cast<size_t> (nextFingerNoiseVoice)];
+    nextFingerNoiseVoice = (nextFingerNoiseVoice + 1) % maxFingerNoiseVoices;
+
+    const auto clampedIntensity = juce::jlimit (0.0f, 2.0f, intensity);
+    const auto woundAmount = juce::jlimit (0.0f, 1.0f, assignment.woundAmount);
+    const auto durationSeconds = releaseNoise ? 0.030f + 0.050f * woundAmount
+                                              : 0.040f + 0.070f * woundAmount;
+    const auto decaySeconds = releaseNoise ? durationSeconds * 0.55f : durationSeconds * 0.72f;
+    constexpr auto twoPi = 6.28318530717958647692f;
+    const auto baseFrequency = 900.0f
+                             + 120.0f * static_cast<float> (assignment.fret)
+                             + 520.0f * woundAmount
+                             + (releaseNoise ? 260.0f : 0.0f);
+
+    voice.samplesRemaining = juce::jmax (1, static_cast<int> (sampleRate * durationSeconds));
+    voice.amplitude = clampedIntensity * (releaseNoise ? 0.024f : 0.032f);
+    voice.decay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * decaySeconds)));
+    voice.previousNoise = 0.0f;
+    voice.bodyState = 0.0f;
+    voice.phase = 0.31f * static_cast<float> ((assignment.fret + 1) * (assignment.stringIndex + 3));
+    voice.phaseStep = twoPi * juce::jlimit (180.0f,
+                                            static_cast<float> (sampleRate * 0.38),
+                                            baseFrequency)
+                    / static_cast<float> (sampleRate);
+    voice.woundAmount = woundAmount;
+    voice.randomState = static_cast<uint32_t> ((assignment.fret + 11) * 1103515245u
+                                               + (assignment.stringIndex + 3) * 12345u
+                                               + (releaseNoise ? 0x9e3779b9u : 0x85ebca6bu));
+}
+
+float AudioEngine::renderFingerNoiseSample() noexcept
+{
+    auto output = 0.0f;
+    constexpr auto twoPi = 6.28318530717958647692f;
+
+    for (auto& voice : fingerNoiseVoices)
+    {
+        if (voice.samplesRemaining <= 0)
+            continue;
+
+        const auto rawNoise = nextFingerNoiseRandom (voice.randomState);
+        const auto scratch = rawNoise - voice.previousNoise * 0.74f;
+        voice.previousNoise = rawNoise;
+        voice.bodyState += (0.050f + 0.035f * voice.woundAmount) * (scratch - voice.bodyState);
+        voice.phase += voice.phaseStep * (1.0f + 0.025f * rawNoise);
+
+        if (voice.phase > twoPi)
+            voice.phase -= twoPi;
+
+        const auto ridge = std::sin (voice.phase)
+                         + 0.28f * std::sin (voice.phase * (2.0f + 1.4f * voice.woundAmount));
+        const auto bright = scratch - voice.bodyState * 0.35f;
+        const auto scrape = bright * (0.38f + 0.20f * voice.woundAmount)
+                          + ridge * (0.22f + 0.52f * voice.woundAmount)
+                          + voice.bodyState * 0.42f;
+
+        output += scrape * voice.amplitude;
+        voice.amplitude *= voice.decay;
+        --voice.samplesRemaining;
+    }
+
+    return output;
+}
+
+float AudioEngine::nextFingerNoiseRandom (uint32_t& state) noexcept
+{
+    state = state * 1664525u + 1013904223u;
+    const auto value = static_cast<float> ((state >> 8) & 0x00ffffffu) / static_cast<float> (0x00ffffffu);
+    return 2.0f * value - 1.0f;
 }
 
 void AudioEngine::noteOff (int noteNumber, int channel)

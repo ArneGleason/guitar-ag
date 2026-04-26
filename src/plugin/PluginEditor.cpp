@@ -161,6 +161,25 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "0% adds no fretting-pressure pitch error. 100% models over-gripping/mid-fret pressure by bending fretted notes sharp. "
                          "Open strings are unaffected; lower strings and higher frets receive more shift. The top of the range is intentionally obvious.");
 
+    configureLabel (lookaheadLabel, "Lookahead");
+    configureInfoButton (lookaheadInfoButton,
+                         "Off keeps live response. 150 ms and 250 ms delay note events internally, report matching plugin latency, "
+                         "and create room for finger approach/release noise before the delayed note.");
+    lookaheadBox.addItem ("Off", 1);
+    lookaheadBox.addItem ("150 ms", 2);
+    lookaheadBox.addItem ("250 ms", 3);
+    lookaheadBox.setColour (juce::ComboBox::textColourId, juce::Colour (0xffe8edf2));
+    lookaheadBox.setColour (juce::ComboBox::backgroundColourId, juce::Colour (0xff202832));
+    lookaheadBox.setColour (juce::ComboBox::outlineColourId, juce::Colour (0xff65717c));
+    lookaheadBox.setColour (juce::ComboBox::arrowColourId, juce::Colour (0xffe8edf2));
+    addAndMakeVisible (lookaheadBox);
+
+    configureLabel (fingerNoiseLabel, "Finger Noise");
+    configureSlider (fingerNoiseSlider, juce::Colour (0xffd5a36f));
+    configureInfoButton (fingerNoiseInfoButton,
+                         "0% disables the performance noise layer. 100% adds the strongest modeled finger approach and release noises. "
+                         "The noise is most useful with Lookahead enabled, because it can happen before the delayed note onset.");
+
     configureLabel (pickStiffnessLabel, "Pick Stiffness");
     configureSlider (pickStiffnessSlider, juce::Colour (0xffffc56f));
     configureInfoButton (pickStiffnessInfoButton,
@@ -210,6 +229,12 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     fretPressureAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                  GuitarAgAudioProcessor::fretPressureParameterId,
                                                                  fretPressureSlider);
+    lookaheadAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
+                                                               GuitarAgAudioProcessor::lookaheadParameterId,
+                                                               lookaheadBox);
+    fingerNoiseAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                               GuitarAgAudioProcessor::fingerNoiseParameterId,
+                                                               fingerNoiseSlider);
     pickupModelAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
                                                                  GuitarAgAudioProcessor::pickupModelParameterId,
                                                                  pickupModelBox);
@@ -328,6 +353,14 @@ void GuitarAgAudioProcessorEditor::resized()
         auto pressureBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (pressureBounds, fretPressureLabel, fretPressureInfoButton);
         fretPressureSlider.setBounds (pressureBounds);
+
+        auto lookaheadBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (lookaheadBounds, lookaheadLabel, lookaheadInfoButton);
+        lookaheadBox.setBounds (lookaheadBounds.reduced (0, 4));
+
+        auto fingerNoiseBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (fingerNoiseBounds, fingerNoiseLabel, fingerNoiseInfoButton);
+        fingerNoiseSlider.setBounds (fingerNoiseBounds);
     }
 
     bounds.removeFromTop (8);
@@ -442,7 +475,13 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
 
     for (auto* component : { static_cast<juce::Component*> (&fretPressureLabel),
                              static_cast<juce::Component*> (&fretPressureInfoButton),
-                             static_cast<juce::Component*> (&fretPressureSlider) })
+                             static_cast<juce::Component*> (&fretPressureSlider),
+                             static_cast<juce::Component*> (&lookaheadLabel),
+                             static_cast<juce::Component*> (&lookaheadInfoButton),
+                             static_cast<juce::Component*> (&lookaheadBox),
+                             static_cast<juce::Component*> (&fingerNoiseLabel),
+                             static_cast<juce::Component*> (&fingerNoiseInfoButton),
+                             static_cast<juce::Component*> (&fingerNoiseSlider) })
         component->setVisible (performanceExpanded);
 
     for (auto* component : { static_cast<juce::Component*> (&pickStiffnessLabel),
@@ -478,7 +517,7 @@ int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
         controlsHeight += 90;
 
     if (performanceExpanded)
-        controlsHeight += 36;
+        controlsHeight += 108;
 
     if (articulationExpanded)
         controlsHeight += 162;

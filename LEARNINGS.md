@@ -403,3 +403,7 @@ Bridge/saddle intonation and fretting overpressure both change pitch, but they s
 ## 2026-04-26 — Hover help is too hidden for plugin parameters
 
 Tooltips technically work, but they are a poor fit for controls whose ranges need musical explanation. Clickable info popovers are more discoverable, easier to read, and should scale better as the parameter set grows.
+
+## 2026-04-26 — Anticipatory noises require a playback mode
+
+Finger approach and release noises can happen before the musical note boundary, so they need either explicit pre-note MIDI authoring or internal lookahead. Keeping lookahead defaulted to Off preserves live playability, while 150/250 ms modes can serve rendered playback where host latency compensation can align the delayed note.

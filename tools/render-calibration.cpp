@@ -22,7 +22,8 @@ void printUsage()
                  "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5] [--palm-mute 0.0] "
                  "[--harmonic-touch 0.0] [--string-age 0.0] [--bridge-intonation 0.0] "
-                 "[--fret-pressure 0.0] [--pickup-position 0.39] [--pickup-model 0]\n";
+                 "[--fret-pressure 0.0] [--lookahead-ms 0] [--finger-noise 0.0] "
+                 "[--pickup-position 0.39] [--pickup-model 0]\n";
 }
 
 bool readMidiEvents (const juce::File& midiFile, double sampleRate, std::vector<MidiEvent>& events, int& lastEventSample)
@@ -117,6 +118,8 @@ int main (int argc, char* argv[])
     auto stringAge = 0.0f;
     auto bridgeIntonation = 0.0f;
     auto fretPressure = 0.0f;
+    auto lookaheadMs = 0.0f;
+    auto fingerNoise = 0.0f;
     auto pickupPosition = 0.39f;
     auto pickupModel = 0;
 
@@ -181,6 +184,14 @@ int main (int argc, char* argv[])
         {
             fretPressure = juce::String (argv[++i]).getFloatValue();
         }
+        else if (argument == "--lookahead-ms" && hasValue)
+        {
+            lookaheadMs = juce::jlimit (0.0f, 250.0f, juce::String (argv[++i]).getFloatValue());
+        }
+        else if (argument == "--finger-noise" && hasValue)
+        {
+            fingerNoise = juce::String (argv[++i]).getFloatValue();
+        }
         else if (argument == "--pickup-position" && hasValue)
         {
             pickupPosition = juce::String (argv[++i]).getFloatValue();
@@ -225,6 +236,8 @@ int main (int argc, char* argv[])
     engine.setStringAge (stringAge);
     engine.setBridgeIntonation (bridgeIntonation);
     engine.setFretPressure (fretPressure);
+    engine.setLookaheadSamples (static_cast<int> (std::round (sampleRate * static_cast<double> (lookaheadMs) / 1000.0)));
+    engine.setFingerNoise (fingerNoise);
     engine.setPickupPosition (pickupPosition);
     engine.setPickupModel (pickupModel);
     engine.reset();

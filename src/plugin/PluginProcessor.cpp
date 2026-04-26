@@ -1,6 +1,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+#include <cmath>
+
 GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
       parameters (*this, nullptr, "GuitarAGParameters", createParameterLayout())
@@ -13,6 +15,8 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     stringAgeParameter = parameters.getRawParameterValue (stringAgeParameterId);
     bridgeIntonationParameter = parameters.getRawParameterValue (bridgeIntonationParameterId);
     fretPressureParameter = parameters.getRawParameterValue (fretPressureParameterId);
+    lookaheadParameter = parameters.getRawParameterValue (lookaheadParameterId);
+    fingerNoiseParameter = parameters.getRawParameterValue (fingerNoiseParameterId);
     pickupPositionParameter = parameters.getRawParameterValue (pickupPositionParameterId);
     pickupModelParameter = parameters.getRawParameterValue (pickupModelParameterId);
 }
@@ -80,6 +84,22 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
             .withValueFromStringFunction (percentValue)));
 
     layout.push_back (std::make_unique<juce::AudioParameterChoice> (
+        juce::ParameterID { lookaheadParameterId, 1 },
+        "Lookahead",
+        juce::StringArray { "Off", "150 ms", "250 ms" },
+        0));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { fingerNoiseParameterId, 1 },
+        "Finger Noise",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { pickupModelParameterId, 1 },
         "Pickup Model",
         juce::StringArray { "Single Coil", "Humbucker", "Humbucker OOP" },
@@ -130,7 +150,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
 
 void GuitarAgAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    currentSampleRate = sampleRate > 0.0 ? sampleRate : 44100.0;
+    currentLatencySamples = getLookaheadSamples();
+    setLatencySamples (currentLatencySamples);
     audioEngine.prepare (sampleRate, samplesPerBlock, getTotalNumOutputChannels());
+    audioEngine.setLookaheadSamples (currentLatencySamples);
 }
 
 void GuitarAgAudioProcessor::releaseResources()
@@ -156,9 +180,26 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setStringAge (stringAgeParameter != nullptr ? stringAgeParameter->load() : 0.0f);
     audioEngine.setBridgeIntonation (bridgeIntonationParameter != nullptr ? bridgeIntonationParameter->load() : 0.0f);
     audioEngine.setFretPressure (fretPressureParameter != nullptr ? fretPressureParameter->load() : 0.0f);
+    const auto newLatencySamples = getLookaheadSamples();
+
+    if (newLatencySamples != currentLatencySamples)
+    {
+        currentLatencySamples = newLatencySamples;
+        setLatencySamples (currentLatencySamples);
+    }
+
+    audioEngine.setLookaheadSamples (currentLatencySamples);
+    audioEngine.setFingerNoise (fingerNoiseParameter != nullptr ? fingerNoiseParameter->load() : 0.0f);
     audioEngine.setPickupPosition (pickupPositionParameter != nullptr ? pickupPositionParameter->load() : 0.39f);
     audioEngine.setPickupModel (pickupModelParameter != nullptr ? juce::roundToInt (pickupModelParameter->load()) : 0);
     audioEngine.render (buffer, midiMessages);
+}
+
+int GuitarAgAudioProcessor::getLookaheadSamples() const noexcept
+{
+    const auto mode = lookaheadParameter != nullptr ? juce::roundToInt (lookaheadParameter->load()) : 0;
+    const auto seconds = mode == 1 ? 0.150 : mode == 2 ? 0.250 : 0.0;
+    return static_cast<int> (std::round (currentSampleRate * seconds));
 }
 
 juce::AudioProcessorEditor* GuitarAgAudioProcessor::createEditor()

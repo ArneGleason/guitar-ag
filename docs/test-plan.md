@@ -63,3 +63,12 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Pitch bend is smooth enough to be musical.
 - [ ] Output does not clip by default.
 - [ ] Tone is useful through an external amp sim.
+
+## Lookahead Finger Noise Checks
+
+- [ ] `Lookahead` Off feels immediate for live playing.
+- [ ] `Lookahead` 150 ms and 250 ms report latency to the DAW.
+- [ ] In a DAW render, compensated note onsets still line up with the MIDI grid.
+- [ ] `Finger Noise` at 0% is silent or effectively inaudible.
+- [ ] `Finger Noise` at high values creates audible approach/release noises before notes when lookahead is enabled.
+- [ ] Changing `Lookahead` may require transport restart or plugin reload in some hosts; verify the host updates latency compensation.

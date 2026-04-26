@@ -1085,6 +1085,28 @@ Expected sound:
 
 The top of the `Fret Pressure` range should be clearly audible as over-gripped fretted sharpness rather than only a barely detectable drift. Lower settings should still be useful for subtle human pitch error.
 
+## 2026-04-26 — Lookahead Finger Noise
+
+Added the first playback-oriented human finger-noise layer.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-042 LookaheadNoise`.
+- Added a `Lookahead` VST parameter with `Off`, `150 ms`, and `250 ms`.
+- `Off` remains the default for live playability and does not delay MIDI note handling.
+- `150 ms` and `250 ms` report matching plugin latency with JUCE `setLatencySamples`.
+- When lookahead is enabled, note-on and note-off messages are delayed internally by the selected amount.
+- Added a `Finger Noise` VST parameter, default 0%.
+- With lookahead enabled, incoming note-on events trigger a short filtered approach scrape before the delayed note speaks.
+- Incoming note-off events trigger a short release/fret-contact noise before the delayed note release.
+- The first noise model uses fixed-size scheduling and fixed-size noise voices to avoid audio-thread allocation.
+- The noise layer is stronger on fretted notes, lower strings, and wound strings.
+- The offline renderer accepts `--lookahead-ms` and `--finger-noise`.
+
+Expected sound:
+
+With `Lookahead` off, playback should remain immediate and finger noise should effectively stay out of the way. With lookahead on and `Finger Noise` raised, rendered playback should include short pre-note and pre-release motion noises. In a DAW with plugin delay compensation, the delayed note should line up with the MIDI grid while the finger noise appears just before the note.
+
 ## Suggested MVP Signal Flow
 
 ```text
