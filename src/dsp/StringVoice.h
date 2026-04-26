@@ -39,6 +39,7 @@ private:
     float readSecondaryDelayLineAtOffset (int offset) const noexcept;
     void configureResonator (int index, float frequency, float radius) noexcept;
     void updateHighFrequencyFeedback() noexcept;
+    float applyVelocityCurve (float velocity) const noexcept;
     float processHarmonicDamping (float input, float& state, float highGain, float splitCoefficient) noexcept;
     float processMovingResonance (float input) noexcept;
     float softClip (float value) const noexcept;

@@ -111,9 +111,9 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity, co
     delayLength = juce::jlimit (2, maxDelaySamples, static_cast<int> (std::round (sampleRate / frequency)));
     pickupOffsetSamples = juce::jlimit (1, delayLength - 1, static_cast<int> (std::round (delayLength * 0.18f)));
     secondaryPickupOffsetSamples = juce::jlimit (1, delayLength - 1, static_cast<int> (std::round (delayLength * 0.205f)));
-    pickupApertureSamples = juce::jlimit (1, delayLength / 9, static_cast<int> (std::round (delayLength * 0.018f)));
+    pickupApertureSamples = juce::jlimit (1, delayLength / 9, static_cast<int> (std::round (delayLength * 0.012f)));
 
-    const auto velocityGain = juce::jlimit (0.05f, 1.0f, velocity);
+    const auto velocityGain = applyVelocityCurve (velocity);
     const auto strikeVelocity = 0.05f + (velocityGain - 0.05f) * (0.63f / 0.95f);
     const auto velocityNormal = juce::jlimit (0.0f, 1.0f, (strikeVelocity - 0.05f) / 0.95f);
     const auto strikeInput = juce::jlimit (0.0f, 1.0f, velocityNormal * 1.55f);
@@ -122,7 +122,7 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity, co
     const auto brightness = strikeAmount;
     const auto pluckPosition = juce::jmap (strikeAmount, 0.225f, 0.080f);
     const auto pickupPosition = 0.165f;
-    const auto pickupWidth = 0.038f;
+    const auto pickupWidth = 0.026f;
     const auto displacementAmount = 0.70f * velocityGain;
     const auto horizontalAmount = (0.28f + 0.06f * woundAmount) * velocityGain;
     const auto noiseAmount = (0.006f + 0.014f * brightness) * (1.0f + 0.2f * woundAmount);
@@ -438,6 +438,19 @@ void StringVoice::updateHighFrequencyFeedback() noexcept
         highFeedbackGain = highFeedbackGainTarget;
         secondaryHighFeedbackGain = secondaryHighFeedbackGainTarget;
     }
+}
+
+float StringVoice::applyVelocityCurve (float velocity) const noexcept
+{
+    const auto input = juce::jlimit (0.0f, 1.0f, velocity);
+
+    if (input <= 0.10f)
+        return juce::jlimit (0.05f, 1.0f, 0.05f + input * 2.50f);
+
+    if (input <= 0.90f)
+        return 0.30f + (input - 0.10f) * (0.50f / 0.80f);
+
+    return 0.80f + (input - 0.90f) * 2.0f;
 }
 
 float StringVoice::processHarmonicDamping (float input, float& state, float highGain, float splitCoefficient) noexcept

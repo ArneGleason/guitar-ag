@@ -744,6 +744,28 @@ Expected sound:
 
 The low E should retain the liked wound-string behavior. A should still be wound, but lighter; D should be more subtle again. The top velocity should now feel closer to the previous 67-68% pick aggression, and the note start should be less hammer-like.
 
+## 2026-04-26 — Clearer DI and Built-In Velocity Curve
+
+Listening feedback on KS022:
+
+- The wound progression from low E to D is improved.
+- The dynamic range is improved, but the useful bottom and top ranges should be compressed into smaller MIDI-velocity regions.
+- The tone sounds musically nice but like a warm, papery speaker or cone resonance is in the path.
+- The clean DI target should feel less veiled, with clearer translated highs and less warm mid coloration.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-023 ClearDI`.
+- A piecewise velocity curve is now applied inside `StringVoice`.
+- MIDI velocity 0.10 maps to internal velocity 0.30, compressing the old 0-30 range into roughly the first 10% of input.
+- MIDI velocity 0.90 maps to internal velocity 0.80, so the old 80-100 region is pushed into roughly the 90-100 input range.
+- The pickup aperture is narrowed, reducing pickup-width smoothing of higher harmonics.
+- The post-mix `ElectricGuitarTone` stage now uses less low-passed body, more dry signal, and a little more presence.
+
+Expected sound:
+
+The playing response should feel more usable across authored MIDI velocities, with fewer notes falling into extreme soft or extreme hard regions. The output should be less warm/papery and more like a direct electric signal, without simply adding a broad treble boost.
+
 ## Suggested MVP Signal Flow
 
 ```text

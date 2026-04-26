@@ -305,3 +305,10 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The intended first taper is low E 1.00, A 0.67, D 0.33.
 - Capping the top of the velocity curve is not the same as scaling the whole curve. KS022 remaps the full MIDI range into the previous 0-68% strike-character range.
 - The hammer-like attack likely comes from too much instantaneous transient/chirp energy, so this pass lowers the transient/chirp layers and adds a very short onset ramp.
+
+## 2026-04-26 — KS-023 clear DI pass
+
+- User feedback described KS022 as improved but veiled, like the sound was passing through a warm paper speaker or cone resonance.
+- The likely short-term suspects are the post-mix body/tone stage and pickup aperture smoothing, not the fretboard mapper.
+- The first corrective pass should reduce low-passed body coloration, narrow the modeled pickup aperture, and preserve more dry/presence detail before inventing another string layer.
+- The requested velocity curve can be represented by three main points: 0.10 input -> 0.30 internal, 0.90 input -> 0.80 internal, 1.00 input -> 1.00 internal.

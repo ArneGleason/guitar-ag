@@ -21,14 +21,14 @@ float ElectricGuitarTone::processSample (float input) noexcept
 {
     highPassState = 0.995f * (highPassState + input - previousHighPassInput);
     previousHighPassInput = input;
-    presenceState += 0.22f * (highPassState - presenceState);
-    toneState += 0.06f * (input - toneState);
+    presenceState += 0.16f * (highPassState - presenceState);
+    toneState += 0.035f * (input - toneState);
 
     const auto presence = highPassState - presenceState;
     const auto body = toneState;
-    const auto shaped = 0.86f * input + 0.28f * presence + 0.20f * body;
+    const auto shaped = 0.96f * input + 0.34f * presence + 0.045f * body;
 
-    return shaped * 0.95f;
+    return shaped * 0.90f;
 }
 
 } // namespace guitar_ag
