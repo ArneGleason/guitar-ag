@@ -857,6 +857,22 @@ Expected sound:
 
 At 0% texture, the attack should be clean/slippery. At 100% texture, the pick contact should be obviously scratchier and more metallic. This pass intentionally prioritizes audibility over final musical balance.
 
+## 2026-04-26 — Stick-Slip Pick Texture
+
+The upper half of `Pick Texture` is now treated as a different contact regime rather than a louder copy of the 50% pick snap.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-029 StickSlipTexture`.
+- 0% to 50% texture keeps the smoother plastic-pick snap range, with 50% remaining the anchor point.
+- Above 50%, the smooth snap component is held back instead of simply getting louder.
+- The extra high-texture behavior is an irregular stick-slip/grind layer: small interrupted impulses with a short metallic contact resonance.
+- This is still an excitation approximation, not a full plectrum/string contact solver.
+
+Expected sound:
+
+50% should stay close to the useful smooth-plastic pick sound. Higher texture should move toward gritty surface drag or coin-like contact rather than a louder white-noise/snare-like snap.
+
 ## Suggested MVP Signal Flow
 
 ```text

@@ -344,3 +344,7 @@ The `Pick Texture` control can feel inactive if it only changes the initial dela
 ## 2026-04-26 — Note-start controls should use target values
 
 Pick stiffness and pick texture are note-start excitation controls, so new voices should use the current parameter target rather than the smoothed current value. Smoothing is still useful for continuous controls, but for excitation parameters it can make the UI feel unresponsive or stale if a note starts before the smoother reaches the target.
+
+## 2026-04-26 — Texture needs contact regimes, not just gain
+
+Manual testing of KS-028 confirmed that `Pick Texture` was audible, but the top end sounded like louder snap or a small snare-like noise burst. For pick-material realism, the useful control shape is likely regime-based: smooth plastic-pick snap around the middle, then a separate stick-slip/grind behavior above the middle rather than scaling the same broadband component.

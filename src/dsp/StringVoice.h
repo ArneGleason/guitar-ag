@@ -92,6 +92,13 @@ private:
     float pickContactRingDecay = 0.0f;
     float pickContactPhase = 0.0f;
     float pickContactPhaseStep = 0.0f;
+    float pickGrindAmount = 0.0f;
+    float pickGrindDecay = 0.0f;
+    float pickGrindPhase = 0.0f;
+    float pickGrindPhaseStep = 0.0f;
+    float pickSlipImpulse = 0.0f;
+    float pickSlipDecay = 0.0f;
+    int pickSlipCountdown = 0;
     int pickContactSamplesRemaining = 0;
     float attackRampSeconds = 0.0025f;
     float modalReleaseDecay = 1.0f;
