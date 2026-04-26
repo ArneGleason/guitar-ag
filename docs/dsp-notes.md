@@ -1173,6 +1173,26 @@ Expected sound:
 
 With the default +2 semitone range, increasing key/poly aftertouch on a held note should smoothly bend only that note upward. Chords should reveal whether a host or controller is truly sending per-note aftertouch: pressure on one note should not move the others.
 
+## 2026-04-26 — MPE Per-Channel Pitch Bend
+
+Added the first true MPE pitch-bend routing milestone.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-046 MPEBend`.
+- Added an `MPE` editor section.
+- Added `MPE Mode`, default Off.
+- Added `MPE Bend Range`, defaulting to ±48 semitones.
+- When `MPE Mode` is enabled, pitch wheel messages are routed by MIDI channel to active voices on that same channel.
+- When `MPE Mode` is disabled, pitch wheel retains the existing global whammy behavior.
+- The MPE pitch amount is smoothed per voice.
+- If a DAW sends multiple notes on one channel, those notes bend together; independent bends require separate MPE member channels.
+- The offline renderer accepts `--mpe-mode` and `--mpe-bend-range`.
+
+Expected sound:
+
+With Bitwig set to the same 48-semitone MPE bend range, drawing a two-semitone note expression bend should produce a two-semitone bend. In a chord where Bitwig assigns separate channels, bending one note should leave the other notes stable.
+
 ## Suggested MVP Signal Flow
 
 ```text

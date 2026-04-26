@@ -39,6 +39,8 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] MPE mode can be enabled.
 - [ ] Two notes can be held on separate channels.
 - [ ] Bending one note does not bend the other.
+- [ ] `MPE Bend Range` defaults to ±48 semitones.
+- [ ] Bitwig's note expression pitch-bend range matches the plugin value.
 - [ ] Pressure affects only the intended note.
 - [ ] CC74 affects only the intended note.
 - [ ] Normal MIDI mode still works when MPE is disabled.
@@ -101,3 +103,13 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] In a chord, key/poly aftertouch on one note does not bend the other held notes.
 - [ ] Negative `Aftertouch Bend` values bend downward if deliberately selected.
 - [ ] Channel pressure remains unmapped for now.
+
+## MPE Pitch Bend Checks
+
+- [ ] `MPE Mode` Off keeps pitch wheel operating as global whammy.
+- [ ] `MPE Mode` On makes pitch wheel act per MIDI channel.
+- [ ] In Bitwig, set the instrument and note-expression bend range to 48 semitones.
+- [ ] Play a chord with notes assigned to separate MPE channels.
+- [ ] Draw or perform a pitch bend on one note only.
+- [ ] Only that note bends; the other held notes remain at their original pitch.
+- [ ] Reducing `MPE Bend Range` requires the DAW-side range to be reduced to match.

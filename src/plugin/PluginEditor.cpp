@@ -78,6 +78,7 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureSectionButton (pickupSectionButton, "Pickup");
     configureSectionButton (performanceSectionButton, "Performance");
     configureSectionButton (vibratoSectionButton, "Vibrato");
+    configureSectionButton (mpeSectionButton, "MPE");
     configureSectionButton (whammySectionButton, "Whammy");
     configureSectionButton (articulationSectionButton, "Articulation");
 
@@ -102,6 +103,12 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     vibratoSectionButton.onClick = [this]
     {
         vibratoExpanded = ! vibratoExpanded;
+        updateSectionVisibility();
+    };
+
+    mpeSectionButton.onClick = [this]
+    {
+        mpeExpanded = ! mpeExpanded;
         updateSectionVisibility();
     };
 
@@ -227,6 +234,18 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     vibratoModWheelSpeedButton.setButtonText ("Mod Wheel To Speed");
     vibratoModWheelDepthButton.setButtonText ("Mod Wheel To Depth");
 
+    mpeEnabledButton.setButtonText ("MPE Mode");
+    mpeEnabledButton.setColour (juce::ToggleButton::textColourId, juce::Colour (0xffd6dee7));
+    mpeEnabledButton.setColour (juce::ToggleButton::tickColourId, juce::Colour (0xffb9d982));
+    mpeEnabledButton.setColour (juce::ToggleButton::tickDisabledColourId, juce::Colour (0xff65717c));
+    addAndMakeVisible (mpeEnabledButton);
+
+    configureLabel (mpePitchBendRangeLabel, "Bend Range");
+    configureSlider (mpePitchBendRangeSlider, juce::Colour (0xffb9d982));
+    configureInfoButton (mpePitchBendRangeInfoButton,
+                         "Expected MPE pitch-bend range in semitones. Default is +/-48 semitones to match Bitwig's MPE default. "
+                         "Set this to the same value in the DAW so drawn note bends land at the intended interval.");
+
     whammyEnabledButton.setButtonText ("Pitch Wheel Whammy");
     whammyEnabledButton.setColour (juce::ToggleButton::textColourId, juce::Colour (0xffd6dee7));
     whammyEnabledButton.setColour (juce::ToggleButton::tickColourId, juce::Colour (0xfff0a36e));
@@ -322,6 +341,12 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     vibratoModWheelDepthAttachment = std::make_unique<ButtonAttachment> (audioProcessor.getValueTreeState(),
                                                                         GuitarAgAudioProcessor::vibratoModWheelDepthParameterId,
                                                                         vibratoModWheelDepthButton);
+    mpeEnabledAttachment = std::make_unique<ButtonAttachment> (audioProcessor.getValueTreeState(),
+                                                               GuitarAgAudioProcessor::mpeEnabledParameterId,
+                                                               mpeEnabledButton);
+    mpePitchBendRangeAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                      GuitarAgAudioProcessor::mpePitchBendRangeParameterId,
+                                                                      mpePitchBendRangeSlider);
     whammyEnabledAttachment = std::make_unique<ButtonAttachment> (audioProcessor.getValueTreeState(),
                                                                   GuitarAgAudioProcessor::whammyEnabledParameterId,
                                                                   whammyEnabledButton);
@@ -388,7 +413,7 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
                              juce::Justification::centredRight, 1);
 
     graphics.setColour (juce::Colour (0xff7f8d99));
-    graphics.drawFittedText ("MPE routing is intentionally not implemented yet.",
+    graphics.drawFittedText ("MPE pitch bend is available; pressure/CC74 routing is still partial.",
                              headerInfoBounds.removeFromTop (18),
                              juce::Justification::centredRight,
                              1);
@@ -494,6 +519,20 @@ void GuitarAgAudioProcessorEditor::resized()
         modBounds.removeFromLeft (158);
         vibratoModWheelSpeedButton.setBounds (modBounds.removeFromLeft (170));
         vibratoModWheelDepthButton.setBounds (modBounds.removeFromLeft (170));
+    }
+
+    bounds.removeFromTop (8);
+    mpeSectionButton.setBounds (bounds.removeFromTop (26));
+
+    if (mpeExpanded)
+    {
+        auto enableBounds = bounds.removeFromTop (34);
+        enableBounds.removeFromLeft (158);
+        mpeEnabledButton.setBounds (enableBounds.removeFromLeft (190));
+
+        auto rangeBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (rangeBounds, mpePitchBendRangeLabel, mpePitchBendRangeInfoButton);
+        mpePitchBendRangeSlider.setBounds (rangeBounds);
     }
 
     bounds.removeFromTop (8);
@@ -604,6 +643,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
     pickupSectionButton.setButtonText (getSectionTitle ("Pickup", pickupExpanded));
     performanceSectionButton.setButtonText (getSectionTitle ("Performance", performanceExpanded));
     vibratoSectionButton.setButtonText (getSectionTitle ("Vibrato", vibratoExpanded));
+    mpeSectionButton.setButtonText (getSectionTitle ("MPE", mpeExpanded));
     whammySectionButton.setButtonText (getSectionTitle ("Whammy", whammyExpanded));
     articulationSectionButton.setButtonText (getSectionTitle ("Articulation", articulationExpanded));
 
@@ -657,6 +697,12 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&vibratoModWheelDepthButton) })
         component->setVisible (vibratoExpanded);
 
+    for (auto* component : { static_cast<juce::Component*> (&mpeEnabledButton),
+                             static_cast<juce::Component*> (&mpePitchBendRangeLabel),
+                             static_cast<juce::Component*> (&mpePitchBendRangeInfoButton),
+                             static_cast<juce::Component*> (&mpePitchBendRangeSlider) })
+        component->setVisible (mpeExpanded);
+
     for (auto* component : { static_cast<juce::Component*> (&whammyEnabledButton),
                              static_cast<juce::Component*> (&whammyUpRangeLabel),
                              static_cast<juce::Component*> (&whammyUpRangeInfoButton),
@@ -693,7 +739,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
 
 int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
 {
-    auto controlsHeight = 78 + 26 + 8 + 26 + 8 + 26 + 8 + 26 + 8 + 26 + 8 + 26;
+    auto controlsHeight = 78 + 26 + 8 + 26 + 8 + 26 + 8 + 26 + 8 + 26 + 8 + 26 + 8 + 26;
 
     if (setupExpanded)
         controlsHeight += 108;
@@ -706,6 +752,9 @@ int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
 
     if (vibratoExpanded)
         controlsHeight += 142;
+
+    if (mpeExpanded)
+        controlsHeight += 70;
 
     if (whammyExpanded)
         controlsHeight += 142;

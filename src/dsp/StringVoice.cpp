@@ -97,6 +97,8 @@ void StringVoice::reset()
     vibratoPhase = 0.0f;
     aftertouchPressure = 0.0f;
     aftertouchPressureTarget = 0.0f;
+    mpePitchBend = 0.0f;
+    mpePitchBendTarget = 0.0f;
     active = false;
     releasing = false;
     woundString = false;
@@ -200,6 +202,8 @@ void StringVoice::start (int midiNoteNumber,
     vibratoPhase = 0.0f;
     aftertouchPressure = 0.0f;
     aftertouchPressureTarget = 0.0f;
+    mpePitchBend = 0.0f;
+    mpePitchBendTarget = 0.0f;
     releasing = false;
     active = true;
     woundString = woundAmount > 0.0f;
@@ -502,6 +506,14 @@ void StringVoice::setAftertouchPressure (int midiNoteNumber, int midiChannel, fl
     aftertouchPressureTarget = juce::jlimit (0.0f, 1.0f, pressure);
 }
 
+void StringVoice::setMpePitchBend (int midiChannel, float bend) noexcept
+{
+    if (! active || channel != midiChannel)
+        return;
+
+    mpePitchBendTarget = juce::jlimit (-1.0f, 1.0f, bend);
+}
+
 float StringVoice::renderSample (float tailSustain,
                                  float palmMute,
                                  float vibratoDepthCents,
@@ -509,7 +521,8 @@ float StringVoice::renderSample (float tailSustain,
                                  float vibratoDelaySeconds,
                                  float whammySemitones,
                                  float whammySpread,
-                                 float aftertouchBendSemitones) noexcept
+                                 float aftertouchBendSemitones,
+                                 float mpePitchBendRange) noexcept
 {
     if (! active)
         return 0.0f;
@@ -544,9 +557,12 @@ float StringVoice::renderSample (float tailSustain,
     const auto vibratoCents = clampedVibratoDepth * vibratoEnvelope * std::sin (vibratoPhase);
     aftertouchPressure += (aftertouchPressureTarget - aftertouchPressure) * 0.0025f;
     const auto aftertouchRatio = std::pow (2.0f, aftertouchPressure * aftertouchBendSemitones / 12.0f);
+    mpePitchBend += (mpePitchBendTarget - mpePitchBend) * 0.0065f;
+    const auto mpePitchRatio = std::pow (2.0f, mpePitchBend * mpePitchBendRange / 12.0f);
     const auto pitchRatio = std::pow (2.0f, vibratoCents / 1200.0f)
                           * getWhammyRatio (whammySemitones, whammySpread)
-                          * aftertouchRatio;
+                          * aftertouchRatio
+                          * mpePitchRatio;
 
     vibratoPhase += 6.28318530717958647692f * clampedVibratoSpeed / static_cast<float> (sampleRate);
 

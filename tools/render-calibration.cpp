@@ -26,6 +26,7 @@ void printUsage()
                  "[--fret-pressure 0.0] [--aftertouch-bend 2.0] [--aftertouch 0.0] "
                  "[--lookahead-ms 0] [--finger-noise 0.0] "
                  "[--vibrato-speed 5.5] [--vibrato-depth 0.0] [--vibrato-delay-ms 0] "
+                 "[--mpe-mode 0] [--mpe-bend-range 48.0] "
                  "[--pitch-wheel 0.0] [--whammy-up 6.0] [--whammy-down 12.0] [--whammy-spread 0.35] "
                  "[--pickup-position 0.39] [--pickup-model 0]\n";
 }
@@ -62,7 +63,7 @@ bool readMidiEvents (const juce::File& midiFile, double sampleRate, std::vector<
 
             const auto& message = event->message;
 
-            if (! message.isNoteOnOrOff() && ! message.isAftertouch())
+            if (! message.isNoteOnOrOff() && ! message.isAftertouch() && ! message.isPitchWheel())
                 continue;
 
             const auto sample = static_cast<int> (std::round (message.getTimeStamp() * sampleRate));
@@ -129,6 +130,8 @@ int main (int argc, char* argv[])
     auto vibratoSpeed = 5.5f;
     auto vibratoDepth = 0.0f;
     auto vibratoDelayMs = 0.0f;
+    auto mpeMode = false;
+    auto mpeBendRange = 48.0f;
     auto pitchWheel = 0.0f;
     auto whammyUp = 6.0f;
     auto whammyDown = 12.0f;
@@ -224,6 +227,14 @@ int main (int argc, char* argv[])
         else if (argument == "--vibrato-delay-ms" && hasValue)
         {
             vibratoDelayMs = juce::jlimit (0.0f, 2000.0f, juce::String (argv[++i]).getFloatValue());
+        }
+        else if (argument == "--mpe-mode" && hasValue)
+        {
+            mpeMode = juce::String (argv[++i]).getIntValue() != 0;
+        }
+        else if (argument == "--mpe-bend-range" && hasValue)
+        {
+            mpeBendRange = juce::String (argv[++i]).getFloatValue();
         }
         else if (argument == "--pitch-wheel" && hasValue)
         {
@@ -323,6 +334,8 @@ int main (int argc, char* argv[])
     engine.setVibratoSpeed (vibratoSpeed);
     engine.setVibratoDepth (vibratoDepth);
     engine.setVibratoDelay (vibratoDelayMs / 1000.0f);
+    engine.setMpeEnabled (mpeMode);
+    engine.setMpePitchBendRange (mpeBendRange);
     engine.setWhammyEnabled (true);
     engine.setWhammyUpSemitones (whammyUp);
     engine.setWhammyDownSemitones (whammyDown);

@@ -271,3 +271,17 @@ Accepted
 
 Consequences:
 `Aftertouch Bend` defaults to +2 semitones and allows -12 to +12 semitones. Channel pressure remains unmapped. Future MPE work should preserve this behavior where useful, but distinguish key aftertouch from MPE channel pressure on member channels.
+
+## 2026-04-26 — Default MPE pitch bend range to Bitwig's 48 semitones
+
+Decision:
+Expose `MPE Bend Range` as a visible parameter and default it to ±48 semitones.
+
+Reason:
+Bitwig commonly defaults MPE note-expression pitch bend to 48 semitones. Matching that default reduces trial-and-error: a two-semitone drawn bend in the DAW should produce a two-semitone bend in the plugin when both ranges match.
+
+Status:
+Accepted
+
+Consequences:
+`MPE Mode` routes pitch wheel per MIDI channel, while non-MPE mode keeps the existing global whammy behavior. Users can set smaller ranges for guitar-focused bends, but the plugin default favors immediate Bitwig compatibility.

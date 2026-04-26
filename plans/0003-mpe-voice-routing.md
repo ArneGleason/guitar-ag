@@ -46,4 +46,11 @@ The human should be able to verify:
 
 ## Completion Notes
 
-Fill this in after implementation.
+Implemented in `StringVoice EG-046 MPEBend`.
+
+- Added `MPE Mode`.
+- Added `MPE Bend Range`, default ±48 semitones.
+- In MPE mode, pitch wheel messages route to voices on the same MIDI channel.
+- In non-MPE mode, pitch wheel remains the existing global whammy control.
+- Pressure and CC74 are not fully implemented as MPE member-channel expression yet.
+- A chord only bends independently if the host sends notes on separate MPE member channels.

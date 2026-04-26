@@ -419,3 +419,7 @@ The relevant tremolo-arm physics are string-tension changes, not a clean digital
 ## 2026-04-26 — Key aftertouch is useful before MPE
 
 JUCE key/poly aftertouch includes note number and channel, so it can be routed directly to a matching active voice. That gives the instrument a useful pressure-to-bend gesture now without solving MPE channel allocation yet. Channel pressure is different and should stay unmapped until the MPE/member-channel behavior is designed.
+
+## 2026-04-26 — MPE bend range needs to be visible
+
+MPE pitch expression is only intuitive when the DAW and instrument agree on bend range. Bitwig's default of 48 semitones is a practical plugin default for this project, because it makes DAW-side note-expression pitch curves line up without trial-and-error. Smaller guitar-like ranges can still be selected when desired.

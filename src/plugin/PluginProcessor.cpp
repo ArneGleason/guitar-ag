@@ -22,6 +22,8 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     vibratoDelayParameter = parameters.getRawParameterValue (vibratoDelayParameterId);
     vibratoModWheelSpeedParameter = parameters.getRawParameterValue (vibratoModWheelSpeedParameterId);
     vibratoModWheelDepthParameter = parameters.getRawParameterValue (vibratoModWheelDepthParameterId);
+    mpeEnabledParameter = parameters.getRawParameterValue (mpeEnabledParameterId);
+    mpePitchBendRangeParameter = parameters.getRawParameterValue (mpePitchBendRangeParameterId);
     whammyEnabledParameter = parameters.getRawParameterValue (whammyEnabledParameterId);
     whammyUpRangeParameter = parameters.getRawParameterValue (whammyUpRangeParameterId);
     whammyDownRangeParameter = parameters.getRawParameterValue (whammyDownRangeParameterId);
@@ -192,6 +194,21 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
         false));
 
     layout.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { mpeEnabledParameterId, 1 },
+        "MPE Mode",
+        false));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { mpePitchBendRangeParameterId, 1 },
+        "MPE Bend Range",
+        juce::NormalisableRange<float> { 0.0f, 96.0f, 0.1f, 0.72f },
+        48.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("st")
+            .withStringFromValueFunction (semitoneString)
+            .withValueFromStringFunction (semitoneValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterBool> (
         juce::ParameterID { whammyEnabledParameterId, 1 },
         "Pitch Wheel Whammy",
         true));
@@ -325,6 +342,8 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
                                                 && vibratoModWheelSpeedParameter->load() >= 0.5f);
     audioEngine.setVibratoModWheelDepthEnabled (vibratoModWheelDepthParameter != nullptr
                                                 && vibratoModWheelDepthParameter->load() >= 0.5f);
+    audioEngine.setMpeEnabled (mpeEnabledParameter != nullptr && mpeEnabledParameter->load() >= 0.5f);
+    audioEngine.setMpePitchBendRange (mpePitchBendRangeParameter != nullptr ? mpePitchBendRangeParameter->load() : 48.0f);
     audioEngine.setWhammyEnabled (whammyEnabledParameter == nullptr || whammyEnabledParameter->load() >= 0.5f);
     audioEngine.setWhammyUpSemitones (whammyUpRangeParameter != nullptr ? whammyUpRangeParameter->load() : 6.0f);
     audioEngine.setWhammyDownSemitones (whammyDownRangeParameter != nullptr ? whammyDownRangeParameter->load() : 12.0f);

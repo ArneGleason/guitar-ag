@@ -30,6 +30,8 @@ public:
     void setVibratoDelay (float newVibratoDelay) noexcept;
     void setVibratoModWheelSpeedEnabled (bool enabled) noexcept;
     void setVibratoModWheelDepthEnabled (bool enabled) noexcept;
+    void setMpeEnabled (bool enabled) noexcept;
+    void setMpePitchBendRange (float newMpePitchBendRange) noexcept;
     void setWhammyEnabled (bool enabled) noexcept;
     void setWhammyUpSemitones (float newWhammyUpSemitones) noexcept;
     void setWhammyDownSemitones (float newWhammyDownSemitones) noexcept;
@@ -51,6 +53,7 @@ private:
     void noteOn (int noteNumber, int channel, float velocity);
     void noteOff (int noteNumber, int channel);
     void applyAftertouch (int noteNumber, int channel, float pressure) noexcept;
+    void applyMpePitchBend (int channel, float bend) noexcept;
     void scheduleMidiMessage (const juce::MidiMessage& message, int64_t sampleTime) noexcept;
     void dispatchScheduledMidiEvents() noexcept;
     void clearScheduledMidiEvents() noexcept;
@@ -112,12 +115,14 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> vibratoDelay { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> modWheel { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pitchWheel { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> mpePitchBendRange { 48.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> whammyUpSemitones { 6.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> whammyDownSemitones { 12.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> whammySpread { 0.35f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> aftertouchBendSemitones { 2.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickupPosition { 0.39f };
     double sampleRate = 44100.0;
+    std::array<float, 16> mpePitchBendByChannel {};
     int64_t timelineSample = 0;
     int lookaheadSamples = 0;
     int pickupModel = 0;
@@ -125,6 +130,7 @@ private:
     int nextFingerNoiseVoice = 0;
     bool vibratoModWheelSpeedEnabled = false;
     bool vibratoModWheelDepthEnabled = false;
+    bool mpeEnabled = false;
     bool whammyEnabled = true;
 };
 

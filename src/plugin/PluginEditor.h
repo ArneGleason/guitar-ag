@@ -32,6 +32,7 @@ private:
     juce::TextButton pickupSectionButton;
     juce::TextButton performanceSectionButton;
     juce::TextButton vibratoSectionButton;
+    juce::TextButton mpeSectionButton;
     juce::TextButton whammySectionButton;
     juce::TextButton articulationSectionButton;
     juce::Slider sustainSlider;
@@ -43,6 +44,7 @@ private:
     juce::Slider vibratoSpeedSlider;
     juce::Slider vibratoDepthSlider;
     juce::Slider vibratoDelaySlider;
+    juce::Slider mpePitchBendRangeSlider;
     juce::Slider whammyUpRangeSlider;
     juce::Slider whammyDownRangeSlider;
     juce::Slider whammySpreadSlider;
@@ -61,6 +63,7 @@ private:
     juce::Label vibratoSpeedLabel;
     juce::Label vibratoDepthLabel;
     juce::Label vibratoDelayLabel;
+    juce::Label mpePitchBendRangeLabel;
     juce::Label whammyUpRangeLabel;
     juce::Label whammyDownRangeLabel;
     juce::Label whammySpreadLabel;
@@ -87,6 +90,7 @@ private:
     juce::TextButton vibratoSpeedInfoButton;
     juce::TextButton vibratoDepthInfoButton;
     juce::TextButton vibratoDelayInfoButton;
+    juce::TextButton mpePitchBendRangeInfoButton;
     juce::TextButton whammyUpRangeInfoButton;
     juce::TextButton whammyDownRangeInfoButton;
     juce::TextButton whammySpreadInfoButton;
@@ -100,6 +104,7 @@ private:
     juce::ComboBox pickupModelBox;
     juce::ToggleButton vibratoModWheelSpeedButton;
     juce::ToggleButton vibratoModWheelDepthButton;
+    juce::ToggleButton mpeEnabledButton;
     juce::ToggleButton whammyEnabledButton;
     std::unique_ptr<SliderAttachment> sustainAttachment;
     std::unique_ptr<SliderAttachment> stringAgeAttachment;
@@ -113,6 +118,8 @@ private:
     std::unique_ptr<SliderAttachment> vibratoDelayAttachment;
     std::unique_ptr<ButtonAttachment> vibratoModWheelSpeedAttachment;
     std::unique_ptr<ButtonAttachment> vibratoModWheelDepthAttachment;
+    std::unique_ptr<ButtonAttachment> mpeEnabledAttachment;
+    std::unique_ptr<SliderAttachment> mpePitchBendRangeAttachment;
     std::unique_ptr<ButtonAttachment> whammyEnabledAttachment;
     std::unique_ptr<SliderAttachment> whammyUpRangeAttachment;
     std::unique_ptr<SliderAttachment> whammyDownRangeAttachment;
@@ -127,6 +134,7 @@ private:
     bool pickupExpanded = true;
     bool performanceExpanded = true;
     bool vibratoExpanded = true;
+    bool mpeExpanded = true;
     bool whammyExpanded = true;
     bool articulationExpanded = true;
 
