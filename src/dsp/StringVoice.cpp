@@ -56,6 +56,13 @@ void StringVoice::reset()
     pickSlipImpulse = 0.0f;
     pickSlipDecay = 0.0f;
     pickSlipCountdown = 0;
+    pickCoinAmount = 0.0f;
+    pickCoinDecay = 0.0f;
+    pickCoinPhase = 0.0f;
+    pickCoinPhaseStep = 0.0f;
+    pickCoinImpulse = 0.0f;
+    pickCoinImpulseDecay = 0.0f;
+    pickCoinCountdown = 0;
     pickContactSamplesRemaining = 0;
     attackRampSeconds = 0.0025f;
     modalReleaseDecay = 1.0f;
@@ -93,9 +100,11 @@ void StringVoice::start (int midiNoteNumber,
     const auto stiffnessAmount = juce::jlimit (0.0f, 1.0f, pickStiffness);
     const auto textureAmount = juce::jlimit (0.0f, 1.0f, pickTexture);
     const auto stiffnessBipolar = 2.0f * stiffnessAmount - 1.0f;
-    const auto highTexture = juce::jlimit (0.0f, 1.0f, (textureAmount - 0.5f) * 2.0f);
-    const auto textureScale = textureAmount <= 0.5f ? textureAmount * 2.0f
-                                                     : 1.0f + (textureAmount - 0.5f) * 0.45f;
+    const auto mappedTexture = juce::jlimit (0.0f, 1.0f, textureAmount / 0.8f);
+    const auto coinTexture = juce::jlimit (0.0f, 1.0f, (textureAmount - 0.8f) * 5.0f);
+    const auto highTexture = juce::jlimit (0.0f, 1.0f, (mappedTexture - 0.5f) * 2.0f);
+    const auto textureScale = mappedTexture <= 0.5f ? mappedTexture * 2.0f
+                                                     : 1.0f + (mappedTexture - 0.5f) * 0.45f;
     const auto pickEdgeScale = stiffnessAmount <= 0.5f ? 0.18f + stiffnessAmount * 1.64f
                                                        : 1.0f + (stiffnessAmount - 0.5f) * 0.84f;
     const auto partialStiffnessScale = stiffnessAmount <= 0.5f ? 0.48f + stiffnessAmount * 1.04f
@@ -128,6 +137,13 @@ void StringVoice::start (int midiNoteNumber,
     pickSlipImpulse = 0.0f;
     pickSlipDecay = 0.0f;
     pickSlipCountdown = 0;
+    pickCoinAmount = 0.0f;
+    pickCoinDecay = 0.0f;
+    pickCoinPhase = 0.0f;
+    pickCoinPhaseStep = 0.0f;
+    pickCoinImpulse = 0.0f;
+    pickCoinImpulseDecay = 0.0f;
+    pickCoinCountdown = 0;
     pickContactSamplesRemaining = 0;
     attackRampSeconds = juce::jmap (stiffnessAmount, 0.0090f, 0.0013f);
     modalSine.fill (0.0f);
@@ -197,7 +213,7 @@ void StringVoice::start (int midiNoteNumber,
                           + pickKink * localPickContact * steelPartialAmount * pickEdgeScale;
         const auto secondarySample = horizontalShape * horizontalAmount
                                    - scrapeNoise * 0.18f
-                                   + horizontalPartials * steelPartialAmount * (0.42f + 0.46f * textureAmount)
+                                   + horizontalPartials * steelPartialAmount * (0.42f + 0.46f * mappedTexture)
                                    - pickKink * localPickContact * steelPartialAmount * 0.38f * pickEdgeScale;
 
         delayLine[static_cast<size_t> (i)] = sample;
@@ -224,17 +240,17 @@ void StringVoice::start (int midiNoteNumber,
     energy = velocityGain;
     pickTransient = (0.004f + 0.014f * brightness) * pickEdgeScale * (nextNoiseSample() >= 0.0f ? 1.0f : -1.0f);
     pickTransientDecay = 0.9990f - 0.0015f * brightness - 0.00025f * stiffnessBipolar;
-    const auto smoothTexture = textureAmount <= 0.5f ? std::pow (textureAmount * 2.0f, 1.35f)
+    const auto smoothTexture = mappedTexture <= 0.5f ? std::pow (mappedTexture * 2.0f, 1.35f)
                                                      : 1.0f - 0.42f * highTexture;
     const auto grindTexture = std::pow (highTexture, 1.35f);
     pickContact = (0.006f + 0.050f * brightness) * velocityGain * smoothTexture;
-    pickContactDecay = 0.9987f - 0.00020f * brightness + 0.00038f * textureAmount;
+    pickContactDecay = 0.9987f - 0.00020f * brightness + 0.00038f * mappedTexture;
     pickContactRing = (0.002f + 0.025f * brightness) * velocityGain * smoothTexture;
-    pickContactRingDecay = 0.9986f + 0.00040f * textureAmount;
+    pickContactRingDecay = 0.9986f + 0.00040f * mappedTexture;
     pickContactPhase = nextNoiseSample() * twoPi;
     pickContactPhaseStep = twoPi * juce::jlimit (1200.0f,
                                                   static_cast<float> (sampleRate * 0.42),
-                                                  static_cast<float> (frequency) * (11.0f + 10.0f * textureAmount + 3.0f * woundAmount))
+                                                  static_cast<float> (frequency) * (11.0f + 10.0f * mappedTexture + 3.0f * woundAmount))
                          / static_cast<float> (sampleRate);
     pickGrindAmount = (0.018f + 0.115f * brightness) * velocityGain * grindTexture;
     pickGrindDecay = 0.99925f + 0.00045f * highTexture;
@@ -246,7 +262,17 @@ void StringVoice::start (int midiNoteNumber,
     pickSlipImpulse = 0.0f;
     pickSlipDecay = 0.92f + 0.065f * highTexture;
     pickSlipCountdown = 0;
-    pickContactSamplesRemaining = textureAmount <= 0.0f ? 0 : static_cast<int> (sampleRate * (0.010f + 0.040f * textureAmount + 0.055f * highTexture + 0.010f * brightness));
+    pickCoinAmount = (0.020f + 0.125f * brightness) * velocityGain * std::pow (coinTexture, 1.25f);
+    pickCoinDecay = 0.99945f + 0.00030f * coinTexture;
+    pickCoinPhase = nextNoiseSample() * twoPi;
+    pickCoinPhaseStep = twoPi * juce::jlimit (1400.0f,
+                                               static_cast<float> (sampleRate * 0.40),
+                                               static_cast<float> (frequency) * (18.0f + 20.0f * coinTexture + 5.0f * woundAmount))
+                      / static_cast<float> (sampleRate);
+    pickCoinImpulse = 0.0f;
+    pickCoinImpulseDecay = 0.965f + 0.030f * coinTexture;
+    pickCoinCountdown = 0;
+    pickContactSamplesRemaining = textureAmount <= 0.0f ? 0 : static_cast<int> (sampleRate * (0.010f + 0.040f * mappedTexture + 0.055f * highTexture + 0.085f * coinTexture + 0.010f * brightness));
     configureResonator (0, frequency * 5.0f, 0.9895f);
     configureResonator (1, frequency * 7.0f, 0.9880f);
     configureResonator (2, frequency * 11.0f, 0.9860f);
@@ -269,7 +295,7 @@ void StringVoice::start (int midiNoteNumber,
     const auto contactWidth = juce::jmap (strikeAmount, 0.070f, 0.006f) * (1.0f - 0.60f * stiffnessBipolar);
     const auto attackModeGain = (juce::jmap (strikeAmount, 0.008f, 0.075f) + 0.045f * hardStrike)
                               * pickEdgeScale
-                              * (0.82f + 0.36f * textureAmount);
+                              * (0.82f + 0.36f * mappedTexture);
 
     for (auto harmonic = 1; harmonic <= 32 && modeIndex < modalCount; ++harmonic)
     {
@@ -417,12 +443,16 @@ float StringVoice::renderSample (float tailSustain) noexcept
         previousContactNoise = rawContact;
         pickContactPhase += pickContactPhaseStep * (1.0f + 0.035f * rawContact);
         pickGrindPhase += pickGrindPhaseStep * (1.0f + 0.12f * rawContact);
+        pickCoinPhase += pickCoinPhaseStep * (1.0f + 0.18f * rawContact);
 
         if (pickContactPhase > 6.28318530717958647692f)
             pickContactPhase -= 6.28318530717958647692f;
 
         if (pickGrindPhase > 6.28318530717958647692f)
             pickGrindPhase -= 6.28318530717958647692f;
+
+        if (pickCoinPhase > 6.28318530717958647692f)
+            pickCoinPhase -= 6.28318530717958647692f;
 
         const auto ring = std::sin (pickContactPhase) + 0.32f * std::sin (pickContactPhase * 2.37f);
         auto grind = 0.0f;
@@ -445,7 +475,28 @@ float StringVoice::renderSample (float tailSustain) noexcept
             --pickSlipCountdown;
         }
 
-        contactOutput = softClip (contactScratch * pickContact + ring * pickContactRing + grind);
+        auto coin = 0.0f;
+
+        if (pickCoinAmount > 0.000001f)
+        {
+            if (pickCoinCountdown <= 0)
+            {
+                const auto intervalSeconds = 0.00011f + 0.00046f * (0.5f + 0.5f * nextNoiseSample());
+                pickCoinCountdown = juce::jmax (1, static_cast<int> (sampleRate * intervalSeconds));
+                pickCoinImpulse += pickCoinAmount * (0.58f + 0.42f * std::abs (std::sin (pickCoinPhase * 0.43f + nextNoiseSample())));
+            }
+
+            const auto ridge = std::tanh (3.2f * (std::sin (pickCoinPhase)
+                                                + 0.42f * std::sin (pickCoinPhase * 2.13f)
+                                                + 0.25f * std::sin (pickCoinPhase * 3.71f)));
+            const auto burr = std::pow (std::abs (std::sin (pickCoinPhase * 0.5f)), 7.0f);
+            coin = pickCoinImpulse * (0.72f * ridge + 0.28f * burr * contactScratch);
+            pickCoinImpulse *= pickCoinImpulseDecay;
+            pickCoinAmount *= pickCoinDecay;
+            --pickCoinCountdown;
+        }
+
+        contactOutput = softClip (contactScratch * pickContact + ring * pickContactRing + grind + coin);
         pickContact *= pickContactDecay;
         pickContactRing *= pickContactRingDecay;
         --pickContactSamplesRemaining;

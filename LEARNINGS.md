@@ -348,3 +348,7 @@ Pick stiffness and pick texture are note-start excitation controls, so new voice
 ## 2026-04-26 — Texture needs contact regimes, not just gain
 
 Manual testing of KS-028 confirmed that `Pick Texture` was audible, but the top end sounded like louder snap or a small snare-like noise burst. For pick-material realism, the useful control shape is likely regime-based: smooth plastic-pick snap around the middle, then a separate stick-slip/grind behavior above the middle rather than scaling the same broadband component.
+
+## 2026-04-26 — Reserve parameter extremes for special materials
+
+KS-029 made the full texture range usable, but the user wanted an additional Brian May/coin-pick extreme. Compressing the normal range to end around 80% leaves room for a deliberately nonstandard material model from 80% to 100% without damaging the regular plastic-pick control range.

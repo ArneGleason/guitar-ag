@@ -873,6 +873,22 @@ Expected sound:
 
 50% should stay close to the useful smooth-plastic pick sound. Higher texture should move toward gritty surface drag or coin-like contact rather than a louder white-noise/snare-like snap.
 
+## 2026-04-26 — Coin Pick Texture Extension
+
+The top of the `Pick Texture` range now has a dedicated coin-like contact layer.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-030 CoinTexture`.
+- The KS-029 texture range is compressed so its previous 100% behavior is reached at about 80%.
+- The 80% to 100% range adds a separate coin-edge layer only in that top segment.
+- The coin layer uses faster irregular impulses plus a bumpy, ridged metallic phase function to suggest friction and uneven surface scrape.
+- The goal is a Brian May/coin-pick style extreme, not a normal plastic pick.
+
+Expected sound:
+
+Below 80%, the texture control should preserve the useful KS-029 behavior. From 80% to 100%, the sound should move into a more overt gritty grind rather than only becoming brighter or louder.
+
 ## Suggested MVP Signal Flow
 
 ```text

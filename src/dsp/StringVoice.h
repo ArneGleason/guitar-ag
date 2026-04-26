@@ -99,6 +99,13 @@ private:
     float pickSlipImpulse = 0.0f;
     float pickSlipDecay = 0.0f;
     int pickSlipCountdown = 0;
+    float pickCoinAmount = 0.0f;
+    float pickCoinDecay = 0.0f;
+    float pickCoinPhase = 0.0f;
+    float pickCoinPhaseStep = 0.0f;
+    float pickCoinImpulse = 0.0f;
+    float pickCoinImpulseDecay = 0.0f;
+    int pickCoinCountdown = 0;
     int pickContactSamplesRemaining = 0;
     float attackRampSeconds = 0.0025f;
     float modalReleaseDecay = 1.0f;
