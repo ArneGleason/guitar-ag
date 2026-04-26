@@ -18,11 +18,13 @@ private:
 
     GuitarAgAudioProcessor& audioProcessor;
     juce::Slider sustainSlider;
+    juce::Slider stringAgeSlider;
     juce::Slider pickStiffnessSlider;
     juce::Slider pickTextureSlider;
     juce::Slider palmMuteSlider;
     juce::Slider harmonicTouchSlider;
     juce::Label sustainLabel;
+    juce::Label stringAgeLabel;
     juce::Label pickStiffnessLabel;
     juce::Label pickTextureLabel;
     juce::Label palmMuteLabel;
@@ -31,6 +33,7 @@ private:
     juce::Label harmonicThirdLabel;
     juce::Label harmonicHalfLabel;
     std::unique_ptr<SliderAttachment> sustainAttachment;
+    std::unique_ptr<SliderAttachment> stringAgeAttachment;
     std::unique_ptr<SliderAttachment> pickStiffnessAttachment;
     std::unique_ptr<SliderAttachment> pickTextureAttachment;
     std::unique_ptr<SliderAttachment> palmMuteAttachment;

@@ -19,6 +19,19 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     sustainSlider.setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0xff202832));
     addAndMakeVisible (sustainSlider);
 
+    stringAgeLabel.setText ("String Age", juce::dontSendNotification);
+    stringAgeLabel.setColour (juce::Label::textColourId, juce::Colour (0xffcbd4dc));
+    stringAgeLabel.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (stringAgeLabel);
+
+    stringAgeSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    stringAgeSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 72, 24);
+    stringAgeSlider.setColour (juce::Slider::trackColourId, juce::Colour (0xff9ccf8a));
+    stringAgeSlider.setColour (juce::Slider::thumbColourId, juce::Colour (0xffe8edf2));
+    stringAgeSlider.setColour (juce::Slider::textBoxTextColourId, juce::Colour (0xffe8edf2));
+    stringAgeSlider.setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0xff202832));
+    addAndMakeVisible (stringAgeSlider);
+
     pickStiffnessLabel.setText ("Pick Stiffness", juce::dontSendNotification);
     pickStiffnessLabel.setColour (juce::Label::textColourId, juce::Colour (0xffcbd4dc));
     pickStiffnessLabel.setJustificationType (juce::Justification::centredLeft);
@@ -85,6 +98,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     sustainAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                             GuitarAgAudioProcessor::tailSustainParameterId,
                                                             sustainSlider);
+    stringAgeAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                             GuitarAgAudioProcessor::stringAgeParameterId,
+                                                             stringAgeSlider);
     pickStiffnessAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                   GuitarAgAudioProcessor::pickStiffnessParameterId,
                                                                   pickStiffnessSlider);
@@ -98,7 +114,7 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                                                                  GuitarAgAudioProcessor::harmonicTouchParameterId,
                                                                  harmonicTouchSlider);
 
-    setSize (500, 390);
+    setSize (500, 426);
 }
 
 void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
@@ -116,7 +132,7 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
     graphics.setFont (juce::FontOptions (15.0f));
     graphics.drawFittedText ("MVP string voice: MIDI-triggered plucked model", bounds.removeFromTop (28),
                              juce::Justification::centredLeft, 1);
-    bounds.removeFromTop (222);
+    bounds.removeFromTop (258);
     graphics.drawFittedText ("MPE routing is intentionally not implemented yet.", bounds,
                              juce::Justification::centredLeft, 2);
 
@@ -135,6 +151,10 @@ void GuitarAgAudioProcessorEditor::resized()
     auto sustainBounds = bounds.removeFromTop (36);
     sustainLabel.setBounds (sustainBounds.removeFromLeft (120));
     sustainSlider.setBounds (sustainBounds);
+
+    auto ageBounds = bounds.removeFromTop (36);
+    stringAgeLabel.setBounds (ageBounds.removeFromLeft (120));
+    stringAgeSlider.setBounds (ageBounds);
 
     auto stiffnessBounds = bounds.removeFromTop (36);
     pickStiffnessLabel.setBounds (stiffnessBounds.removeFromLeft (120));

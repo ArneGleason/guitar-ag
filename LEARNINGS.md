@@ -227,6 +227,11 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - Research references used for this pass: Aaron Shearer Foundation guitar harmonic node chart, UNSW strings/harmonics notes, Woodhouse's guitar pluck synthesis paper, and the Columbia waveguide guitar synthesis notes.
 - Listening feedback on KS035 suggests harmonic articulations should act as a self-contained gesture, not as a layer on top of the current pick material settings. This makes MIDI/automation authoring easier because a harmonic can be added without also automating the pick controls away and back.
 
+## 2026-04-26 — Model label naming
+
+- The `KS` model prefix no longer describes the current voice well. Starting with `EG-037`, visible model labels use `EG` for electric guitar while preserving the existing numeric sequence.
+- String age is better modeled at the string source than as a final tone filter: older strings should reduce upper-partial excitation and high-mode sustain while keeping the basic clean DI character.
+
 ## 2026-04-25 — KS-014 render comparison and research pivot
 
 - KS014 reduced the KS013 air/noise boost but did not create a more realistic open-string sound by ear.

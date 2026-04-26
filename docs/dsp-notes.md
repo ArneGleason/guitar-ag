@@ -990,6 +990,24 @@ Expected sound:
 
 Harmonics should no longer inherit coin/texture/stiff-pick artifacts from the normal pick controls. Palm mute should offer more fine control for barely-touching mutes while preserving the full-mute endpoint.
 
+## 2026-04-26 — String Age Parameter
+
+Added a first old-string/new-string control.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-037 StringAge`.
+- The visible model series has changed from `KS` to `EG` because the voice is now a broader electric-guitar model rather than a simple Karplus-Strong experiment.
+- Added a `String Age` VST parameter, default 0%.
+- 0% represents clean/new strings.
+- 100% represents older strings that are still usable: duller, less lively, and slightly less sustaining, but not dead.
+- Higher age reduces upper-partial excitation, pick/contact brightness, moving resonance energy, and high-mode sustain.
+- The offline renderer accepts `--string-age`.
+
+Expected sound:
+
+Increasing `String Age` should darken the string at the source, especially in upper harmonics, and slightly shorten the ring. It should not sound like a drastic low-pass filter or broken strings.
+
 ## Suggested MVP Signal Flow
 
 ```text

@@ -104,9 +104,11 @@ void StringVoice::start (int midiNoteNumber,
                          const FretboardAssignment& assignment,
                          float pickStiffness,
                          float pickTexture,
-                         float harmonicTouch)
+                         float harmonicTouch,
+                         float stringAge)
 {
     const auto harmonicTouchAmount = juce::jlimit (0.0f, 1.0f, harmonicTouch);
+    const auto stringAgeAmount = juce::jlimit (0.0f, 1.0f, stringAge);
     const auto harmonicActive = harmonicTouchAmount > 0.25f;
     const auto stiffnessAmount = harmonicActive ? 0.0f : juce::jlimit (0.0f, 1.0f, pickStiffness);
     const auto textureAmount = harmonicActive ? 0.0f : juce::jlimit (0.0f, 1.0f, pickTexture);
@@ -204,9 +206,11 @@ void StringVoice::start (int midiNoteNumber,
     const auto pickupWidth = 0.026f;
     const auto displacementAmount = 0.70f * velocityGain;
     const auto horizontalAmount = (0.28f + 0.06f * woundAmount) * velocityGain;
-    const auto noiseAmount = (0.004f + 0.014f * brightness) * (1.0f + 0.2f * woundAmount) * textureScale;
+    const auto ageBrightnessScale = 1.06f - 0.46f * stringAgeAmount;
+    const auto ageContactScale = 1.04f - 0.38f * stringAgeAmount;
+    const auto noiseAmount = (0.004f + 0.014f * brightness) * (1.0f + 0.2f * woundAmount) * textureScale * ageContactScale;
     constexpr auto twoPi = 6.28318530717958647692f;
-    const auto steelPartialAmount = (0.012f + 0.032f * brightness) * velocityGain * partialStiffnessScale;
+    const auto steelPartialAmount = (0.012f + 0.032f * brightness) * velocityGain * partialStiffnessScale * ageBrightnessScale;
     auto mean = 0.0f;
     auto secondaryMean = 0.0f;
     auto harmonicDivision = 1;
@@ -285,15 +289,15 @@ void StringVoice::start (int midiNoteNumber,
     }
 
     energy = velocityGain * harmonicEnergyScale;
-    pickTransient = (0.004f + 0.014f * brightness) * pickEdgeScale * (nextNoiseSample() >= 0.0f ? 1.0f : -1.0f);
-    pickTransientDecay = 0.9990f - 0.0015f * brightness - 0.00025f * stiffnessBipolar;
+    pickTransient = (0.004f + 0.014f * brightness) * pickEdgeScale * ageContactScale * (nextNoiseSample() >= 0.0f ? 1.0f : -1.0f);
+    pickTransientDecay = 0.9990f - 0.0015f * brightness - 0.00025f * stiffnessBipolar - 0.00020f * stringAgeAmount;
     const auto smoothTexture = mappedTexture <= 0.5f ? std::pow (mappedTexture * 2.0f, 1.35f)
                                                      : 1.0f - 0.42f * highTexture;
     const auto grindTexture = std::pow (highTexture, 1.35f);
-    pickContact = (0.006f + 0.050f * brightness) * velocityGain * smoothTexture;
-    pickContactDecay = 0.9987f - 0.00020f * brightness + 0.00038f * mappedTexture;
-    pickContactRing = (0.002f + 0.025f * brightness) * velocityGain * smoothTexture;
-    pickContactRingDecay = 0.9986f + 0.00040f * mappedTexture;
+    pickContact = (0.006f + 0.050f * brightness) * velocityGain * smoothTexture * ageContactScale;
+    pickContactDecay = 0.9987f - 0.00020f * brightness + 0.00038f * mappedTexture - 0.00025f * stringAgeAmount;
+    pickContactRing = (0.002f + 0.025f * brightness) * velocityGain * smoothTexture * ageBrightnessScale;
+    pickContactRingDecay = 0.9986f + 0.00040f * mappedTexture - 0.00035f * stringAgeAmount;
     pickContactPhase = nextNoiseSample() * twoPi;
     pickContactPhaseStep = twoPi * juce::jlimit (1200.0f,
                                                   static_cast<float> (sampleRate * 0.42),
@@ -334,16 +338,16 @@ void StringVoice::start (int midiNoteNumber,
     configureResonator (0, frequency * 5.0f, 0.9895f);
     configureResonator (1, frequency * 7.0f, 0.9880f);
     configureResonator (2, frequency * 11.0f, 0.9860f);
-    resonanceEnvelope = (0.012f + 0.045f * brightness) * velocityGain;
-    resonanceDecay = 0.99976f - 0.00008f * brightness;
+    resonanceEnvelope = (0.012f + 0.045f * brightness) * velocityGain * (1.04f - 0.34f * stringAgeAmount);
+    resonanceDecay = 0.99976f - 0.00008f * brightness - 0.00020f * stringAgeAmount;
     resonanceMoveSamples = juce::jmax (1, static_cast<int> (sampleRate * (0.36f + 0.16f * brightness)));
     highFeedbackGain = 0.9995f;
-    highFeedbackGainTarget = 0.9935f - 0.0015f * brightness;
+    highFeedbackGainTarget = 0.9935f - 0.0015f * brightness - 0.0018f * stringAgeAmount;
     highFeedbackGainSamplesRemaining = juce::jmax (1, static_cast<int> (sampleRate * (0.55f + 0.25f * brightness)));
     highFeedbackGainStep = (highFeedbackGainTarget - highFeedbackGain)
                          / juce::jmax (1.0f, static_cast<float> (highFeedbackGainSamplesRemaining));
     secondaryHighFeedbackGain = 0.9992f;
-    secondaryHighFeedbackGainTarget = 0.9955f - 0.0010f * brightness + 0.0010f * woundAmount;
+    secondaryHighFeedbackGainTarget = 0.9955f - 0.0010f * brightness + 0.0010f * woundAmount - 0.0014f * stringAgeAmount;
     secondaryHighFeedbackGainStep = (secondaryHighFeedbackGainTarget - secondaryHighFeedbackGain)
                                   / juce::jmax (1.0f, static_cast<float> (highFeedbackGainSamplesRemaining));
 
@@ -370,15 +374,16 @@ void StringVoice::start (int midiNoteNumber,
                             ? 1.0f
                             : std::sin (twoPi * 0.5f * harmonicFloat * pickupWidth)
                                 / (twoPi * 0.5f * harmonicFloat * pickupWidth);
-        const auto decayBaseSeconds = 6.4f + (8.2f - 6.4f) * woundAmount;
-        const auto decayCurvature = 0.0090f + (0.0065f - 0.0090f) * woundAmount;
+        const auto decayBaseSeconds = (6.4f + (8.2f - 6.4f) * woundAmount) * (1.0f - 0.16f * stringAgeAmount);
+        const auto decayCurvature = (0.0090f + (0.0065f - 0.0090f) * woundAmount) * (1.0f + 1.55f * stringAgeAmount);
         const auto decaySeconds = decayBaseSeconds / (1.0f + decayCurvature * harmonicFloat * harmonicFloat);
         const auto decay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * decaySeconds));
         const auto tiltStart = 1.00f + (0.92f - 1.00f) * woundAmount;
         const auto tiltEnd = 0.48f + (0.34f - 0.48f) * woundAmount;
         const auto tiltExponent = juce::jmap (strikeAmount, tiltStart, tiltEnd);
         const auto contactFilter = std::exp (-contactWidth * harmonicFloat);
-        const auto partialTilt = contactFilter / std::pow (harmonicFloat, tiltExponent);
+        const auto agePartialDamping = std::exp (-0.026f * stringAgeAmount * juce::jmax (0.0f, harmonicFloat - 1.0f));
+        const auto partialTilt = contactFilter * agePartialDamping / std::pow (harmonicFloat, tiltExponent);
         const auto velocityScale = juce::jlimit (0.12f, 4.0f, stiffFrequency / 470.0f);
         const auto attackEmphasis = 1.0f
                                   + strikeAmount * juce::jlimit (0.0f, 3.0f, (harmonicFloat - 1.0f) / 8.0f)
@@ -394,14 +399,14 @@ void StringVoice::start (int midiNoteNumber,
         if (modeIndex < modalCount && harmonic >= 4)
         {
             const auto sideFrequency = stiffFrequency * (1.0035f + (0.00025f + 0.00045f * woundAmount) * harmonicFloat);
-            const auto sideDecay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * decaySeconds * 0.95f));
+            const auto sideDecay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * decaySeconds * (0.95f - 0.15f * stringAgeAmount)));
             const auto plainSideRegime = juce::jmap (strikeAmount, 0.35f, 1.55f) + hardStrike * 0.55f;
             const auto woundSideRegime = juce::jmap (strikeAmount, 0.45f, 2.20f) + hardStrike * 0.95f;
             const auto sideRegime = plainSideRegime + (woundSideRegime - plainSideRegime) * woundAmount;
             const auto sideAmount = 0.045f + ((0.12f + 0.014f * harmonicFloat) - 0.045f) * woundAmount;
             configureMode (modeIndex++,
                            sideFrequency,
-                           amplitude * sideRegime * sideAmount * (0.45f + 0.55f * touchMask),
+                           amplitude * sideRegime * sideAmount * (0.45f + 0.55f * touchMask) * agePartialDamping,
                            sideDecay,
                            phase + 1.7f,
                            juce::jlimit (0.28f, 0.76f, tailDampingScale + 0.14f));
@@ -411,7 +416,7 @@ void StringVoice::start (int midiNoteNumber,
         {
             const auto windingFrequency = static_cast<float> (frequency)
                                         * (harmonicFloat + 0.34f + 0.011f * harmonicFloat * harmonicFloat);
-            const auto windingDecaySeconds = 0.72f + 0.055f * harmonicFloat;
+            const auto windingDecaySeconds = (0.72f + 0.055f * harmonicFloat) * (1.0f - 0.22f * stringAgeAmount);
             const auto windingDecay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * windingDecaySeconds));
             const auto windingAperture = 1.0f / std::sqrt (harmonicFloat);
 
@@ -422,7 +427,8 @@ void StringVoice::start (int midiNoteNumber,
                                * (0.12f + 0.008f * harmonicFloat)
                                * windingAperture
                                * woundAmount
-                               * (0.35f + 0.65f * touchMask),
+                               * (0.35f + 0.65f * touchMask)
+                               * (0.85f - 0.30f * stringAgeAmount),
                            windingDecay,
                            phase + 2.35f + 0.29f * harmonicFloat,
                            0.65f);
@@ -431,14 +437,15 @@ void StringVoice::start (int midiNoteNumber,
         if (strikeAmount > 0.18f && harmonic >= 4 && harmonic <= 26 && modeIndex < modalCount)
         {
             const auto chirpFrequency = stiffFrequency * (1.030f + 0.0025f * harmonicFloat + 0.010f * hardStrike);
-            const auto chirpSeconds = juce::jmap (strikeAmount, 0.075f, 0.032f)
-                                    + 0.0015f * harmonicFloat;
+            const auto chirpSeconds = (juce::jmap (strikeAmount, 0.075f, 0.032f)
+                                    + 0.0015f * harmonicFloat) * (1.0f - 0.28f * stringAgeAmount);
             const auto chirpDecay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * chirpSeconds));
 
             configureMode (modeIndex++,
                            chirpFrequency,
                            std::abs (amplitude) * attackModeGain * 0.48f * std::pow (harmonicFloat, 0.72f)
-                               * (0.35f + 0.65f * touchMask),
+                               * (0.35f + 0.65f * touchMask)
+                               * (0.90f - 0.35f * stringAgeAmount),
                            chirpDecay,
                            phase + 0.63f * harmonicFloat);
         }

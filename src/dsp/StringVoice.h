@@ -23,7 +23,8 @@ public:
                 const FretboardAssignment& assignment,
                 float pickStiffness,
                 float pickTexture,
-                float harmonicTouch);
+                float harmonicTouch,
+                float stringAge);
     void release (int midiNoteNumber, int midiChannel);
 
     [[nodiscard]] bool isActive() const noexcept { return active; }

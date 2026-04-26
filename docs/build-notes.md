@@ -99,7 +99,7 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
 
 The offline renderer uses the same `AudioEngine` as the VST3 processor, so it is useful for rapid DSP iteration. It does not test DAW/plugin-host behavior, plugin scanning, or UI behavior.
 
-Optional arguments include `--gain`, `--sustain`, `--pick-stiffness`, `--pick-texture`, `--palm-mute`, and `--harmonic-touch`. `--gain` can align the offline WAV level with a DAW export if the DAW project has track/output gain applied.
+Optional arguments include `--gain`, `--sustain`, `--pick-stiffness`, `--pick-texture`, `--palm-mute`, `--harmonic-touch`, and `--string-age`. `--gain` can align the offline WAV level with a DAW export if the DAW project has track/output gain applied.
 
 The script copies:
 

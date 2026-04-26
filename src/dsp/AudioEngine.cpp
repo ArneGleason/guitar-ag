@@ -18,6 +18,8 @@ void AudioEngine::prepare (double sampleRate, int, int)
     palmMute.setCurrentAndTargetValue (0.0f);
     harmonicTouch.reset (sampleRate, 0.020);
     harmonicTouch.setCurrentAndTargetValue (0.0f);
+    stringAge.reset (sampleRate, 0.050);
+    stringAge.setCurrentAndTargetValue (0.0f);
     tone.prepare (sampleRate);
     reset();
 }
@@ -34,6 +36,7 @@ void AudioEngine::reset()
     pickTexture.setCurrentAndTargetValue (pickTexture.getTargetValue());
     palmMute.setCurrentAndTargetValue (palmMute.getTargetValue());
     harmonicTouch.setCurrentAndTargetValue (harmonicTouch.getTargetValue());
+    stringAge.setCurrentAndTargetValue (stringAge.getTargetValue());
     nextVoice = 0;
 }
 
@@ -60,6 +63,11 @@ void AudioEngine::setPalmMute (float newPalmMute) noexcept
 void AudioEngine::setHarmonicTouch (float newHarmonicTouch) noexcept
 {
     harmonicTouch.setTargetValue (juce::jlimit (0.0f, 1.0f, newHarmonicTouch));
+}
+
+void AudioEngine::setStringAge (float newStringAge) noexcept
+{
+    stringAge.setTargetValue (juce::jlimit (0.0f, 1.0f, newStringAge));
 }
 
 void AudioEngine::render (juce::AudioBuffer<float>& audio, const juce::MidiBuffer& midi)
@@ -90,6 +98,7 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         pickStiffness.getNextValue();
         pickTexture.getNextValue();
         harmonicTouch.getNextValue();
+        stringAge.getNextValue();
 
         for (auto& voice : voices)
             mixedSample += voice.renderSample (sustainAmount, palmMuteAmount);
@@ -119,6 +128,7 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
     const auto notePickStiffness = pickStiffness.getTargetValue();
     const auto notePickTexture = pickTexture.getTargetValue();
     const auto noteHarmonicTouch = harmonicTouch.getTargetValue();
+    const auto noteStringAge = stringAge.getTargetValue();
 
     for (auto& voice : voices)
     {
@@ -130,7 +140,8 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                          assignment,
                          notePickStiffness,
                          notePickTexture,
-                         noteHarmonicTouch);
+                         noteHarmonicTouch,
+                         noteStringAge);
             return;
         }
     }
@@ -143,7 +154,8 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                        assignment,
                        notePickStiffness,
                        notePickTexture,
-                       noteHarmonicTouch);
+                       noteHarmonicTouch,
+                       noteStringAge);
     nextVoice = (nextVoice + 1) % maxVoices;
 }
 
