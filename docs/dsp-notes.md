@@ -766,6 +766,29 @@ Expected sound:
 
 The playing response should feel more usable across authored MIDI velocities, with fewer notes falling into extreme soft or extreme hard regions. The output should be less warm/papery and more like a direct electric signal, without simply adding a broad treble boost.
 
+## 2026-04-26 — Longer Held-Note Tail Sustain
+
+Listening feedback on KS023:
+
+- The clearer DI pass removed the papery speaker-cone coloration.
+- Long held notes still die too quickly; after about five seconds they are nearly gone.
+- The desired behavior is not compressor gain riding, but a more physical sustain where the note decays at first and then the remaining vibration hangs on longer.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-024 TailSustain`.
+- Each modal component now has a tail damping scale.
+- Normal modal decay is used at the start of the note.
+- Starting around 0.55 seconds, the modal damping gradually relaxes over about 1.6 seconds.
+- Low/core modes receive the strongest late-tail damping reduction.
+- Side modes and wound-string modes receive a gentler version of the same tail sustain.
+- Attack chirp modes use the default short decay and are not extended.
+- The voice energy cutoff is lowered so quiet sustained tails are not reset too early.
+
+Expected sound:
+
+Held notes should still decay naturally from the attack, but the later tail should stay audible for longer. This is meant to feel like lower physical damping in the vibrating string, not like a compressor pulling up the tail.
+
 ## Suggested MVP Signal Flow
 
 ```text

@@ -21,6 +21,7 @@ void StringVoice::reset()
     modalCosStep.fill (1.0f);
     modalAmplitude.fill (0.0f);
     modalDecay.fill (1.0f);
+    modalTailDampingScale.fill (1.0f);
 
     delayLength = 1;
     writeIndex = 0;
@@ -95,6 +96,7 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity, co
     modalCosStep.fill (1.0f);
     modalAmplitude.fill (0.0f);
     modalDecay.fill (1.0f);
+    modalTailDampingScale.fill (1.0f);
     modalReleaseDecay = 1.0f;
     resonanceState1.fill (0.0f);
     resonanceState2.fill (0.0f);
@@ -237,8 +239,9 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity, co
                                   + hardStrike * juce::jlimit (0.0f, 4.0f, (harmonicFloat - 4.0f) / 8.0f);
         const auto amplitude = modalGain * pluckShape * pickupShape * aperture * partialTilt * velocityScale * attackEmphasis;
         const auto phase = (harmonic % 2 == 0 ? 0.18f : -0.11f) * harmonicFloat;
+        const auto tailDampingScale = juce::jlimit (0.14f, 0.62f, 0.11f + 0.012f * harmonicFloat);
 
-        configureMode (modeIndex++, stiffFrequency, amplitude, decay, phase);
+        configureMode (modeIndex++, stiffFrequency, amplitude, decay, phase, tailDampingScale);
 
         if (modeIndex < modalCount && harmonic >= 4)
         {
@@ -252,7 +255,8 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity, co
                            sideFrequency,
                            amplitude * sideRegime * sideAmount,
                            sideDecay,
-                           phase + 1.7f);
+                           phase + 1.7f,
+                           juce::jlimit (0.28f, 0.76f, tailDampingScale + 0.14f));
         }
 
         if (woundAmount > 0.0f && harmonic >= 2 && harmonic <= 18 && modeIndex < modalCount)
@@ -271,7 +275,8 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity, co
                                * windingAperture
                                * woundAmount,
                            windingDecay,
-                           phase + 2.35f + 0.29f * harmonicFloat);
+                           phase + 2.35f + 0.29f * harmonicFloat,
+                           0.65f);
         }
 
         if (strikeAmount > 0.18f && harmonic >= 4 && harmonic <= 26 && modeIndex < modalCount)
@@ -311,6 +316,8 @@ float StringVoice::renderSample() noexcept
         modalReleaseDecay = juce::jmin (modalReleaseDecay, 0.99935f);
 
     auto modalOutput = 0.0f;
+    const auto heldSeconds = static_cast<float> (samplesSinceStart) / static_cast<float> (sampleRate);
+    const auto tailBlend = releasing ? 0.0f : juce::jlimit (0.0f, 1.0f, (heldSeconds - 0.55f) / 1.60f);
 
     for (auto mode = 0; mode < modalCount; ++mode)
     {
@@ -323,7 +330,12 @@ float StringVoice::renderSample() noexcept
 
         modalSine[static_cast<size_t> (mode)] = nextSine;
         modalCosine[static_cast<size_t> (mode)] = nextCosine;
-        modalAmplitude[static_cast<size_t> (mode)] *= modalDecay[static_cast<size_t> (mode)] * modalReleaseDecay;
+
+        const auto modeIndex = static_cast<size_t> (mode);
+        const auto normalDecay = modalDecay[modeIndex];
+        const auto relaxedDecay = 1.0f - (1.0f - normalDecay) * modalTailDampingScale[modeIndex];
+        const auto effectiveDecay = normalDecay + (relaxedDecay - normalDecay) * tailBlend;
+        modalAmplitude[modeIndex] *= effectiveDecay * modalReleaseDecay;
     }
 
     if (std::abs (pickTransient) > 0.000001f)
@@ -338,7 +350,7 @@ float StringVoice::renderSample() noexcept
     ++samplesSinceStart;
     energy = 0.9994f * energy + 0.0006f * std::abs (modalOutput);
 
-    if (energy < 0.00004f)
+    if (energy < 0.000008f)
     {
         reset();
         return 0.0f;
@@ -490,7 +502,7 @@ float StringVoice::softClip (float value) const noexcept
     return std::tanh (value);
 }
 
-void StringVoice::configureMode (int index, float frequency, float amplitude, float decay, float phase) noexcept
+void StringVoice::configureMode (int index, float frequency, float amplitude, float decay, float phase, float tailDampingScale) noexcept
 {
     const auto clampedIndex = static_cast<size_t> (juce::jlimit (0, modalCount - 1, index));
     const auto clampedFrequency = juce::jlimit (20.0f, static_cast<float> (sampleRate * 0.45), frequency);
@@ -502,6 +514,7 @@ void StringVoice::configureMode (int index, float frequency, float amplitude, fl
     modalCosStep[clampedIndex] = std::cos (step);
     modalAmplitude[clampedIndex] = amplitude;
     modalDecay[clampedIndex] = juce::jlimit (0.90f, 0.999999f, decay);
+    modalTailDampingScale[clampedIndex] = juce::jlimit (0.05f, 1.0f, tailDampingScale);
 }
 
 } // namespace guitar_ag

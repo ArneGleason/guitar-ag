@@ -43,7 +43,7 @@ private:
     float processHarmonicDamping (float input, float& state, float highGain, float splitCoefficient) noexcept;
     float processMovingResonance (float input) noexcept;
     float softClip (float value) const noexcept;
-    void configureMode (int index, float frequency, float amplitude, float decay, float phase) noexcept;
+    void configureMode (int index, float frequency, float amplitude, float decay, float phase, float tailDampingScale = 1.0f) noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
     std::array<float, maxDelaySamples> secondaryDelayLine {};
@@ -53,6 +53,7 @@ private:
     std::array<float, modalCount> modalCosStep {};
     std::array<float, modalCount> modalAmplitude {};
     std::array<float, modalCount> modalDecay {};
+    std::array<float, modalCount> modalTailDampingScale {};
 
     double sampleRate = 44100.0;
     int delayLength = 1;

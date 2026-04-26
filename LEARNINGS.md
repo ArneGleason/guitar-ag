@@ -312,3 +312,11 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The likely short-term suspects are the post-mix body/tone stage and pickup aperture smoothing, not the fretboard mapper.
 - The first corrective pass should reduce low-passed body coloration, narrow the modeled pickup aperture, and preserve more dry/presence detail before inventing another string layer.
 - The requested velocity curve can be represented by three main points: 0.10 input -> 0.30 internal, 0.90 input -> 0.80 internal, 1.00 input -> 1.00 internal.
+
+## 2026-04-26 — KS-024 tail sustain
+
+- KS023 passed the listening check for removing the warm/papery output coloration.
+- The next issue is held-note decay: notes become too quiet around five seconds even though the attack and early tone are good.
+- A compressor could mask this, but the model should first try physically plausible lower late-stage damping.
+- KS024 keeps normal early modal decay, then relaxes damping after the first half-second so the remaining core modes hang on longer.
+- An 8-second open-string render now shows 6-second RMS around 12-16% of the 0.5-second RMS, rather than collapsing as quickly.
