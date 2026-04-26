@@ -841,6 +841,22 @@ Expected sound:
 
 The lowest stiffness should feel more flexible than KS-026. Texture should be much easier to hear at the extremes, with high values moving toward a rougher pick/coin-like contact and low values sounding cleaner.
 
+## 2026-04-26 — Texture Audibility Fix
+
+The pick texture path has been made intentionally obvious for diagnosis.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-028 TextureDebug`.
+- New note starts use the target pick-stiffness and pick-texture values immediately rather than the smoothed current values.
+- Pick texture now renders a separate short contact component after the attack ramp so it is not masked by the modal onset fade.
+- The texture contact includes high-passed scratch plus a short metallic ring component, aiming to make 100% texture unmistakably rough/coin-like.
+- The offline renderer accepts `--sustain`, `--pick-stiffness`, and `--pick-texture` for A/B renders.
+
+Expected sound:
+
+At 0% texture, the attack should be clean/slippery. At 100% texture, the pick contact should be obviously scratchier and more metallic. This pass intentionally prioritizes audibility over final musical balance.
+
 ## Suggested MVP Signal Flow
 
 ```text

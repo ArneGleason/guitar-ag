@@ -19,7 +19,8 @@ struct MidiEvent
 void printUsage()
 {
     std::cout << "Usage: GuitarAGOfflineRender --midi <input.mid> --output <output.wav> "
-                 "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0]\n";
+                 "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
+                 "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5]\n";
 }
 
 bool readMidiEvents (const juce::File& midiFile, double sampleRate, std::vector<MidiEvent>& events, int& lastEventSample)
@@ -106,6 +107,9 @@ int main (int argc, char* argv[])
     auto blockSize = 512;
     auto tailSeconds = 2.0;
     auto gain = 1.0f;
+    auto sustain = 1.0f;
+    auto pickStiffness = 0.5f;
+    auto pickTexture = 0.5f;
 
     for (auto i = 1; i < argc; ++i)
     {
@@ -136,6 +140,18 @@ int main (int argc, char* argv[])
         {
             gain = juce::String (argv[++i]).getFloatValue();
         }
+        else if (argument == "--sustain" && hasValue)
+        {
+            sustain = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--pick-stiffness" && hasValue)
+        {
+            pickStiffness = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--pick-texture" && hasValue)
+        {
+            pickTexture = juce::String (argv[++i]).getFloatValue();
+        }
         else
         {
             printUsage();
@@ -164,6 +180,10 @@ int main (int argc, char* argv[])
 
     guitar_ag::AudioEngine engine;
     engine.prepare (sampleRate, blockSize, output.getNumChannels());
+    engine.setTailSustain (sustain);
+    engine.setPickStiffness (pickStiffness);
+    engine.setPickTexture (pickTexture);
+    engine.reset();
 
     auto eventIndex = static_cast<size_t> (0);
 

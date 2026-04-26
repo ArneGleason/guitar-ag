@@ -98,6 +98,8 @@ void AudioEngine::handleMidiMessage (const juce::MidiMessage& message)
 void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
 {
     const auto assignment = fretboard.assignNote (noteNumber, channel);
+    const auto notePickStiffness = pickStiffness.getTargetValue();
+    const auto notePickTexture = pickTexture.getTargetValue();
 
     for (auto& voice : voices)
     {
@@ -107,8 +109,8 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                          channel,
                          velocity,
                          assignment,
-                         pickStiffness.getCurrentValue(),
-                         pickTexture.getCurrentValue());
+                         notePickStiffness,
+                         notePickTexture);
             return;
         }
     }
@@ -119,8 +121,8 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                        channel,
                        velocity,
                        assignment,
-                       pickStiffness.getCurrentValue(),
-                       pickTexture.getCurrentValue());
+                       notePickStiffness,
+                       notePickTexture);
     nextVoice = (nextVoice + 1) % maxVoices;
 }
 

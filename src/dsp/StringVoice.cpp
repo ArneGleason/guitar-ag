@@ -45,6 +45,10 @@ void StringVoice::reset()
     pickContact = 0.0f;
     pickContactDecay = 0.0f;
     previousContactNoise = 0.0f;
+    pickContactRing = 0.0f;
+    pickContactRingDecay = 0.0f;
+    pickContactPhase = 0.0f;
+    pickContactPhaseStep = 0.0f;
     pickContactSamplesRemaining = 0;
     attackRampSeconds = 0.0025f;
     modalReleaseDecay = 1.0f;
@@ -105,6 +109,10 @@ void StringVoice::start (int midiNoteNumber,
     pickContact = 0.0f;
     pickContactDecay = 0.0f;
     previousContactNoise = 0.0f;
+    pickContactRing = 0.0f;
+    pickContactRingDecay = 0.0f;
+    pickContactPhase = 0.0f;
+    pickContactPhaseStep = 0.0f;
     pickContactSamplesRemaining = 0;
     attackRampSeconds = juce::jmap (stiffnessAmount, 0.0090f, 0.0013f);
     modalSine.fill (0.0f);
@@ -201,9 +209,18 @@ void StringVoice::start (int midiNoteNumber,
     energy = velocityGain;
     pickTransient = (0.004f + 0.014f * brightness) * pickEdgeScale * (nextNoiseSample() >= 0.0f ? 1.0f : -1.0f);
     pickTransientDecay = 0.9990f - 0.0015f * brightness - 0.00025f * stiffnessBipolar;
-    pickContact = (0.0015f + 0.0180f * brightness) * velocityGain * textureScale;
-    pickContactDecay = 0.9989f - 0.00020f * brightness + 0.00045f * textureAmount;
-    pickContactSamplesRemaining = textureAmount <= 0.0f ? 0 : static_cast<int> (sampleRate * (0.002f + 0.024f * textureAmount + 0.006f * brightness));
+    const auto audibleTexture = std::pow (textureAmount, 1.85f);
+    const auto textureEmphasis = 0.65f + 2.10f * textureAmount;
+    pickContact = (0.006f + 0.075f * brightness) * velocityGain * textureScale * audibleTexture * textureEmphasis;
+    pickContactDecay = 0.9987f - 0.00020f * brightness + 0.00070f * textureAmount;
+    pickContactRing = (0.002f + 0.045f * brightness) * velocityGain * audibleTexture * textureEmphasis;
+    pickContactRingDecay = 0.9986f + 0.00085f * textureAmount;
+    pickContactPhase = nextNoiseSample() * twoPi;
+    pickContactPhaseStep = twoPi * juce::jlimit (1200.0f,
+                                                  static_cast<float> (sampleRate * 0.42),
+                                                  static_cast<float> (frequency) * (11.0f + 10.0f * textureAmount + 3.0f * woundAmount))
+                         / static_cast<float> (sampleRate);
+    pickContactSamplesRemaining = textureAmount <= 0.0f ? 0 : static_cast<int> (sampleRate * (0.006f + 0.075f * textureAmount + 0.012f * brightness));
     configureResonator (0, frequency * 5.0f, 0.9895f);
     configureResonator (1, frequency * 7.0f, 0.9880f);
     configureResonator (2, frequency * 11.0f, 0.9860f);
@@ -365,19 +382,28 @@ float StringVoice::renderSample (float tailSustain) noexcept
         pickTransient *= pickTransientDecay;
     }
 
+    auto contactOutput = 0.0f;
+
     if (pickContactSamplesRemaining > 0)
     {
         const auto rawContact = nextNoiseSample();
-        const auto contactScratch = rawContact - previousContactNoise * 0.72f;
+        const auto contactScratch = rawContact - previousContactNoise * 0.84f;
         previousContactNoise = rawContact;
+        pickContactPhase += pickContactPhaseStep * (1.0f + 0.035f * rawContact);
 
-        modalOutput += contactScratch * pickContact * 0.42f;
+        if (pickContactPhase > 6.28318530717958647692f)
+            pickContactPhase -= 6.28318530717958647692f;
+
+        const auto ring = std::sin (pickContactPhase) + 0.32f * std::sin (pickContactPhase * 2.37f);
+        contactOutput = softClip (contactScratch * pickContact + ring * pickContactRing);
         pickContact *= pickContactDecay;
+        pickContactRing *= pickContactRingDecay;
         --pickContactSamplesRemaining;
     }
 
     const auto attackRampSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * attackRampSeconds);
     modalOutput *= juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / attackRampSamples);
+    modalOutput += contactOutput;
 
     ++samplesSinceStart;
     energy = 0.9994f * energy + 0.0006f * std::abs (modalOutput);

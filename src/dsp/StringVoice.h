@@ -88,6 +88,10 @@ private:
     float pickContact = 0.0f;
     float pickContactDecay = 0.0f;
     float previousContactNoise = 0.0f;
+    float pickContactRing = 0.0f;
+    float pickContactRingDecay = 0.0f;
+    float pickContactPhase = 0.0f;
+    float pickContactPhaseStep = 0.0f;
     int pickContactSamplesRemaining = 0;
     float attackRampSeconds = 0.0025f;
     float modalReleaseDecay = 1.0f;

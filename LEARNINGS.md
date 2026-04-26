@@ -340,3 +340,7 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 ## 2026-04-26 — KS-027 pick texture needs an audible contact path
 
 The `Pick Texture` control can feel inactive if it only changes the initial delay-line noise distribution. A short rendered contact/scratch component gives the ear a clearer friction cue, and setting the low end to true zero better matches the idea of a frictionless plectrum. The 50% default remains the anchor point for continuity while the extremes are widened for meaningful auditioning.
+
+## 2026-04-26 — Note-start controls should use target values
+
+Pick stiffness and pick texture are note-start excitation controls, so new voices should use the current parameter target rather than the smoothed current value. Smoothing is still useful for continuous controls, but for excitation parameters it can make the UI feel unresponsive or stale if a note starts before the smoother reaches the target.
