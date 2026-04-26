@@ -1,5 +1,7 @@
 #pragma once
 
+#include "FretboardMapper.h"
+
 #include <juce_audio_basics/juce_audio_basics.h>
 
 #include <array>
@@ -15,10 +17,12 @@ public:
     void prepare (double newSampleRate);
     void reset();
 
-    void start (int midiNoteNumber, int midiChannel, float velocity);
+    void start (int midiNoteNumber, int midiChannel, float velocity, const FretboardAssignment& assignment);
     void release (int midiNoteNumber, int midiChannel);
 
     [[nodiscard]] bool isActive() const noexcept { return active; }
+    [[nodiscard]] int getNoteNumber() const noexcept { return noteNumber; }
+    [[nodiscard]] int getChannel() const noexcept { return channel; }
 
     float renderSample() noexcept;
 
@@ -34,7 +38,6 @@ private:
     float readDelayLineAtOffset (int offset) const noexcept;
     float readSecondaryDelayLineAtOffset (int offset) const noexcept;
     void configureResonator (int index, float frequency, float radius) noexcept;
-    bool isWoundOpenString (int midiNoteNumber) const noexcept;
     void updateHighFrequencyFeedback() noexcept;
     float processHarmonicDamping (float input, float& state, float highGain, float splitCoefficient) noexcept;
     float processMovingResonance (float input) noexcept;
@@ -60,6 +63,8 @@ private:
 
     int noteNumber = -1;
     int channel = 0;
+    int stringIndex = 0;
+    int fret = 0;
 
     float damping = 0.9965f;
     float baseDamping = 0.9965f;

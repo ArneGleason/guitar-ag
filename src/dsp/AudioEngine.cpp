@@ -17,6 +17,7 @@ void AudioEngine::reset()
     for (auto& voice : voices)
         voice.reset();
 
+    fretboard.reset();
     tone.reset();
     nextVoice = 0;
 }
@@ -69,21 +70,27 @@ void AudioEngine::handleMidiMessage (const juce::MidiMessage& message)
 
 void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
 {
+    const auto assignment = fretboard.assignNote (noteNumber, channel);
+
     for (auto& voice : voices)
     {
         if (! voice.isActive())
         {
-            voice.start (noteNumber, channel, velocity);
+            voice.start (noteNumber, channel, velocity, assignment);
             return;
         }
     }
 
-    voices[static_cast<size_t> (nextVoice)].start (noteNumber, channel, velocity);
+    auto& stolenVoice = voices[static_cast<size_t> (nextVoice)];
+    fretboard.releaseNote (stolenVoice.getNoteNumber(), stolenVoice.getChannel());
+    stolenVoice.start (noteNumber, channel, velocity, assignment);
     nextVoice = (nextVoice + 1) % maxVoices;
 }
 
 void AudioEngine::noteOff (int noteNumber, int channel)
 {
+    fretboard.releaseNote (noteNumber, channel);
+
     for (auto& voice : voices)
         voice.release (noteNumber, channel);
 }

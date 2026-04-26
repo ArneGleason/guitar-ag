@@ -68,6 +68,13 @@ May eventually handle:
 
 The first MVP milestones can bypass this layer, but the architecture should leave room for it.
 
+Current first implementation:
+
+- `FretboardMapper` is a small DSP-side performance-interpreter seed owned by `AudioEngine`.
+- It maps MIDI notes to standard-tuned string/fret assignments before voice start.
+- It does not yet choose pick direction, legato, slides, bends, or MPE expression routing.
+- The mapper is intentionally heuristic so it can later be replaced by a phrase-aware interpreter without changing the string voice's sound-generation role.
+
 ### Tone / Pickup Model
 
 Responsible for electric guitar-like shaping after the string model.

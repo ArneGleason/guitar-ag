@@ -285,3 +285,10 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - `StringVoice KS-019 HardPickRegimes` shifts the velocity curve upward, adds a high-velocity hard-strike region, raises output, and boosts high modal/side-cluster excitation.
 - Velocity-ladder analysis confirms a much stronger regime spread: upper-to-low harmonic balance rises roughly 11x to 13x from velocity 25 to 127.
 - KS019 may overshoot on wound-string air-band content, but it should answer the immediate listening question: can the model produce genuinely aggressive picking at the top of the velocity range?
+
+## 2026-04-25 — First fretboard mapping pass
+
+- Guitar string/fret assignment is commonly treated as an optimization problem over valid fretboard locations, with costs for position and movement. Full-phrase systems often use dynamic programming; this project now starts with a smaller real-time heuristic.
+- The mapper should live above `StringVoice`: the voice should synthesize the assigned string, not infer playable guitar position from pitch alone.
+- User listening feedback exposed a useful test case: notes fretted on the low E, A, or D strings should keep wound-string behavior even when their MIDI note number is not one of the open-string pitches.
+- The first implementation favors first/second position, avoids occupied strings for chords where possible, and lets the remembered hand position drop slowly after high notes.

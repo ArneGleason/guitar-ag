@@ -173,3 +173,17 @@ Accepted
 
 Consequences:
 The active experiment line moves to `StringVoice KS-017 ModalCluster`. Future analysis work should add metrics that capture the qualities that made this candidate convincing by ear, such as discrete ringing partials, metallic attack identity, inharmonic side modes, and string-like decay behavior.
+
+## 2026-04-25 — Add a heuristic fretboard mapper before full performance interpretation
+
+Decision:
+Add a small `FretboardMapper` between MIDI note handling and `StringVoice` start, using standard tuning and a moving position heuristic.
+
+Reason:
+The current sound model is good enough to expose a guitar-performance problem: non-open notes need the string class of the string a guitarist would plausibly use. Research and guitar practice both frame string/fret choice as a cost problem over fretboard positions; a small heuristic is enough for this milestone without committing to a full dynamic-programming phrase interpreter yet.
+
+Status:
+Accepted
+
+Consequences:
+`StringVoice` no longer decides wound/plain behavior from exact open-string MIDI pitches. It receives a string/fret assignment from `AudioEngine`, leaving room for a future phrase-aware performance interpreter, user style controls, MPE-aware routing, and alternate tunings.

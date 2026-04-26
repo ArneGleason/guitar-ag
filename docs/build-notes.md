@@ -40,10 +40,10 @@ The first JUCE build emits a deprecated `std::wstring_convert` warning from JUCE
 - Offline render target: `GuitarAGOfflineRender`.
 - Source layout:
   - `src/plugin/` contains the JUCE processor and editor.
-  - `src/dsp/` contains the placeholder audio engine and test-tone voice.
+  - `src/dsp/` contains the audio engine, string voice, tone stage, and first fretboard mapper.
   - `tools/` contains command-line development tools.
-- Current audio behavior: MIDI note-on triggers a basic plucked string model; note-off damps/releases it.
-- Current non-goals: no string model, no MPE routing, no full UI, no amp/cab simulation.
+- Current audio behavior: MIDI note-on is assigned to a plausible standard-tuned string/fret location, then triggers the current plucked electric-string model; note-off damps/releases it.
+- Current non-goals: no MPE routing yet, no full UI, no amp/cab simulation.
 
 ## Prerequisites
 
@@ -160,6 +160,7 @@ Manual checks for this milestone:
 - No sound is produced when no MIDI note is held.
 - MIDI note-on produces a basic plucked-string tone.
 - MIDI note-off releases the tone.
+- The editor identity line should show the current model label, for example `StringVoice KS-020 FretboardMap`.
 
 ## Bitwig Notes
 

@@ -671,6 +671,31 @@ Expected sound:
 
 KS019 should make the top velocities much more forceful than KS018. If it is too bright or clangy, the next pass should keep the shifted velocity curve but reduce the air-band side modes rather than returning to the compressed soft-pick behavior.
 
+## 2026-04-25 — First Fretboard Mapper
+
+The sound model from KS019 is preserved, but wound/plain selection now comes from a simple guitar fretboard assignment rather than exact open-string MIDI notes.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-020 FretboardMap`.
+- Standard tuning is assumed: E2, A2, D3, G3, B3, E4.
+- Strings 0-2 are treated as wound; strings 3-5 are treated as plain.
+- `AudioEngine` asks `FretboardMapper` for a string/fret assignment at note-on.
+- `StringVoice` receives the assignment and uses the assigned string class for modal stiffness, decay, side clusters, and wound-string modes.
+- Active strings are marked occupied so chord notes prefer different strings where possible.
+- The mapper starts around first/second position and has a simple position memory. It follows high notes upward faster than it returns downward, so a phrase that jumps up the neck does not immediately snap back to open position.
+
+Initial heuristic:
+
+- Valid candidates are all string/fret locations between fret 0 and 24 for the MIDI pitch.
+- Candidate score favors the current hand position, open/first-position notes, and slightly lower-pitched strings as tie breakers.
+- Occupied strings receive a large penalty.
+- Out-of-range notes remain playable by clamping the assignment to low E open or high E fret 24, while pitch still follows the incoming MIDI note.
+
+Expected sound:
+
+Non-open notes that would naturally be played on the low E, A, or D strings can now inherit wound-string behavior. This is not yet a full guitarist model, but it should address the immediate issue where only MIDI notes 40, 45, and 50 sounded like wound strings.
+
 ## Suggested MVP Signal Flow
 
 ```text

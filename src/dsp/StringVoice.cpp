@@ -30,6 +30,8 @@ void StringVoice::reset()
     samplesSinceStart = 0;
     noteNumber = -1;
     channel = 0;
+    stringIndex = 0;
+    fret = 0;
     damping = baseDamping;
     lastOutput = 0.0f;
     lastSecondaryOutput = 0.0f;
@@ -67,10 +69,12 @@ void StringVoice::reset()
     woundString = false;
 }
 
-void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
+void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity, const FretboardAssignment& assignment)
 {
     noteNumber = midiNoteNumber;
     channel = midiChannel;
+    stringIndex = assignment.stringIndex;
+    fret = assignment.fret;
     writeIndex = 0;
     samplesSinceStart = 0;
     lastOutput = 0.0f;
@@ -99,7 +103,7 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
     leftHandDampingStep = 0.0f;
     releasing = false;
     active = true;
-    woundString = isWoundOpenString (midiNoteNumber);
+    woundString = assignment.wound;
 
     const auto frequency = juce::jlimit (20.0, 8000.0, juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber));
     delayLength = juce::jlimit (2, maxDelaySamples, static_cast<int> (std::round (sampleRate / frequency)));
@@ -408,11 +412,6 @@ void StringVoice::configureResonator (int index, float frequency, float radius) 
 
     resonanceCoefficient[clampedIndex] = 2.0f * clampedRadius * std::cos (twoPi * clampedFrequency / static_cast<float> (sampleRate));
     resonanceRadiusSquared[clampedIndex] = clampedRadius * clampedRadius;
-}
-
-bool StringVoice::isWoundOpenString (int midiNoteNumber) const noexcept
-{
-    return midiNoteNumber == 40 || midiNoteNumber == 45 || midiNoteNumber == 50;
 }
 
 void StringVoice::updateHighFrequencyFeedback() noexcept
