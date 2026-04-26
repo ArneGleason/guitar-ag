@@ -159,3 +159,17 @@ Accepted
 
 Consequences:
 `StringVoice` now owns the current simplified pickup readout. `ElectricGuitarTone` remains as post-mix conditioning and can later grow into tone/circuit/output shaping without hiding note-specific pickup behavior.
+
+## 2026-04-25 — Treat listening feedback as primary for realism experiments
+
+Decision:
+When analysis metrics and careful listening disagree on perceived guitar realism, keep the listening result as the primary direction and use analysis to explain or refine it.
+
+Reason:
+The `KS016 ModalCluster` offline render scored worse in the current log-spectral analyzer, but listening feedback identified it as much more realistic than the lower-distance hybrid/pickup candidate. The analyzer is useful, but it is still matching narrow spectral properties of particular reference takes rather than a robust perceptual model of electric-guitar string identity.
+
+Status:
+Accepted
+
+Consequences:
+The active experiment line moves to `StringVoice KS-017 ModalCluster`. Future analysis work should add metrics that capture the qualities that made this candidate convincing by ear, such as discrete ringing partials, metallic attack identity, inharmonic side modes, and string-like decay behavior.

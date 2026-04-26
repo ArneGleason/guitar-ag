@@ -192,7 +192,7 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity)
 
     auto modeIndex = 0;
     const auto stiffness = woundString ? 0.000080f : 0.000045f;
-    const auto modalGain = 0.012f * velocityGain;
+    const auto modalGain = 0.052f * velocityGain;
 
     for (auto harmonic = 1; harmonic <= 32 && modeIndex < modalCount; ++harmonic)
     {
@@ -264,97 +264,14 @@ float StringVoice::renderSample() noexcept
     if (! active)
         return 0.0f;
 
-    const auto index = static_cast<size_t> (writeIndex);
-    auto current = delayLine[index];
-    auto secondaryCurrent = secondaryDelayLine[index];
-
-    if (std::abs (pickTransient) > 0.000001f)
-    {
-        current += pickTransient;
-        secondaryCurrent -= pickTransient * 0.36f;
-        pickTransient *= pickTransientDecay;
-    }
-
-    auto contactOutput = 0.0f;
-
-    if (pickContactSamplesRemaining > 0)
-    {
-        const auto contactNoise = nextNoiseSample();
-        const auto highPassedContact = contactNoise - previousContactNoise;
-        previousContactNoise = contactNoise;
-        contactOutput = highPassedContact * pickContact;
-        current += contactOutput * 0.22f;
-        secondaryCurrent -= contactOutput * 0.16f;
-        pickContact *= pickContactDecay;
-        --pickContactSamplesRemaining;
-    }
-
-    if (releasing && leftHandDamping > leftHandDampingTarget)
-        leftHandDamping = juce::jmax (leftHandDampingTarget, leftHandDamping - leftHandDampingStep);
-
-    const auto slope = current - lastOutput;
-    const auto secondarySlope = secondaryCurrent - lastSecondaryOutput;
-    const auto movingResonance = processMovingResonance (slope + secondarySlope * 0.42f + contactOutput * 0.20f);
-    const auto contactDrive = softClip ((slope + secondarySlope * 0.25f) * 2.4f) * 0.012f;
-    const auto secondaryDrive = softClip ((secondarySlope - slope * 0.18f) * 2.0f) * 0.009f;
-    const auto coupling = (secondaryCurrent - current) * (woundString ? 0.015f : 0.010f);
-    const auto feedbackInput = 0.58f * current + 0.42f * lastOutput + contactDrive + coupling;
-    const auto secondaryFeedbackInput = 0.53f * secondaryCurrent + 0.47f * lastSecondaryOutput + secondaryDrive - coupling * 0.74f;
-
-    updateHighFrequencyFeedback();
-
-    const auto dampedFeedback = processHarmonicDamping (feedbackInput, dampingTiltState, highFeedbackGain, 0.30f);
-    const auto secondaryDampedFeedback = processHarmonicDamping (secondaryFeedbackInput,
-                                                                 secondaryDampingTiltState,
-                                                                 secondaryHighFeedbackGain,
-                                                                 0.22f);
-    const auto filtered = (dampedFeedback + movingResonance * 0.075f) * damping * leftHandDamping;
-    const auto secondaryFiltered = (secondaryDampedFeedback + movingResonance * 0.045f)
-                                 * (damping + (woundString ? 0.00045f : 0.00015f))
-                                 * leftHandDamping;
-
-    delayLine[index] = filtered;
-    secondaryDelayLine[index] = secondaryFiltered;
-    lastOutput = current;
-    lastSecondaryOutput = secondaryCurrent;
-
-    ++writeIndex;
-
-    if (writeIndex >= delayLength)
-        writeIndex = 0;
-
-    ++samplesSinceStart;
-
-    energy = 0.9995f * energy + 0.0005f * (std::abs (current) + std::abs (secondaryCurrent) * 0.7f);
-
-    if (energy < 0.00008f)
-    {
-        reset();
-        return 0.0f;
-    }
-
-    const auto primaryCenter = readDelayLineAtOffset (pickupOffsetSamples);
-    const auto primaryAhead = readDelayLineAtOffset (pickupOffsetSamples + pickupApertureSamples);
-    const auto primaryBehind = readDelayLineAtOffset (pickupOffsetSamples - pickupApertureSamples);
-    const auto pickupSample = 0.58f * primaryCenter + 0.21f * (primaryAhead + primaryBehind);
-    const auto pickupVelocity = pickupSample - previousPickupSample;
-    previousPickupSample = pickupSample;
-
-    const auto secondaryCenter = readSecondaryDelayLineAtOffset (secondaryPickupOffsetSamples);
-    const auto secondaryAhead = readSecondaryDelayLineAtOffset (secondaryPickupOffsetSamples + pickupApertureSamples);
-    const auto secondaryBehind = readSecondaryDelayLineAtOffset (secondaryPickupOffsetSamples - pickupApertureSamples);
-    const auto secondaryPickupSample = 0.58f * secondaryCenter + 0.21f * (secondaryAhead + secondaryBehind);
-    const auto secondaryPickupVelocity = secondaryPickupSample - previousSecondaryPickupSample;
-    previousSecondaryPickupSample = secondaryPickupSample;
-
     if (releasing)
         modalReleaseDecay = juce::jmin (modalReleaseDecay, 0.99935f);
 
-    auto modalResidual = 0.0f;
+    auto modalOutput = 0.0f;
 
     for (auto mode = 0; mode < modalCount; ++mode)
     {
-        modalResidual += modalAmplitude[static_cast<size_t> (mode)] * modalCosine[static_cast<size_t> (mode)];
+        modalOutput += modalAmplitude[static_cast<size_t> (mode)] * modalCosine[static_cast<size_t> (mode)];
 
         const auto nextSine = modalSine[static_cast<size_t> (mode)] * modalCosStep[static_cast<size_t> (mode)]
                             + modalCosine[static_cast<size_t> (mode)] * modalSinStep[static_cast<size_t> (mode)];
@@ -366,14 +283,22 @@ float StringVoice::renderSample() noexcept
         modalAmplitude[static_cast<size_t> (mode)] *= modalDecay[static_cast<size_t> (mode)] * modalReleaseDecay;
     }
 
-    const auto pickupReadout = 0.24f * pickupSample
-                             + 1.05f * pickupVelocity
-                             + 0.18f * secondaryPickupSample
-                             + 0.72f * secondaryPickupVelocity
-                             + 0.16f * contactOutput
-                             + 0.42f * movingResonance
-                             + 0.22f * modalResidual;
-    return pickupReadout * outputGain;
+    if (std::abs (pickTransient) > 0.000001f)
+    {
+        modalOutput += pickTransient;
+        pickTransient *= pickTransientDecay;
+    }
+
+    ++samplesSinceStart;
+    energy = 0.9994f * energy + 0.0006f * std::abs (modalOutput);
+
+    if (energy < 0.00004f)
+    {
+        reset();
+        return 0.0f;
+    }
+
+    return modalOutput * outputGain;
 }
 
 float StringVoice::nextNoiseSample() noexcept

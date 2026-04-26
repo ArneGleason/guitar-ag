@@ -256,3 +256,11 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - A hybrid waveguide plus quiet modal residual preserved the KS015 behavior but was not a large enough jump on its own.
 - A simple pickup/cable resonance in the DI tone stage was the first candidate in this loop to improve the current perceptual distance versus KS015, moving mean full log-spectral distance from about 30.16 dB to about 29.34 dB.
 - The broader hypothesis is that physically modeled electric guitar may be hard because DI pickup output exposes raw string/pickup/circuit interactions that acoustic bodies, amp chains, or sample layers often mask.
+
+## 2026-04-25 — KS-017 modal cluster listening pivot
+
+- User listening feedback identified `guitar-ag-offline-ks016-modalcluster-dirty-single-note-calibration.wav` as much more realistic than the installed hybrid/pickup version.
+- Recreated the modal-cluster branch as `StringVoice KS-017 ModalCluster`; the new offline render is byte-for-byte identical to the earlier liked dirty render.
+- The current analyzer penalizes the modal cluster, but several lower-level metrics hint why it can still sound better: strong discrete partials, more metal-like high harmonic structure, and E2 h8 decay close to the DI reference.
+- The current perceptual analyzer should be treated as a diagnostic tool, not the objective. It likely over-weights exact spectral-bin matching and under-weights perceptual string identity.
+- Next analysis work should search for features that correlate with the user's realism judgment rather than forcing the model back toward lower full-spectrum distance.

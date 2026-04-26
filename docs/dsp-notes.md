@@ -593,6 +593,35 @@ Expected sound:
 
 This candidate should sound more electrically voiced than KS015, with more upper-mid pickup emphasis. It may still lack realistic open-string complexity; if so, the next bigger hypothesis should focus on coupling the pick/string contact into the loop over time rather than adding independent residual layers.
 
+## 2026-04-25 — Modal Cluster Becomes the Active Branch
+
+Listening feedback overturned the initial analyzer conclusion. The offline render:
+
+```text
+/Users/arnegleason/code/reference-audio/Guitar-AG-renders/guitar-ag-offline-ks016-modalcluster-dirty-single-note-calibration.wav
+```
+
+was judged much more like a real electric guitar string than the later hybrid/pickup installed build, even though the current perceptual analyzer scored it worse.
+
+Current behavior:
+
+- The active branch is now `StringVoice KS-017 ModalCluster`.
+- The rendered audio is byte-for-byte identical to the previous `KS016 ModalCluster` dirty offline render when using the same calibration command.
+- The voice uses explicit modal oscillators as the primary sound source rather than the previous delay-loop waveguide output.
+- Wound open strings receive sparse inharmonic side clusters.
+- `ElectricGuitarTone` has been returned to the simpler post-mix conditioning stage used during the original modal-cluster render.
+
+Why the analyzer may be wrong here:
+
+- The log-spectral distance rewards matching a particular reference take, not necessarily sounding like the same class of physical object.
+- The modal cluster has clearer discrete ringing partials and metallic string identity, but those same high-Q partials can look like "wrong bins" in a strict spectral-distance metric.
+- The current reference matching still includes large per-note/reference variation; some selected DI notes have unusual harmonic ratios, especially for A2/D3.
+- The current metrics do not directly score "metal string objectness" or listener-recognizable pick/string behavior.
+
+Follow-up:
+
+Use `KS-017 ModalCluster` as the next listening baseline. The next analysis pass should try to explain why it sounds better by adding or emphasizing metrics for modal partial stability, inharmonic side-mode spacing, attack partial onset, and decay shape rather than optimizing only full-spectrum distance.
+
 ## Suggested MVP Signal Flow
 
 ```text
