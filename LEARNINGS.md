@@ -241,3 +241,10 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - It does not replace DAW verification because it bypasses plugin hosting, scanning, UI, and any DAW gain/routing choices.
 - The first KS015 offline render had very high waveform correlation with the Bitwig render, but was about 10 dB louder, likely due to DAW project gain or export routing.
 - Rendering with `--gain 0.316` closely matches the Bitwig KS015 render level while preserving about 0.999 waveform correlation.
+
+## 2026-04-25 — Perceptual analysis upgrade
+
+- Added `scripts/analyze-perceptual-distance.py` to compare gain-normalized render notes against same-pitch DI reference candidates.
+- The report includes log-spectral distance, attack/early/late distance, spectral flatness, harmonic-band fraction, and spectral flux.
+- Initial results line up better with listening feedback: KS013 is closer on some wound-string spectral distances but too flat/noise-like, KS014 reduces that noise but still does not become realistic, and KS015 is too spectrally sparse/static.
+- This supports the hypothesis that the missing property is not just "more high frequency"; the model needs coherent electric-guitar string/pickup behavior with the right amount of broadband complexity.

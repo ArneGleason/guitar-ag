@@ -85,6 +85,26 @@ scripts/analyze-harmonic-evolution.py \
   --long-notes-only
 ```
 
+Perceptual-distance comparison:
+
+```sh
+scripts/analyze-perceptual-distance.py \
+  --render-wav /Users/arnegleason/code/reference-audio/Guitar-AG-renders/<render>.wav \
+  --render-notes /Users/arnegleason/code/reference-audio/Guitar-AG-renders/single-note-calibration-notes.csv \
+  --reference-wav /Users/arnegleason/code/reference-audio/Guitar-TECHS/extracted/P1_singlenotes/audio/directinput/directinput_allsinglenotes.wav \
+  --reference-notes /Users/arnegleason/code/reference-audio/Guitar-TECHS/analysis/P1_singlenotes_notes.csv \
+  --output /Users/arnegleason/code/reference-audio/Guitar-AG-renders/<perceptual-comparison>.csv \
+  --summary /Users/arnegleason/code/reference-audio/Guitar-AG-renders/<perceptual-summary>.md \
+  --long-notes-only
+```
+
+This report gain-normalizes each rendered note to candidate reference notes of the same pitch, selects the closest candidate by log-spectral distance, and reports:
+
+- log-spectral distance across the full note, attack, early sustain, and late sustain
+- spectral flatness ratio, useful for catching hiss/noise-like changes
+- harmonic-band fraction delta, useful for spotting overly pure/static synthesis
+- spectral-flux ratio, useful for seeing whether the render is too static or too busy
+
 ## Offline Render Harness
 
 For fast DSP iteration, the calibration MIDI can also be rendered without Bitwig:

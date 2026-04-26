@@ -32,7 +32,19 @@ Recent experiments showed that the current metrics can move in a positive direct
 
 ## Verification
 
-- [ ] The upgraded analysis can flag KS013-style hiss as noise-like even when air-band ratios improve.
-- [ ] The report compares KS versions against the same reference slices with gain normalization.
-- [ ] The output is concise enough to guide the next DSP experiment.
+- [x] The upgraded analysis can flag KS013-style hiss as noise-like even when air-band ratios improve.
+- [x] The report compares KS versions against same-pitch reference candidates with gain normalization.
+- [x] The output is concise enough to guide the next DSP experiment.
 
+## Completion Notes
+
+2026-04-25:
+
+- Added `scripts/analyze-perceptual-distance.py`.
+- The script is standard-library only, using log-spaced Goertzel bins instead of NumPy/SciPy.
+- Generated reports for KS013, KS014, and KS015 under `/Users/arnegleason/code/reference-audio/Guitar-AG-renders/`.
+- The new metrics better reflect the listening story:
+  - KS013: lower wound-string spectral distance improved, but flatness shows the added material is too noise-like.
+  - KS014: reduced the noise-like flatness but stayed in the same local region.
+  - KS015: moved farther away spectrally and became too sparse/static.
+- Next use: run offline render batches and rank candidates with this report before asking for a Bitwig audition.
