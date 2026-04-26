@@ -938,6 +938,21 @@ Expected sound:
 
 0% should match KS-032. Low values should lightly shorten sustain. Mid values should sound like playable palm muting. 100% should be close to a deadened string with a fast, percussive decay rather than a hard mute gate.
 
+## 2026-04-26 — Palm Mute Curve
+
+The palm mute response has been retuned after listening feedback.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-034 PalmMuteCurve`.
+- The mute sound model is unchanged from KS-033.
+- The visible 0% to 50% slider range maps to the previous 0% to 25% mute range.
+- The visible 50% to 100% slider range maps to the previous 25% to 100% mute range.
+
+Expected sound:
+
+The light palm-mute range should be easier to dial in. 50% should now resemble the previous 25% setting, while 100% remains the same full mute.
+
 ## Suggested MVP Signal Flow
 
 ```text

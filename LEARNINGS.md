@@ -364,3 +364,7 @@ KS-031 proved that too much choke in the final texture range can read as rolling
 ## 2026-04-26 — Palm mute needs to affect active voices
 
 Palm muting is a performance control, not only a note-start articulation. The first simple model passes the smoothed mute amount into `StringVoice::renderSample`, so automation or slider movement can damp strings that are already ringing. This is a better fit than sampling mute amount only at note start.
+
+## 2026-04-26 — Palm mute needs more light-range resolution
+
+The first palm mute extremes were good, but the useful light range was too compressed near the bottom of the slider. Mapping the visible 0-50% range onto the previous 0-25% mute amount gives more control over barely-touching palm positions while preserving the full mute at 100%.

@@ -431,7 +431,9 @@ float StringVoice::renderSample (float tailSustain, float palmMute) noexcept
 
     const auto sustainAmount = juce::jlimit (0.0f, 1.0f, tailSustain);
     const auto palmAmount = juce::jlimit (0.0f, 1.0f, palmMute);
-    const auto palmCurve = std::pow (palmAmount, 1.35f);
+    const auto mappedPalmAmount = palmAmount <= 0.5f ? palmAmount * 0.5f
+                                                     : 0.25f + (palmAmount - 0.5f) * 1.5f;
+    const auto palmCurve = std::pow (mappedPalmAmount, 1.35f);
     auto palmDecay = 1.0f;
 
     if (palmCurve > 0.0001f)
