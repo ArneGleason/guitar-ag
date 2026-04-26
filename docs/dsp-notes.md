@@ -1008,6 +1008,29 @@ Expected sound:
 
 Increasing `String Age` should darken the string at the source, especially in upper harmonics, and slightly shorten the ring. It should not sound like a drastic low-pass filter or broken strings.
 
+## 2026-04-26 — Pickup Model and Position
+
+Added the first controllable pickup model.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-038 PickupModel`.
+- Added a `Pickup Model` choice parameter:
+  - `Single Coil`
+  - `Humbucker`
+  - `Humbucker OOP`
+- Added a `Pickup Position` parameter, default 39%.
+- The pickup position maps from a bridge-side readout at about 0.055 of the speaking length to a neck-side readout at about 0.335 of the speaking length.
+- The UI marks 1/6, 1/5, 1/4, and 1/3 string-length positions as harmonic landmarks.
+- `Single Coil` uses a narrow single readout.
+- `Humbucker` uses two nearby readouts summed together with a wider aperture and gentle high-partial smoothing.
+- `Humbucker OOP` uses the difference between two nearby readouts for a thinner, notched, out-of-phase style response.
+- The offline renderer accepts `--pickup-position` and `--pickup-model`.
+
+Expected sound:
+
+Bridge-side pickup positions should be brighter and lower in fundamental weight. Neck-side positions should become warmer and fuller, with audible harmonic peaks/nulls rather than a plain EQ sweep. Humbucker should be thicker and smoother than single coil. Humbucker OOP should be thinner and more nasal.
+
 ## Suggested MVP Signal Flow
 
 ```text

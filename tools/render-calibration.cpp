@@ -21,7 +21,7 @@ void printUsage()
     std::cout << "Usage: GuitarAGOfflineRender --midi <input.mid> --output <output.wav> "
                  "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5] [--palm-mute 0.0] "
-                 "[--harmonic-touch 0.0] [--string-age 0.0]\n";
+                 "[--harmonic-touch 0.0] [--string-age 0.0] [--pickup-position 0.39] [--pickup-model 0]\n";
 }
 
 bool readMidiEvents (const juce::File& midiFile, double sampleRate, std::vector<MidiEvent>& events, int& lastEventSample)
@@ -114,6 +114,8 @@ int main (int argc, char* argv[])
     auto palmMute = 0.0f;
     auto harmonicTouch = 0.0f;
     auto stringAge = 0.0f;
+    auto pickupPosition = 0.39f;
+    auto pickupModel = 0;
 
     for (auto i = 1; i < argc; ++i)
     {
@@ -168,6 +170,14 @@ int main (int argc, char* argv[])
         {
             stringAge = juce::String (argv[++i]).getFloatValue();
         }
+        else if (argument == "--pickup-position" && hasValue)
+        {
+            pickupPosition = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--pickup-model" && hasValue)
+        {
+            pickupModel = juce::String (argv[++i]).getIntValue();
+        }
         else
         {
             printUsage();
@@ -202,6 +212,8 @@ int main (int argc, char* argv[])
     engine.setPalmMute (palmMute);
     engine.setHarmonicTouch (harmonicTouch);
     engine.setStringAge (stringAge);
+    engine.setPickupPosition (pickupPosition);
+    engine.setPickupModel (pickupModel);
     engine.reset();
 
     auto eventIndex = static_cast<size_t> (0);

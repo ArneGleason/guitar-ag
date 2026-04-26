@@ -105,10 +105,14 @@ void StringVoice::start (int midiNoteNumber,
                          float pickStiffness,
                          float pickTexture,
                          float harmonicTouch,
-                         float stringAge)
+                         float stringAge,
+                         float pickupPositionControl,
+                         int pickupModel)
 {
     const auto harmonicTouchAmount = juce::jlimit (0.0f, 1.0f, harmonicTouch);
     const auto stringAgeAmount = juce::jlimit (0.0f, 1.0f, stringAge);
+    const auto pickupAmount = juce::jlimit (0.0f, 1.0f, pickupPositionControl);
+    const auto pickupModelIndex = juce::jlimit (0, 2, pickupModel);
     const auto harmonicActive = harmonicTouchAmount > 0.25f;
     const auto stiffnessAmount = harmonicActive ? 0.0f : juce::jlimit (0.0f, 1.0f, pickStiffness);
     const auto textureAmount = harmonicActive ? 0.0f : juce::jlimit (0.0f, 1.0f, pickTexture);
@@ -202,8 +206,9 @@ void StringVoice::start (int midiNoteNumber,
     const auto hardStrike = std::pow (juce::jlimit (0.0f, 1.0f, (velocityNormal - 0.46f) / 0.54f), 0.55f);
     const auto brightness = strikeAmount;
     const auto pluckPosition = juce::jmap (strikeAmount, 0.225f, 0.080f);
-    const auto pickupPosition = 0.165f;
-    const auto pickupWidth = 0.026f;
+    const auto pickupPosition = juce::jmap (pickupAmount, 0.055f, 0.335f);
+    const auto pickupWidth = pickupModelIndex == 0 ? 0.024f : 0.056f;
+    const auto pickupCoilSeparation = 0.046f;
     const auto displacementAmount = 0.70f * velocityGain;
     const auto horizontalAmount = (0.28f + 0.06f * woundAmount) * velocityGain;
     const auto ageBrightnessScale = 1.06f - 0.46f * stringAgeAmount;
@@ -370,6 +375,16 @@ void StringVoice::start (int midiNoteNumber,
 
         const auto pluckShape = std::sin (twoPi * 0.5f * harmonicFloat * pluckPosition);
         const auto pickupShape = std::sin (twoPi * 0.5f * harmonicFloat * pickupPosition);
+        const auto coilA = std::sin (twoPi * 0.5f * harmonicFloat
+                                  * juce::jlimit (0.020f, 0.380f, pickupPosition - pickupCoilSeparation * 0.5f));
+        const auto coilB = std::sin (twoPi * 0.5f * harmonicFloat
+                                  * juce::jlimit (0.020f, 0.380f, pickupPosition + pickupCoilSeparation * 0.5f));
+        const auto pickupModelShape = pickupModelIndex == 0 ? pickupShape
+                                  : pickupModelIndex == 1 ? 0.5f * (coilA + coilB) * 2.05f
+                                                          : (coilA - coilB) * 1.10f;
+        const auto pickupElectricalTilt = pickupModelIndex == 1 ? std::exp (-0.010f * harmonicFloat)
+                                      : pickupModelIndex == 2 ? std::exp (-0.004f * harmonicFloat)
+                                                              : 1.0f;
         const auto aperture = std::abs (harmonicFloat * pickupWidth) < 0.0001f
                             ? 1.0f
                             : std::sin (twoPi * 0.5f * harmonicFloat * pickupWidth)
@@ -389,8 +404,8 @@ void StringVoice::start (int midiNoteNumber,
                                   + strikeAmount * juce::jlimit (0.0f, 3.0f, (harmonicFloat - 1.0f) / 8.0f)
                                   + hardStrike * juce::jlimit (0.0f, 4.0f, (harmonicFloat - 4.0f) / 8.0f);
         const auto touchMask = getHarmonicTouchMask (harmonic, harmonicDivision, harmonicAccuracy);
-        const auto amplitude = modalGain * pluckShape * pickupShape * aperture * partialTilt * velocityScale * attackEmphasis
-                             * touchMask * harmonicEnergyScale;
+        const auto amplitude = modalGain * pluckShape * pickupModelShape * aperture * pickupElectricalTilt
+                             * partialTilt * velocityScale * attackEmphasis * touchMask * harmonicEnergyScale;
         const auto phase = (harmonic % 2 == 0 ? 0.18f : -0.11f) * harmonicFloat;
         const auto tailDampingScale = juce::jlimit (0.14f, 0.62f, 0.11f + 0.012f * harmonicFloat);
 

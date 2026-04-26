@@ -15,16 +15,24 @@ public:
 
 private:
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
+    using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
 
     GuitarAgAudioProcessor& audioProcessor;
     juce::Slider sustainSlider;
     juce::Slider stringAgeSlider;
+    juce::Slider pickupPositionSlider;
     juce::Slider pickStiffnessSlider;
     juce::Slider pickTextureSlider;
     juce::Slider palmMuteSlider;
     juce::Slider harmonicTouchSlider;
     juce::Label sustainLabel;
     juce::Label stringAgeLabel;
+    juce::Label pickupModelLabel;
+    juce::Label pickupPositionLabel;
+    juce::Label pickupSixthLabel;
+    juce::Label pickupFifthLabel;
+    juce::Label pickupQuarterLabel;
+    juce::Label pickupThirdLabel;
     juce::Label pickStiffnessLabel;
     juce::Label pickTextureLabel;
     juce::Label palmMuteLabel;
@@ -32,8 +40,11 @@ private:
     juce::Label harmonicQuarterLabel;
     juce::Label harmonicThirdLabel;
     juce::Label harmonicHalfLabel;
+    juce::ComboBox pickupModelBox;
     std::unique_ptr<SliderAttachment> sustainAttachment;
     std::unique_ptr<SliderAttachment> stringAgeAttachment;
+    std::unique_ptr<SliderAttachment> pickupPositionAttachment;
+    std::unique_ptr<ComboBoxAttachment> pickupModelAttachment;
     std::unique_ptr<SliderAttachment> pickStiffnessAttachment;
     std::unique_ptr<SliderAttachment> pickTextureAttachment;
     std::unique_ptr<SliderAttachment> palmMuteAttachment;

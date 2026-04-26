@@ -32,6 +32,45 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     stringAgeSlider.setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0xff202832));
     addAndMakeVisible (stringAgeSlider);
 
+    pickupModelLabel.setText ("Pickup Model", juce::dontSendNotification);
+    pickupModelLabel.setColour (juce::Label::textColourId, juce::Colour (0xffcbd4dc));
+    pickupModelLabel.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (pickupModelLabel);
+
+    pickupModelBox.addItem ("Single Coil", 1);
+    pickupModelBox.addItem ("Humbucker", 2);
+    pickupModelBox.addItem ("Humbucker OOP", 3);
+    pickupModelBox.setColour (juce::ComboBox::textColourId, juce::Colour (0xffe8edf2));
+    pickupModelBox.setColour (juce::ComboBox::backgroundColourId, juce::Colour (0xff202832));
+    pickupModelBox.setColour (juce::ComboBox::outlineColourId, juce::Colour (0xff65717c));
+    pickupModelBox.setColour (juce::ComboBox::arrowColourId, juce::Colour (0xffe8edf2));
+    addAndMakeVisible (pickupModelBox);
+
+    pickupPositionLabel.setText ("Pickup Position", juce::dontSendNotification);
+    pickupPositionLabel.setColour (juce::Label::textColourId, juce::Colour (0xffcbd4dc));
+    pickupPositionLabel.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (pickupPositionLabel);
+
+    pickupPositionSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    pickupPositionSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 72, 24);
+    pickupPositionSlider.setColour (juce::Slider::trackColourId, juce::Colour (0xff75d7d1));
+    pickupPositionSlider.setColour (juce::Slider::thumbColourId, juce::Colour (0xffe8edf2));
+    pickupPositionSlider.setColour (juce::Slider::textBoxTextColourId, juce::Colour (0xffe8edf2));
+    pickupPositionSlider.setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0xff202832));
+    addAndMakeVisible (pickupPositionSlider);
+
+    for (auto* marker : { &pickupSixthLabel, &pickupFifthLabel, &pickupQuarterLabel, &pickupThirdLabel })
+    {
+        marker->setColour (juce::Label::textColourId, juce::Colour (0xff9aa8b5));
+        marker->setJustificationType (juce::Justification::centred);
+        addAndMakeVisible (*marker);
+    }
+
+    pickupSixthLabel.setText ("1/6", juce::dontSendNotification);
+    pickupFifthLabel.setText ("1/5", juce::dontSendNotification);
+    pickupQuarterLabel.setText ("1/4", juce::dontSendNotification);
+    pickupThirdLabel.setText ("1/3", juce::dontSendNotification);
+
     pickStiffnessLabel.setText ("Pick Stiffness", juce::dontSendNotification);
     pickStiffnessLabel.setColour (juce::Label::textColourId, juce::Colour (0xffcbd4dc));
     pickStiffnessLabel.setJustificationType (juce::Justification::centredLeft);
@@ -101,6 +140,12 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     stringAgeAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                              GuitarAgAudioProcessor::stringAgeParameterId,
                                                              stringAgeSlider);
+    pickupModelAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
+                                                                 GuitarAgAudioProcessor::pickupModelParameterId,
+                                                                 pickupModelBox);
+    pickupPositionAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                  GuitarAgAudioProcessor::pickupPositionParameterId,
+                                                                  pickupPositionSlider);
     pickStiffnessAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                   GuitarAgAudioProcessor::pickStiffnessParameterId,
                                                                   pickStiffnessSlider);
@@ -114,7 +159,7 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                                                                  GuitarAgAudioProcessor::harmonicTouchParameterId,
                                                                  harmonicTouchSlider);
 
-    setSize (500, 426);
+    setSize (500, 516);
 }
 
 void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
@@ -132,7 +177,7 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
     graphics.setFont (juce::FontOptions (15.0f));
     graphics.drawFittedText ("MVP string voice: MIDI-triggered plucked model", bounds.removeFromTop (28),
                              juce::Justification::centredLeft, 1);
-    bounds.removeFromTop (258);
+    bounds.removeFromTop (348);
     graphics.drawFittedText ("MPE routing is intentionally not implemented yet.", bounds,
                              juce::Justification::centredLeft, 2);
 
@@ -155,6 +200,32 @@ void GuitarAgAudioProcessorEditor::resized()
     auto ageBounds = bounds.removeFromTop (36);
     stringAgeLabel.setBounds (ageBounds.removeFromLeft (120));
     stringAgeSlider.setBounds (ageBounds);
+
+    auto pickupModelBounds = bounds.removeFromTop (36);
+    pickupModelLabel.setBounds (pickupModelBounds.removeFromLeft (120));
+    pickupModelBox.setBounds (pickupModelBounds.reduced (0, 4));
+
+    auto pickupPositionBounds = bounds.removeFromTop (54);
+    pickupPositionLabel.setBounds (pickupPositionBounds.removeFromLeft (120));
+    const auto pickupSliderBounds = pickupPositionBounds.removeFromTop (34);
+    pickupPositionSlider.setBounds (pickupSliderBounds);
+
+    auto pickupMarkerTrackBounds = pickupSliderBounds;
+    pickupMarkerTrackBounds.removeFromRight (78);
+    const auto pickupMarkerY = pickupPositionBounds.getY() - 1;
+    constexpr auto pickupMarkerWidth = 32;
+    const auto pickupMarkerX = [&pickupMarkerTrackBounds] (float position)
+    {
+        const auto normalized = (position - 0.055f) / (0.335f - 0.055f);
+        return pickupMarkerTrackBounds.getX()
+             + juce::roundToInt (juce::jlimit (0.0f, 1.0f, normalized) * static_cast<float> (pickupMarkerTrackBounds.getWidth()))
+             - pickupMarkerWidth / 2;
+    };
+
+    pickupSixthLabel.setBounds (pickupMarkerX (1.0f / 6.0f), pickupMarkerY, pickupMarkerWidth, 18);
+    pickupFifthLabel.setBounds (pickupMarkerX (1.0f / 5.0f), pickupMarkerY, pickupMarkerWidth, 18);
+    pickupQuarterLabel.setBounds (pickupMarkerX (1.0f / 4.0f), pickupMarkerY, pickupMarkerWidth, 18);
+    pickupThirdLabel.setBounds (pickupMarkerX (1.0f / 3.0f), pickupMarkerY, pickupMarkerWidth, 18);
 
     auto stiffnessBounds = bounds.removeFromTop (36);
     pickStiffnessLabel.setBounds (stiffnessBounds.removeFromLeft (120));

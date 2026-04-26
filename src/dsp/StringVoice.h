@@ -24,7 +24,9 @@ public:
                 float pickStiffness,
                 float pickTexture,
                 float harmonicTouch,
-                float stringAge);
+                float stringAge,
+                float pickupPosition,
+                int pickupModel);
     void release (int midiNoteNumber, int midiChannel);
 
     [[nodiscard]] bool isActive() const noexcept { return active; }

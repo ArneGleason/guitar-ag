@@ -232,6 +232,13 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The `KS` model prefix no longer describes the current voice well. Starting with `EG-037`, visible model labels use `EG` for electric guitar while preserving the existing numeric sequence.
 - String age is better modeled at the string source than as a final tone filter: older strings should reduce upper-partial excitation and high-mode sustain while keeping the basic clean DI character.
 
+## 2026-04-26 — Pickup position research
+
+- Pickup position is not just a brightness knob. It acts like a harmonic comb because each mode has different displacement at each string position.
+- Useful sources for the first model were J. Donald Tillman's pickup position/width and pickup mixing notes, plus the Physics of Shred pickup placement explainer.
+- A humbucker's wider sensing aperture should naturally smooth high partials. Modeling it as two nearby readout points also creates spacing-dependent notches.
+- Pickup-position UI markers are best treated as harmonic landmarks, not as promised sweet spots for every note, because fretting moves the effective speaking length and node layout.
+
 ## 2026-04-25 — KS-014 render comparison and research pivot
 
 - KS014 reduced the KS013 air/noise boost but did not create a more realistic open-string sound by ear.

@@ -20,6 +20,9 @@ void AudioEngine::prepare (double sampleRate, int, int)
     harmonicTouch.setCurrentAndTargetValue (0.0f);
     stringAge.reset (sampleRate, 0.050);
     stringAge.setCurrentAndTargetValue (0.0f);
+    pickupPosition.reset (sampleRate, 0.050);
+    pickupPosition.setCurrentAndTargetValue (0.39f);
+    pickupModel = 0;
     tone.prepare (sampleRate);
     reset();
 }
@@ -37,6 +40,7 @@ void AudioEngine::reset()
     palmMute.setCurrentAndTargetValue (palmMute.getTargetValue());
     harmonicTouch.setCurrentAndTargetValue (harmonicTouch.getTargetValue());
     stringAge.setCurrentAndTargetValue (stringAge.getTargetValue());
+    pickupPosition.setCurrentAndTargetValue (pickupPosition.getTargetValue());
     nextVoice = 0;
 }
 
@@ -70,6 +74,16 @@ void AudioEngine::setStringAge (float newStringAge) noexcept
     stringAge.setTargetValue (juce::jlimit (0.0f, 1.0f, newStringAge));
 }
 
+void AudioEngine::setPickupPosition (float newPickupPosition) noexcept
+{
+    pickupPosition.setTargetValue (juce::jlimit (0.0f, 1.0f, newPickupPosition));
+}
+
+void AudioEngine::setPickupModel (int newPickupModel) noexcept
+{
+    pickupModel = juce::jlimit (0, 2, newPickupModel);
+}
+
 void AudioEngine::render (juce::AudioBuffer<float>& audio, const juce::MidiBuffer& midi)
 {
     auto currentSample = 0;
@@ -99,6 +113,7 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         pickTexture.getNextValue();
         harmonicTouch.getNextValue();
         stringAge.getNextValue();
+        pickupPosition.getNextValue();
 
         for (auto& voice : voices)
             mixedSample += voice.renderSample (sustainAmount, palmMuteAmount);
@@ -129,6 +144,8 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
     const auto notePickTexture = pickTexture.getTargetValue();
     const auto noteHarmonicTouch = harmonicTouch.getTargetValue();
     const auto noteStringAge = stringAge.getTargetValue();
+    const auto notePickupPosition = pickupPosition.getTargetValue();
+    const auto notePickupModel = pickupModel;
 
     for (auto& voice : voices)
     {
@@ -141,7 +158,9 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                          notePickStiffness,
                          notePickTexture,
                          noteHarmonicTouch,
-                         noteStringAge);
+                         noteStringAge,
+                         notePickupPosition,
+                         notePickupModel);
             return;
         }
     }
@@ -155,7 +174,9 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                        notePickStiffness,
                        notePickTexture,
                        noteHarmonicTouch,
-                       noteStringAge);
+                       noteStringAge,
+                       notePickupPosition,
+                       notePickupModel);
     nextVoice = (nextVoice + 1) % maxVoices;
 }
 

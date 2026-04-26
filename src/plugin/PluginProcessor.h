@@ -13,6 +13,8 @@ public:
     static constexpr auto palmMuteParameterId = "palmMute";
     static constexpr auto harmonicTouchParameterId = "harmonicTouch";
     static constexpr auto stringAgeParameterId = "stringAge";
+    static constexpr auto pickupPositionParameterId = "pickupPosition";
+    static constexpr auto pickupModelParameterId = "pickupModel";
 
     GuitarAgAudioProcessor();
     ~GuitarAgAudioProcessor() override = default;
@@ -54,6 +56,8 @@ private:
     std::atomic<float>* palmMuteParameter = nullptr;
     std::atomic<float>* harmonicTouchParameter = nullptr;
     std::atomic<float>* stringAgeParameter = nullptr;
+    std::atomic<float>* pickupPositionParameter = nullptr;
+    std::atomic<float>* pickupModelParameter = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAgAudioProcessor)
 };
