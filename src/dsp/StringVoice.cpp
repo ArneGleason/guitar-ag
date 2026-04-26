@@ -112,7 +112,8 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity, co
     pickupApertureSamples = juce::jlimit (1, delayLength / 9, static_cast<int> (std::round (delayLength * 0.018f)));
 
     const auto velocityGain = juce::jlimit (0.05f, 1.0f, velocity);
-    const auto velocityNormal = juce::jlimit (0.0f, 1.0f, (velocityGain - 0.05f) / 0.95f);
+    const auto strikeVelocity = juce::jlimit (0.05f, 0.68f, velocityGain);
+    const auto velocityNormal = juce::jlimit (0.0f, 1.0f, (strikeVelocity - 0.05f) / 0.95f);
     const auto strikeInput = juce::jlimit (0.0f, 1.0f, velocityNormal * 1.55f);
     const auto strikeAmount = std::pow (strikeInput, 0.58f);
     const auto hardStrike = std::pow (juce::jlimit (0.0f, 1.0f, (velocityNormal - 0.46f) / 0.54f), 0.55f);
@@ -219,8 +220,8 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity, co
                             ? 1.0f
                             : std::sin (twoPi * 0.5f * harmonicFloat * pickupWidth)
                                 / (twoPi * 0.5f * harmonicFloat * pickupWidth);
-        const auto decaySeconds = (woundString ? 5.0f : 3.8f)
-                                / (1.0f + (woundString ? 0.010f : 0.015f) * harmonicFloat * harmonicFloat);
+        const auto decaySeconds = (woundString ? 8.2f : 6.4f)
+                                / (1.0f + (woundString ? 0.0065f : 0.0090f) * harmonicFloat * harmonicFloat);
         const auto decay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * decaySeconds));
         const auto tiltExponent = woundString ? juce::jmap (strikeAmount, 0.92f, 0.34f)
                                               : juce::jmap (strikeAmount, 1.00f, 0.48f);
@@ -238,7 +239,7 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity, co
         if (modeIndex < modalCount && harmonic >= 4)
         {
             const auto sideFrequency = stiffFrequency * (1.0035f + (woundString ? 0.00070f : 0.00025f) * harmonicFloat);
-            const auto sideDecay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * decaySeconds * 0.82f));
+            const auto sideDecay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * decaySeconds * 0.95f));
             const auto sideRegime = woundString ? (juce::jmap (strikeAmount, 0.45f, 2.20f) + hardStrike * 0.95f)
                                                 : (juce::jmap (strikeAmount, 0.35f, 1.55f) + hardStrike * 0.55f);
             configureMode (modeIndex++,
@@ -252,7 +253,7 @@ void StringVoice::start (int midiNoteNumber, int midiChannel, float velocity, co
         {
             const auto windingFrequency = static_cast<float> (frequency)
                                         * (harmonicFloat + 0.34f + 0.011f * harmonicFloat * harmonicFloat);
-            const auto windingDecaySeconds = 0.42f + 0.035f * harmonicFloat;
+            const auto windingDecaySeconds = 0.72f + 0.055f * harmonicFloat;
             const auto windingDecay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * windingDecaySeconds));
             const auto windingAperture = 1.0f / std::sqrt (harmonicFloat);
 

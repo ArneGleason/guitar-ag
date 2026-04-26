@@ -292,3 +292,9 @@ Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Li
 - The mapper should live above `StringVoice`: the voice should synthesize the assigned string, not infer playable guitar position from pitch alone.
 - User listening feedback exposed a useful test case: notes fretted on the low E, A, or D strings should keep wound-string behavior even when their MIDI note number is not one of the open-string pitches.
 - The first implementation favors first/second position, avoids occupied strings for chords where possible, and lets the remembered hand position drop slowly after high notes.
+
+## 2026-04-25 — KS-021 sustain and velocity ceiling
+
+- Fretboard mapping passed the first listening check, so the next change should leave mapper behavior untouched.
+- Clean DI electric guitar needs more held-note sustain than KS020 provided; the modal bank can decay more slowly without adding compressor behavior yet.
+- The most useful high-velocity strike character appears to be around the previous 67-68% velocity region, so KS021 caps strike timbre there while still allowing full incoming velocity to affect loudness.

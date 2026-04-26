@@ -696,6 +696,31 @@ Expected sound:
 
 Non-open notes that would naturally be played on the low E, A, or D strings can now inherit wound-string behavior. This is not yet a full guitarist model, but it should address the immediate issue where only MIDI notes 40, 45, and 50 sounded like wound strings.
 
+## 2026-04-25 — Sustain and Velocity Ceiling Retune
+
+Listening feedback on KS020: the fretboard mapper feels good, but held notes decay too quickly for a clean DI electric guitar, and the top of the velocity range should feel closer to the previous 67-68% strike intensity.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-021 SustainVelCeil`.
+- Full incoming MIDI velocity still drives note level.
+- Strike character is capped at an internal velocity of about 0.68, so the most aggressive modal/side-cluster behavior no longer keeps increasing through the final third of the MIDI velocity range.
+- Main modal decay times are lengthened for both wound and plain strings.
+- High harmonics now decay less aggressively, especially during the held portion of the note.
+- Inharmonic side clusters and wound-string modes sustain longer.
+
+Initial values:
+
+- strike-character velocity ceiling: 0.68
+- main modal decay base: wound 8.2 seconds, plain 6.4 seconds
+- harmonic decay curvature: wound 0.0065, plain 0.0090
+- side-cluster decay: 0.95x main modal decay, up from 0.82x
+- wound-string extra mode decay: 0.72 seconds + 0.055 seconds per harmonic index
+
+Expected sound:
+
+The loudest notes should keep the useful KS019/KS020 body and dynamics, but with the hard-pick edge restrained to the region that sounded better by ear. Held notes should speak for longer before disappearing, especially through the middle of the decay, without changing the fretboard mapper behavior.
+
 ## Suggested MVP Signal Flow
 
 ```text
