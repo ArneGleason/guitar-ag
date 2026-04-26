@@ -29,7 +29,7 @@ public:
     [[nodiscard]] int getNoteNumber() const noexcept { return noteNumber; }
     [[nodiscard]] int getChannel() const noexcept { return channel; }
 
-    float renderSample (float tailSustain) noexcept;
+    float renderSample (float tailSustain, float palmMute) noexcept;
 
 private:
     static constexpr auto maxDelaySamples = 8192;

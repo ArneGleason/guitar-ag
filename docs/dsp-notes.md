@@ -921,6 +921,23 @@ Expected sound:
 
 95% should still sound close to the useful coin texture. 100% should add a darker but harsher continuous grind, not a chirpy burst and not a simple rolloff.
 
+## 2026-04-26 — Palm Mute Parameter
+
+The string voice now has a global palm mute control.
+
+Current behavior:
+
+- The visible model label is now `StringVoice KS-033 PalmMute`.
+- Added a `Palm Mute` VST parameter, default 0%.
+- The parameter is smoothed in `AudioEngine` and applied to every voice every sample, so it can damp notes that are already ringing.
+- Palm mute adds extra modal damping across the voice and slightly reduces freely ringing modal output at high values.
+- Pick/contact output is left comparatively present, so high mute settings should sound like a strong palm mute: mostly pick/contact with very short string resonance.
+- The offline renderer accepts `--palm-mute`.
+
+Expected sound:
+
+0% should match KS-032. Low values should lightly shorten sustain. Mid values should sound like playable palm muting. 100% should be close to a deadened string with a fast, percussive decay rather than a hard mute gate.
+
 ## Suggested MVP Signal Flow
 
 ```text

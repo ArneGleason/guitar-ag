@@ -8,6 +8,7 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     tailSustainParameter = parameters.getRawParameterValue (tailSustainParameterId);
     pickStiffnessParameter = parameters.getRawParameterValue (pickStiffnessParameterId);
     pickTextureParameter = parameters.getRawParameterValue (pickTextureParameterId);
+    palmMuteParameter = parameters.getRawParameterValue (palmMuteParameterId);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::createParameterLayout()
@@ -52,6 +53,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
             .withStringFromValueFunction (percentString)
             .withValueFromStringFunction (percentValue)));
 
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { palmMuteParameterId, 1 },
+        "Palm Mute",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
+
     return { layout.begin(), layout.end() };
 }
 
@@ -78,6 +89,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setTailSustain (tailSustainParameter != nullptr ? tailSustainParameter->load() : 1.0f);
     audioEngine.setPickStiffness (pickStiffnessParameter != nullptr ? pickStiffnessParameter->load() : 0.5f);
     audioEngine.setPickTexture (pickTextureParameter != nullptr ? pickTextureParameter->load() : 0.5f);
+    audioEngine.setPalmMute (palmMuteParameter != nullptr ? palmMuteParameter->load() : 0.0f);
     audioEngine.render (buffer, midiMessages);
 }
 

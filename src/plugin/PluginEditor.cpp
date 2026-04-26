@@ -45,6 +45,19 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     pickTextureSlider.setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0xff202832));
     addAndMakeVisible (pickTextureSlider);
 
+    palmMuteLabel.setText ("Palm Mute", juce::dontSendNotification);
+    palmMuteLabel.setColour (juce::Label::textColourId, juce::Colour (0xffcbd4dc));
+    palmMuteLabel.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (palmMuteLabel);
+
+    palmMuteSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    palmMuteSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 72, 24);
+    palmMuteSlider.setColour (juce::Slider::trackColourId, juce::Colour (0xfff28b82));
+    palmMuteSlider.setColour (juce::Slider::thumbColourId, juce::Colour (0xffe8edf2));
+    palmMuteSlider.setColour (juce::Slider::textBoxTextColourId, juce::Colour (0xffe8edf2));
+    palmMuteSlider.setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0xff202832));
+    addAndMakeVisible (palmMuteSlider);
+
     sustainAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                             GuitarAgAudioProcessor::tailSustainParameterId,
                                                             sustainSlider);
@@ -54,8 +67,11 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     pickTextureAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::pickTextureParameterId,
                                                                pickTextureSlider);
+    palmMuteAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                            GuitarAgAudioProcessor::palmMuteParameterId,
+                                                            palmMuteSlider);
 
-    setSize (500, 300);
+    setSize (500, 336);
 }
 
 void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
@@ -73,7 +89,7 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
     graphics.setFont (juce::FontOptions (15.0f));
     graphics.drawFittedText ("MVP string voice: MIDI-triggered plucked model", bounds.removeFromTop (28),
                              juce::Justification::centredLeft, 1);
-    bounds.removeFromTop (132);
+    bounds.removeFromTop (168);
     graphics.drawFittedText ("MPE routing and pickup modeling are intentionally not implemented yet.", bounds,
                              juce::Justification::centredLeft, 2);
 
@@ -100,4 +116,8 @@ void GuitarAgAudioProcessorEditor::resized()
     auto textureBounds = bounds.removeFromTop (36);
     pickTextureLabel.setBounds (textureBounds.removeFromLeft (120));
     pickTextureSlider.setBounds (textureBounds);
+
+    auto palmMuteBounds = bounds.removeFromTop (36);
+    palmMuteLabel.setBounds (palmMuteBounds.removeFromLeft (120));
+    palmMuteSlider.setBounds (palmMuteBounds);
 }

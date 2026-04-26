@@ -360,3 +360,7 @@ KS-030's coin zone was useful up to about 95%, but the last few percent became c
 ## 2026-04-26 — Choking can erase texture
 
 KS-031 proved that too much choke in the final texture range can read as rolling the texture off, even when a darker friction layer is present. For the coin extreme, preserving the useful 95% coin layer and adding a dense ridged-drag component is a better last experiment than replacing excitation with damping.
+
+## 2026-04-26 — Palm mute needs to affect active voices
+
+Palm muting is a performance control, not only a note-start articulation. The first simple model passes the smoothed mute amount into `StringVoice::renderSample`, so automation or slider movement can damp strings that are already ringing. This is a better fit than sampling mute amount only at note start.

@@ -10,6 +10,7 @@ public:
     static constexpr auto tailSustainParameterId = "tailSustain";
     static constexpr auto pickStiffnessParameterId = "pickStiffness";
     static constexpr auto pickTextureParameterId = "pickTexture";
+    static constexpr auto palmMuteParameterId = "palmMute";
 
     GuitarAgAudioProcessor();
     ~GuitarAgAudioProcessor() override = default;
@@ -48,6 +49,7 @@ private:
     std::atomic<float>* tailSustainParameter = nullptr;
     std::atomic<float>* pickStiffnessParameter = nullptr;
     std::atomic<float>* pickTextureParameter = nullptr;
+    std::atomic<float>* palmMuteParameter = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAgAudioProcessor)
 };

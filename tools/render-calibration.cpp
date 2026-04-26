@@ -20,7 +20,7 @@ void printUsage()
 {
     std::cout << "Usage: GuitarAGOfflineRender --midi <input.mid> --output <output.wav> "
                  "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
-                 "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5]\n";
+                 "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5] [--palm-mute 0.0]\n";
 }
 
 bool readMidiEvents (const juce::File& midiFile, double sampleRate, std::vector<MidiEvent>& events, int& lastEventSample)
@@ -110,6 +110,7 @@ int main (int argc, char* argv[])
     auto sustain = 1.0f;
     auto pickStiffness = 0.5f;
     auto pickTexture = 0.5f;
+    auto palmMute = 0.0f;
 
     for (auto i = 1; i < argc; ++i)
     {
@@ -152,6 +153,10 @@ int main (int argc, char* argv[])
         {
             pickTexture = juce::String (argv[++i]).getFloatValue();
         }
+        else if (argument == "--palm-mute" && hasValue)
+        {
+            palmMute = juce::String (argv[++i]).getFloatValue();
+        }
         else
         {
             printUsage();
@@ -183,6 +188,7 @@ int main (int argc, char* argv[])
     engine.setTailSustain (sustain);
     engine.setPickStiffness (pickStiffness);
     engine.setPickTexture (pickTexture);
+    engine.setPalmMute (palmMute);
     engine.reset();
 
     auto eventIndex = static_cast<size_t> (0);

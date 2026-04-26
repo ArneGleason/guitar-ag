@@ -424,12 +424,21 @@ void StringVoice::release (int midiNoteNumber, int midiChannel)
     }
 }
 
-float StringVoice::renderSample (float tailSustain) noexcept
+float StringVoice::renderSample (float tailSustain, float palmMute) noexcept
 {
     if (! active)
         return 0.0f;
 
     const auto sustainAmount = juce::jlimit (0.0f, 1.0f, tailSustain);
+    const auto palmAmount = juce::jlimit (0.0f, 1.0f, palmMute);
+    const auto palmCurve = std::pow (palmAmount, 1.35f);
+    auto palmDecay = 1.0f;
+
+    if (palmCurve > 0.0001f)
+    {
+        const auto muteDecaySeconds = juce::jmap (palmCurve, 2.2f, 0.040f);
+        palmDecay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * muteDecaySeconds));
+    }
 
     if (releasing)
         modalReleaseDecay = juce::jmin (modalReleaseDecay, 0.99935f);
@@ -454,7 +463,9 @@ float StringVoice::renderSample (float tailSustain) noexcept
         const auto normalDecay = modalDecay[modeIndex];
         const auto relaxedDecay = 1.0f - (1.0f - normalDecay) * modalTailDampingScale[modeIndex];
         const auto effectiveDecay = normalDecay + (relaxedDecay - normalDecay) * tailBlend;
-        modalAmplitude[modeIndex] *= effectiveDecay * modalReleaseDecay;
+        const auto modeWeight = 0.78f + 0.22f * static_cast<float> (mode) / static_cast<float> (modalCount - 1);
+        const auto effectivePalmDecay = 1.0f + (palmDecay - 1.0f) * modeWeight;
+        modalAmplitude[modeIndex] *= effectiveDecay * modalReleaseDecay * effectivePalmDecay;
     }
 
     if (std::abs (pickTransient) > 0.000001f)
@@ -557,6 +568,7 @@ float StringVoice::renderSample (float tailSustain) noexcept
     const auto attackRampSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * attackRampSeconds);
     modalOutput *= juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / attackRampSamples);
     modalOutput *= 1.0f - 0.22f * pickHeavyChoke;
+    modalOutput *= 1.0f - 0.28f * palmCurve;
     modalOutput += contactOutput;
 
     ++samplesSinceStart;

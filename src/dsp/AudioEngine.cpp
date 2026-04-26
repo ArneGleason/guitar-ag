@@ -14,6 +14,8 @@ void AudioEngine::prepare (double sampleRate, int, int)
     pickStiffness.setCurrentAndTargetValue (0.5f);
     pickTexture.reset (sampleRate, 0.035);
     pickTexture.setCurrentAndTargetValue (0.5f);
+    palmMute.reset (sampleRate, 0.020);
+    palmMute.setCurrentAndTargetValue (0.0f);
     tone.prepare (sampleRate);
     reset();
 }
@@ -28,6 +30,7 @@ void AudioEngine::reset()
     tailSustain.setCurrentAndTargetValue (tailSustain.getTargetValue());
     pickStiffness.setCurrentAndTargetValue (pickStiffness.getTargetValue());
     pickTexture.setCurrentAndTargetValue (pickTexture.getTargetValue());
+    palmMute.setCurrentAndTargetValue (palmMute.getTargetValue());
     nextVoice = 0;
 }
 
@@ -44,6 +47,11 @@ void AudioEngine::setPickStiffness (float newPickStiffness) noexcept
 void AudioEngine::setPickTexture (float newPickTexture) noexcept
 {
     pickTexture.setTargetValue (juce::jlimit (0.0f, 1.0f, newPickTexture));
+}
+
+void AudioEngine::setPalmMute (float newPalmMute) noexcept
+{
+    palmMute.setTargetValue (juce::jlimit (0.0f, 1.0f, newPalmMute));
 }
 
 void AudioEngine::render (juce::AudioBuffer<float>& audio, const juce::MidiBuffer& midi)
@@ -70,11 +78,12 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
     {
         auto mixedSample = 0.0f;
         const auto sustainAmount = tailSustain.getNextValue();
+        const auto palmMuteAmount = palmMute.getNextValue();
         pickStiffness.getNextValue();
         pickTexture.getNextValue();
 
         for (auto& voice : voices)
-            mixedSample += voice.renderSample (sustainAmount);
+            mixedSample += voice.renderSample (sustainAmount, palmMuteAmount);
 
         mixedSample = tone.processSample (mixedSample);
 
