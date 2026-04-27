@@ -31,6 +31,16 @@ Current model label:
 StringVoice EG-046 MPEBend
 ```
 
+## Demo
+
+![Guitar AG running as a VST3 instrument in Bitwig](assets/demo/guitar-ag-bitwig-screenshot.png)
+
+Short MP3 render from the current modeled guitar voice:
+
+<audio controls src="assets/demo/guitar-ag-demo-2026-04-27.mp3"></audio>
+
+[Download or play the MP3 demo](assets/demo/guitar-ag-demo-2026-04-27.mp3)
+
 ## Why This Exists
 
 Many virtual guitar instruments rely on large sample libraries or sound convincing only inside a narrow articulation set. Guitar AG explores a different direction: a small physical model with continuous controls for the in-between behaviors that are hard to cover with samples.
