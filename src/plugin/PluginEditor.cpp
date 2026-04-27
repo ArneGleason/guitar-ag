@@ -76,52 +76,45 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
 
     configureSectionButton (setupSectionButton, "Setup");
     configureSectionButton (pickupSectionButton, "Pickup");
-    configureSectionButton (performanceSectionButton, "Performance");
+    configureSectionButton (performanceSectionButton, "Perform");
     configureSectionButton (vibratoSectionButton, "Vibrato");
     configureSectionButton (mpeSectionButton, "MPE");
     configureSectionButton (whammySectionButton, "Whammy");
-    configureSectionButton (articulationSectionButton, "Articulation");
+    configureSectionButton (articulationSectionButton, "Artic");
 
     setupSectionButton.onClick = [this]
     {
-        setupExpanded = ! setupExpanded;
-        updateSectionVisibility();
+        setActivePage (0);
     };
 
     pickupSectionButton.onClick = [this]
     {
-        pickupExpanded = ! pickupExpanded;
-        updateSectionVisibility();
+        setActivePage (1);
     };
 
     performanceSectionButton.onClick = [this]
     {
-        performanceExpanded = ! performanceExpanded;
-        updateSectionVisibility();
+        setActivePage (2);
     };
 
     vibratoSectionButton.onClick = [this]
     {
-        vibratoExpanded = ! vibratoExpanded;
-        updateSectionVisibility();
+        setActivePage (3);
     };
 
     mpeSectionButton.onClick = [this]
     {
-        mpeExpanded = ! mpeExpanded;
-        updateSectionVisibility();
+        setActivePage (4);
     };
 
     whammySectionButton.onClick = [this]
     {
-        whammyExpanded = ! whammyExpanded;
-        updateSectionVisibility();
+        setActivePage (5);
     };
 
     articulationSectionButton.onClick = [this]
     {
-        articulationExpanded = ! articulationExpanded;
-        updateSectionVisibility();
+        setActivePage (6);
     };
 
     configureLabel (sustainLabel, "Sustain");
@@ -426,9 +419,23 @@ void GuitarAgAudioProcessorEditor::resized()
     projectInfoButton.setBounds (titleBounds.getX() + 116, titleBounds.getY() + 8, 22, 22);
     bounds.removeFromTop (38);
 
-    setupSectionButton.setBounds (bounds.removeFromTop (26));
+    auto tabBounds = bounds.removeFromTop (32);
+    auto distributeTab = [&tabBounds] (juce::Button& button, int remaining)
+    {
+        button.setBounds (tabBounds.removeFromLeft (tabBounds.getWidth() / remaining).reduced (2, 0));
+    };
 
-    if (setupExpanded)
+    distributeTab (setupSectionButton, 7);
+    distributeTab (pickupSectionButton, 6);
+    distributeTab (performanceSectionButton, 5);
+    distributeTab (vibratoSectionButton, 4);
+    distributeTab (mpeSectionButton, 3);
+    distributeTab (whammySectionButton, 2);
+    articulationSectionButton.setBounds (tabBounds.reduced (2, 0));
+
+    bounds.removeFromTop (18);
+
+    if (activePage == 0)
     {
         auto sustainBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (sustainBounds, sustainLabel, sustainInfoButton);
@@ -443,10 +450,7 @@ void GuitarAgAudioProcessorEditor::resized()
         bridgeIntonationSlider.setBounds (intonationBounds);
     }
 
-    bounds.removeFromTop (8);
-    pickupSectionButton.setBounds (bounds.removeFromTop (26));
-
-    if (pickupExpanded)
+    if (activePage == 1)
     {
         auto pickupModelBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (pickupModelBounds, pickupModelLabel, pickupModelInfoButton);
@@ -476,10 +480,7 @@ void GuitarAgAudioProcessorEditor::resized()
         pickupThirdLabel.setBounds (pickupMarkerX (1.0f / 3.0f), pickupMarkerY, pickupMarkerWidth, 18);
     }
 
-    bounds.removeFromTop (8);
-    performanceSectionButton.setBounds (bounds.removeFromTop (26));
-
-    if (performanceExpanded)
+    if (activePage == 2)
     {
         auto pressureBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (pressureBounds, fretPressureLabel, fretPressureInfoButton);
@@ -498,10 +499,7 @@ void GuitarAgAudioProcessorEditor::resized()
         fingerNoiseSlider.setBounds (fingerNoiseBounds);
     }
 
-    bounds.removeFromTop (8);
-    vibratoSectionButton.setBounds (bounds.removeFromTop (26));
-
-    if (vibratoExpanded)
+    if (activePage == 3)
     {
         auto speedBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (speedBounds, vibratoSpeedLabel, vibratoSpeedInfoButton);
@@ -521,10 +519,7 @@ void GuitarAgAudioProcessorEditor::resized()
         vibratoModWheelDepthButton.setBounds (modBounds.removeFromLeft (170));
     }
 
-    bounds.removeFromTop (8);
-    mpeSectionButton.setBounds (bounds.removeFromTop (26));
-
-    if (mpeExpanded)
+    if (activePage == 4)
     {
         auto enableBounds = bounds.removeFromTop (34);
         enableBounds.removeFromLeft (158);
@@ -535,10 +530,7 @@ void GuitarAgAudioProcessorEditor::resized()
         mpePitchBendRangeSlider.setBounds (rangeBounds);
     }
 
-    bounds.removeFromTop (8);
-    whammySectionButton.setBounds (bounds.removeFromTop (26));
-
-    if (whammyExpanded)
+    if (activePage == 5)
     {
         auto enableBounds = bounds.removeFromTop (34);
         enableBounds.removeFromLeft (158);
@@ -557,10 +549,7 @@ void GuitarAgAudioProcessorEditor::resized()
         whammySpreadSlider.setBounds (spreadBounds);
     }
 
-    bounds.removeFromTop (8);
-    articulationSectionButton.setBounds (bounds.removeFromTop (26));
-
-    if (articulationExpanded)
+    if (activePage == 6)
     {
         auto stiffnessBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (stiffnessBounds, pickStiffnessLabel, pickStiffnessInfoButton);
@@ -600,9 +589,10 @@ void GuitarAgAudioProcessorEditor::configureSectionButton (juce::TextButton& but
 {
     button.setButtonText (title);
     button.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff222b36));
-    button.setColour (juce::TextButton::buttonOnColourId, juce::Colour (0xff2d3845));
-    button.setColour (juce::TextButton::textColourOffId, juce::Colour (0xffe8edf2));
+    button.setColour (juce::TextButton::buttonOnColourId, juce::Colour (0xff39485a));
+    button.setColour (juce::TextButton::textColourOffId, juce::Colour (0xffb7c4d0));
     button.setColour (juce::TextButton::textColourOnId, juce::Colour (0xffe8edf2));
+    button.setClickingTogglesState (false);
     button.setTriggeredOnMouseDown (false);
     addAndMakeVisible (button);
 }
@@ -637,15 +627,21 @@ void GuitarAgAudioProcessorEditor::layoutLabelAndInfo (juce::Rectangle<int>& row
     infoButton.setBounds (labelArea.removeFromLeft (22).reduced (2, 7));
 }
 
+void GuitarAgAudioProcessorEditor::setActivePage (int pageIndex)
+{
+    activePage = juce::jlimit (0, 6, pageIndex);
+    updateSectionVisibility();
+}
+
 void GuitarAgAudioProcessorEditor::updateSectionVisibility()
 {
-    setupSectionButton.setButtonText (getSectionTitle ("Setup", setupExpanded));
-    pickupSectionButton.setButtonText (getSectionTitle ("Pickup", pickupExpanded));
-    performanceSectionButton.setButtonText (getSectionTitle ("Performance", performanceExpanded));
-    vibratoSectionButton.setButtonText (getSectionTitle ("Vibrato", vibratoExpanded));
-    mpeSectionButton.setButtonText (getSectionTitle ("MPE", mpeExpanded));
-    whammySectionButton.setButtonText (getSectionTitle ("Whammy", whammyExpanded));
-    articulationSectionButton.setButtonText (getSectionTitle ("Articulation", articulationExpanded));
+    setupSectionButton.setToggleState (activePage == 0, juce::dontSendNotification);
+    pickupSectionButton.setToggleState (activePage == 1, juce::dontSendNotification);
+    performanceSectionButton.setToggleState (activePage == 2, juce::dontSendNotification);
+    vibratoSectionButton.setToggleState (activePage == 3, juce::dontSendNotification);
+    mpeSectionButton.setToggleState (activePage == 4, juce::dontSendNotification);
+    whammySectionButton.setToggleState (activePage == 5, juce::dontSendNotification);
+    articulationSectionButton.setToggleState (activePage == 6, juce::dontSendNotification);
 
     for (auto* component : { static_cast<juce::Component*> (&sustainLabel),
                              static_cast<juce::Component*> (&sustainInfoButton),
@@ -656,7 +652,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&bridgeIntonationLabel),
                              static_cast<juce::Component*> (&bridgeIntonationInfoButton),
                              static_cast<juce::Component*> (&bridgeIntonationSlider) })
-        component->setVisible (setupExpanded);
+        component->setVisible (activePage == 0);
 
     for (auto* component : { static_cast<juce::Component*> (&pickupModelLabel),
                              static_cast<juce::Component*> (&pickupModelInfoButton),
@@ -668,7 +664,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&pickupFifthLabel),
                              static_cast<juce::Component*> (&pickupQuarterLabel),
                              static_cast<juce::Component*> (&pickupThirdLabel) })
-        component->setVisible (pickupExpanded);
+        component->setVisible (activePage == 1);
 
     for (auto* component : { static_cast<juce::Component*> (&fretPressureLabel),
                              static_cast<juce::Component*> (&fretPressureInfoButton),
@@ -682,7 +678,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&fingerNoiseLabel),
                              static_cast<juce::Component*> (&fingerNoiseInfoButton),
                              static_cast<juce::Component*> (&fingerNoiseSlider) })
-        component->setVisible (performanceExpanded);
+        component->setVisible (activePage == 2);
 
     for (auto* component : { static_cast<juce::Component*> (&vibratoSpeedLabel),
                              static_cast<juce::Component*> (&vibratoSpeedInfoButton),
@@ -695,13 +691,13 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&vibratoDelaySlider),
                              static_cast<juce::Component*> (&vibratoModWheelSpeedButton),
                              static_cast<juce::Component*> (&vibratoModWheelDepthButton) })
-        component->setVisible (vibratoExpanded);
+        component->setVisible (activePage == 3);
 
     for (auto* component : { static_cast<juce::Component*> (&mpeEnabledButton),
                              static_cast<juce::Component*> (&mpePitchBendRangeLabel),
                              static_cast<juce::Component*> (&mpePitchBendRangeInfoButton),
                              static_cast<juce::Component*> (&mpePitchBendRangeSlider) })
-        component->setVisible (mpeExpanded);
+        component->setVisible (activePage == 4);
 
     for (auto* component : { static_cast<juce::Component*> (&whammyEnabledButton),
                              static_cast<juce::Component*> (&whammyUpRangeLabel),
@@ -713,7 +709,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&whammySpreadLabel),
                              static_cast<juce::Component*> (&whammySpreadInfoButton),
                              static_cast<juce::Component*> (&whammySpreadSlider) })
-        component->setVisible (whammyExpanded);
+        component->setVisible (activePage == 5);
 
     for (auto* component : { static_cast<juce::Component*> (&pickStiffnessLabel),
                              static_cast<juce::Component*> (&pickStiffnessInfoButton),
@@ -730,7 +726,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&harmonicQuarterLabel),
                              static_cast<juce::Component*> (&harmonicThirdLabel),
                              static_cast<juce::Component*> (&harmonicHalfLabel) })
-        component->setVisible (articulationExpanded);
+        component->setVisible (activePage == 6);
 
     setSize (560, getPreferredHeight());
     resized();
@@ -739,33 +735,5 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
 
 int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
 {
-    auto controlsHeight = 78 + 26 + 8 + 26 + 8 + 26 + 8 + 26 + 8 + 26 + 8 + 26 + 8 + 26;
-
-    if (setupExpanded)
-        controlsHeight += 108;
-
-    if (pickupExpanded)
-        controlsHeight += 90;
-
-    if (performanceExpanded)
-        controlsHeight += 144;
-
-    if (vibratoExpanded)
-        controlsHeight += 142;
-
-    if (mpeExpanded)
-        controlsHeight += 70;
-
-    if (whammyExpanded)
-        controlsHeight += 142;
-
-    if (articulationExpanded)
-        controlsHeight += 162;
-
-    return controlsHeight + 28;
-}
-
-juce::String GuitarAgAudioProcessorEditor::getSectionTitle (const juce::String& title, bool expanded) const
-{
-    return juce::String (expanded ? "- " : "+ ") + title;
+    return 360;
 }

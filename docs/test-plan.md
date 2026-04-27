@@ -24,6 +24,8 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] VST3 is visible to the DAW.
 - [ ] Plugin opens without crashing.
 - [ ] UI opens without crashing.
+- [ ] Tab buttons switch between Setup, Pickup, Perform, Vibrato, MPE, Whammy, and Artic pages.
+- [ ] The editor fits comfortably on screen without excessive vertical scrolling or clipping.
 - [ ] Audio output is silent when no note is playing.
 
 ### Basic MIDI

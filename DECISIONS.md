@@ -285,3 +285,17 @@ Accepted
 
 Consequences:
 `MPE Mode` routes pitch wheel per MIDI channel, while non-MPE mode keeps the existing global whammy behavior. Users can set smaller ranges for guitar-focused bends, but the plugin default favors immediate Bitwig compatibility.
+
+## 2026-04-27 — Use tabbed editor pages instead of vertical sections
+
+Decision:
+Replace the tall collapsible editor stack with fixed-height tabbed pages.
+
+Reason:
+The control set has grown enough that a vertical accordion makes the plugin window too tall for comfortable DAW use. Tabs keep the controls discoverable while giving each group enough room without requiring a skyscraper window.
+
+Status:
+Accepted
+
+Consequences:
+Only one parameter group is visible at a time. The editor stays at a compact fixed height, and future controls should be added to the relevant page or a new tab rather than extending one long vertical stack.

@@ -423,3 +423,7 @@ JUCE key/poly aftertouch includes note number and channel, so it can be routed d
 ## 2026-04-26 — MPE bend range needs to be visible
 
 MPE pitch expression is only intuitive when the DAW and instrument agree on bend range. Bitwig's default of 48 semitones is a practical plugin default for this project, because it makes DAW-side note-expression pitch curves line up without trial-and-error. Smaller guitar-like ranges can still be selected when desired.
+
+## 2026-04-27 — Accordion sections do not scale for plugin UI
+
+Collapsible sections kept early controls organized, but the full editor still became too tall once setup, pickup, performance, vibrato, MPE, whammy, and articulation controls all existed. A tabbed page model is a better fit for DAW plugin ergonomics because it keeps the window compact while preserving discoverability.

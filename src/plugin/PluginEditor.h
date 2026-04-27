@@ -22,9 +22,9 @@ private:
     void configureInfoButton (juce::TextButton& button, const juce::String& infoText);
     void showInfoPopover (juce::Component& source, const juce::String& infoText);
     void layoutLabelAndInfo (juce::Rectangle<int>& row, juce::Label& label, juce::TextButton& infoButton) noexcept;
+    void setActivePage (int pageIndex);
     void updateSectionVisibility();
     [[nodiscard]] int getPreferredHeight() const noexcept;
-    [[nodiscard]] juce::String getSectionTitle (const juce::String& title, bool expanded) const;
 
     GuitarAgAudioProcessor& audioProcessor;
     juce::TextButton projectInfoButton;
@@ -130,13 +130,7 @@ private:
     std::unique_ptr<SliderAttachment> pickTextureAttachment;
     std::unique_ptr<SliderAttachment> palmMuteAttachment;
     std::unique_ptr<SliderAttachment> harmonicTouchAttachment;
-    bool setupExpanded = true;
-    bool pickupExpanded = true;
-    bool performanceExpanded = true;
-    bool vibratoExpanded = true;
-    bool mpeExpanded = true;
-    bool whammyExpanded = true;
-    bool articulationExpanded = true;
+    int activePage = 0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAgAudioProcessorEditor)
 };
