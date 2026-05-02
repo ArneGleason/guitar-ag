@@ -1,5 +1,6 @@
 .DS_Store
 build/
+dist/
 *.vst3/
 reference-audio/
 __pycache__/
