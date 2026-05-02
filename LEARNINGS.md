@@ -435,3 +435,7 @@ Key/poly aftertouch is useful as a pressure-to-pitch-bend gesture, but MPE chann
 ## 2026-05-02 — Player interpretation belongs above voice synthesis
 
 Hammer-ons, pull-offs, and tapping should not be bolted onto raw MIDI note-on handling as random alternate attacks. They need a phrase-aware layer that tracks likely string/fret/hand positions, then decides whether a transition is picked, left-hand legato, or right-hand tapping before the voice is excited.
+
+## 2026-05-02 — Audition MIDI should be scripted
+
+A feature-audition MIDI file is useful for quick DAW checks, but it should be generated from a script rather than hand-edited as an opaque binary. Plain MIDI can exercise notes, velocity, channels, pitch bend, pressure, CC1, and CC74, but it cannot directly set arbitrary VST parameters such as pickup model, palm mute, or harmonic touch without host-specific automation or MIDI mapping.

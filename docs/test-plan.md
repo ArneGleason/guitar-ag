@@ -125,3 +125,14 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] In an MPE chord, pressure on one member channel changes only the note on that channel.
 - [ ] In an MPE chord, CC74 on one member channel changes only the note on that channel.
 - [ ] In normal MIDI mode, channel pressure and CC74 remain playable as channel-scoped/global expression when all notes share one channel.
+
+## Feature Audition MIDI Checks
+
+- [ ] Drag `tests/midi/guitar-ag-feature-audition.mid` into a DAW instrument track using Guitar AG.
+- [ ] Enable `MPE Mode` and leave `MPE Bend Range` at `48.0 st`.
+- [ ] Confirm the open-string and chord sections sound like the current expected clean-DI model.
+- [ ] Confirm the short riff releases cleanly.
+- [ ] If `Mod Wheel To Depth` or `Mod Wheel To Speed` is enabled, confirm the CC1 segment adds vibrato.
+- [ ] Confirm the key/poly aftertouch segment bends only the chord's top note.
+- [ ] Confirm the MPE pitch bend segment bends only the middle note of the held chord.
+- [ ] Confirm the MPE pressure and CC74 segment changes held-note tone/sustain without changing every note at once.

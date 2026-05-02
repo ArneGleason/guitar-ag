@@ -142,6 +142,16 @@ In the DAW:
 
 If the DAW and plugin ranges disagree, a drawn two-semitone bend will not sound like two semitones. This is why the bend range is visible in the UI.
 
+## Feature Audition MIDI
+
+The repo includes a structured MIDI audition clip:
+
+```text
+tests/midi/guitar-ag-feature-audition.mid
+```
+
+It walks through open strings, velocity dynamics, strummed chords, short releases, mod-wheel vibrato, key/poly aftertouch, MPE pitch bend, MPE pressure, and MPE CC74. See `docs/audition-midi.md` for the bar-by-bar guide and suggested plugin setup.
+
 ## Offline Render Tool
 
 The repo includes a command-line renderer that uses the same `AudioEngine` as the plugin. This made it possible to run quick experiments without opening a DAW.
