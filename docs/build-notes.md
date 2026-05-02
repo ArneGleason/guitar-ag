@@ -43,7 +43,8 @@ The first JUCE build emits a deprecated `std::wstring_convert` warning from JUCE
   - `src/dsp/` contains the audio engine, string voice, tone stage, and first fretboard mapper.
   - `tools/` contains command-line development tools.
 - Current audio behavior: MIDI note-on is assigned to a plausible standard-tuned string/fret location, then triggers the current plucked electric-string model; note-off damps/releases it.
-- Current non-goals: no MPE routing yet, no full UI, no amp/cab simulation.
+- Current expression behavior: MPE pitch bend, channel pressure, and CC74 are routed by MIDI channel to matching voices when the DAW sends separate member channels.
+- Current non-goals: no full MPE zone/master-channel negotiation, no amp/cab simulation, and no phrase-level player model for hammer-ons, pull-offs, tapping, or slides yet.
 
 ## Prerequisites
 
@@ -99,7 +100,7 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
 
 The offline renderer uses the same `AudioEngine` as the VST3 processor, so it is useful for rapid DSP iteration. It does not test DAW/plugin-host behavior, plugin scanning, or UI behavior.
 
-Optional arguments include `--gain`, `--sustain`, `--pick-stiffness`, `--pick-texture`, `--palm-mute`, `--harmonic-touch`, `--string-age`, `--bridge-intonation`, `--pickup-position`, and `--pickup-model`. `--gain` can align the offline WAV level with a DAW export if the DAW project has track/output gain applied.
+Optional arguments include `--gain`, `--sustain`, `--pick-stiffness`, `--pick-texture`, `--palm-mute`, `--harmonic-touch`, `--string-age`, `--bridge-intonation`, `--aftertouch`, `--channel-pressure`, `--cc74`, `--mpe-mode`, `--mpe-bend-range`, `--mpe-pressure-amount`, `--mpe-cc74-amount`, `--pickup-position`, and `--pickup-model`. `--gain` can align the offline WAV level with a DAW export if the DAW project has track/output gain applied.
 
 The script copies:
 
@@ -152,15 +153,16 @@ After building, copy or symlink the VST3 bundle into one of the macOS VST3 scan 
 
 Then rescan plugins in a DAW such as Reaper, Bitwig, Ableton Live, or another VST3 host.
 
-Manual checks for this milestone:
+Manual checks for the current VST3 build:
 
 - The DAW sees `Guitar AG` as an instrument plugin.
 - The plugin opens without crashing.
-- The small placeholder editor opens.
+- The tabbed editor opens and the header identity line is readable.
 - No sound is produced when no MIDI note is held.
-- MIDI note-on produces a basic plucked-string tone.
+- MIDI note-on produces the modeled clean-DI guitar tone.
 - MIDI note-off releases the tone.
-- The editor identity line should show the current model label, for example `StringVoice KS-020 FretboardMap`.
+- With MPE enabled in the DAW and plugin, per-note pitch bend, channel pressure, and CC74 should affect only the matching member-channel voice.
+- The editor identity line should show the current model label, for example `StringVoice EG-047 MPEExpr`.
 
 ## Bitwig Notes
 

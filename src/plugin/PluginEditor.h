@@ -45,6 +45,8 @@ private:
     juce::Slider vibratoDepthSlider;
     juce::Slider vibratoDelaySlider;
     juce::Slider mpePitchBendRangeSlider;
+    juce::Slider mpePressureAmountSlider;
+    juce::Slider mpeTimbreAmountSlider;
     juce::Slider whammyUpRangeSlider;
     juce::Slider whammyDownRangeSlider;
     juce::Slider whammySpreadSlider;
@@ -64,6 +66,8 @@ private:
     juce::Label vibratoDepthLabel;
     juce::Label vibratoDelayLabel;
     juce::Label mpePitchBendRangeLabel;
+    juce::Label mpePressureAmountLabel;
+    juce::Label mpeTimbreAmountLabel;
     juce::Label whammyUpRangeLabel;
     juce::Label whammyDownRangeLabel;
     juce::Label whammySpreadLabel;
@@ -91,6 +95,8 @@ private:
     juce::TextButton vibratoDepthInfoButton;
     juce::TextButton vibratoDelayInfoButton;
     juce::TextButton mpePitchBendRangeInfoButton;
+    juce::TextButton mpePressureAmountInfoButton;
+    juce::TextButton mpeTimbreAmountInfoButton;
     juce::TextButton whammyUpRangeInfoButton;
     juce::TextButton whammyDownRangeInfoButton;
     juce::TextButton whammySpreadInfoButton;
@@ -120,6 +126,8 @@ private:
     std::unique_ptr<ButtonAttachment> vibratoModWheelDepthAttachment;
     std::unique_ptr<ButtonAttachment> mpeEnabledAttachment;
     std::unique_ptr<SliderAttachment> mpePitchBendRangeAttachment;
+    std::unique_ptr<SliderAttachment> mpePressureAmountAttachment;
+    std::unique_ptr<SliderAttachment> mpeTimbreAmountAttachment;
     std::unique_ptr<ButtonAttachment> whammyEnabledAttachment;
     std::unique_ptr<SliderAttachment> whammyUpRangeAttachment;
     std::unique_ptr<SliderAttachment> whammyDownRangeAttachment;

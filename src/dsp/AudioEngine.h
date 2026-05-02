@@ -32,6 +32,8 @@ public:
     void setVibratoModWheelDepthEnabled (bool enabled) noexcept;
     void setMpeEnabled (bool enabled) noexcept;
     void setMpePitchBendRange (float newMpePitchBendRange) noexcept;
+    void setMpePressureAmount (float newMpePressureAmount) noexcept;
+    void setMpeTimbreAmount (float newMpeTimbreAmount) noexcept;
     void setWhammyEnabled (bool enabled) noexcept;
     void setWhammyUpSemitones (float newWhammyUpSemitones) noexcept;
     void setWhammyDownSemitones (float newWhammyDownSemitones) noexcept;
@@ -54,6 +56,8 @@ private:
     void noteOff (int noteNumber, int channel);
     void applyAftertouch (int noteNumber, int channel, float pressure) noexcept;
     void applyMpePitchBend (int channel, float bend) noexcept;
+    void applyMpePressure (int channel, float pressure) noexcept;
+    void applyMpeTimbre (int channel, float timbre) noexcept;
     void scheduleMidiMessage (const juce::MidiMessage& message, int64_t sampleTime) noexcept;
     void dispatchScheduledMidiEvents() noexcept;
     void clearScheduledMidiEvents() noexcept;
@@ -116,6 +120,8 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> modWheel { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pitchWheel { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> mpePitchBendRange { 48.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> mpePressureAmount { 0.65f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> mpeTimbreAmount { 0.65f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> whammyUpSemitones { 6.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> whammyDownSemitones { 12.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> whammySpread { 0.35f };
@@ -132,6 +138,8 @@ private:
     bool vibratoModWheelDepthEnabled = false;
     bool mpeEnabled = false;
     bool whammyEnabled = true;
+    std::array<float, 16> mpePressureByChannel {};
+    std::array<float, 16> mpeTimbreByChannel {};
 };
 
 } // namespace guitar_ag

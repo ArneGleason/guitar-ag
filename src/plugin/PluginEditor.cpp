@@ -239,6 +239,18 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "Expected MPE pitch-bend range in semitones. Default is +/-48 semitones to match Bitwig's MPE default. "
                          "Set this to the same value in the DAW so drawn note bends land at the intended interval.");
 
+    configureLabel (mpePressureAmountLabel, "Pressure Amt");
+    configureSlider (mpePressureAmountSlider, juce::Colour (0xffffb36f));
+    configureInfoButton (mpePressureAmountInfoButton,
+                         "Scales MIDI channel pressure for the matching active voice. Higher values add sustain, level, and upper-mode intensity "
+                         "without changing other MPE member channels.");
+
+    configureLabel (mpeTimbreAmountLabel, "CC74 Amount");
+    configureSlider (mpeTimbreAmountSlider, juce::Colour (0xff75d7d1));
+    configureInfoButton (mpeTimbreAmountInfoButton,
+                         "Scales MIDI CC74/timbre for the matching active voice. Higher CC74 values lean the held note brighter and more bridge-like "
+                         "without changing other MPE member channels.");
+
     whammyEnabledButton.setButtonText ("Pitch Wheel Whammy");
     whammyEnabledButton.setColour (juce::ToggleButton::textColourId, juce::Colour (0xffd6dee7));
     whammyEnabledButton.setColour (juce::ToggleButton::tickColourId, juce::Colour (0xfff0a36e));
@@ -340,6 +352,12 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     mpePitchBendRangeAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                       GuitarAgAudioProcessor::mpePitchBendRangeParameterId,
                                                                       mpePitchBendRangeSlider);
+    mpePressureAmountAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                      GuitarAgAudioProcessor::mpePressureAmountParameterId,
+                                                                      mpePressureAmountSlider);
+    mpeTimbreAmountAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                    GuitarAgAudioProcessor::mpeTimbreAmountParameterId,
+                                                                    mpeTimbreAmountSlider);
     whammyEnabledAttachment = std::make_unique<ButtonAttachment> (audioProcessor.getValueTreeState(),
                                                                   GuitarAgAudioProcessor::whammyEnabledParameterId,
                                                                   whammyEnabledButton);
@@ -406,7 +424,7 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
                              juce::Justification::centredRight, 1);
 
     graphics.setColour (juce::Colour (0xff7f8d99));
-    graphics.drawFittedText ("MPE pitch bend is available; pressure/CC74 routing is still partial.",
+    graphics.drawFittedText ("MPE pitch bend, pressure, and CC74 route per member channel.",
                              headerInfoBounds.removeFromTop (18),
                              juce::Justification::centredRight,
                              1);
@@ -528,6 +546,14 @@ void GuitarAgAudioProcessorEditor::resized()
         auto rangeBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (rangeBounds, mpePitchBendRangeLabel, mpePitchBendRangeInfoButton);
         mpePitchBendRangeSlider.setBounds (rangeBounds);
+
+        auto pressureAmountBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (pressureAmountBounds, mpePressureAmountLabel, mpePressureAmountInfoButton);
+        mpePressureAmountSlider.setBounds (pressureAmountBounds);
+
+        auto timbreAmountBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (timbreAmountBounds, mpeTimbreAmountLabel, mpeTimbreAmountInfoButton);
+        mpeTimbreAmountSlider.setBounds (timbreAmountBounds);
     }
 
     if (activePage == 5)
@@ -696,7 +722,13 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
     for (auto* component : { static_cast<juce::Component*> (&mpeEnabledButton),
                              static_cast<juce::Component*> (&mpePitchBendRangeLabel),
                              static_cast<juce::Component*> (&mpePitchBendRangeInfoButton),
-                             static_cast<juce::Component*> (&mpePitchBendRangeSlider) })
+                             static_cast<juce::Component*> (&mpePitchBendRangeSlider),
+                             static_cast<juce::Component*> (&mpePressureAmountLabel),
+                             static_cast<juce::Component*> (&mpePressureAmountInfoButton),
+                             static_cast<juce::Component*> (&mpePressureAmountSlider),
+                             static_cast<juce::Component*> (&mpeTimbreAmountLabel),
+                             static_cast<juce::Component*> (&mpeTimbreAmountInfoButton),
+                             static_cast<juce::Component*> (&mpeTimbreAmountSlider) })
         component->setVisible (activePage == 4);
 
     for (auto* component : { static_cast<juce::Component*> (&whammyEnabledButton),

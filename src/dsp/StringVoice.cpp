@@ -99,6 +99,10 @@ void StringVoice::reset()
     aftertouchPressureTarget = 0.0f;
     mpePitchBend = 0.0f;
     mpePitchBendTarget = 0.0f;
+    mpePressure = 0.0f;
+    mpePressureTarget = 0.0f;
+    mpeTimbre = 0.0f;
+    mpeTimbreTarget = 0.0f;
     active = false;
     releasing = false;
     woundString = false;
@@ -204,6 +208,10 @@ void StringVoice::start (int midiNoteNumber,
     aftertouchPressureTarget = 0.0f;
     mpePitchBend = 0.0f;
     mpePitchBendTarget = 0.0f;
+    mpePressure = 0.0f;
+    mpePressureTarget = 0.0f;
+    mpeTimbre = 0.0f;
+    mpeTimbreTarget = 0.0f;
     releasing = false;
     active = true;
     woundString = woundAmount > 0.0f;
@@ -514,6 +522,22 @@ void StringVoice::setMpePitchBend (int midiChannel, float bend) noexcept
     mpePitchBendTarget = juce::jlimit (-1.0f, 1.0f, bend);
 }
 
+void StringVoice::setMpePressure (int midiChannel, float pressure) noexcept
+{
+    if (! active || channel != midiChannel)
+        return;
+
+    mpePressureTarget = juce::jlimit (0.0f, 1.0f, pressure);
+}
+
+void StringVoice::setMpeTimbre (int midiChannel, float timbre) noexcept
+{
+    if (! active || channel != midiChannel)
+        return;
+
+    mpeTimbreTarget = juce::jlimit (0.0f, 1.0f, timbre);
+}
+
 float StringVoice::renderSample (float tailSustain,
                                  float palmMute,
                                  float vibratoDepthCents,
@@ -522,6 +546,8 @@ float StringVoice::renderSample (float tailSustain,
                                  float whammySemitones,
                                  float whammySpread,
                                  float aftertouchBendSemitones,
+                                 float mpePressureAmount,
+                                 float mpeTimbreAmount,
                                  float mpePitchBendRange) noexcept
 {
     if (! active)
@@ -559,6 +585,10 @@ float StringVoice::renderSample (float tailSustain,
     const auto aftertouchRatio = std::pow (2.0f, aftertouchPressure * aftertouchBendSemitones / 12.0f);
     mpePitchBend += (mpePitchBendTarget - mpePitchBend) * 0.0065f;
     const auto mpePitchRatio = std::pow (2.0f, mpePitchBend * mpePitchBendRange / 12.0f);
+    mpePressure += (mpePressureTarget - mpePressure) * 0.0030f;
+    mpeTimbre += (mpeTimbreTarget - mpeTimbre) * 0.0035f;
+    const auto expressionPressure = juce::jlimit (0.0f, 1.0f, mpePressure * juce::jlimit (0.0f, 1.0f, mpePressureAmount));
+    const auto expressionTimbre = juce::jlimit (0.0f, 1.0f, mpeTimbre * juce::jlimit (0.0f, 1.0f, mpeTimbreAmount));
     const auto pitchRatio = std::pow (2.0f, vibratoCents / 1200.0f)
                           * getWhammyRatio (whammySemitones, whammySpread)
                           * aftertouchRatio
@@ -572,7 +602,15 @@ float StringVoice::renderSample (float tailSustain,
     for (auto mode = 0; mode < modalCount; ++mode)
     {
         const auto modeIndex = static_cast<size_t> (mode);
-        modalOutput += modalAmplitude[modeIndex] * modalCosine[modeIndex];
+        const auto modePosition = static_cast<float> (mode) / static_cast<float> (modalCount - 1);
+        const auto highMode = std::pow (modePosition, 0.68f);
+        const auto lowMode = 1.0f - highMode;
+        const auto expressionModeGain = juce::jlimit (0.72f,
+                                                      1.42f,
+                                                      1.0f
+                                                          + expressionPressure * (0.045f + 0.13f * highMode)
+                                                          + expressionTimbre * (0.24f * highMode - 0.045f * lowMode));
+        modalOutput += modalAmplitude[modeIndex] * modalCosine[modeIndex] * expressionModeGain;
 
         const auto phaseStep = modalPhaseStep[modeIndex] * pitchRatio;
         const auto sinStep = std::sin (phaseStep);
@@ -586,8 +624,13 @@ float StringVoice::renderSample (float tailSustain,
 
         const auto normalDecay = modalDecay[modeIndex];
         const auto relaxedDecay = 1.0f - (1.0f - normalDecay) * modalTailDampingScale[modeIndex];
-        const auto effectiveDecay = normalDecay + (relaxedDecay - normalDecay) * tailBlend;
-        const auto modeWeight = 0.78f + 0.22f * static_cast<float> (mode) / static_cast<float> (modalCount - 1);
+        const auto baseEffectiveDecay = normalDecay + (relaxedDecay - normalDecay) * tailBlend;
+        const auto pressureDecayLift = expressionPressure * (0.000045f + 0.000120f * highMode);
+        const auto timbreDecayTilt = expressionTimbre * (0.000085f * highMode - 0.000030f * lowMode);
+        const auto effectiveDecay = juce::jlimit (0.90f,
+                                                  0.999999f,
+                                                  baseEffectiveDecay + pressureDecayLift + timbreDecayTilt);
+        const auto modeWeight = 0.78f + 0.22f * modePosition;
         const auto effectivePalmDecay = 1.0f + (palmDecay - 1.0f) * modeWeight;
         modalAmplitude[modeIndex] *= effectiveDecay * modalReleaseDecay * effectivePalmDecay;
     }
@@ -693,6 +736,7 @@ float StringVoice::renderSample (float tailSustain,
     modalOutput *= juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / attackRampSamples);
     modalOutput *= 1.0f - 0.22f * pickHeavyChoke;
     modalOutput *= 1.0f - 0.28f * palmCurve;
+    modalOutput *= 1.0f + 0.10f * expressionPressure + 0.06f * expressionTimbre;
     modalOutput += contactOutput;
 
     ++samplesSinceStart;

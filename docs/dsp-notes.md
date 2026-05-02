@@ -1193,6 +1193,26 @@ Expected sound:
 
 With Bitwig set to the same 48-semitone MPE bend range, drawing a two-semitone note expression bend should produce a two-semitone bend. In a chord where Bitwig assigns separate channels, bending one note should leave the other notes stable.
 
+## 2026-05-02 — MPE Pressure And CC74 Expression
+
+Added the next MPE expression routing milestone.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-047 MPEExpr`.
+- Added `MPE Pressure Amount`, defaulting to 65%.
+- Added `MPE CC74 Amount`, defaulting to 65%.
+- Channel pressure is routed by MIDI channel to active voices on that channel.
+- CC74/timbre is routed by MIDI channel to active voices on that channel.
+- Pressure adds a conservative held-note lift: more sustain, slightly more level, and more upper-mode intensity.
+- CC74 leans the held voice brighter/more bridge-like by emphasizing upper modes and their decay.
+- Key/poly aftertouch bend remains separate and still uses the `Aftertouch Bend` parameter.
+- The offline renderer accepts `--mpe-pressure-amount`, `--mpe-cc74-amount`, `--channel-pressure`, and `--cc74`.
+
+Expected sound:
+
+With notes on separate MPE member channels, pressure or CC74 applied to one note should change only that voice. The mapping is deliberately musical rather than dramatic; it should add expression without making the base patch jump when no expression data is sent.
+
 ## Suggested MVP Signal Flow
 
 ```text

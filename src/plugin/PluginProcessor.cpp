@@ -24,6 +24,8 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     vibratoModWheelDepthParameter = parameters.getRawParameterValue (vibratoModWheelDepthParameterId);
     mpeEnabledParameter = parameters.getRawParameterValue (mpeEnabledParameterId);
     mpePitchBendRangeParameter = parameters.getRawParameterValue (mpePitchBendRangeParameterId);
+    mpePressureAmountParameter = parameters.getRawParameterValue (mpePressureAmountParameterId);
+    mpeTimbreAmountParameter = parameters.getRawParameterValue (mpeTimbreAmountParameterId);
     whammyEnabledParameter = parameters.getRawParameterValue (whammyEnabledParameterId);
     whammyUpRangeParameter = parameters.getRawParameterValue (whammyUpRangeParameterId);
     whammyDownRangeParameter = parameters.getRawParameterValue (whammyDownRangeParameterId);
@@ -208,6 +210,26 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
             .withStringFromValueFunction (semitoneString)
             .withValueFromStringFunction (semitoneValue)));
 
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { mpePressureAmountParameterId, 1 },
+        "MPE Pressure Amount",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.65f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { mpeTimbreAmountParameterId, 1 },
+        "MPE CC74 Amount",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.65f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
+
     layout.push_back (std::make_unique<juce::AudioParameterBool> (
         juce::ParameterID { whammyEnabledParameterId, 1 },
         "Pitch Wheel Whammy",
@@ -344,6 +366,8 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
                                                 && vibratoModWheelDepthParameter->load() >= 0.5f);
     audioEngine.setMpeEnabled (mpeEnabledParameter != nullptr && mpeEnabledParameter->load() >= 0.5f);
     audioEngine.setMpePitchBendRange (mpePitchBendRangeParameter != nullptr ? mpePitchBendRangeParameter->load() : 48.0f);
+    audioEngine.setMpePressureAmount (mpePressureAmountParameter != nullptr ? mpePressureAmountParameter->load() : 0.65f);
+    audioEngine.setMpeTimbreAmount (mpeTimbreAmountParameter != nullptr ? mpeTimbreAmountParameter->load() : 0.65f);
     audioEngine.setWhammyEnabled (whammyEnabledParameter == nullptr || whammyEnabledParameter->load() >= 0.5f);
     audioEngine.setWhammyUpSemitones (whammyUpRangeParameter != nullptr ? whammyUpRangeParameter->load() : 6.0f);
     audioEngine.setWhammyDownSemitones (whammyDownRangeParameter != nullptr ? whammyDownRangeParameter->load() : 12.0f);

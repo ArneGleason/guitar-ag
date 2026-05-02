@@ -270,7 +270,7 @@ Status:
 Accepted
 
 Consequences:
-`Aftertouch Bend` defaults to +2 semitones and allows -12 to +12 semitones. Channel pressure remains unmapped. Future MPE work should preserve this behavior where useful, but distinguish key aftertouch from MPE channel pressure on member channels.
+`Aftertouch Bend` defaults to +2 semitones and allows -12 to +12 semitones. At the time of this decision, channel pressure remained unmapped. Future MPE work should preserve this behavior where useful, but distinguish key aftertouch from MPE channel pressure on member channels.
 
 ## 2026-04-26 — Default MPE pitch bend range to Bitwig's 48 semitones
 
@@ -285,6 +285,20 @@ Accepted
 
 Consequences:
 `MPE Mode` routes pitch wheel per MIDI channel, while non-MPE mode keeps the existing global whammy behavior. Users can set smaller ranges for guitar-focused bends, but the plugin default favors immediate Bitwig compatibility.
+
+## 2026-05-02 — Map MPE pressure separately from aftertouch bend
+
+Decision:
+Route MIDI channel pressure and CC74/timbre by channel, but map channel pressure to tone/sustain/intensity rather than reusing the `Aftertouch Bend` pitch-bend mapping.
+
+Reason:
+Key/poly aftertouch has note identity and is useful as a keyboard bend gesture. MPE channel pressure is a broader per-note expression lane and should not unexpectedly bend pitch when the user only wants pressure dynamics.
+
+Status:
+Accepted
+
+Consequences:
+`MPE Pressure Amount` and `MPE CC74 Amount` scale channel-scoped expression. Pressure adds held-note sustain, level, and upper-mode intensity. CC74 leans the held note brighter/more bridge-like. Independent behavior still requires the DAW to place simultaneous notes on separate MPE member channels.
 
 ## 2026-04-27 — Use tabbed editor pages instead of vertical sections
 

@@ -24,6 +24,8 @@ public:
     static constexpr auto vibratoModWheelDepthParameterId = "vibratoModWheelDepth";
     static constexpr auto mpeEnabledParameterId = "mpeEnabled";
     static constexpr auto mpePitchBendRangeParameterId = "mpePitchBendRange";
+    static constexpr auto mpePressureAmountParameterId = "mpePressureAmount";
+    static constexpr auto mpeTimbreAmountParameterId = "mpeTimbreAmount";
     static constexpr auto whammyEnabledParameterId = "whammyEnabled";
     static constexpr auto whammyUpRangeParameterId = "whammyUpRange";
     static constexpr auto whammyDownRangeParameterId = "whammyDownRange";
@@ -84,6 +86,8 @@ private:
     std::atomic<float>* vibratoModWheelDepthParameter = nullptr;
     std::atomic<float>* mpeEnabledParameter = nullptr;
     std::atomic<float>* mpePitchBendRangeParameter = nullptr;
+    std::atomic<float>* mpePressureAmountParameter = nullptr;
+    std::atomic<float>* mpeTimbreAmountParameter = nullptr;
     std::atomic<float>* whammyEnabledParameter = nullptr;
     std::atomic<float>* whammyUpRangeParameter = nullptr;
     std::atomic<float>* whammyDownRangeParameter = nullptr;

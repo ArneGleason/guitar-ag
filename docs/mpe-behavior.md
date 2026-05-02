@@ -32,9 +32,12 @@ Current implementation:
 
 - `MPE Mode` toggles per-channel pitch-wheel routing.
 - `MPE Bend Range` defaults to ±48 semitones to match Bitwig's common MPE default.
+- `MPE Pressure Amount` scales channel-pressure response for the matching active voice.
+- `MPE CC74 Amount` scales CC74/timbre response for the matching active voice.
 - In MPE mode, pitch wheel messages are routed to active voices on the same MIDI channel.
 - If multiple active voices share one MIDI channel, they will bend together; a DAW must send separate member channels for independent bends.
 - In non-MPE mode, pitch wheel remains available as the global whammy-bar control.
+- Channel pressure and CC74 are still channel-scoped in normal MIDI mode, which means they behave like global expression when all notes are on one channel.
 
 ## Required MPE Messages
 
@@ -82,18 +85,21 @@ Suggested mappings:
 - pressure brightens tone
 - pressure increases pickup intensity
 
-Current pre-MPE behavior:
+Current implementation:
 
 - MIDI key/poly aftertouch is routed by note number and channel to matching active voices.
 - The `Aftertouch Bend` parameter maps full key/poly aftertouch pressure to a configurable pitch bend, defaulting to +2 semitones.
-- Channel pressure is not mapped yet.
-- This does not replace the planned MPE member-channel pressure routing.
+- Channel pressure is routed by MIDI channel to matching active voices.
+- `MPE Pressure Amount` scales the channel-pressure effect.
+- The first pressure mapping is intentionally conservative: it adds sustain, output intensity, and upper-mode emphasis rather than pitch bend.
 
 ### CC74 / Timbre
 
 In MPE mode:
 
 - CC74 on a member channel applies only to that channel's active voice.
+- `MPE CC74 Amount` scales the response.
+- The first CC74 mapping leans the held voice brighter and more bridge-like by emphasizing upper modes and their decay.
 
 Suggested mappings:
 

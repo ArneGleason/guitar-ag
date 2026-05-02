@@ -36,6 +36,8 @@ public:
     [[nodiscard]] int getChannel() const noexcept { return channel; }
     void setAftertouchPressure (int midiNoteNumber, int midiChannel, float pressure) noexcept;
     void setMpePitchBend (int midiChannel, float bend) noexcept;
+    void setMpePressure (int midiChannel, float pressure) noexcept;
+    void setMpeTimbre (int midiChannel, float timbre) noexcept;
 
     float renderSample (float tailSustain,
                         float palmMute,
@@ -45,6 +47,8 @@ public:
                         float whammySemitones,
                         float whammySpread,
                         float aftertouchBendSemitones,
+                        float mpePressureAmount,
+                        float mpeTimbreAmount,
                         float mpePitchBendRange) noexcept;
 
 private:
@@ -162,6 +166,10 @@ private:
     float aftertouchPressureTarget = 0.0f;
     float mpePitchBend = 0.0f;
     float mpePitchBendTarget = 0.0f;
+    float mpePressure = 0.0f;
+    float mpePressureTarget = 0.0f;
+    float mpeTimbre = 0.0f;
+    float mpeTimbreTarget = 0.0f;
 
     uint32_t randomState = 0x12345678u;
 

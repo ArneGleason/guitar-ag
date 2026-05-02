@@ -42,6 +42,10 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     pitchWheel.setCurrentAndTargetValue (0.0f);
     mpePitchBendRange.reset (sampleRate, 0.030);
     mpePitchBendRange.setCurrentAndTargetValue (48.0f);
+    mpePressureAmount.reset (sampleRate, 0.030);
+    mpePressureAmount.setCurrentAndTargetValue (0.65f);
+    mpeTimbreAmount.reset (sampleRate, 0.030);
+    mpeTimbreAmount.setCurrentAndTargetValue (0.65f);
     whammyUpSemitones.reset (sampleRate, 0.030);
     whammyUpSemitones.setCurrentAndTargetValue (6.0f);
     whammyDownSemitones.reset (sampleRate, 0.030);
@@ -88,12 +92,16 @@ void AudioEngine::reset()
     modWheel.setCurrentAndTargetValue (modWheel.getTargetValue());
     pitchWheel.setCurrentAndTargetValue (pitchWheel.getTargetValue());
     mpePitchBendRange.setCurrentAndTargetValue (mpePitchBendRange.getTargetValue());
+    mpePressureAmount.setCurrentAndTargetValue (mpePressureAmount.getTargetValue());
+    mpeTimbreAmount.setCurrentAndTargetValue (mpeTimbreAmount.getTargetValue());
     whammyUpSemitones.setCurrentAndTargetValue (whammyUpSemitones.getTargetValue());
     whammyDownSemitones.setCurrentAndTargetValue (whammyDownSemitones.getTargetValue());
     whammySpread.setCurrentAndTargetValue (whammySpread.getTargetValue());
     aftertouchBendSemitones.setCurrentAndTargetValue (aftertouchBendSemitones.getTargetValue());
     pickupPosition.setCurrentAndTargetValue (pickupPosition.getTargetValue());
     mpePitchBendByChannel.fill (0.0f);
+    mpePressureByChannel.fill (0.0f);
+    mpeTimbreByChannel.fill (0.0f);
     timelineSample = 0;
     nextVoice = 0;
     nextFingerNoiseVoice = 0;
@@ -201,6 +209,16 @@ void AudioEngine::setMpePitchBendRange (float newMpePitchBendRange) noexcept
     mpePitchBendRange.setTargetValue (juce::jlimit (0.0f, 96.0f, newMpePitchBendRange));
 }
 
+void AudioEngine::setMpePressureAmount (float newMpePressureAmount) noexcept
+{
+    mpePressureAmount.setTargetValue (juce::jlimit (0.0f, 1.0f, newMpePressureAmount));
+}
+
+void AudioEngine::setMpeTimbreAmount (float newMpeTimbreAmount) noexcept
+{
+    mpeTimbreAmount.setTargetValue (juce::jlimit (0.0f, 1.0f, newMpeTimbreAmount));
+}
+
 void AudioEngine::setWhammyEnabled (bool enabled) noexcept
 {
     whammyEnabled = enabled;
@@ -270,6 +288,8 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         const auto vibratoDelaySeconds = vibratoDelay.getNextValue();
         const auto pitchWheelAmount = pitchWheel.getNextValue();
         const auto mpePitchBendRangeAmount = mpePitchBendRange.getNextValue();
+        const auto mpePressureAmountValue = mpePressureAmount.getNextValue();
+        const auto mpeTimbreAmountValue = mpeTimbreAmount.getNextValue();
         const auto whammyUpAmount = whammyUpSemitones.getNextValue();
         const auto whammyDownAmount = whammyDownSemitones.getNextValue();
         const auto whammySemitones = whammyEnabled && ! mpeEnabled
@@ -296,6 +316,8 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
                                                whammySemitones,
                                                whammySpreadAmount,
                                                aftertouchBendAmount,
+                                               mpePressureAmountValue,
+                                               mpeTimbreAmountValue,
                                                mpePitchBendRangeAmount);
 
         mixedSample += renderFingerNoiseSample() * fingerNoiseAmount;
@@ -313,6 +335,18 @@ void AudioEngine::handleIncomingMidiMessage (const juce::MidiMessage& message)
     if (message.isController() && message.getControllerNumber() == 1)
     {
         modWheel.setTargetValue (static_cast<float> (message.getControllerValue()) / 127.0f);
+        return;
+    }
+
+    if (message.isController() && message.getControllerNumber() == 74)
+    {
+        applyMpeTimbre (message.getChannel(), static_cast<float> (message.getControllerValue()) / 127.0f);
+        return;
+    }
+
+    if (message.isChannelPressure())
+    {
+        applyMpePressure (message.getChannel(), static_cast<float> (message.getChannelPressureValue()) / 127.0f);
         return;
     }
 
@@ -361,9 +395,21 @@ void AudioEngine::handleMidiMessage (const juce::MidiMessage& message)
     }
 
     if (message.isAftertouch())
+    {
         applyAftertouch (message.getNoteNumber(),
                          message.getChannel(),
                          static_cast<float> (message.getAfterTouchValue()) / 127.0f);
+        return;
+    }
+
+    if (message.isChannelPressure())
+    {
+        applyMpePressure (message.getChannel(), static_cast<float> (message.getChannelPressureValue()) / 127.0f);
+        return;
+    }
+
+    if (message.isController() && message.getControllerNumber() == 74)
+        applyMpeTimbre (message.getChannel(), static_cast<float> (message.getControllerValue()) / 127.0f);
 }
 
 void AudioEngine::scheduleMidiMessage (const juce::MidiMessage& message, int64_t sampleTime) noexcept
@@ -429,7 +475,10 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                          noteFretPressure,
                          notePickupPosition,
                          notePickupModel);
-            voice.setMpePitchBend (channel, mpePitchBendByChannel[static_cast<size_t> (juce::jlimit (1, 16, channel) - 1)]);
+            const auto channelIndex = static_cast<size_t> (juce::jlimit (1, 16, channel) - 1);
+            voice.setMpePitchBend (channel, mpePitchBendByChannel[channelIndex]);
+            voice.setMpePressure (channel, mpePressureByChannel[channelIndex]);
+            voice.setMpeTimbre (channel, mpeTimbreByChannel[channelIndex]);
             return;
         }
     }
@@ -448,7 +497,10 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                        noteFretPressure,
                        notePickupPosition,
                        notePickupModel);
-    stolenVoice.setMpePitchBend (channel, mpePitchBendByChannel[static_cast<size_t> (juce::jlimit (1, 16, channel) - 1)]);
+    const auto channelIndex = static_cast<size_t> (juce::jlimit (1, 16, channel) - 1);
+    stolenVoice.setMpePitchBend (channel, mpePitchBendByChannel[channelIndex]);
+    stolenVoice.setMpePressure (channel, mpePressureByChannel[channelIndex]);
+    stolenVoice.setMpeTimbre (channel, mpeTimbreByChannel[channelIndex]);
     nextVoice = (nextVoice + 1) % maxVoices;
 }
 
@@ -608,6 +660,26 @@ void AudioEngine::applyMpePitchBend (int channel, float bend) noexcept
 
     for (auto& voice : voices)
         voice.setMpePitchBend (clampedChannel, clampedBend);
+}
+
+void AudioEngine::applyMpePressure (int channel, float pressure) noexcept
+{
+    const auto clampedChannel = juce::jlimit (1, 16, channel);
+    const auto clampedPressure = juce::jlimit (0.0f, 1.0f, pressure);
+    mpePressureByChannel[static_cast<size_t> (clampedChannel - 1)] = clampedPressure;
+
+    for (auto& voice : voices)
+        voice.setMpePressure (clampedChannel, clampedPressure);
+}
+
+void AudioEngine::applyMpeTimbre (int channel, float timbre) noexcept
+{
+    const auto clampedChannel = juce::jlimit (1, 16, channel);
+    const auto clampedTimbre = juce::jlimit (0.0f, 1.0f, timbre);
+    mpeTimbreByChannel[static_cast<size_t> (clampedChannel - 1)] = clampedTimbre;
+
+    for (auto& voice : voices)
+        voice.setMpeTimbre (clampedChannel, clampedTimbre);
 }
 
 } // namespace guitar_ag

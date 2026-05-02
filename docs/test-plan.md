@@ -104,7 +104,7 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Pressing into a held note with key/poly aftertouch bends that note smoothly upward.
 - [ ] In a chord, key/poly aftertouch on one note does not bend the other held notes.
 - [ ] Negative `Aftertouch Bend` values bend downward if deliberately selected.
-- [ ] Channel pressure remains unmapped for now.
+- [ ] Channel pressure no longer drives pitch bend directly; it uses the MPE pressure/tone mapping.
 
 ## MPE Pitch Bend Checks
 
@@ -115,3 +115,13 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Draw or perform a pitch bend on one note only.
 - [ ] Only that note bends; the other held notes remain at their original pitch.
 - [ ] Reducing `MPE Bend Range` requires the DAW-side range to be reduced to match.
+
+## MPE Pressure And CC74 Checks
+
+- [ ] `MPE Pressure Amount` at 0% disables channel-pressure tone/sustain response.
+- [ ] Raising `MPE Pressure Amount` makes channel pressure add sustain, level, and upper-mode intensity.
+- [ ] `MPE CC74 Amount` at 0% disables CC74/timbre response.
+- [ ] Raising `MPE CC74 Amount` makes CC74 brighten/shift only the matching voice.
+- [ ] In an MPE chord, pressure on one member channel changes only the note on that channel.
+- [ ] In an MPE chord, CC74 on one member channel changes only the note on that channel.
+- [ ] In normal MIDI mode, channel pressure and CC74 remain playable as channel-scoped/global expression when all notes share one channel.

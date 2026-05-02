@@ -427,3 +427,11 @@ MPE pitch expression is only intuitive when the DAW and instrument agree on bend
 ## 2026-04-27 — Accordion sections do not scale for plugin UI
 
 Collapsible sections kept early controls organized, but the full editor still became too tall once setup, pickup, performance, vibrato, MPE, whammy, and articulation controls all existed. A tabbed page model is a better fit for DAW plugin ergonomics because it keeps the window compact while preserving discoverability.
+
+## 2026-05-02 — Separate pitch pressure from expression pressure
+
+Key/poly aftertouch is useful as a pressure-to-pitch-bend gesture, but MPE channel pressure should not automatically reuse that same bend mapping. For the first MPE expression pass, channel pressure works better as a tone/sustain/intensity lane, while key/poly aftertouch keeps the explicit `Aftertouch Bend` behavior.
+
+## 2026-05-02 — Player interpretation belongs above voice synthesis
+
+Hammer-ons, pull-offs, and tapping should not be bolted onto raw MIDI note-on handling as random alternate attacks. They need a phrase-aware layer that tracks likely string/fret/hand positions, then decides whether a transition is picked, left-hand legato, or right-hand tapping before the voice is excited.

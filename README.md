@@ -24,11 +24,12 @@ Implemented so far:
 - Global pitch-wheel whammy mode.
 - Per-note key/poly aftertouch bend.
 - First MPE pitch-bend milestone: one held note can bend independently while other notes remain stable, provided the DAW sends notes on separate MPE member channels.
+- MPE/channel expression routing for pressure and CC74/timbre, scoped to the matching MIDI channel/voice.
 
 Current model label:
 
 ```text
-StringVoice EG-046 MPEBend
+StringVoice EG-047 MPEExpr
 ```
 
 ## Demo
@@ -132,6 +133,7 @@ In the plugin UI:
 
 - Enable `MPE Mode`.
 - Leave `MPE Bend Range` at `48.0 st` for Bitwig's default MPE pitch-expression range.
+- Use `MPE Pressure Amount` and `MPE CC74 Amount` to scale per-note pressure/timbre response.
 
 In the DAW:
 
@@ -161,7 +163,7 @@ The offline renderer is useful for DSP comparison and regression checks. It does
 
 ## Development Process
 
-We started with a rough idea: a lightweight physical-model electric guitar VST that could act as a clean DI instrument without samples, then built it in small auditionable steps over about a day of focused iteration. First we made the JUCE/CMake VST3 shell and a simple plucked string, then repeatedly listened, measured, and adjusted the model through pickup behavior, sustain, wound/plain string character, pick stiffness and texture, palm muting, harmonics, string age, intonation, fret pressure, finger noise, vibrato, whammy behavior, aftertouch bend, and finally MPE per-note pitch bend. The process was very "warmer/colder": Codex made a narrow hypothesis and built it, the human tested in Bitwig and gave musical feedback, and the project kept or redirected each experiment based on what actually sounded convincing. By the end, the repo had gone from documentation and an empty shell to a buildable, installed, versioned VST3 with real-time modeled guitar-like sound, useful performance controls, GitHub backup, offline render tooling, and the original core goal working: independent pitch control for notes via MPE.
+We started with a rough idea: a lightweight physical-model electric guitar VST that could act as a clean DI instrument without samples, then built it in small auditionable steps over about a day of focused iteration. First we made the JUCE/CMake VST3 shell and a simple plucked string, then repeatedly listened, measured, and adjusted the model through pickup behavior, sustain, wound/plain string character, pick stiffness and texture, palm muting, harmonics, string age, intonation, fret pressure, finger noise, vibrato, whammy behavior, aftertouch bend, MPE per-note pitch bend, and MPE pressure/CC74 expression. The process was very "warmer/colder": Codex made a narrow hypothesis and built it, the human tested in Bitwig and gave musical feedback, and the project kept or redirected each experiment based on what actually sounded convincing. By the end, the repo had gone from documentation and an empty shell to a buildable, installed, versioned VST3 with real-time modeled guitar-like sound, useful performance controls, GitHub backup, offline render tooling, and the original core goal working: independent pitch and expression control for notes via MPE.
 
 ## By The Numbers
 
