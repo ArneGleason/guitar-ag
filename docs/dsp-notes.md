@@ -1213,6 +1213,73 @@ Expected sound:
 
 With notes on separate MPE member channels, pressure or CC74 applied to one note should change only that voice. The mapping is deliberately musical rather than dramatic; it should add expression without making the base patch jump when no expression data is sent.
 
+## 2026-05-02 — Player Articulation First Pass
+
+Added a first automatic player-articulation milestone.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-048 PlayerArtic`.
+- Added `Legato Articulation`, defaulting to 0%.
+- 0% preserves the existing picked-note path.
+- Above 20%, recent same-string descending candidates can become pull-offs.
+- Above 30%, recent same-string ascending candidates can become hammer-ons.
+- Above 70%, larger same-string high-fret ascending moves can become right-hand taps.
+- The decision layer uses a small fixed-size recent-note memory and deterministic probability, so repeated renders are stable.
+- The fretboard mapper can now prefer a requested same string for eligible legato gestures.
+- Hammer-ons, pull-offs, and taps use distinct excitation profiles rather than only changing velocity.
+- Non-picked gestures suppress pick scrape/material layers and stay below picked-note energy at the DI level.
+- Hammer-ons add a short fret-impact envelope.
+- Pull-offs add a lateral release/snap envelope.
+- Right-hand taps add a sharper, brighter fret-impact envelope with a higher energy ceiling than left-hand hammer-ons.
+- This first pass still starts a fresh voice for the destination note; it does not yet preserve and retune a live same-string delay/modal state.
+- The offline renderer accepts `--legato-articulation`.
+
+Expected sound:
+
+At 0%, the feature-audition MIDI should sound effectively unchanged. At 100%, same-string scalar phrases should lose some pick attack and level, descending moves should get softer/grabbier pull-off starts, and large high-register ascending moves should acquire a sharper tap-like contact.
+
+## 2026-05-02 — Amp Feedback First Pass
+
+Added a first one-knob speaker-feedback approximation.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-049 AmpFeedback`.
+- Added `Amp Feedback`, defaulting to 0%.
+- The control lives on the Performance page because it acts like the player moving closer to a loud amp/speaker.
+- The implementation is not an amp, cab, microphone, or room model.
+- Low values mostly lift late modal decay for a subtle resonant sustain effect.
+- Higher values bias energy into harmonically related modal components.
+- The top of the range adds a controlled harmonic howl component while clamping modal energy to avoid runaway clipping.
+- Feedback is injected into active string voices before the pickup/tone stage, so pickup position can still color the resulting harmonic balance.
+- The offline renderer accepts `--amp-feedback`.
+
+Expected sound:
+
+At 0%, existing picked and legato behavior should be unchanged. At moderate settings, held notes should sustain more readily and feel closer to a loud rig. At 100%, long held notes should lean into harmonic overtones and controlled howl without acting like a full distortion or feedback-loop effect.
+
+## 2026-05-02 — Feedback Loop Resonator Pass
+
+Reworked the high-feedback behavior so it can produce a more realistic winner/takeover effect.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-050 FeedbackLoop`.
+- The public control remains `Amp Feedback`.
+- Low slider values still use the EG-049 local sustain behavior.
+- The upper range now wakes up a small global feedback loop in `AudioEngine`.
+- The loop listens after pickup/tone shaping and runs eight fixed resonant bands.
+- Each band tracks a slow envelope; the current dominant band wins with a little hysteresis.
+- The loop sends its dominant frequency, amount, and phase-like signal back into active string voices.
+- `StringVoice` couples that loop mainly into modal components near the winning absolute frequency rather than all harmonics equally.
+- The older per-note harmonic lift is reduced as the global loop takes over, so 100% feedback is less even across strings/modes.
+- There is still no full room, amp, cabinet, microphone, or guitar-body model.
+
+Expected sound:
+
+Compared with EG-049, high `Amp Feedback` should feel less like every note gets evenly sustained and more like one amp/speaker resonance starts to dominate. Long notes should be the clearest test: one upper resonance should begin to hold or bloom, and changing notes should give the loop a chance to hand off to another band.
+
 ## Suggested MVP Signal Flow
 
 ```text

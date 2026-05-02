@@ -25,11 +25,14 @@ Implemented so far:
 - Per-note key/poly aftertouch bend.
 - First MPE pitch-bend milestone: one held note can bend independently while other notes remain stable, provided the DAW sends notes on separate MPE member channels.
 - MPE/channel expression routing for pressure and CC74/timbre, scoped to the matching MIDI channel/voice.
+- Player-articulation interpretation for picked notes, hammer-ons, pull-offs, and right-hand taps.
+- `Amp Feedback` control with a global dominant-band feedback loop for controlled harmonic takeover.
+- Dedicated feature-audition and player-articulation MIDI clips plus offline render tooling.
 
 Current model label:
 
 ```text
-StringVoice EG-047 MPEExpr
+StringVoice EG-050 FeedbackLoop
 ```
 
 ## Demo
@@ -51,6 +54,8 @@ The first major success condition was:
 > Hold a chord and bend one note independently with MPE while the other notes stay put.
 
 That milestone is now implemented.
+
+The current frontier is more musical than infrastructural: turning ordinary MIDI notes into plausible guitar-player gestures, and giving the modeled strings enough amp-adjacent behavior that feedback and sustain can become part of the performance instead of only a post-effect.
 
 Perfect guitar realism is not claimed. This is a playable research instrument, a useful DI tone source, and a living example of how an AI-assisted development loop can move from idea to working VST.
 
@@ -144,13 +149,18 @@ If the DAW and plugin ranges disagree, a drawn two-semitone bend will not sound 
 
 ## Feature Audition MIDI
 
-The repo includes a structured MIDI audition clip:
+The repo includes structured MIDI audition clips:
 
 ```text
 tests/midi/guitar-ag-feature-audition.mid
+tests/midi/guitar-ag-player-articulation-audition.mid
 ```
 
-It walks through open strings, velocity dynamics, strummed chords, short releases, mod-wheel vibrato, key/poly aftertouch, MPE pitch bend, MPE pressure, and MPE CC74. See `docs/audition-midi.md` for the bar-by-bar guide and suggested plugin setup.
+The feature-audition file walks through open strings, velocity dynamics, strummed chords, short releases, mod-wheel vibrato, key/poly aftertouch, MPE pitch bend, MPE pressure, and MPE CC74.
+
+The player-articulation file focuses on guitar-like arpeggios, hammer-on and pull-off candidates, mixed legato phrases, and right-hand tapping patterns. It is useful for testing `Legato Articulation` from 0% through 100%.
+
+See `docs/audition-midi.md` for the bar-by-bar guide, suggested plugin setup, and offline A/B examples.
 
 ## Offline Render Tool
 
@@ -166,39 +176,32 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
   --output build/diagnostics/guitar-ag-test.wav \
   --sample-rate 48000 \
   --block-size 512 \
-  --tail-seconds 2.0
+  --tail-seconds 2.0 \
+  --legato-articulation 1.0 \
+  --amp-feedback 0.75
 ```
 
 The offline renderer is useful for DSP comparison and regression checks. It does not replace testing the VST3 in a real host such as Bitwig, Reaper, Ableton Live, or another DAW.
 
 ## Development Process
 
-We started with a rough idea: a lightweight physical-model electric guitar VST that could act as a clean DI instrument without samples, then built it in small auditionable steps over about a day of focused iteration. First we made the JUCE/CMake VST3 shell and a simple plucked string, then repeatedly listened, measured, and adjusted the model through pickup behavior, sustain, wound/plain string character, pick stiffness and texture, palm muting, harmonics, string age, intonation, fret pressure, finger noise, vibrato, whammy behavior, aftertouch bend, MPE per-note pitch bend, and MPE pressure/CC74 expression. The process was very "warmer/colder": Codex made a narrow hypothesis and built it, the human tested in Bitwig and gave musical feedback, and the project kept or redirected each experiment based on what actually sounded convincing. By the end, the repo had gone from documentation and an empty shell to a buildable, installed, versioned VST3 with real-time modeled guitar-like sound, useful performance controls, GitHub backup, offline render tooling, and the original core goal working: independent pitch and expression control for notes via MPE.
+We started with a rough idea: a lightweight physical-model electric guitar VST that could act as a clean DI instrument without samples, then built it in small auditionable steps. First we made the JUCE/CMake VST3 shell and a simple plucked string, then repeatedly listened, measured, and adjusted the model through pickup behavior, sustain, wound/plain string character, pick stiffness and texture, palm muting, harmonics, string age, intonation, fret pressure, finger noise, vibrato, whammy behavior, aftertouch bend, MPE per-note pitch bend, and MPE pressure/CC74 expression.
+
+The newest iteration added a phrase-aware player-articulation layer and a first amp-feedback model. `Legato Articulation` interprets eligible note transitions as pull-offs, hammer-ons, or right-hand taps with distinct excitation profiles. `Amp Feedback` now combines local string sustain with a small global feedback resonator loop, so high settings can let one harmonic band begin to dominate rather than evenly boosting every string.
+
+The process is very "warmer/colder": Codex makes a narrow hypothesis and builds it, the human tests in Bitwig and gives musical feedback, and the project keeps or redirects each experiment based on what actually sounds convincing. The repo has grown from documentation and an empty shell to a buildable, installed, versioned VST3 with real-time modeled guitar-like sound, useful performance controls, offline render tooling, and the core MPE goal working: independent pitch and expression control for notes via MPE.
 
 ## By The Numbers
 
-Measured at commit `df112e2`:
+As of the `EG-050 FeedbackLoop` milestone:
 
-- Elapsed time from first commit to MPE pitch-bend milestone: about 27 hours 51 minutes.
-- Git commits: 64.
-- Tracked files: 99.
-- Total tracked text lines: 12,344.
-- Code/tooling lines: 6,370.
-- Docs/plans lines: 5,884.
-- Core plugin source lines: 3,544.
-- DSP source lines: 2,093.
-- Plugin/UI source lines: 1,451.
-- `StringVoice.cpp`: 938 lines.
-- VST parameters: 24.
-- Collapsible UI sections: 7.
-- Info popovers/buttons: about 21.
-- Plan files: 53.
-- Docs files: 10.
-- Analysis/helper scripts: 10.
-- Offline render/diagnostic WAVs present during development: 31.
-- Named model checkpoints found in docs/build labels: 46.
-- Sound/control-related commits by rough keyword search: 49.
-- Retune/fix/polish/pivot-style commits by rough keyword search: 23.
+- Git commits before this milestone commit: 69.
+- Model checkpoints documented or build-labeled: 50.
+- VST parameters: 26.
+- Editor pages: Setup, Pickup, Perform, Vibrato, MPE, Whammy, and Artic.
+- Plan files: 58, including player articulation and feedback-loop plans.
+- Audition MIDI files: feature audition, player-articulation audition, single-note calibration, and velocity ladder.
+- Offline renderer flags now cover core tone controls, MPE expression, legato articulation, and amp feedback.
 
 ## Repo Guide
 

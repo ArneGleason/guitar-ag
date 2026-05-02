@@ -73,6 +73,13 @@ void StringVoice::reset()
     pickHeavyBodyState = 0.0f;
     pickHeavyChoke = 0.0f;
     pickContactSamplesRemaining = 0;
+    fingerImpact = 0.0f;
+    fingerImpactDecay = 0.0f;
+    fingerImpactPhase = 0.0f;
+    fingerImpactPhaseStep = 0.0f;
+    pullOffSnap = 0.0f;
+    pullOffSnapDecay = 0.0f;
+    previousGestureNoise = 0.0f;
     attackRampSeconds = 0.0025f;
     modalReleaseDecay = 1.0f;
     resonanceCoefficient.fill (0.0f);
@@ -119,7 +126,8 @@ void StringVoice::start (int midiNoteNumber,
                          float bridgeIntonation,
                          float fretPressure,
                          float pickupPositionControl,
-                         int pickupModel)
+                         int pickupModel,
+                         PlayerGesture gesture)
 {
     const auto harmonicTouchAmount = juce::jlimit (0.0f, 1.0f, harmonicTouch);
     const auto stringAgeAmount = juce::jlimit (0.0f, 1.0f, stringAge);
@@ -128,8 +136,70 @@ void StringVoice::start (int midiNoteNumber,
     const auto pickupAmount = juce::jlimit (0.0f, 1.0f, pickupPositionControl);
     const auto pickupModelIndex = juce::jlimit (0, 2, pickupModel);
     const auto harmonicActive = harmonicTouchAmount > 0.25f;
-    const auto stiffnessAmount = harmonicActive ? 0.0f : juce::jlimit (0.0f, 1.0f, pickStiffness);
-    const auto textureAmount = harmonicActive ? 0.0f : juce::jlimit (0.0f, 1.0f, pickTexture);
+    const auto inputVelocity = juce::jlimit (0.0f, 1.0f, velocity);
+    auto gestureEnergyScale = 1.0f;
+    auto gestureDisplacementScale = 1.0f;
+    auto gestureHorizontalScale = 1.0f;
+    auto gestureSteelScale = 1.0f;
+    auto gestureModalScale = 1.0f;
+    auto gesturePickLayerScale = 1.0f;
+    auto gestureStiffness = juce::jlimit (0.0f, 1.0f, pickStiffness);
+    auto gestureTexture = juce::jlimit (0.0f, 1.0f, pickTexture);
+    auto gestureAttackRampSeconds = -1.0f;
+    auto gestureImpactAmount = 0.0f;
+    auto gestureImpactDecaySeconds = 0.026f;
+    auto gestureImpactFrequencyMultiplier = 15.0f;
+    auto gesturePullOffAmount = 0.0f;
+
+    if (gesture == PlayerGesture::HammerOn)
+    {
+        gestureEnergyScale = 0.28f + 0.34f * std::pow (inputVelocity, 0.75f);
+        gestureDisplacementScale = 0.62f;
+        gestureHorizontalScale = 0.58f;
+        gestureSteelScale = 0.52f;
+        gestureModalScale = 0.86f;
+        gesturePickLayerScale = 0.0f;
+        gestureStiffness = 0.58f;
+        gestureTexture = 0.0f;
+        gestureAttackRampSeconds = 0.0038f;
+        gestureImpactAmount = 0.010f + 0.026f * inputVelocity;
+        gestureImpactDecaySeconds = 0.024f;
+        gestureImpactFrequencyMultiplier = 11.0f + 0.20f * static_cast<float> (assignment.fret);
+    }
+    else if (gesture == PlayerGesture::PullOff)
+    {
+        gestureEnergyScale = 0.22f + 0.36f * std::pow (inputVelocity, 0.65f);
+        gestureDisplacementScale = 1.06f;
+        gestureHorizontalScale = 1.36f;
+        gestureSteelScale = 0.38f;
+        gestureModalScale = 0.92f;
+        gesturePickLayerScale = 0.0f;
+        gestureStiffness = 0.44f;
+        gestureTexture = 0.0f;
+        gestureAttackRampSeconds = 0.0048f;
+        gestureImpactAmount = 0.004f + 0.012f * inputVelocity;
+        gestureImpactDecaySeconds = 0.020f;
+        gestureImpactFrequencyMultiplier = 7.5f + 0.12f * static_cast<float> (assignment.fret);
+        gesturePullOffAmount = 0.015f + 0.050f * inputVelocity;
+    }
+    else if (gesture == PlayerGesture::RightHandTap)
+    {
+        gestureEnergyScale = 0.42f + 0.40f * std::pow (inputVelocity, 0.65f);
+        gestureDisplacementScale = 0.72f;
+        gestureHorizontalScale = 0.76f;
+        gestureSteelScale = 0.70f;
+        gestureModalScale = 0.92f;
+        gesturePickLayerScale = 0.0f;
+        gestureStiffness = 0.82f;
+        gestureTexture = 0.0f;
+        gestureAttackRampSeconds = 0.0017f;
+        gestureImpactAmount = 0.020f + 0.054f * inputVelocity;
+        gestureImpactDecaySeconds = 0.018f;
+        gestureImpactFrequencyMultiplier = 15.0f + 0.30f * static_cast<float> (assignment.fret);
+    }
+
+    const auto stiffnessAmount = harmonicActive ? 0.0f : gestureStiffness;
+    const auto textureAmount = harmonicActive ? 0.0f : gestureTexture;
     const auto stiffnessBipolar = 2.0f * stiffnessAmount - 1.0f;
     const auto mappedTexture = juce::jlimit (0.0f, 1.0f, textureAmount / 0.8f);
     const auto coinTexture = juce::jlimit (0.0f, 1.0f, (textureAmount - 0.8f) * 5.0f);
@@ -186,7 +256,16 @@ void StringVoice::start (int midiNoteNumber,
     pickHeavyBodyState = 0.0f;
     pickHeavyChoke = 0.0f;
     pickContactSamplesRemaining = 0;
-    attackRampSeconds = juce::jmap (stiffnessAmount, 0.0090f, 0.0013f);
+    fingerImpact = 0.0f;
+    fingerImpactDecay = 0.0f;
+    fingerImpactPhase = 0.0f;
+    fingerImpactPhaseStep = 0.0f;
+    pullOffSnap = 0.0f;
+    pullOffSnapDecay = 0.0f;
+    previousGestureNoise = 0.0f;
+    attackRampSeconds = gestureAttackRampSeconds > 0.0f
+                        ? gestureAttackRampSeconds
+                        : juce::jmap (stiffnessAmount, 0.0090f, 0.0013f);
     modalSine.fill (0.0f);
     modalCosine.fill (1.0f);
     modalSinStep.fill (0.0f);
@@ -225,7 +304,7 @@ void StringVoice::start (int midiNoteNumber,
     secondaryPickupOffsetSamples = juce::jlimit (1, delayLength - 1, static_cast<int> (std::round (delayLength * 0.205f)));
     pickupApertureSamples = juce::jlimit (1, delayLength / 9, static_cast<int> (std::round (delayLength * 0.012f)));
 
-    const auto velocityGain = applyVelocityCurve (velocity);
+    const auto velocityGain = applyVelocityCurve (velocity) * gestureEnergyScale;
     const auto strikeVelocity = 0.05f + (velocityGain - 0.05f) * (0.63f / 0.95f);
     const auto velocityNormal = juce::jlimit (0.0f, 1.0f, (strikeVelocity - 0.05f) / 0.95f);
     const auto strikeInput = juce::jlimit (0.0f, 1.0f, velocityNormal * 1.55f);
@@ -236,13 +315,15 @@ void StringVoice::start (int midiNoteNumber,
     const auto pickupPosition = juce::jmap (pickupAmount, 0.055f, 0.335f);
     const auto pickupWidth = pickupModelIndex == 0 ? 0.024f : 0.056f;
     const auto pickupCoilSeparation = 0.046f;
-    const auto displacementAmount = 0.70f * velocityGain;
-    const auto horizontalAmount = (0.28f + 0.06f * woundAmount) * velocityGain;
+    const auto displacementAmount = 0.70f * velocityGain * gestureDisplacementScale;
+    const auto horizontalAmount = (0.28f + 0.06f * woundAmount) * velocityGain * gestureHorizontalScale;
     const auto ageBrightnessScale = 1.06f - 0.46f * stringAgeAmount;
     const auto ageContactScale = 1.04f - 0.38f * stringAgeAmount;
-    const auto noiseAmount = (0.004f + 0.014f * brightness) * (1.0f + 0.2f * woundAmount) * textureScale * ageContactScale;
+    const auto noiseAmount = (0.004f + 0.014f * brightness) * (1.0f + 0.2f * woundAmount)
+                           * textureScale * ageContactScale * gesturePickLayerScale;
     constexpr auto twoPi = 6.28318530717958647692f;
-    const auto steelPartialAmount = (0.012f + 0.032f * brightness) * velocityGain * partialStiffnessScale * ageBrightnessScale;
+    const auto steelPartialAmount = (0.012f + 0.032f * brightness) * velocityGain
+                                  * partialStiffnessScale * ageBrightnessScale * gestureSteelScale;
     auto mean = 0.0f;
     auto secondaryMean = 0.0f;
     auto harmonicDivision = 1;
@@ -321,21 +402,24 @@ void StringVoice::start (int midiNoteNumber,
     }
 
     energy = velocityGain * harmonicEnergyScale;
-    pickTransient = (0.004f + 0.014f * brightness) * pickEdgeScale * ageContactScale * (nextNoiseSample() >= 0.0f ? 1.0f : -1.0f);
+    pickTransient = (0.004f + 0.014f * brightness) * pickEdgeScale * ageContactScale
+                  * gesturePickLayerScale * (nextNoiseSample() >= 0.0f ? 1.0f : -1.0f);
     pickTransientDecay = 0.9990f - 0.0015f * brightness - 0.00025f * stiffnessBipolar - 0.00020f * stringAgeAmount;
     const auto smoothTexture = mappedTexture <= 0.5f ? std::pow (mappedTexture * 2.0f, 1.35f)
                                                      : 1.0f - 0.42f * highTexture;
     const auto grindTexture = std::pow (highTexture, 1.35f);
-    pickContact = (0.006f + 0.050f * brightness) * velocityGain * smoothTexture * ageContactScale;
+    pickContact = (0.006f + 0.050f * brightness) * velocityGain * smoothTexture
+                * ageContactScale * gesturePickLayerScale;
     pickContactDecay = 0.9987f - 0.00020f * brightness + 0.00038f * mappedTexture - 0.00025f * stringAgeAmount;
-    pickContactRing = (0.002f + 0.025f * brightness) * velocityGain * smoothTexture * ageBrightnessScale;
+    pickContactRing = (0.002f + 0.025f * brightness) * velocityGain * smoothTexture
+                    * ageBrightnessScale * gesturePickLayerScale;
     pickContactRingDecay = 0.9986f + 0.00040f * mappedTexture - 0.00035f * stringAgeAmount;
     pickContactPhase = nextNoiseSample() * twoPi;
     pickContactPhaseStep = twoPi * juce::jlimit (1200.0f,
                                                   static_cast<float> (sampleRate * 0.42),
                                                   static_cast<float> (frequency) * (11.0f + 10.0f * mappedTexture + 3.0f * woundAmount))
                          / static_cast<float> (sampleRate);
-    pickGrindAmount = (0.018f + 0.115f * brightness) * velocityGain * grindTexture;
+    pickGrindAmount = (0.018f + 0.115f * brightness) * velocityGain * grindTexture * gesturePickLayerScale;
     pickGrindDecay = 0.99925f + 0.00045f * highTexture;
     pickGrindPhase = nextNoiseSample() * twoPi;
     pickGrindPhaseStep = twoPi * juce::jlimit (900.0f,
@@ -345,7 +429,8 @@ void StringVoice::start (int midiNoteNumber,
     pickSlipImpulse = 0.0f;
     pickSlipDecay = 0.92f + 0.065f * highTexture;
     pickSlipCountdown = 0;
-    pickCoinAmount = (0.020f + 0.125f * brightness) * velocityGain * std::pow (activeCoinTexture, 1.25f);
+    pickCoinAmount = (0.020f + 0.125f * brightness) * velocityGain
+                   * std::pow (activeCoinTexture, 1.25f) * gesturePickLayerScale;
     pickCoinDecay = 0.99945f + 0.00030f * activeCoinTexture;
     pickCoinPhase = nextNoiseSample() * twoPi;
     pickCoinPhaseStep = twoPi * juce::jlimit (1400.0f,
@@ -355,7 +440,8 @@ void StringVoice::start (int midiNoteNumber,
     pickCoinImpulse = 0.0f;
     pickCoinImpulseDecay = 0.965f + 0.030f * activeCoinTexture;
     pickCoinCountdown = 0;
-    pickHeavyAmount = (0.035f + 0.165f * brightness) * velocityGain * std::pow (heavyCoinTexture, 1.08f);
+    pickHeavyAmount = (0.035f + 0.165f * brightness) * velocityGain
+                    * std::pow (heavyCoinTexture, 1.08f) * gesturePickLayerScale;
     pickHeavyDecay = 0.99972f + 0.00022f * heavyCoinTexture;
     pickHeavyPhase = nextNoiseSample() * twoPi;
     pickHeavyPhaseStep = twoPi * juce::jlimit (180.0f,
@@ -366,7 +452,25 @@ void StringVoice::start (int midiNoteNumber,
     pickHeavyRaspState = 0.0f;
     pickHeavyBodyState = 0.0f;
     pickHeavyChoke = 0.08f * heavyCoinTexture;
-    pickContactSamplesRemaining = textureAmount <= 0.0f ? 0 : static_cast<int> (sampleRate * (0.010f + 0.040f * mappedTexture + 0.055f * highTexture + 0.085f * coinTexture + 0.075f * heavyCoinTexture + 0.010f * brightness));
+    pickContactSamplesRemaining = textureAmount <= 0.0f || gesturePickLayerScale <= 0.0f
+                                ? 0
+                                : static_cast<int> (sampleRate * (0.010f + 0.040f * mappedTexture + 0.055f * highTexture + 0.085f * coinTexture + 0.075f * heavyCoinTexture + 0.010f * brightness));
+    fingerImpact = gestureImpactAmount * gestureEnergyScale * ageContactScale;
+
+    if (fingerImpact > 0.0f)
+    {
+        fingerImpactDecay = std::pow (0.001f,
+                                      1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * gestureImpactDecaySeconds)));
+        fingerImpactPhase = nextNoiseSample() * twoPi;
+        fingerImpactPhaseStep = twoPi * juce::jlimit (700.0f,
+                                                       static_cast<float> (sampleRate * 0.42),
+                                                       static_cast<float> (frequency)
+                                                           * gestureImpactFrequencyMultiplier)
+                              / static_cast<float> (sampleRate);
+    }
+
+    pullOffSnap = gesturePullOffAmount * gestureEnergyScale * (0.72f + 0.30f * woundAmount) * ageContactScale;
+    pullOffSnapDecay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.032f)));
     configureResonator (0, frequency * 5.0f, 0.9895f);
     configureResonator (1, frequency * 7.0f, 0.9880f);
     configureResonator (2, frequency * 11.0f, 0.9860f);
@@ -385,7 +489,8 @@ void StringVoice::start (int midiNoteNumber,
 
     auto modeIndex = 0;
     const auto stiffness = 0.000045f + (0.000080f - 0.000045f) * woundAmount;
-    const auto modalGain = (0.020f + 0.070f * std::pow (velocityNormal, 0.62f)) * (0.70f + 0.85f * velocityGain);
+    const auto modalGain = (0.020f + 0.070f * std::pow (velocityNormal, 0.62f))
+                         * (0.70f + 0.85f * velocityGain) * gestureModalScale;
     const auto contactWidth = juce::jmap (strikeAmount, 0.070f, 0.006f) * (1.0f - 0.60f * stiffnessBipolar);
     const auto attackModeGain = (juce::jmap (strikeAmount, 0.008f, 0.075f) + 0.045f * hardStrike)
                               * pickEdgeScale
@@ -545,6 +650,10 @@ float StringVoice::renderSample (float tailSustain,
                                  float vibratoDelaySeconds,
                                  float whammySemitones,
                                  float whammySpread,
+                                 float ampFeedback,
+                                 float feedbackLoopFrequency,
+                                 float feedbackLoopAmount,
+                                 float feedbackLoopSignal,
                                  float aftertouchBendSemitones,
                                  float mpePressureAmount,
                                  float mpeTimbreAmount,
@@ -572,6 +681,7 @@ float StringVoice::renderSample (float tailSustain,
     auto modalOutput = 0.0f;
     const auto heldSeconds = static_cast<float> (samplesSinceStart) / static_cast<float> (sampleRate);
     const auto tailBlend = releasing ? 0.0f : sustainAmount * juce::jlimit (0.0f, 1.0f, (heldSeconds - 0.55f) / 1.60f);
+    constexpr auto twoPi = 6.28318530717958647692f;
     const auto clampedVibratoSpeed = juce::jlimit (0.0f, 14.0f, vibratoSpeedHz);
     const auto clampedVibratoDepth = juce::jlimit (0.0f, 90.0f, vibratoDepthCents);
     const auto clampedVibratoDelay = juce::jlimit (0.0f, 2.0f, vibratoDelaySeconds);
@@ -594,10 +704,34 @@ float StringVoice::renderSample (float tailSustain,
                           * aftertouchRatio
                           * mpePitchRatio;
 
-    vibratoPhase += 6.28318530717958647692f * clampedVibratoSpeed / static_cast<float> (sampleRate);
+    vibratoPhase += twoPi * clampedVibratoSpeed / static_cast<float> (sampleRate);
 
-    if (vibratoPhase > 6.28318530717958647692f)
-        vibratoPhase -= 6.28318530717958647692f;
+    if (vibratoPhase > twoPi)
+        vibratoPhase -= twoPi;
+
+    const auto feedbackAmount = juce::jlimit (0.0f, 1.0f, ampFeedback);
+    const auto feedbackDrive = std::pow (feedbackAmount, 1.45f);
+    const auto feedbackHowl = std::pow (juce::jlimit (0.0f, 1.0f, (feedbackAmount - 0.55f) / 0.45f), 1.20f);
+    const auto feedbackSustain = std::pow (juce::jlimit (0.0f, 1.0f, feedbackAmount / 0.72f), 1.30f);
+    const auto loopAmount = juce::jlimit (0.0f, 1.0f, feedbackLoopAmount);
+    const auto loopFrequency = juce::jlimit (20.0f, 6000.0f, feedbackLoopFrequency);
+    const auto loopSignal = juce::jlimit (-1.0f, 1.0f, feedbackLoopSignal);
+    const auto loopInfluence = loopAmount * juce::jlimit (0.0f, 1.0f, (feedbackAmount - 0.34f) / 0.66f);
+    const auto localFeedbackScale = 1.0f - 0.70f * loopInfluence;
+    const auto feedbackRampSeconds = 1.10f - 0.78f * feedbackAmount;
+    const auto feedbackRise = feedbackAmount <= 0.0001f
+                            ? 0.0f
+                            : juce::jlimit (0.0f,
+                                            1.0f,
+                                            (heldSeconds - 0.10f) / juce::jmax (0.22f, feedbackRampSeconds));
+    const auto feedbackReleaseScale = releasing ? 0.22f + 0.78f * feedbackHowl : 1.0f;
+    const auto feedbackFrequency = juce::jlimit (20.0f,
+                                                 8000.0f,
+                                                 static_cast<float> (juce::MidiMessage::getMidiNoteInHertz (noteNumber))
+                                                     * pitchRatio);
+    const auto feedbackEnergyGate = juce::jlimit (0.0f, 1.0f, energy / 0.0012f);
+    const auto loopEnergyGate = juce::jlimit (0.08f, 1.0f, energy / 0.00075f);
+    auto feedbackHowlOutput = 0.0f;
 
     for (auto mode = 0; mode < modalCount; ++mode)
     {
@@ -627,13 +761,79 @@ float StringVoice::renderSample (float tailSustain,
         const auto baseEffectiveDecay = normalDecay + (relaxedDecay - normalDecay) * tailBlend;
         const auto pressureDecayLift = expressionPressure * (0.000045f + 0.000120f * highMode);
         const auto timbreDecayTilt = expressionTimbre * (0.000085f * highMode - 0.000030f * lowMode);
+        const auto modeFrequency = modalPhaseStep[modeIndex] * static_cast<float> (sampleRate) / twoPi;
+        const auto harmonicRatio = modeFrequency / feedbackFrequency;
+        const auto nearestHarmonic = juce::jlimit (1, 16, static_cast<int> (std::round (harmonicRatio)));
+        const auto harmonicDistance = std::abs (harmonicRatio - static_cast<float> (nearestHarmonic));
+        const auto harmonicLock = std::exp (-18.0f * harmonicDistance * harmonicDistance);
+        const auto sustainTargetWeight = nearestHarmonic == 1 ? 0.30f
+                                      : nearestHarmonic == 2 ? 1.00f
+                                      : nearestHarmonic == 3 ? 0.78f
+                                      : nearestHarmonic == 4 ? 0.58f
+                                      : nearestHarmonic == 5 ? 0.42f
+                                                              : 0.16f;
+        const auto howlTargetWeight = nearestHarmonic == 2 ? 0.90f
+                                   : nearestHarmonic == 3 ? 1.00f
+                                   : nearestHarmonic == 4 ? 0.78f
+                                   : nearestHarmonic == 5 ? 0.52f
+                                                           : 0.10f;
+        const auto feedbackWeight = harmonicLock
+                                  * (sustainTargetWeight * feedbackSustain + howlTargetWeight * feedbackHowl)
+                                  * feedbackRise
+                                  * feedbackReleaseScale
+                                  * feedbackEnergyGate
+                                  * localFeedbackScale;
+        auto loopWeight = 0.0f;
+
+        if (loopAmount > 0.0001f && feedbackLoopFrequency > 20.0f)
+        {
+            const auto frequencyRatio = juce::jlimit (0.001f, 1000.0f, modeFrequency / loopFrequency);
+            const auto centsDistance = std::abs (1200.0f * std::log2 (frequencyRatio));
+            const auto loopLock = std::exp (-0.5f * (centsDistance / 118.0f) * (centsDistance / 118.0f));
+            const auto overtoneFavor = modeFrequency > feedbackFrequency * 1.35f
+                                     ? 1.0f
+                                     : 0.20f + 0.36f * loopAmount;
+            loopWeight = loopLock
+                       * loopAmount
+                       * loopEnergyGate
+                       * feedbackReleaseScale
+                       * overtoneFavor
+                       * (0.62f + 0.38f * std::abs (loopSignal));
+        }
+
+        const auto feedbackDecayLift = feedbackDrive * feedbackWeight * (0.000010f + 0.000070f * feedbackHowl)
+                                     + loopWeight * (0.000080f + 0.000300f * loopAmount);
         const auto effectiveDecay = juce::jlimit (0.90f,
                                                   0.999999f,
-                                                  baseEffectiveDecay + pressureDecayLift + timbreDecayTilt);
+                                                  baseEffectiveDecay + pressureDecayLift + timbreDecayTilt + feedbackDecayLift);
         const auto modeWeight = 0.78f + 0.22f * modePosition;
         const auto effectivePalmDecay = 1.0f + (palmDecay - 1.0f) * modeWeight;
         modalAmplitude[modeIndex] *= effectiveDecay * modalReleaseDecay * effectivePalmDecay;
+
+        if (feedbackWeight + loopWeight > 0.000001f)
+        {
+            const auto amplitudeSign = modalAmplitude[modeIndex] < 0.0f ? -1.0f : 1.0f;
+            const auto feedbackInjection = feedbackDrive
+                                         * feedbackWeight
+                                         * (0.0000004f + 0.0000028f * feedbackHowl)
+                                         * (1.0f + 0.28f * expressionPressure);
+            const auto loopPhasePush = loopSignal * modalCosine[modeIndex];
+            const auto loopInjection = loopWeight
+                                     * (0.0000038f + 0.0000180f * loopAmount)
+                                     * (loopPhasePush >= 0.0f ? loopPhasePush : loopPhasePush * 0.30f);
+            modalAmplitude[modeIndex] = juce::jlimit (-1.6f,
+                                                      1.6f,
+                                                      modalAmplitude[modeIndex] + amplitudeSign * feedbackInjection + loopInjection);
+            feedbackHowlOutput += modalCosine[modeIndex]
+                                 * (feedbackWeight + loopWeight * (0.55f + 0.95f * std::abs (loopSignal)))
+                                 * (0.35f + 0.65f * highMode);
+        }
     }
+
+    if (feedbackHowlOutput != 0.0f)
+        modalOutput += feedbackHowlOutput
+                     * (feedbackHowl * (0.00035f + 0.0014f * feedbackHowl)
+                        + loopAmount * (0.00062f + 0.00235f * loopAmount));
 
     if (std::abs (pickTransient) > 0.000001f)
     {
@@ -732,6 +932,34 @@ float StringVoice::renderSample (float tailSustain,
         --pickContactSamplesRemaining;
     }
 
+    if (fingerImpact > 0.000001f)
+    {
+        const auto rawImpact = nextNoiseSample();
+        const auto impactScratch = rawImpact - previousGestureNoise * 0.62f;
+        previousGestureNoise = rawImpact;
+        fingerImpactPhase += fingerImpactPhaseStep * (1.0f + 0.045f * rawImpact);
+
+        if (fingerImpactPhase > 6.28318530717958647692f)
+            fingerImpactPhase -= 6.28318530717958647692f;
+
+        const auto impactTone = std::sin (fingerImpactPhase)
+                              + 0.30f * std::sin (fingerImpactPhase * 2.18f)
+                              + 0.14f * std::sin (fingerImpactPhase * 3.70f);
+        contactOutput += softClip (fingerImpact * (0.68f * impactTone + 0.32f * impactScratch));
+        fingerImpact *= fingerImpactDecay;
+    }
+
+    if (pullOffSnap > 0.000001f)
+    {
+        const auto rawRelease = nextNoiseSample();
+        const auto releaseScratch = rawRelease - previousGestureNoise * 0.78f;
+        previousGestureNoise = rawRelease;
+        const auto sidewaysPulse = std::sin (0.37f * static_cast<float> (samplesSinceStart + 1))
+                                 + 0.45f * std::sin (0.19f * static_cast<float> (samplesSinceStart + 5));
+        contactOutput += softClip (pullOffSnap * (0.52f * releaseScratch + 0.48f * sidewaysPulse));
+        pullOffSnap *= pullOffSnapDecay;
+    }
+
     const auto attackRampSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * attackRampSeconds);
     modalOutput *= juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / attackRampSamples);
     modalOutput *= 1.0f - 0.22f * pickHeavyChoke;
@@ -742,7 +970,9 @@ float StringVoice::renderSample (float tailSustain,
     ++samplesSinceStart;
     energy = 0.9994f * energy + 0.0006f * std::abs (modalOutput);
 
-    const auto energyCutoff = 0.00004f + (0.000008f - 0.00004f) * sustainAmount;
+    const auto feedbackHold = 1.0f - 0.78f * feedbackRise * feedbackHowl - 0.58f * loopAmount;
+    const auto energyCutoff = (0.00004f + (0.000008f - 0.00004f) * sustainAmount)
+                            * juce::jlimit (0.18f, 1.0f, feedbackHold);
 
     if (energy < energyCutoff)
     {

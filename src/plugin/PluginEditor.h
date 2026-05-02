@@ -41,6 +41,7 @@ private:
     juce::Slider fretPressureSlider;
     juce::Slider aftertouchBendSlider;
     juce::Slider fingerNoiseSlider;
+    juce::Slider ampFeedbackSlider;
     juce::Slider vibratoSpeedSlider;
     juce::Slider vibratoDepthSlider;
     juce::Slider vibratoDelaySlider;
@@ -51,6 +52,7 @@ private:
     juce::Slider whammyDownRangeSlider;
     juce::Slider whammySpreadSlider;
     juce::Slider pickupPositionSlider;
+    juce::Slider legatoArticulationSlider;
     juce::Slider pickStiffnessSlider;
     juce::Slider pickTextureSlider;
     juce::Slider palmMuteSlider;
@@ -62,6 +64,7 @@ private:
     juce::Label aftertouchBendLabel;
     juce::Label lookaheadLabel;
     juce::Label fingerNoiseLabel;
+    juce::Label ampFeedbackLabel;
     juce::Label vibratoSpeedLabel;
     juce::Label vibratoDepthLabel;
     juce::Label vibratoDelayLabel;
@@ -77,6 +80,7 @@ private:
     juce::Label pickupFifthLabel;
     juce::Label pickupQuarterLabel;
     juce::Label pickupThirdLabel;
+    juce::Label legatoArticulationLabel;
     juce::Label pickStiffnessLabel;
     juce::Label pickTextureLabel;
     juce::Label palmMuteLabel;
@@ -91,6 +95,7 @@ private:
     juce::TextButton aftertouchBendInfoButton;
     juce::TextButton lookaheadInfoButton;
     juce::TextButton fingerNoiseInfoButton;
+    juce::TextButton ampFeedbackInfoButton;
     juce::TextButton vibratoSpeedInfoButton;
     juce::TextButton vibratoDepthInfoButton;
     juce::TextButton vibratoDelayInfoButton;
@@ -102,6 +107,7 @@ private:
     juce::TextButton whammySpreadInfoButton;
     juce::TextButton pickupModelInfoButton;
     juce::TextButton pickupPositionInfoButton;
+    juce::TextButton legatoArticulationInfoButton;
     juce::TextButton pickStiffnessInfoButton;
     juce::TextButton pickTextureInfoButton;
     juce::TextButton palmMuteInfoButton;
@@ -119,6 +125,7 @@ private:
     std::unique_ptr<SliderAttachment> aftertouchBendAttachment;
     std::unique_ptr<ComboBoxAttachment> lookaheadAttachment;
     std::unique_ptr<SliderAttachment> fingerNoiseAttachment;
+    std::unique_ptr<SliderAttachment> ampFeedbackAttachment;
     std::unique_ptr<SliderAttachment> vibratoSpeedAttachment;
     std::unique_ptr<SliderAttachment> vibratoDepthAttachment;
     std::unique_ptr<SliderAttachment> vibratoDelayAttachment;
@@ -134,6 +141,7 @@ private:
     std::unique_ptr<SliderAttachment> whammySpreadAttachment;
     std::unique_ptr<SliderAttachment> pickupPositionAttachment;
     std::unique_ptr<ComboBoxAttachment> pickupModelAttachment;
+    std::unique_ptr<SliderAttachment> legatoArticulationAttachment;
     std::unique_ptr<SliderAttachment> pickStiffnessAttachment;
     std::unique_ptr<SliderAttachment> pickTextureAttachment;
     std::unique_ptr<SliderAttachment> palmMuteAttachment;

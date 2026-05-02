@@ -25,6 +25,8 @@ public:
     void setFretPressure (float newFretPressure) noexcept;
     void setLookaheadSamples (int newLookaheadSamples) noexcept;
     void setFingerNoise (float newFingerNoise) noexcept;
+    void setLegatoArticulation (float newLegatoArticulation) noexcept;
+    void setAmpFeedback (float newAmpFeedback) noexcept;
     void setVibratoSpeed (float newVibratoSpeed) noexcept;
     void setVibratoDepth (float newVibratoDepth) noexcept;
     void setVibratoDelay (float newVibratoDelay) noexcept;
@@ -48,6 +50,7 @@ private:
     static constexpr auto maxVoices = 8;
     static constexpr auto maxScheduledMidiEvents = 256;
     static constexpr auto maxFingerNoiseVoices = 12;
+    static constexpr auto feedbackResonatorCount = 8;
 
     void renderRange (juce::AudioBuffer<float>& audio, int startSample, int endSample) noexcept;
     void handleIncomingMidiMessage (const juce::MidiMessage& message);
@@ -63,12 +66,27 @@ private:
     void clearScheduledMidiEvents() noexcept;
     void triggerFingerApproach (int noteNumber, int channel, float velocity) noexcept;
     void triggerFingerRelease (int noteNumber, int channel) noexcept;
+    struct LegatoSource;
+    [[nodiscard]] LegatoSource findLegatoSource (int noteNumber, int channel, float amount) const noexcept;
+    void rememberArticulationNote (int noteNumber,
+                                   int channel,
+                                   const FretboardAssignment& assignment,
+                                   PlayerGesture gesture) noexcept;
+    void releaseArticulationNote (int noteNumber, int channel) noexcept;
+    void releaseLegatoSource (const LegatoSource& source) noexcept;
+    [[nodiscard]] static float getDeterministicGestureChance (int noteNumber,
+                                                              int channel,
+                                                              int sourceNoteNumber,
+                                                              int64_t sampleTime) noexcept;
     void rememberFingerAssignment (int noteNumber, int channel, const FretboardAssignment& assignment) noexcept;
     FretboardAssignment findFingerAssignment (int noteNumber, int channel) const noexcept;
     void releaseFingerAssignment (int noteNumber, int channel) noexcept;
     void startFingerNoise (const FretboardAssignment& assignment, float intensity, bool releaseNoise) noexcept;
     float renderFingerNoiseSample() noexcept;
     static float nextFingerNoiseRandom (uint32_t& state) noexcept;
+    void configureAmpFeedbackLoop() noexcept;
+    void resetAmpFeedbackLoop() noexcept;
+    void updateAmpFeedbackLoop (float outputSample, float amount) noexcept;
 
     struct ScheduledMidiEvent
     {
@@ -83,6 +101,31 @@ private:
         int channel = -1;
         FretboardAssignment assignment {};
         bool active = false;
+    };
+
+    struct LegatoSource
+    {
+        int noteNumber = -1;
+        int channel = -1;
+        FretboardAssignment assignment {};
+        PlayerGesture gesture = PlayerGesture::Picked;
+        int destinationFret = -1;
+        int64_t startSample = 0;
+        int64_t releaseSample = 0;
+        bool active = false;
+        bool valid = false;
+    };
+
+    struct ArticulationNote
+    {
+        int noteNumber = -1;
+        int channel = -1;
+        FretboardAssignment assignment {};
+        PlayerGesture gesture = PlayerGesture::Picked;
+        int64_t startSample = 0;
+        int64_t releaseSample = 0;
+        bool active = false;
+        bool valid = false;
     };
 
     struct FingerNoiseVoice
@@ -101,7 +144,13 @@ private:
     std::array<StringVoice, maxVoices> voices;
     std::array<ScheduledMidiEvent, maxScheduledMidiEvents> scheduledMidiEvents {};
     std::array<FingerAssignment, maxVoices> fingerAssignments {};
+    std::array<ArticulationNote, maxVoices> articulationNotes {};
     std::array<FingerNoiseVoice, maxFingerNoiseVoices> fingerNoiseVoices {};
+    std::array<float, feedbackResonatorCount> feedbackResonatorCoefficient {};
+    std::array<float, feedbackResonatorCount> feedbackResonatorRadiusSquared {};
+    std::array<float, feedbackResonatorCount> feedbackResonatorState1 {};
+    std::array<float, feedbackResonatorCount> feedbackResonatorState2 {};
+    std::array<float, feedbackResonatorCount> feedbackResonatorEnvelope {};
     FretboardMapper fretboard;
     FretboardMapper fingerNoiseFretboard;
     ElectricGuitarTone tone;
@@ -114,6 +163,8 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> bridgeIntonation { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> fretPressure { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> fingerNoise { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> legatoArticulation { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> ampFeedback { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> vibratoSpeed { 5.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> vibratoDepth { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> vibratoDelay { 0.0f };
@@ -134,6 +185,11 @@ private:
     int pickupModel = 0;
     int nextVoice = 0;
     int nextFingerNoiseVoice = 0;
+    int feedbackDominantBand = 0;
+    float feedbackLoopFrequency = 0.0f;
+    float feedbackLoopAmount = 0.0f;
+    float feedbackLoopSignal = 0.0f;
+    float feedbackLoopDominance = 0.0f;
     bool vibratoModWheelSpeedEnabled = false;
     bool vibratoModWheelDepthEnabled = false;
     bool mpeEnabled = false;

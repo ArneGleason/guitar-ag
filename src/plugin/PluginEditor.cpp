@@ -200,6 +200,12 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "0% disables the performance noise layer. 100% adds the strongest modeled finger approach and release noises. "
                          "The noise is most useful with Lookahead enabled, because it can happen before the delayed note onset.");
 
+    configureLabel (ampFeedbackLabel, "Amp Feedback");
+    configureSlider (ampFeedbackSlider, juce::Colour (0xffe87070));
+    configureInfoButton (ampFeedbackInfoButton,
+                         "0% disables speaker feedback. Low values mostly lengthen resonant sustain; higher values bias harmonic overtones "
+                         "and can push held notes toward controlled howl.");
+
     configureLabel (vibratoSpeedLabel, "Speed");
     configureSlider (vibratoSpeedSlider, juce::Colour (0xff82cfff));
     configureInfoButton (vibratoSpeedInfoButton,
@@ -273,6 +279,12 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "0% makes pitch wheel act like a perfect pitch shifter. Higher values make strings respond by slightly different amounts, "
                          "like a tremolo bridge changing string tension mechanically.");
 
+    configureLabel (legatoArticulationLabel, "Legato Artic");
+    configureSlider (legatoArticulationSlider, juce::Colour (0xffd7a0ff));
+    configureInfoButton (legatoArticulationInfoButton,
+                         "0% keeps all notes picked. Above 20%, eligible same-string phrases can become pull-offs, then hammer-ons. "
+                         "Above 70%, fast higher-fret leaps can use right-hand tap excitation.");
+
     configureLabel (pickStiffnessLabel, "Pick Stiffness");
     configureSlider (pickStiffnessSlider, juce::Colour (0xffffc56f));
     configureInfoButton (pickStiffnessInfoButton,
@@ -331,6 +343,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     fingerNoiseAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::fingerNoiseParameterId,
                                                                fingerNoiseSlider);
+    ampFeedbackAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                               GuitarAgAudioProcessor::ampFeedbackParameterId,
+                                                               ampFeedbackSlider);
     vibratoSpeedAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                  GuitarAgAudioProcessor::vibratoSpeedParameterId,
                                                                  vibratoSpeedSlider);
@@ -376,6 +391,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     pickupPositionAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                   GuitarAgAudioProcessor::pickupPositionParameterId,
                                                                   pickupPositionSlider);
+    legatoArticulationAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                       GuitarAgAudioProcessor::legatoArticulationParameterId,
+                                                                       legatoArticulationSlider);
     pickStiffnessAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                   GuitarAgAudioProcessor::pickStiffnessParameterId,
                                                                   pickStiffnessSlider);
@@ -515,6 +533,10 @@ void GuitarAgAudioProcessorEditor::resized()
         auto fingerNoiseBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (fingerNoiseBounds, fingerNoiseLabel, fingerNoiseInfoButton);
         fingerNoiseSlider.setBounds (fingerNoiseBounds);
+
+        auto feedbackBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (feedbackBounds, ampFeedbackLabel, ampFeedbackInfoButton);
+        ampFeedbackSlider.setBounds (feedbackBounds);
     }
 
     if (activePage == 3)
@@ -577,6 +599,10 @@ void GuitarAgAudioProcessorEditor::resized()
 
     if (activePage == 6)
     {
+        auto legatoBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (legatoBounds, legatoArticulationLabel, legatoArticulationInfoButton);
+        legatoArticulationSlider.setBounds (legatoBounds);
+
         auto stiffnessBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (stiffnessBounds, pickStiffnessLabel, pickStiffnessInfoButton);
         pickStiffnessSlider.setBounds (stiffnessBounds);
@@ -703,7 +729,10 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&lookaheadBox),
                              static_cast<juce::Component*> (&fingerNoiseLabel),
                              static_cast<juce::Component*> (&fingerNoiseInfoButton),
-                             static_cast<juce::Component*> (&fingerNoiseSlider) })
+                             static_cast<juce::Component*> (&fingerNoiseSlider),
+                             static_cast<juce::Component*> (&ampFeedbackLabel),
+                             static_cast<juce::Component*> (&ampFeedbackInfoButton),
+                             static_cast<juce::Component*> (&ampFeedbackSlider) })
         component->setVisible (activePage == 2);
 
     for (auto* component : { static_cast<juce::Component*> (&vibratoSpeedLabel),
@@ -743,7 +772,10 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&whammySpreadSlider) })
         component->setVisible (activePage == 5);
 
-    for (auto* component : { static_cast<juce::Component*> (&pickStiffnessLabel),
+    for (auto* component : { static_cast<juce::Component*> (&legatoArticulationLabel),
+                             static_cast<juce::Component*> (&legatoArticulationInfoButton),
+                             static_cast<juce::Component*> (&legatoArticulationSlider),
+                             static_cast<juce::Component*> (&pickStiffnessLabel),
                              static_cast<juce::Component*> (&pickStiffnessInfoButton),
                              static_cast<juce::Component*> (&pickStiffnessSlider),
                              static_cast<juce::Component*> (&pickTextureLabel),

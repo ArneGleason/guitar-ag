@@ -17,6 +17,8 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     fretPressureParameter = parameters.getRawParameterValue (fretPressureParameterId);
     lookaheadParameter = parameters.getRawParameterValue (lookaheadParameterId);
     fingerNoiseParameter = parameters.getRawParameterValue (fingerNoiseParameterId);
+    legatoArticulationParameter = parameters.getRawParameterValue (legatoArticulationParameterId);
+    ampFeedbackParameter = parameters.getRawParameterValue (ampFeedbackParameterId);
     vibratoSpeedParameter = parameters.getRawParameterValue (vibratoSpeedParameterId);
     vibratoDepthParameter = parameters.getRawParameterValue (vibratoDepthParameterId);
     vibratoDelayParameter = parameters.getRawParameterValue (vibratoDelayParameterId);
@@ -148,6 +150,26 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { fingerNoiseParameterId, 1 },
         "Finger Noise",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { legatoArticulationParameterId, 1 },
+        "Legato Articulation",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { ampFeedbackParameterId, 1 },
+        "Amp Feedback",
         juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
         0.0f,
         juce::AudioParameterFloatAttributes()
@@ -357,6 +379,8 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
     audioEngine.setLookaheadSamples (currentLatencySamples);
     audioEngine.setFingerNoise (fingerNoiseParameter != nullptr ? fingerNoiseParameter->load() : 0.0f);
+    audioEngine.setLegatoArticulation (legatoArticulationParameter != nullptr ? legatoArticulationParameter->load() : 0.0f);
+    audioEngine.setAmpFeedback (ampFeedbackParameter != nullptr ? ampFeedbackParameter->load() : 0.0f);
     audioEngine.setVibratoSpeed (vibratoSpeedParameter != nullptr ? vibratoSpeedParameter->load() : 5.5f);
     audioEngine.setVibratoDepth (vibratoDepthParameter != nullptr ? vibratoDepthParameter->load() : 0.0f);
     audioEngine.setVibratoDelay (vibratoDelayParameter != nullptr ? vibratoDelayParameter->load() : 0.0f);

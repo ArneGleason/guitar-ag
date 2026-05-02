@@ -11,6 +11,14 @@
 namespace guitar_ag
 {
 
+enum class PlayerGesture
+{
+    Picked,
+    HammerOn,
+    PullOff,
+    RightHandTap
+};
+
 class StringVoice
 {
 public:
@@ -28,7 +36,8 @@ public:
                 float bridgeIntonation,
                 float fretPressure,
                 float pickupPosition,
-                int pickupModel);
+                int pickupModel,
+                PlayerGesture gesture);
     void release (int midiNoteNumber, int midiChannel);
 
     [[nodiscard]] bool isActive() const noexcept { return active; }
@@ -46,6 +55,10 @@ public:
                         float vibratoDelaySeconds,
                         float whammySemitones,
                         float whammySpread,
+                        float ampFeedback,
+                        float feedbackLoopFrequency,
+                        float feedbackLoopAmount,
+                        float feedbackLoopSignal,
                         float aftertouchBendSemitones,
                         float mpePressureAmount,
                         float mpeTimbreAmount,
@@ -140,6 +153,13 @@ private:
     float pickHeavyBodyState = 0.0f;
     float pickHeavyChoke = 0.0f;
     int pickContactSamplesRemaining = 0;
+    float fingerImpact = 0.0f;
+    float fingerImpactDecay = 0.0f;
+    float fingerImpactPhase = 0.0f;
+    float fingerImpactPhaseStep = 0.0f;
+    float pullOffSnap = 0.0f;
+    float pullOffSnapDecay = 0.0f;
+    float previousGestureNoise = 0.0f;
     float attackRampSeconds = 0.0025f;
     float modalReleaseDecay = 1.0f;
     std::array<float, resonanceCount> resonanceCoefficient {};

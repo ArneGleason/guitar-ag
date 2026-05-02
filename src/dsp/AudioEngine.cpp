@@ -5,6 +5,17 @@
 namespace guitar_ag
 {
 
+namespace
+{
+constexpr std::array<float, 8> feedbackBandFrequencies {
+    110.0f, 164.8f, 246.9f, 392.0f, 659.3f, 987.8f, 1480.0f, 2349.3f
+};
+
+constexpr std::array<float, 8> feedbackBandBias {
+    0.34f, 0.48f, 0.66f, 0.86f, 1.08f, 1.20f, 1.10f, 0.82f
+};
+} // namespace
+
 void AudioEngine::prepare (double newSampleRate, int, int)
 {
     sampleRate = newSampleRate > 0.0 ? newSampleRate : 44100.0;
@@ -30,6 +41,10 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     fretPressure.setCurrentAndTargetValue (0.0f);
     fingerNoise.reset (sampleRate, 0.030);
     fingerNoise.setCurrentAndTargetValue (0.0f);
+    legatoArticulation.reset (sampleRate, 0.035);
+    legatoArticulation.setCurrentAndTargetValue (0.0f);
+    ampFeedback.reset (sampleRate, 0.080);
+    ampFeedback.setCurrentAndTargetValue (0.0f);
     vibratoSpeed.reset (sampleRate, 0.030);
     vibratoSpeed.setCurrentAndTargetValue (5.5f);
     vibratoDepth.reset (sampleRate, 0.030);
@@ -57,6 +72,7 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     pickupPosition.reset (sampleRate, 0.050);
     pickupPosition.setCurrentAndTargetValue (0.39f);
     pickupModel = 0;
+    configureAmpFeedbackLoop();
     tone.prepare (sampleRate);
     reset();
 }
@@ -74,8 +90,13 @@ void AudioEngine::reset()
     for (auto& assignment : fingerAssignments)
         assignment = {};
 
+    for (auto& note : articulationNotes)
+        note = {};
+
     for (auto& voice : fingerNoiseVoices)
         voice = {};
+
+    resetAmpFeedbackLoop();
 
     tailSustain.setCurrentAndTargetValue (tailSustain.getTargetValue());
     pickStiffness.setCurrentAndTargetValue (pickStiffness.getTargetValue());
@@ -86,6 +107,8 @@ void AudioEngine::reset()
     bridgeIntonation.setCurrentAndTargetValue (bridgeIntonation.getTargetValue());
     fretPressure.setCurrentAndTargetValue (fretPressure.getTargetValue());
     fingerNoise.setCurrentAndTargetValue (fingerNoise.getTargetValue());
+    legatoArticulation.setCurrentAndTargetValue (legatoArticulation.getTargetValue());
+    ampFeedback.setCurrentAndTargetValue (ampFeedback.getTargetValue());
     vibratoSpeed.setCurrentAndTargetValue (vibratoSpeed.getTargetValue());
     vibratoDepth.setCurrentAndTargetValue (vibratoDepth.getTargetValue());
     vibratoDelay.setCurrentAndTargetValue (vibratoDelay.getTargetValue());
@@ -161,6 +184,16 @@ void AudioEngine::setLookaheadSamples (int newLookaheadSamples) noexcept
 void AudioEngine::setFingerNoise (float newFingerNoise) noexcept
 {
     fingerNoise.setTargetValue (juce::jlimit (0.0f, 1.0f, newFingerNoise));
+}
+
+void AudioEngine::setLegatoArticulation (float newLegatoArticulation) noexcept
+{
+    legatoArticulation.setTargetValue (juce::jlimit (0.0f, 1.0f, newLegatoArticulation));
+}
+
+void AudioEngine::setAmpFeedback (float newAmpFeedback) noexcept
+{
+    ampFeedback.setTargetValue (juce::jlimit (0.0f, 1.0f, newAmpFeedback));
 }
 
 void AudioEngine::setVibratoSpeed (float newVibratoSpeed) noexcept
@@ -296,6 +329,10 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
                                    ? pitchWheelAmount * (pitchWheelAmount >= 0.0f ? whammyUpAmount : whammyDownAmount)
                                    : 0.0f;
         const auto whammySpreadAmount = whammySpread.getNextValue();
+        const auto ampFeedbackAmount = ampFeedback.getNextValue();
+        const auto feedbackLoopFrequencyForVoices = feedbackLoopFrequency;
+        const auto feedbackLoopAmountForVoices = feedbackLoopAmount;
+        const auto feedbackLoopSignalForVoices = feedbackLoopSignal;
         const auto aftertouchBendAmount = aftertouchBendSemitones.getNextValue();
         pickStiffness.getNextValue();
         pickTexture.getNextValue();
@@ -303,6 +340,7 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         stringAge.getNextValue();
         bridgeIntonation.getNextValue();
         fretPressure.getNextValue();
+        legatoArticulation.getNextValue();
         pickupPosition.getNextValue();
 
         dispatchScheduledMidiEvents();
@@ -315,6 +353,10 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
                                                vibratoDelaySeconds,
                                                whammySemitones,
                                                whammySpreadAmount,
+                                               ampFeedbackAmount,
+                                               feedbackLoopFrequencyForVoices,
+                                               feedbackLoopAmountForVoices,
+                                               feedbackLoopSignalForVoices,
                                                aftertouchBendAmount,
                                                mpePressureAmountValue,
                                                mpeTimbreAmountValue,
@@ -322,11 +364,114 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
 
         mixedSample += renderFingerNoiseSample() * fingerNoiseAmount;
         mixedSample = tone.processSample (mixedSample);
+        updateAmpFeedbackLoop (mixedSample, ampFeedbackAmount);
 
         for (auto channel = 0; channel < numChannels; ++channel)
             audio.addSample (channel, sampleIndex, mixedSample);
 
         ++timelineSample;
+    }
+}
+
+void AudioEngine::configureAmpFeedbackLoop() noexcept
+{
+    constexpr auto twoPi = 6.28318530717958647692f;
+
+    for (auto index = 0; index < feedbackResonatorCount; ++index)
+    {
+        const auto band = static_cast<size_t> (index);
+        const auto frequency = juce::jlimit (40.0f,
+                                             static_cast<float> (sampleRate * 0.42),
+                                             feedbackBandFrequencies[band]);
+        const auto radius = 0.9925f + 0.0030f * static_cast<float> (index) / static_cast<float> (feedbackResonatorCount - 1);
+        feedbackResonatorCoefficient[band] = 2.0f * radius * std::cos (twoPi * frequency / static_cast<float> (sampleRate));
+        feedbackResonatorRadiusSquared[band] = radius * radius;
+    }
+}
+
+void AudioEngine::resetAmpFeedbackLoop() noexcept
+{
+    feedbackResonatorState1.fill (0.0f);
+    feedbackResonatorState2.fill (0.0f);
+    feedbackResonatorEnvelope.fill (0.0f);
+    feedbackDominantBand = 0;
+    feedbackLoopFrequency = 0.0f;
+    feedbackLoopAmount = 0.0f;
+    feedbackLoopSignal = 0.0f;
+    feedbackLoopDominance = 0.0f;
+}
+
+void AudioEngine::updateAmpFeedbackLoop (float outputSample, float amount) noexcept
+{
+    const auto feedbackAmount = juce::jlimit (0.0f, 1.0f, amount);
+    const auto loopAmount = std::pow (juce::jlimit (0.0f, 1.0f, (feedbackAmount - 0.28f) / 0.72f), 1.18f);
+    const auto input = std::tanh (outputSample * (0.60f + 4.8f * feedbackAmount));
+    auto bestScore = -1.0f;
+    auto secondScore = -1.0f;
+    auto bestIndex = feedbackDominantBand;
+    auto bestSignal = 0.0f;
+
+    for (auto index = 0; index < feedbackResonatorCount; ++index)
+    {
+        const auto band = static_cast<size_t> (index);
+        const auto next = juce::jlimit (-4.0f,
+                                        4.0f,
+                                        input
+                                            + feedbackResonatorCoefficient[band] * feedbackResonatorState1[band]
+                                            - feedbackResonatorRadiusSquared[band] * feedbackResonatorState2[band]);
+        const auto bandSignal = next - feedbackResonatorState2[band];
+        feedbackResonatorState2[band] = feedbackResonatorState1[band];
+        feedbackResonatorState1[band] = next;
+
+        const auto rectified = std::abs (bandSignal);
+        const auto attack = 0.00140f + 0.00320f * loopAmount;
+        const auto release = 0.000050f + 0.000220f * loopAmount;
+        const auto envelopeStep = rectified > feedbackResonatorEnvelope[band] ? attack : release;
+        feedbackResonatorEnvelope[band] += envelopeStep * (rectified - feedbackResonatorEnvelope[band]);
+
+        const auto currentWinnerBonus = index == feedbackDominantBand ? 1.08f : 1.0f;
+        const auto score = feedbackResonatorEnvelope[band] * feedbackBandBias[band] * currentWinnerBonus;
+
+        if (score > bestScore)
+        {
+            secondScore = bestScore;
+            bestScore = score;
+            bestIndex = index;
+            bestSignal = bandSignal;
+        }
+        else if (score > secondScore)
+        {
+            secondScore = score;
+        }
+    }
+
+    const auto dominance = bestScore > 0.000001f
+                         ? juce::jlimit (0.0f, 1.0f, (bestScore - juce::jmax (0.0f, secondScore)) / (bestScore + 0.000001f))
+                         : 0.0f;
+    const auto takeover = bestIndex == feedbackDominantBand ? 0.00055f : 0.000075f + 0.00050f * dominance;
+    feedbackDominantBand = bestIndex;
+    feedbackLoopDominance += 0.0014f * (dominance - feedbackLoopDominance);
+
+    const auto targetFrequency = feedbackBandFrequencies[static_cast<size_t> (bestIndex)];
+    feedbackLoopFrequency += takeover * (targetFrequency - feedbackLoopFrequency);
+
+    if (feedbackLoopFrequency <= 1.0f)
+        feedbackLoopFrequency = targetFrequency;
+
+    const auto targetAmount = juce::jlimit (0.0f,
+                                           1.0f,
+                                           loopAmount
+                                               * std::sqrt (juce::jmax (0.0f, bestScore))
+                                               * (2.20f + 4.00f * feedbackLoopDominance));
+    feedbackLoopAmount += 0.0048f * (targetAmount - feedbackLoopAmount);
+    feedbackLoopSignal += 0.24f * ((std::tanh (bestSignal * 1.35f) * feedbackLoopAmount) - feedbackLoopSignal);
+
+    if (feedbackAmount <= 0.001f)
+    {
+        feedbackLoopFrequency = 0.0f;
+        feedbackLoopAmount *= 0.985f;
+        feedbackLoopSignal *= 0.965f;
+        feedbackLoopDominance *= 0.985f;
     }
 }
 
@@ -449,7 +594,25 @@ void AudioEngine::clearScheduledMidiEvents() noexcept
 
 void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
 {
-    const auto assignment = fretboard.assignNote (noteNumber, channel);
+    const auto articulationAmount = legatoArticulation.getTargetValue();
+    auto legatoSource = findLegatoSource (noteNumber, channel, articulationAmount);
+
+    if (legatoSource.valid)
+    {
+        releaseLegatoSource (legatoSource);
+        fretboard.releaseNote (legatoSource.noteNumber, legatoSource.channel);
+        releaseArticulationNote (legatoSource.noteNumber, legatoSource.channel);
+    }
+
+    const auto preferredString = legatoSource.valid ? legatoSource.assignment.stringIndex : -1;
+    const auto assignment = fretboard.assignNote (noteNumber,
+                                                  channel,
+                                                  preferredString,
+                                                  legatoSource.valid ? 100.0f : 0.0f,
+                                                  legatoSource.valid);
+    const auto gesture = legatoSource.valid && assignment.stringIndex == preferredString
+                       ? legatoSource.gesture
+                       : PlayerGesture::Picked;
     const auto notePickStiffness = pickStiffness.getTargetValue();
     const auto notePickTexture = pickTexture.getTargetValue();
     const auto noteHarmonicTouch = harmonicTouch.getTargetValue();
@@ -474,17 +637,20 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                          noteBridgeIntonation,
                          noteFretPressure,
                          notePickupPosition,
-                         notePickupModel);
+                         notePickupModel,
+                         gesture);
             const auto channelIndex = static_cast<size_t> (juce::jlimit (1, 16, channel) - 1);
             voice.setMpePitchBend (channel, mpePitchBendByChannel[channelIndex]);
             voice.setMpePressure (channel, mpePressureByChannel[channelIndex]);
             voice.setMpeTimbre (channel, mpeTimbreByChannel[channelIndex]);
+            rememberArticulationNote (noteNumber, channel, assignment, gesture);
             return;
         }
     }
 
     auto& stolenVoice = voices[static_cast<size_t> (nextVoice)];
     fretboard.releaseNote (stolenVoice.getNoteNumber(), stolenVoice.getChannel());
+    releaseArticulationNote (stolenVoice.getNoteNumber(), stolenVoice.getChannel());
     stolenVoice.start (noteNumber,
                        channel,
                        velocity,
@@ -496,12 +662,195 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                        noteBridgeIntonation,
                        noteFretPressure,
                        notePickupPosition,
-                       notePickupModel);
+                       notePickupModel,
+                       gesture);
     const auto channelIndex = static_cast<size_t> (juce::jlimit (1, 16, channel) - 1);
     stolenVoice.setMpePitchBend (channel, mpePitchBendByChannel[channelIndex]);
     stolenVoice.setMpePressure (channel, mpePressureByChannel[channelIndex]);
     stolenVoice.setMpeTimbre (channel, mpeTimbreByChannel[channelIndex]);
+    rememberArticulationNote (noteNumber, channel, assignment, gesture);
     nextVoice = (nextVoice + 1) % maxVoices;
+}
+
+AudioEngine::LegatoSource AudioEngine::findLegatoSource (int noteNumber, int channel, float amount) const noexcept
+{
+    LegatoSource best {};
+
+    if (amount <= 0.20f)
+        return best;
+
+    auto bestScore = 1000000.0f;
+    const auto style = juce::jlimit (0.0f, 1.0f, (amount - 0.20f) / 0.80f);
+
+    for (const auto& note : articulationNotes)
+    {
+        if (! note.valid || note.noteNumber == noteNumber)
+            continue;
+
+        const auto destinationFret = FretboardMapper::getFretForString (noteNumber, note.assignment.stringIndex);
+
+        if (destinationFret < 0 || destinationFret == note.assignment.fret)
+            continue;
+
+        const auto referenceSample = note.active ? note.startSample : note.releaseSample;
+        const auto ageSamples = timelineSample - referenceSample;
+
+        if (ageSamples < 0)
+            continue;
+
+        const auto ageSeconds = static_cast<float> (ageSamples) / static_cast<float> (sampleRate);
+        const auto maxAgeSeconds = note.active ? 0.70f : 0.18f + 0.12f * style;
+
+        if (ageSeconds > maxAgeSeconds)
+            continue;
+
+        const auto fretDelta = destinationFret - note.assignment.fret;
+        const auto fretDistance = std::abs (fretDelta);
+        auto gesture = PlayerGesture::Picked;
+        auto probability = 0.0f;
+
+        if (fretDelta < 0)
+        {
+            const auto maxDistance = amount < 0.50f ? 5 : amount < 0.70f ? 8 : 12;
+
+            if (fretDistance > maxDistance && destinationFret != 0)
+                continue;
+
+            gesture = PlayerGesture::PullOff;
+            const auto rangeProbability = amount < 0.30f
+                                        ? juce::jmap ((amount - 0.20f) / 0.10f, 0.12f, 0.36f)
+                                        : juce::jmap (style, 0.38f, 0.92f);
+            const auto distanceConfidence = juce::jlimit (0.25f, 1.0f, 1.16f - 0.075f * static_cast<float> (fretDistance));
+            const auto openBonus = destinationFret == 0 ? 1.16f : 1.0f;
+            probability = rangeProbability * distanceConfidence * openBonus;
+        }
+        else if (amount >= 0.70f
+                 && fretDistance >= 5
+                 && destinationFret >= 7
+                 && note.assignment.fret <= 14)
+        {
+            gesture = PlayerGesture::RightHandTap;
+            const auto tapAmount = juce::jlimit (0.0f, 1.0f, (amount - 0.70f) / 0.30f);
+            const auto distanceConfidence = juce::jlimit (0.35f, 1.0f, 0.50f + 0.055f * static_cast<float> (fretDistance));
+            const auto fretConfidence = juce::jlimit (0.45f, 1.0f, static_cast<float> (destinationFret - 5) / 11.0f);
+            probability = juce::jmap (tapAmount, 0.24f, 0.94f) * distanceConfidence * fretConfidence;
+        }
+        else if (amount >= 0.30f)
+        {
+            const auto maxDistance = amount < 0.50f ? 4 : amount < 0.70f ? 7 : 10;
+
+            if (fretDistance > maxDistance)
+                continue;
+
+            gesture = PlayerGesture::HammerOn;
+            const auto hammerAmount = juce::jlimit (0.0f, 1.0f, (amount - 0.30f) / 0.55f);
+            const auto distanceConfidence = juce::jlimit (0.25f, 1.0f, 1.10f - 0.080f * static_cast<float> (fretDistance));
+            probability = juce::jmap (hammerAmount, 0.18f, 0.86f) * distanceConfidence;
+        }
+
+        if (gesture == PlayerGesture::Picked)
+            continue;
+
+        const auto activeBonus = note.active ? 0.18f : 0.0f;
+        const auto channelBonus = note.channel == channel ? 0.05f : 0.0f;
+        const auto phraseRate = juce::jlimit (0.55f, 1.18f, 1.12f - ageSeconds * 2.2f);
+        probability = juce::jlimit (0.0f, 0.98f, probability * phraseRate + activeBonus + channelBonus);
+
+        if (getDeterministicGestureChance (noteNumber, channel, note.noteNumber, timelineSample) > probability)
+            continue;
+
+        const auto gesturePriority = gesture == PlayerGesture::RightHandTap ? 0.16f
+                                 : gesture == PlayerGesture::PullOff ? 0.08f
+                                                                      : 0.0f;
+        const auto score = ageSeconds * 3.0f
+                         + static_cast<float> (fretDistance) * 0.10f
+                         - (note.active ? 0.22f : 0.0f)
+                         - channelBonus
+                         - gesturePriority;
+
+        if (score < bestScore)
+        {
+            bestScore = score;
+            best.noteNumber = note.noteNumber;
+            best.channel = note.channel;
+            best.assignment = note.assignment;
+            best.gesture = gesture;
+            best.destinationFret = destinationFret;
+            best.startSample = note.startSample;
+            best.releaseSample = note.releaseSample;
+            best.active = note.active;
+            best.valid = true;
+        }
+    }
+
+    return best;
+}
+
+void AudioEngine::rememberArticulationNote (int noteNumber,
+                                            int channel,
+                                            const FretboardAssignment& assignment,
+                                            PlayerGesture gesture) noexcept
+{
+    auto* slot = &articulationNotes.front();
+    auto oldestSample = timelineSample + 1;
+
+    for (auto& note : articulationNotes)
+    {
+        if (! note.valid || (note.noteNumber == noteNumber && note.channel == channel))
+        {
+            slot = &note;
+            break;
+        }
+
+        const auto ageReference = note.active ? note.startSample : note.releaseSample;
+
+        if (ageReference < oldestSample)
+        {
+            oldestSample = ageReference;
+            slot = &note;
+        }
+    }
+
+    *slot = { noteNumber, channel, assignment, gesture, timelineSample, timelineSample, true, true };
+}
+
+void AudioEngine::releaseArticulationNote (int noteNumber, int channel) noexcept
+{
+    for (auto& note : articulationNotes)
+    {
+        if (note.valid && note.active && note.noteNumber == noteNumber && note.channel == channel)
+        {
+            note.active = false;
+            note.releaseSample = timelineSample;
+        }
+    }
+}
+
+void AudioEngine::releaseLegatoSource (const LegatoSource& source) noexcept
+{
+    if (! source.valid)
+        return;
+
+    for (auto& voice : voices)
+        voice.release (source.noteNumber, source.channel);
+}
+
+float AudioEngine::getDeterministicGestureChance (int noteNumber,
+                                                  int channel,
+                                                  int sourceNoteNumber,
+                                                  int64_t sampleTime) noexcept
+{
+    auto hash = static_cast<uint32_t> ((noteNumber + 101) * 1103515245u)
+              ^ static_cast<uint32_t> ((sourceNoteNumber + 31) * 2654435761u)
+              ^ static_cast<uint32_t> ((channel + 17) * 2246822519u)
+              ^ static_cast<uint32_t> ((sampleTime / 128) * 3266489917ull);
+    hash ^= hash >> 16;
+    hash *= 0x7feb352du;
+    hash ^= hash >> 15;
+    hash *= 0x846ca68bu;
+    hash ^= hash >> 16;
+
+    return static_cast<float> ((hash >> 8) & 0x00ffffffu) / static_cast<float> (0x00ffffffu);
 }
 
 void AudioEngine::triggerFingerApproach (int noteNumber, int channel, float velocity) noexcept
@@ -641,6 +990,7 @@ float AudioEngine::nextFingerNoiseRandom (uint32_t& state) noexcept
 void AudioEngine::noteOff (int noteNumber, int channel)
 {
     fretboard.releaseNote (noteNumber, channel);
+    releaseArticulationNote (noteNumber, channel);
 
     for (auto& voice : voices)
         voice.release (noteNumber, channel);

@@ -55,3 +55,71 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
 ```
 
 The offline render is useful for a quick sanity check, but the DAW audition is still the better test for imported MIDI-channel behavior, plugin parameters, and host MPE handling.
+
+## Player Articulation Audition MIDI
+
+`tests/midi/guitar-ag-player-articulation-audition.mid` focuses on the `Legato Articulation` control added in `StringVoice EG-048 PlayerArtic`.
+
+It contains marked sections for:
+
+- picked reference phrases
+- ascending hammer-on candidates
+- descending pull-off candidates
+- mixed hammer-on/pull-off licks
+- guitar-like arpeggios with string changes
+- right-hand tap and pull-off cycles
+- a fast tap-arpeggio flourish
+
+Suggested audition pass:
+
+- Render or play once with `Legato Articulation` at 0%.
+- Repeat at about 35% for pull-offs and simple hammer-ons.
+- Repeat at about 65% for longer legato chains.
+- Repeat at 100% for tap-heavy behavior.
+
+Regenerate it with:
+
+```bash
+scripts/create-player-articulation-midi.py
+```
+
+Offline A/B example:
+
+```bash
+build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
+  --midi tests/midi/guitar-ag-player-articulation-audition.mid \
+  --output build/diagnostics/guitar-ag-player-articulation-100.wav \
+  --legato-articulation 1.0 \
+  --tail-seconds 2.0
+```
+
+## Amp Feedback Audition
+
+`Amp Feedback` is easiest to judge on longer held notes and then on the player-articulation file.
+
+Suggested audition pass:
+
+- Start with `Amp Feedback` at 0% to confirm the pickup/articulation baseline.
+- Try 25-40% for subtle loud-rig sustain.
+- Try 60-80% for obvious harmonic emphasis and early loop takeover.
+- Use 100% as the stress-test/high-feedback sound rather than the default musical setting.
+- For EG-050 and later, hold single notes long enough for a dominant feedback band to emerge; very short legato phrases may not give the loop time to take over.
+
+Offline A/B examples:
+
+```bash
+build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
+  --midi tests/midi/single-note-calibration.mid \
+  --output build/diagnostics/guitar-ag-eg049-single-feedback100.wav \
+  --amp-feedback 1.0 \
+  --tail-seconds 5.0
+```
+
+```bash
+build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
+  --midi tests/midi/guitar-ag-player-articulation-audition.mid \
+  --output build/diagnostics/guitar-ag-eg050-feedback100.wav \
+  --legato-articulation 1.0 \
+  --amp-feedback 1.0 \
+  --tail-seconds 3.5
+```

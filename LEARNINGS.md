@@ -439,3 +439,19 @@ Hammer-ons, pull-offs, and tapping should not be bolted onto raw MIDI note-on ha
 ## 2026-05-02 — Audition MIDI should be scripted
 
 A feature-audition MIDI file is useful for quick DAW checks, but it should be generated from a script rather than hand-edited as an opaque binary. Plain MIDI can exercise notes, velocity, channels, pitch bend, pressure, CC1, and CC74, but it cannot directly set arbitrary VST parameters such as pickup model, palm mute, or harmonic touch without host-specific automation or MIDI mapping.
+
+## 2026-05-02 — Legato energy should remain below picked energy
+
+The first player-articulation pass makes hammer-ons, pull-offs, and right-hand taps separate excitation profiles rather than full picked notes with different names. Keeping their DI energy below picked attacks is important: high-gain amp chains can compress the difference later, but the clean instrument should still expose the weaker left-hand energy and the grabbier pull-off shape.
+
+## 2026-05-02 — Pickup changes can be excitation changes
+
+The pickup-position path did not change in the player-articulation pass. The perceived pickup difference came from feeding the same pickup model different harmonic and attack content. This is a useful reminder that pickup auditioning should compare both fixed excitation and realistic playing gestures.
+
+## 2026-05-02 — Feedback needs explicit headroom checks
+
+The first `Amp Feedback` implementation made the broad arpeggio audition safe, but a longer single-note render at 100% exposed too much high-end sustain energy. Long held notes are the right stress test for this feature; the top of the slider should be tuned against peak/RMS diagnostics as well as listening.
+
+## 2026-05-02 — Feedback needs a winner
+
+Listening feedback on EG-049 showed that per-voice harmonic sustain sounds like even excitation, not amp feedback. A more convincing effect needs a separate loop with memory, band competition, and a dominant frequency that pushes back into matching string modes. The first EG-050 diagnostic renders show the long-note tail concentrating around upper feedback bands instead of merely raising the whole modal bank.

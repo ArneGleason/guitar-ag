@@ -24,7 +24,7 @@ void printUsage()
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5] [--palm-mute 0.0] "
                  "[--harmonic-touch 0.0] [--string-age 0.0] [--bridge-intonation 0.0] "
                  "[--fret-pressure 0.0] [--aftertouch-bend 2.0] [--aftertouch 0.0] "
-                 "[--lookahead-ms 0] [--finger-noise 0.0] "
+                 "[--lookahead-ms 0] [--finger-noise 0.0] [--legato-articulation 0.0] [--amp-feedback 0.0] "
                  "[--vibrato-speed 5.5] [--vibrato-depth 0.0] [--vibrato-delay-ms 0] "
                  "[--mpe-mode 0] [--mpe-bend-range 48.0] [--mpe-pressure-amount 0.65] [--mpe-cc74-amount 0.65] "
                  "[--channel-pressure 0.0] [--cc74 0.0] "
@@ -132,6 +132,8 @@ int main (int argc, char* argv[])
     auto aftertouch = 0.0f;
     auto lookaheadMs = 0.0f;
     auto fingerNoise = 0.0f;
+    auto legatoArticulation = 0.0f;
+    auto ampFeedback = 0.0f;
     auto vibratoSpeed = 5.5f;
     auto vibratoDepth = 0.0f;
     auto vibratoDelayMs = 0.0f;
@@ -224,6 +226,14 @@ int main (int argc, char* argv[])
         else if (argument == "--finger-noise" && hasValue)
         {
             fingerNoise = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--legato-articulation" && hasValue)
+        {
+            legatoArticulation = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--amp-feedback" && hasValue)
+        {
+            ampFeedback = juce::String (argv[++i]).getFloatValue();
         }
         else if (argument == "--vibrato-speed" && hasValue)
         {
@@ -388,6 +398,8 @@ int main (int argc, char* argv[])
     engine.setAftertouchBendSemitones (aftertouchBend);
     engine.setLookaheadSamples (static_cast<int> (std::round (sampleRate * static_cast<double> (lookaheadMs) / 1000.0)));
     engine.setFingerNoise (fingerNoise);
+    engine.setLegatoArticulation (legatoArticulation);
+    engine.setAmpFeedback (ampFeedback);
     engine.setVibratoSpeed (vibratoSpeed);
     engine.setVibratoDepth (vibratoDepth);
     engine.setVibratoDelay (vibratoDelayMs / 1000.0f);

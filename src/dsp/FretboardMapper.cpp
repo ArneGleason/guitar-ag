@@ -13,9 +13,16 @@ void FretboardMapper::reset() noexcept
     positionFret = 2.0f;
 }
 
-FretboardAssignment FretboardMapper::assignNote (int midiNoteNumber, int midiChannel) noexcept
+FretboardAssignment FretboardMapper::assignNote (int midiNoteNumber,
+                                                 int midiChannel,
+                                                 int preferredStringIndex,
+                                                 float preferredStringBonus,
+                                                 bool allowPreferredOccupied) noexcept
 {
-    const auto candidate = findBestCandidate (midiNoteNumber);
+    const auto candidate = findBestCandidate (midiNoteNumber,
+                                             preferredStringIndex,
+                                             preferredStringBonus,
+                                             allowPreferredOccupied);
     const FretboardAssignment assignment { candidate.stringIndex,
                                            candidate.fret,
                                            candidate.wound,
@@ -27,6 +34,20 @@ FretboardAssignment FretboardMapper::assignNote (int midiNoteNumber, int midiCha
     return assignment;
 }
 
+int FretboardMapper::getFretForString (int midiNoteNumber, int stringIndex) noexcept
+{
+    auto clampedString = stringIndex;
+
+    if (clampedString < 0)
+        clampedString = 0;
+    else if (clampedString >= stringCount)
+        clampedString = stringCount - 1;
+
+    const auto fret = midiNoteNumber - openNotes[static_cast<size_t> (clampedString)];
+
+    return fret >= 0 && fret <= maxFret ? fret : -1;
+}
+
 void FretboardMapper::releaseNote (int midiNoteNumber, int midiChannel) noexcept
 {
     for (auto& activeString : activeStrings)
@@ -36,7 +57,10 @@ void FretboardMapper::releaseNote (int midiNoteNumber, int midiChannel) noexcept
     }
 }
 
-FretboardMapper::Candidate FretboardMapper::findBestCandidate (int midiNoteNumber) const noexcept
+FretboardMapper::Candidate FretboardMapper::findBestCandidate (int midiNoteNumber,
+                                                               int preferredStringIndex,
+                                                               float preferredStringBonus,
+                                                               bool allowPreferredOccupied) const noexcept
 {
     Candidate best {};
     best.score = std::numeric_limits<float>::max();
@@ -48,7 +72,11 @@ FretboardMapper::Candidate FretboardMapper::findBestCandidate (int midiNoteNumbe
         if (fret < 0 || fret > maxFret)
             continue;
 
-        const auto score = scoreCandidate (stringIndex, fret);
+        const auto score = scoreCandidate (stringIndex,
+                                           fret,
+                                           preferredStringIndex,
+                                           preferredStringBonus,
+                                           allowPreferredOccupied);
 
         if (score < best.score)
             best = { stringIndex,
@@ -67,7 +95,11 @@ FretboardMapper::Candidate FretboardMapper::findBestCandidate (int midiNoteNumbe
     return { stringCount - 1, maxFret, woundStrings.back(), woundAmounts.back(), 0.0f };
 }
 
-float FretboardMapper::scoreCandidate (int stringIndex, int fret) const noexcept
+float FretboardMapper::scoreCandidate (int stringIndex,
+                                       int fret,
+                                       int preferredStringIndex,
+                                       float preferredStringBonus,
+                                       bool allowPreferredOccupied) const noexcept
 {
     const auto fretDistance = static_cast<float> (fret) - positionFret;
     auto score = fretDistance * fretDistance;
@@ -81,7 +113,10 @@ float FretboardMapper::scoreCandidate (int stringIndex, int fret) const noexcept
     if (fret >= 1 && fret <= 5)
         score -= 0.18f;
 
-    if (isStringOccupied (stringIndex))
+    if (stringIndex == preferredStringIndex && preferredStringBonus > 0.0f)
+        score -= preferredStringBonus;
+
+    if (isStringOccupied (stringIndex) && ! (allowPreferredOccupied && stringIndex == preferredStringIndex))
         score += 1000.0f;
 
     return score;

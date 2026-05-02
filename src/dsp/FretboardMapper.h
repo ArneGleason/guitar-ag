@@ -18,8 +18,13 @@ class FretboardMapper
 public:
     void reset() noexcept;
 
-    [[nodiscard]] FretboardAssignment assignNote (int midiNoteNumber, int midiChannel) noexcept;
+    [[nodiscard]] FretboardAssignment assignNote (int midiNoteNumber,
+                                                  int midiChannel,
+                                                  int preferredStringIndex = -1,
+                                                  float preferredStringBonus = 0.0f,
+                                                  bool allowPreferredOccupied = false) noexcept;
     void releaseNote (int midiNoteNumber, int midiChannel) noexcept;
+    [[nodiscard]] static int getFretForString (int midiNoteNumber, int stringIndex) noexcept;
 
 private:
     static constexpr auto stringCount = 6;
@@ -41,8 +46,15 @@ private:
         float score = 0.0f;
     };
 
-    [[nodiscard]] Candidate findBestCandidate (int midiNoteNumber) const noexcept;
-    [[nodiscard]] float scoreCandidate (int stringIndex, int fret) const noexcept;
+    [[nodiscard]] Candidate findBestCandidate (int midiNoteNumber,
+                                               int preferredStringIndex,
+                                               float preferredStringBonus,
+                                               bool allowPreferredOccupied) const noexcept;
+    [[nodiscard]] float scoreCandidate (int stringIndex,
+                                        int fret,
+                                        int preferredStringIndex,
+                                        float preferredStringBonus,
+                                        bool allowPreferredOccupied) const noexcept;
     [[nodiscard]] bool isStringOccupied (int stringIndex) const noexcept;
     void rememberAssignment (const FretboardAssignment& assignment, int midiNoteNumber, int midiChannel) noexcept;
     void updatePositionMemory (int fret) noexcept;

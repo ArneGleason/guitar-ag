@@ -313,3 +313,45 @@ Accepted
 
 Consequences:
 Only one parameter group is visible at a time. The editor stays at a compact fixed height, and future controls should be added to the relevant page or a new tab rather than extending one long vertical stack.
+
+## 2026-05-02 — Add player articulation as a conservative heuristic layer
+
+Decision:
+Add `Legato Articulation` as a first automatic player-articulation control that chooses among picked, hammer-on, pull-off, and right-hand tap gestures using recent same-string context.
+
+Reason:
+The project needs audible guitar-player interpretation before a full phrase/fingering solver exists. A bounded heuristic can make the feature testable now while preserving the current picked behavior at 0%.
+
+Status:
+Accepted
+
+Consequences:
+The first pass uses deterministic probability and distinct excitation profiles, but it still starts a fresh destination voice rather than physically preserving and retuning the source string state. A future pass should move same-string legato into a true string-transition method.
+
+## 2026-05-02 — Model amp feedback as one environment control
+
+Decision:
+Add `Amp Feedback` as a single performance/environment control that injects controlled harmonic sustain into active string voices before pickup/tone shaping.
+
+Reason:
+The user wants the useful musical gesture of moving a guitar toward a loud speaker, not a full amp, cab, microphone, room, or electromagnetic feedback simulation. A one-knob model keeps the feature testable and DAW-friendly while preserving the clean DI focus of the instrument.
+
+Status:
+Accepted
+
+Consequences:
+Low settings extend resonance subtly; high settings bias harmonic modes and add controlled howl. The model is intentionally bounded and voice-local, so it does not yet simulate body-wide cross-string coupling or acoustic room feedback.
+
+## 2026-05-02 — Add a dominant-band feedback loop above local sustain
+
+Decision:
+Keep `Amp Feedback` as one user-facing control, but make the high range use a global resonator loop that listens to the shaped output and feeds only the dominant band back into matching string modes.
+
+Reason:
+The first amp-feedback pass made all active strings and harmonics feel too evenly excited. Real intentional guitar feedback usually has loop memory and a winner: one amp/speaker/string resonance builds, then another can take over as pitch, damping, or tension changes.
+
+Status:
+Accepted
+
+Consequences:
+`AudioEngine` now owns a small feedback resonator bank and sends dominant frequency/amount/signal values into `StringVoice`. This is still a bounded approximation, not an acoustic room or body simulation, but it better matches the musical behavior of feedback used as an effect.

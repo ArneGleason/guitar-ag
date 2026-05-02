@@ -17,6 +17,8 @@ public:
     static constexpr auto fretPressureParameterId = "fretPressure";
     static constexpr auto lookaheadParameterId = "lookahead";
     static constexpr auto fingerNoiseParameterId = "fingerNoise";
+    static constexpr auto legatoArticulationParameterId = "legatoArticulation";
+    static constexpr auto ampFeedbackParameterId = "ampFeedback";
     static constexpr auto vibratoSpeedParameterId = "vibratoSpeed";
     static constexpr auto vibratoDepthParameterId = "vibratoDepth";
     static constexpr auto vibratoDelayParameterId = "vibratoDelay";
@@ -79,6 +81,8 @@ private:
     std::atomic<float>* fretPressureParameter = nullptr;
     std::atomic<float>* lookaheadParameter = nullptr;
     std::atomic<float>* fingerNoiseParameter = nullptr;
+    std::atomic<float>* legatoArticulationParameter = nullptr;
+    std::atomic<float>* ampFeedbackParameter = nullptr;
     std::atomic<float>* vibratoSpeedParameter = nullptr;
     std::atomic<float>* vibratoDepthParameter = nullptr;
     std::atomic<float>* vibratoDelayParameter = nullptr;
