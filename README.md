@@ -55,7 +55,7 @@ StringVoice EG-057 FeedbackBloom
 
 Short MP3 render from an earlier modeled guitar voice:
 
-<audio controls src="assets/demo/guitar-ag-demo-2026-04-27.mp3"></audio>
+<audio controls src="assets/demo/GuitarAGtest 2026-05-03 1341.mp3"></audio>
 
 [Download or play the MP3 demo](assets/demo/GuitarAGtest 2026-05-03 1341.mp3)
 
