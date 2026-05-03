@@ -49,6 +49,14 @@ Do not introduce large architecture changes unless the current task explicitly c
 
 Do not race ahead into unrelated features.
 
+## Multi-Machine Workflow
+
+This project is actively worked on from more than one machine, especially a Mac and a Windows PC.
+
+Before starting meaningful work, check whether the local branch is up to date with GitHub. If the local repo is behind, pull first. If there are local changes or the user may have unpushed work on another machine, pause and ask whether anything needs to be committed, pushed, or pulled before continuing.
+
+When finishing meaningful work, prefer leaving changes committed and pushed so the other machine can pull a clean state before the next session.
+
 ## MVP Implementation Order
 
 1. Create a minimal VST3 plugin shell.

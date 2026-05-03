@@ -1,14 +1,26 @@
 # Guitar AG
 
-Guitar AG is an experimental **physical-model electric guitar VST3 instrument** built with **C++**, **JUCE**, and **CMake**.
+Guitar AG is an experimental **source-available physical-model electric guitar VST3 instrument** with **MPE** support, built with **C++**, **JUCE**, and **CMake**.
 
-It is not sample based. It synthesizes a clean DI-style electric guitar voice from modeled string behavior, pickup readout, and performance controls. The goal is a lightweight virtual instrument that can sit before a normal amp/cab simulator and respond more like a playable guitar-style synth than a static sample library.
+It is **not sample based**. It synthesizes a clean DI-style electric guitar voice from modeled string behavior, pickup readout, and performance controls. The goal is a lightweight virtual instrument that can sit before a normal amp/cab simulator and respond more like a playable guitar-style synth than a static sample library.
+
+If you have been looking for a small modeled alternative to multi-gigabyte sampled guitar libraries, this project is exploring that space: independent modeled string voices, guitar-like articulation, MPE per-note pitch bend/expression, and a DI output designed for external amp sims.
+
+It can be played as a performance instrument, but the original need was composition: writing guitar parts in a DAW piano roll without relying on keyswitches. Guitar AG favors automatable parameters, MPE/note-expression lanes, and a controllable amount of built-in player interpretation so guitar-like bends, pressure, timbre, legato, muting, pickup movement, and feedback can be drawn or automated over time.
+
+Search terms this project intentionally fits:
+
+```text
+physical modeling guitar VST3, modeled electric guitar plugin, MPE guitar synth,
+virtual guitar instrument, JUCE audio plugin, sample-free guitar VST,
+piano-roll guitar composition, keyswitch-free guitar articulation
+```
 
 The project is also a practical example of AI-assisted audio plugin development: a human musician/developer gave listening feedback in Bitwig, while Codex iterated on DSP, UI, build tooling, documentation, analysis scripts, and versioned VST3 builds in small testable steps.
 
 ## Current Status
 
-The current build is a working macOS VST3 instrument.
+The current build is a working VST3 instrument with macOS and Windows release assets.
 
 Implemented so far:
 
@@ -39,15 +51,31 @@ StringVoice EG-050 FeedbackLoop
 
 ![Guitar AG running as a VST3 instrument in Bitwig](assets/demo/guitar-ag-bitwig-screenshot.png)
 
-Short MP3 render from the current modeled guitar voice:
+Short MP3 render from an earlier modeled guitar voice:
 
 <audio controls src="assets/demo/guitar-ag-demo-2026-04-27.mp3"></audio>
 
 [Download or play the MP3 demo](assets/demo/guitar-ag-demo-2026-04-27.mp3)
 
+Planned demo clips:
+
+- Clean DI modeled guitar demo: coming soon at `assets/demo/guitar-ag-v0.2.0-clean-di.mp3`.
+- Amp-sim context demo: coming soon at `assets/demo/guitar-ag-v0.2.0-through-amp-sim.mp3`.
+- MPE independent bend demo: coming soon at `assets/demo/guitar-ag-v0.2.0-mpe-bend.mp3`.
+- Player articulation demo with hammer-ons, pull-offs, and taps: coming soon at `assets/demo/guitar-ag-v0.2.0-articulation.mp3`.
+- Amp feedback takeover demo: coming soon at `assets/demo/guitar-ag-v0.2.0-feedback.mp3`.
+
+The most useful first demos are short, dry, and direct: a clean DI clip that proves the plugin is not a sample library, and an MPE clip where one held chord tone bends while the others stay fixed.
+
 ## Why This Exists
 
-Many virtual guitar instruments rely on large sample libraries or sound convincing only inside a narrow articulation set. Guitar AG explores a different direction: a small physical model with continuous controls for the in-between behaviors that are hard to cover with samples.
+Many virtual guitar instruments rely on large sample libraries, keyswitch maps, or fixed articulation sets. Guitar AG explores a different direction: a compact physical model with continuous controls for the in-between behaviors that are hard to cover with samples.
+
+The motivating question is simple:
+
+> What if an expressive electric guitar VST could be modeled instead of sampled, small enough to download quickly, and easy to compose with directly in a piano roll using notes, automation, and MPE expression instead of keyswitch-heavy sample programming?
+
+The instrument is meant to be performance-capable, but it is especially aimed at authored parts: write the notes, draw or record the expressive curves, then let the model add a tunable amount of guitar-player interpretation. `Legato Articulation` is one example: at low values it stays closer to picked-note playback; at higher values it can interpret eligible note transitions as hammer-ons, pull-offs, or taps.
 
 The first major success condition was:
 
@@ -57,7 +85,7 @@ That milestone is now implemented.
 
 The current frontier is more musical than infrastructural: turning ordinary MIDI notes into plausible guitar-player gestures, and giving the modeled strings enough amp-adjacent behavior that feedback and sustain can become part of the performance instead of only a post-effect.
 
-Perfect guitar realism is not claimed. This is a playable research instrument, a useful DI tone source, and a living example of how an AI-assisted development loop can move from idea to working VST.
+Perfect guitar realism is not claimed. This is a playable research instrument, a useful DI tone source, and a living example of how an AI-assisted development loop can move from idea to working VST3.
 
 ## Quick Start
 
@@ -125,12 +153,23 @@ Cross-compiling a Windows VST3 from macOS is not the recommended path. JUCE/CMak
 
 Compiled plugin binaries should be distributed through **GitHub Releases**, not committed directly into the repository.
 
-Suggested release assets:
+Current release assets:
 
-- `Guitar-AG-macOS-vX.Y.Z.zip`
-- `Guitar-AG-Windows-vX.Y.Z.zip`
+- `Guitar-AG-macOS-v0.2.0.zip`
+- `Guitar-AG-v0.2.0-Windows-VST3.zip`
 
-At the moment, the repository is primarily source-first. Release packaging can be added next with GitHub Actions so macOS and Windows builds are attached automatically to tagged releases.
+Future release assets should use consistent names:
+
+- `Guitar-AG-vX.Y.Z-macOS-VST3.zip`
+- `Guitar-AG-vX.Y.Z-Windows-VST3.zip`
+
+Release packaging can be automated later with GitHub Actions so macOS and Windows builds are attached automatically to tagged releases.
+
+Download the latest release from:
+
+```text
+https://github.com/ArneGleason/guitar-ag/releases
+```
 
 ## MPE Setup Notes
 
@@ -218,6 +257,27 @@ As of the `EG-050 FeedbackLoop` milestone:
 - `plans/` — milestone-by-milestone implementation plans.
 - `DECISIONS.md` — accepted decisions.
 - `LEARNINGS.md` — accumulated project memory.
+
+## Contributions And Feedback
+
+Guitar AG is early and experimental. The most useful feedback right now is practical and specific:
+
+- Does the VST3 load in your DAW?
+- Does it produce clean output at normal levels?
+- Does MPE pitch bend affect only the intended note?
+- Do MPE pressure and CC74/timbre affect the intended voice?
+- Which controls feel musically useful, and which ones feel synthetic or confusing?
+- Are the automatable controls useful for piano-roll composition without keyswitches?
+- Do the Mac and Windows release zips install cleanly?
+- Are there DSP, guitar-performance, or JUCE/plugin-hosting bugs worth fixing first?
+
+Good contribution areas:
+
+- DAW compatibility checks in Bitwig, Reaper, Ableton Live, and other VST3 hosts.
+- MPE controller testing with LinnStrument, Seaboard, Push, Osmose, or other expressive controllers.
+- Short demo clips and MIDI test cases.
+- Real-time-safe DSP improvements.
+- Build packaging and GitHub Actions automation.
 
 ## Non-Goals
 
