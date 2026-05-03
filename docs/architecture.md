@@ -72,7 +72,9 @@ Current first implementation:
 
 - `FretboardMapper` is a small DSP-side performance-interpreter seed owned by `AudioEngine`.
 - It maps MIDI notes to standard-tuned string/fret assignments before voice start.
-- It does not yet choose pick direction, legato, slides, bends, or MPE expression routing.
+- `AudioEngine` keeps the core voice pool to six physical string voices.
+- If a new note is assigned to a string that is still ringing, that string's existing `StringVoice` is reused for the new note.
+- It does not yet choose pick direction, slides, bends, or MPE expression routing.
 - The mapper is intentionally heuristic so it can later be replaced by a phrase-aware interpreter without changing the string voice's sound-generation role.
 
 ### Tone / Pickup Model
@@ -91,6 +93,12 @@ Current first implementation:
 - `StringVoice` owns the current simple pickup readout because the read position depends on the active note's delay length.
 - `ElectricGuitarTone` is now a lighter post-voice conditioning stage for high-pass, presence, body, and output shaping.
 - It is not yet a full per-string, pickup-width, pickup-switching, or pickup-circuit model.
+
+Future pickup/body microphonics:
+
+- If the model later includes pickup microphonic behavior, body taps, handling thumps, or sound coupled through the guitar body, that should be modeled as an auxiliary non-string pickup/body source.
+- This auxiliary source may behave like a seventh rendering voice or bus, but it should not count as a seventh physical string and should not weaken the six-string allocation rule.
+- The intended approximation is a simple pickup/body resonance excited by non-string events or global body energy, then mixed into the DI output before or inside the pickup/tone stage.
 
 ### UI Layer
 

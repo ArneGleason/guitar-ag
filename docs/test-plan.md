@@ -34,6 +34,9 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Note-off releases sound.
 - [ ] Velocity changes pluck intensity.
 - [ ] Chords play polyphonically.
+- [ ] A six-note guitar-range chord can ring without stealing.
+- [ ] A seventh simultaneous note replaces one physical string rather than raising the active string-voice count above six.
+- [ ] Repeated notes on the same assigned string replace the previous string voice cleanly.
 - [ ] Fast repeated notes do not crash or click badly.
 
 ### MPE
@@ -68,6 +71,26 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Output does not clip by default.
 - [ ] Tone is useful through an external amp sim.
 
+## Pickup Checks
+
+- [ ] `Single Coil` remains narrow and bright.
+- [ ] `Humbucker` remains thicker and smoother than `Single Coil`.
+- [ ] `Singles OOP` is thinner/nasal from two wider-spaced pickup positions, not just a very low-output humbucker notch.
+- [ ] Moving `Pickup Position` changes the `Singles OOP` cancellation pattern while keeping a two-pickup character.
+
+## Amp Feedback Checks
+
+- [ ] `Amp Feedback` at 0% leaves normal sustain behavior unchanged.
+- [ ] Moderate `Amp Feedback` extends held-note resonance without obvious clipping.
+- [ ] High `Amp Feedback` lets one dominant harmonic band build instead of evenly boosting every string.
+- [ ] High `Amp Feedback` on a held chord lets one physical string/harmonic take over more than the others.
+- [ ] At high `Amp Feedback`, a freshly picked chord keeps a clear attack before feedback blooms into the sustain.
+- [ ] Repeated or strummed note attacks temporarily reset the feedback winner instead of letting the previous howl dominate immediately.
+- [ ] New plugin instances open with `Distorted Return` enabled.
+- [ ] `Distorted Return` On makes feedback react more naturally/aggressively without distorting the main clean DI output by itself.
+- [ ] `Distorted Return` Off remains available as a cleaner alternate return.
+- [ ] Long held single notes at 100% feedback remain bounded and do not run away into full-scale clipping.
+
 ## Lookahead Finger Noise Checks
 
 - [ ] `Lookahead` Off feels immediate for live playing.
@@ -91,6 +114,8 @@ This document defines the basic manual and technical checks needed as the projec
 
 - [ ] `Pitch Wheel Whammy` Off leaves pitch wheel movement inactive.
 - [ ] `Pitch Wheel Whammy` On bends all active notes globally.
+- [ ] With `MPE Mode` On, pitch wheel on channel 1 still bends all active notes globally.
+- [ ] With `MPE Mode` On, pitch wheel on member channels 2-16 still behaves as per-note MPE bend.
 - [ ] `Whammy Up Range` defaults to +6 semitones.
 - [ ] `Whammy Down Range` defaults to -12 semitones.
 - [ ] `Whammy String Spread` at 0% bends chord tones in parallel.
@@ -109,7 +134,8 @@ This document defines the basic manual and technical checks needed as the projec
 ## MPE Pitch Bend Checks
 
 - [ ] `MPE Mode` Off keeps pitch wheel operating as global whammy.
-- [ ] `MPE Mode` On makes pitch wheel act per MIDI channel.
+- [ ] `MPE Mode` On makes member-channel pitch wheel act per MIDI channel.
+- [ ] `MPE Mode` On reserves channel 1 pitch wheel for global whammy in lower-zone MPE.
 - [ ] In Bitwig, set the instrument and note-expression bend range to 48 semitones.
 - [ ] Play a chord with notes assigned to separate MPE channels.
 - [ ] Draw or perform a pitch bend on one note only.

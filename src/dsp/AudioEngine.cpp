@@ -14,6 +14,8 @@ constexpr std::array<float, 8> feedbackBandFrequencies {
 constexpr std::array<float, 8> feedbackBandBias {
     0.34f, 0.48f, 0.66f, 0.86f, 1.08f, 1.20f, 1.10f, 0.82f
 };
+
+constexpr auto lowerMpeMasterChannel = 1;
 } // namespace
 
 void AudioEngine::prepare (double newSampleRate, int, int)
@@ -196,6 +198,11 @@ void AudioEngine::setAmpFeedback (float newAmpFeedback) noexcept
     ampFeedback.setTargetValue (juce::jlimit (0.0f, 1.0f, newAmpFeedback));
 }
 
+void AudioEngine::setFeedbackReturnDistorted (bool shouldDistort) noexcept
+{
+    feedbackReturnDistorted = shouldDistort;
+}
+
 void AudioEngine::setVibratoSpeed (float newVibratoSpeed) noexcept
 {
     vibratoSpeed.setTargetValue (juce::jlimit (0.10f, 12.0f, newVibratoSpeed));
@@ -287,6 +294,37 @@ void AudioEngine::setPickupModel (int newPickupModel) noexcept
     pickupModel = juce::jlimit (0, 2, newPickupModel);
 }
 
+void AudioEngine::setPerformanceStats (PerformanceStats* stats) noexcept
+{
+    performanceStats = stats;
+}
+
+int AudioEngine::getActiveVoiceCount() const noexcept
+{
+    auto count = 0;
+
+    for (const auto& voice : voices)
+    {
+        if (voice.isActive())
+            ++count;
+    }
+
+    return count;
+}
+
+int AudioEngine::getActiveFingerNoiseVoiceCount() const noexcept
+{
+    auto count = 0;
+
+    for (const auto& voice : fingerNoiseVoices)
+    {
+        if (voice.samplesRemaining > 0)
+            ++count;
+    }
+
+    return count;
+}
+
 void AudioEngine::render (juce::AudioBuffer<float>& audio, const juce::MidiBuffer& midi)
 {
     auto currentSample = 0;
@@ -325,14 +363,16 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         const auto mpeTimbreAmountValue = mpeTimbreAmount.getNextValue();
         const auto whammyUpAmount = whammyUpSemitones.getNextValue();
         const auto whammyDownAmount = whammyDownSemitones.getNextValue();
-        const auto whammySemitones = whammyEnabled && ! mpeEnabled
+        const auto whammySemitones = whammyEnabled
                                    ? pitchWheelAmount * (pitchWheelAmount >= 0.0f ? whammyUpAmount : whammyDownAmount)
                                    : 0.0f;
         const auto whammySpreadAmount = whammySpread.getNextValue();
-        const auto ampFeedbackAmount = ampFeedback.getNextValue();
+        const auto requestedAmpFeedbackAmount = ampFeedback.getNextValue();
+        const auto ampFeedbackAmount = requestedAmpFeedbackAmount * updateFeedbackBloom (requestedAmpFeedbackAmount);
         const auto feedbackLoopFrequencyForVoices = feedbackLoopFrequency;
         const auto feedbackLoopAmountForVoices = feedbackLoopAmount;
         const auto feedbackLoopSignalForVoices = feedbackLoopSignal;
+        updateFeedbackStringFocus (ampFeedbackAmount, feedbackLoopFrequencyForVoices, feedbackLoopAmountForVoices);
         const auto aftertouchBendAmount = aftertouchBendSemitones.getNextValue();
         pickStiffness.getNextValue();
         pickTexture.getNextValue();
@@ -344,6 +384,7 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         pickupPosition.getNextValue();
 
         dispatchScheduledMidiEvents();
+        recordPerformanceSample();
 
         for (auto& voice : voices)
             mixedSample += voice.renderSample (sustainAmount,
@@ -357,6 +398,8 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
                                                feedbackLoopFrequencyForVoices,
                                                feedbackLoopAmountForVoices,
                                                feedbackLoopSignalForVoices,
+                                               feedbackDominantString,
+                                               feedbackStringFocus,
                                                aftertouchBendAmount,
                                                mpePressureAmountValue,
                                                mpeTimbreAmountValue,
@@ -371,6 +414,22 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
 
         ++timelineSample;
     }
+}
+
+void AudioEngine::recordPerformanceSample() noexcept
+{
+    if (performanceStats == nullptr)
+        return;
+
+    const auto activeVoiceCount = getActiveVoiceCount();
+    const auto activeFingerNoiseVoiceCount = getActiveFingerNoiseVoiceCount();
+
+    ++performanceStats->renderedSamples;
+    performanceStats->activeVoiceSamples += static_cast<uint64_t> (activeVoiceCount);
+    performanceStats->activeFingerNoiseSamples += static_cast<uint64_t> (activeFingerNoiseVoiceCount);
+    performanceStats->maxActiveVoices = juce::jmax (performanceStats->maxActiveVoices, activeVoiceCount);
+    performanceStats->maxActiveFingerNoiseVoices = juce::jmax (performanceStats->maxActiveFingerNoiseVoices,
+                                                               activeFingerNoiseVoiceCount);
 }
 
 void AudioEngine::configureAmpFeedbackLoop() noexcept
@@ -399,13 +458,112 @@ void AudioEngine::resetAmpFeedbackLoop() noexcept
     feedbackLoopAmount = 0.0f;
     feedbackLoopSignal = 0.0f;
     feedbackLoopDominance = 0.0f;
+    feedbackDominantString = -1;
+    feedbackFocusUpdateCountdown = 0;
+    feedbackStringFocus = 0.0f;
+    feedbackStringFocusTarget = 0.0f;
+    feedbackStringDominance = 0.0f;
+    feedbackBloom = 1.0f;
+    lastFeedbackBloomDuckSample = -1000000000;
+}
+
+void AudioEngine::triggerFeedbackBloomDuck (float velocity, PlayerGesture gesture) noexcept
+{
+    const auto feedbackTarget = juce::jlimit (0.0f, 1.0f, ampFeedback.getTargetValue());
+
+    if (feedbackTarget <= 0.015f)
+        return;
+
+    const auto gestureScale = gesture == PlayerGesture::Picked ? 1.0f
+                            : gesture == PlayerGesture::RightHandTap ? 0.78f
+                            : gesture == PlayerGesture::HammerOn ? 0.70f
+                            : 0.54f;
+    const auto normalizedVelocity = juce::jlimit (0.0f, 1.0f, velocity);
+    const auto feedbackScale = 0.35f + 0.65f * std::sqrt (feedbackTarget);
+    const auto duckStrength = juce::jlimit (0.0f,
+                                            1.0f,
+                                            (0.55f + 0.45f * normalizedVelocity) * gestureScale * feedbackScale);
+    const auto fullDuckFloor = 0.018f + 0.070f * (1.0f - normalizedVelocity);
+    const auto lightDuckFloor = 0.42f;
+    const auto targetBloom = juce::jlimit (0.018f,
+                                           lightDuckFloor,
+                                           fullDuckFloor + (lightDuckFloor - fullDuckFloor) * (1.0f - duckStrength));
+
+    feedbackBloom = juce::jmin (feedbackBloom, targetBloom);
+
+    const auto clusterWindowSamples = static_cast<int64_t> (sampleRate * 0.070);
+    const auto sameAttackCluster = timelineSample - lastFeedbackBloomDuckSample <= clusterWindowSamples;
+    lastFeedbackBloomDuckSample = timelineSample;
+
+    if (sameAttackCluster)
+        return;
+
+    const auto loopFlush = juce::jlimit (0.0f, 0.84f, duckStrength * (0.45f + 0.45f * feedbackTarget));
+    const auto loopKeep = 1.0f - loopFlush;
+    const auto stateKeep = 0.30f + 0.70f * loopKeep;
+
+    feedbackLoopAmount *= loopKeep;
+    feedbackLoopSignal *= loopKeep * 0.84f;
+    feedbackLoopDominance *= 0.55f + 0.45f * loopKeep;
+
+    for (auto index = 0; index < feedbackResonatorCount; ++index)
+    {
+        const auto band = static_cast<size_t> (index);
+        feedbackResonatorState1[band] *= stateKeep;
+        feedbackResonatorState2[band] *= stateKeep;
+        feedbackResonatorEnvelope[band] *= stateKeep;
+    }
+
+    feedbackDominantString = -1;
+    feedbackStringFocus *= 0.40f + 0.40f * loopKeep;
+    feedbackStringFocusTarget = 0.0f;
+    feedbackStringDominance *= 0.50f + 0.35f * loopKeep;
+}
+
+float AudioEngine::updateFeedbackBloom (float amount) noexcept
+{
+    const auto feedbackAmount = juce::jlimit (0.0f, 1.0f, amount);
+
+    if (feedbackAmount <= 0.001f)
+    {
+        feedbackBloom = 1.0f;
+        return 1.0f;
+    }
+
+    const auto bloomSeconds = 0.68f + 0.82f * std::pow (feedbackAmount, 0.72f);
+    const auto bloomStep = 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate) * bloomSeconds);
+    feedbackBloom = juce::jmin (1.0f, feedbackBloom + bloomStep);
+
+    return feedbackBloom * feedbackBloom * (3.0f - 2.0f * feedbackBloom);
 }
 
 void AudioEngine::updateAmpFeedbackLoop (float outputSample, float amount) noexcept
 {
     const auto feedbackAmount = juce::jlimit (0.0f, 1.0f, amount);
     const auto loopAmount = std::pow (juce::jlimit (0.0f, 1.0f, (feedbackAmount - 0.28f) / 0.72f), 1.18f);
-    const auto input = std::tanh (outputSample * (0.60f + 4.8f * feedbackAmount));
+
+    if (feedbackAmount <= 0.001f)
+    {
+        for (auto index = 0; index < feedbackResonatorCount; ++index)
+        {
+            const auto band = static_cast<size_t> (index);
+            feedbackResonatorState1[band] *= 0.985f;
+            feedbackResonatorState2[band] *= 0.985f;
+            feedbackResonatorEnvelope[band] *= 0.985f;
+        }
+
+        feedbackLoopFrequency = 0.0f;
+        feedbackLoopAmount *= 0.985f;
+        feedbackLoopSignal *= 0.965f;
+        feedbackLoopDominance *= 0.985f;
+        return;
+    }
+
+    const auto inputScale = std::pow (feedbackAmount, 0.45f);
+    const auto cleanInput = std::tanh (outputSample * (0.60f + 4.8f * feedbackAmount)) * inputScale;
+    const auto clippedInput = std::tanh (outputSample * (2.20f + 15.0f * feedbackAmount)) * inputScale;
+    const auto input = feedbackReturnDistorted ? 0.28f * cleanInput + 0.72f * clippedInput
+                                               : cleanInput;
     auto bestScore = -1.0f;
     auto secondScore = -1.0f;
     auto bestIndex = feedbackDominantBand;
@@ -466,13 +624,94 @@ void AudioEngine::updateAmpFeedbackLoop (float outputSample, float amount) noexc
     feedbackLoopAmount += 0.0048f * (targetAmount - feedbackLoopAmount);
     feedbackLoopSignal += 0.24f * ((std::tanh (bestSignal * 1.35f) * feedbackLoopAmount) - feedbackLoopSignal);
 
-    if (feedbackAmount <= 0.001f)
+}
+
+void AudioEngine::updateFeedbackStringFocus (float amount, float loopFrequency, float loopAmount) noexcept
+{
+    constexpr auto focusUpdateInterval = 64;
+    const auto feedbackAmount = juce::jlimit (0.0f, 1.0f, amount);
+    const auto clampedLoopAmount = juce::jlimit (0.0f, 1.0f, loopAmount);
+    const auto smoothFocus = [this] (float rate) noexcept
     {
-        feedbackLoopFrequency = 0.0f;
-        feedbackLoopAmount *= 0.985f;
-        feedbackLoopSignal *= 0.965f;
-        feedbackLoopDominance *= 0.985f;
+        feedbackStringFocus += rate * (feedbackStringFocusTarget - feedbackStringFocus);
+    };
+
+    if (feedbackAmount < 0.30f || clampedLoopAmount <= 0.0001f || loopFrequency <= 20.0f)
+    {
+        feedbackStringFocusTarget = 0.0f;
+        smoothFocus (0.0065f);
+        feedbackStringDominance *= 0.990f;
+        feedbackFocusUpdateCountdown = 0;
+
+        if (feedbackStringFocus < 0.001f)
+            feedbackDominantString = -1;
+
+        return;
     }
+
+    if (feedbackFocusUpdateCountdown > 0)
+    {
+        --feedbackFocusUpdateCountdown;
+        smoothFocus (0.0040f);
+        return;
+    }
+
+    feedbackFocusUpdateCountdown = focusUpdateInterval;
+    auto bestScore = -1.0f;
+    auto secondScore = -1.0f;
+    auto bestString = feedbackDominantString;
+
+    for (const auto& voice : voices)
+    {
+        if (! voice.isActive())
+            continue;
+
+        auto score = voice.getFeedbackCouplingScore (loopFrequency);
+
+        if (voice.getStringIndex() == feedbackDominantString)
+            score *= 1.12f;
+
+        if (score > bestScore)
+        {
+            secondScore = bestScore;
+            bestScore = score;
+            bestString = voice.getStringIndex();
+        }
+        else if (score > secondScore)
+        {
+            secondScore = score;
+        }
+    }
+
+    if (bestScore <= 0.0000001f || bestString < 0)
+    {
+        feedbackStringFocusTarget = 0.0f;
+        smoothFocus (0.0065f);
+        feedbackStringDominance *= 0.990f;
+
+        if (feedbackStringFocus < 0.001f)
+            feedbackDominantString = -1;
+
+        return;
+    }
+
+    const auto dominance = juce::jlimit (0.0f,
+                                        1.0f,
+                                        (bestScore - juce::jmax (0.0f, secondScore)) / (bestScore + 0.000001f));
+
+    if (feedbackDominantString < 0
+        || bestString == feedbackDominantString
+        || dominance > 0.10f
+        || bestScore > secondScore * 1.18f)
+        feedbackDominantString = bestString;
+
+    feedbackStringFocusTarget = juce::jlimit (0.0f,
+                                             1.0f,
+                                             clampedLoopAmount
+                                                 * std::pow (feedbackAmount, 0.62f)
+                                                 * (0.42f + 1.28f * dominance));
+    feedbackStringDominance += 0.0022f * (dominance - feedbackStringDominance);
+    smoothFocus (0.0040f);
 }
 
 void AudioEngine::handleIncomingMidiMessage (const juce::MidiMessage& message)
@@ -502,7 +741,7 @@ void AudioEngine::handleIncomingMidiMessage (const juce::MidiMessage& message)
                         / pitchWheelCenter;
         const auto clampedBend = juce::jlimit (-1.0f, 1.0f, bend);
 
-        if (mpeEnabled)
+        if (mpeEnabled && message.getChannel() != lowerMpeMasterChannel)
             applyMpePitchBend (message.getChannel(), clampedBend);
         else
             pitchWheel.setTargetValue (clampedBend);
@@ -613,6 +852,8 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
     const auto gesture = legatoSource.valid && assignment.stringIndex == preferredString
                        ? legatoSource.gesture
                        : PlayerGesture::Picked;
+    triggerFeedbackBloomDuck (velocity, gesture);
+
     const auto notePickStiffness = pickStiffness.getTargetValue();
     const auto notePickTexture = pickTexture.getTargetValue();
     const auto noteHarmonicTouch = harmonicTouch.getTargetValue();
@@ -622,54 +863,53 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
     const auto notePickupPosition = pickupPosition.getTargetValue();
     const auto notePickupModel = pickupModel;
 
+    auto& voice = selectVoiceForAssignment (assignment);
+
+    if (voice.isActive())
+    {
+        fretboard.releaseNote (voice.getNoteNumber(), voice.getChannel());
+        releaseArticulationNote (voice.getNoteNumber(), voice.getChannel());
+    }
+
+    voice.start (noteNumber,
+                 channel,
+                 velocity,
+                 assignment,
+                 notePickStiffness,
+                 notePickTexture,
+                 noteHarmonicTouch,
+                 noteStringAge,
+                 noteBridgeIntonation,
+                 noteFretPressure,
+                 notePickupPosition,
+                 notePickupModel,
+                 gesture);
+    const auto channelIndex = static_cast<size_t> (juce::jlimit (1, 16, channel) - 1);
+    voice.setMpePitchBend (channel, mpePitchBendByChannel[channelIndex]);
+    voice.setMpePressure (channel, mpePressureByChannel[channelIndex]);
+    voice.setMpeTimbre (channel, mpeTimbreByChannel[channelIndex]);
+    rememberArticulationNote (noteNumber, channel, assignment, gesture);
+}
+
+StringVoice& AudioEngine::selectVoiceForAssignment (const FretboardAssignment& assignment) noexcept
+{
+    const auto stringIndex = juce::jlimit (0, 5, assignment.stringIndex);
+
+    for (auto& voice : voices)
+    {
+        if (voice.isActive() && voice.getStringIndex() == stringIndex)
+            return voice;
+    }
+
     for (auto& voice : voices)
     {
         if (! voice.isActive())
-        {
-            voice.start (noteNumber,
-                         channel,
-                         velocity,
-                         assignment,
-                         notePickStiffness,
-                         notePickTexture,
-                         noteHarmonicTouch,
-                         noteStringAge,
-                         noteBridgeIntonation,
-                         noteFretPressure,
-                         notePickupPosition,
-                         notePickupModel,
-                         gesture);
-            const auto channelIndex = static_cast<size_t> (juce::jlimit (1, 16, channel) - 1);
-            voice.setMpePitchBend (channel, mpePitchBendByChannel[channelIndex]);
-            voice.setMpePressure (channel, mpePressureByChannel[channelIndex]);
-            voice.setMpeTimbre (channel, mpeTimbreByChannel[channelIndex]);
-            rememberArticulationNote (noteNumber, channel, assignment, gesture);
-            return;
-        }
+            return voice;
     }
 
     auto& stolenVoice = voices[static_cast<size_t> (nextVoice)];
-    fretboard.releaseNote (stolenVoice.getNoteNumber(), stolenVoice.getChannel());
-    releaseArticulationNote (stolenVoice.getNoteNumber(), stolenVoice.getChannel());
-    stolenVoice.start (noteNumber,
-                       channel,
-                       velocity,
-                       assignment,
-                       notePickStiffness,
-                       notePickTexture,
-                       noteHarmonicTouch,
-                       noteStringAge,
-                       noteBridgeIntonation,
-                       noteFretPressure,
-                       notePickupPosition,
-                       notePickupModel,
-                       gesture);
-    const auto channelIndex = static_cast<size_t> (juce::jlimit (1, 16, channel) - 1);
-    stolenVoice.setMpePitchBend (channel, mpePitchBendByChannel[channelIndex]);
-    stolenVoice.setMpePressure (channel, mpePressureByChannel[channelIndex]);
-    stolenVoice.setMpeTimbre (channel, mpeTimbreByChannel[channelIndex]);
-    rememberArticulationNote (noteNumber, channel, assignment, gesture);
     nextVoice = (nextVoice + 1) % maxVoices;
+    return stolenVoice;
 }
 
 AudioEngine::LegatoSource AudioEngine::findLegatoSource (int noteNumber, int channel, float amount) const noexcept

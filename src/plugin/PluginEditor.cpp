@@ -12,7 +12,7 @@ public:
     {
         message.setMultiLine (true);
         message.setReadOnly (true);
-        message.setScrollbarsShown (false);
+        message.setScrollbarsShown (true);
         message.setCaretVisible (false);
         message.setPopupMenuEnabled (false);
         message.setText (infoText, false);
@@ -23,8 +23,8 @@ public:
         message.setFont (juce::FontOptions (14.0f));
         addAndMakeVisible (message);
 
-        const auto height = juce::jlimit (104, 230, 62 + (infoText.length() / 46) * 18);
-        setSize (360, height);
+        const auto height = juce::jlimit (126, 312, 70 + (infoText.length() / 54) * 18);
+        setSize (430, height);
     }
 
     void paint (juce::Graphics& graphics) override
@@ -70,9 +70,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     };
 
     configureInfoButton (projectInfoButton,
-                         "Guitar AG is a lightweight modeled electric-guitar instrument: no samples, no amp/cab suite, "
-                         "and no claim of exact guitar emulation. The goal is a useful clean DI stand-in with real dynamics, "
-                         "small footprint, and room for expressive MIDI/MPE behavior as the model grows.");
+                         "Guitar AG makes a clean DI-style electric guitar tone from a physical model instead of samples.\n\n"
+                         "Technical: each note is an independent modeled string voice with pickup readout, MPE expression, "
+                         "whammy, feedback, and player-articulation layers. It is designed to feed external amp and cab sims.");
 
     configureSectionButton (setupSectionButton, "Setup");
     configureSectionButton (pickupSectionButton, "Pickup");
@@ -120,27 +120,33 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureLabel (sustainLabel, "Sustain");
     configureSlider (sustainSlider, juce::Colour (0xff6fb1ff));
     configureInfoButton (sustainInfoButton,
-                         "0% keeps a shorter natural decay. 100% relaxes late-mode damping so held notes keep ringing longer.");
+                         "Use Sustain to let held notes ring longer.\n\n"
+                         "Technical: this relaxes late modal damping after the initial attack, so the string tail decays more slowly "
+                         "without changing the note's picked transient.");
 
     configureLabel (stringAgeLabel, "String Age");
     configureSlider (stringAgeSlider, juce::Colour (0xff9ccf8a));
     configureInfoButton (stringAgeInfoButton,
-                         "0% is a bright new-string response. 100% dulls upper partials and slightly shortens the high-frequency tail.");
+                         "Use String Age to move from bright fresh strings toward a duller worn set.\n\n"
+                         "Technical: higher values reduce upper partial strength and shorten high-frequency decay, while leaving "
+                         "the lower string body more intact.");
 
     configureLabel (bridgeIntonationLabel, "Bridge Intonation");
     configureSlider (bridgeIntonationSlider, juce::Colour (0xffd1b371));
     configureInfoButton (bridgeIntonationInfoButton,
-                         "0% is ideal saddle compensation. 100% applies a deterministic bad-setup offset: open strings stay in tune, "
-                         "fretted notes drift more as the assigned fret gets higher.");
+                         "Use Bridge Intonation to add a little imperfect guitar setup behavior.\n\n"
+                         "Technical: 0% is ideal saddle compensation. Higher values apply deterministic per-string offsets where open "
+                         "strings stay in tune but fretted notes drift more as the assigned fret rises.");
 
     configureLabel (pickupModelLabel, "Pickup Model");
     configureInfoButton (pickupModelInfoButton,
-                         "Single Coil is narrow and bright. Humbucker sums two nearby coils for a thicker smoother tone. "
-                         "Humbucker OOP subtracts the coils for a thinner notched tone.");
+                         "Choose the pickup character before the guitar reaches the amp.\n\n"
+                         "Technical: Single Coil reads one narrow position. Humbucker sums two nearby coils for a thicker smoother tone. "
+                         "Singles OOP subtracts two wider-spaced single-coil positions for a nasal neck/middle-style response.");
 
     pickupModelBox.addItem ("Single Coil", 1);
     pickupModelBox.addItem ("Humbucker", 2);
-    pickupModelBox.addItem ("Humbucker OOP", 3);
+    pickupModelBox.addItem ("Singles OOP", 3);
     pickupModelBox.setColour (juce::ComboBox::textColourId, juce::Colour (0xffe8edf2));
     pickupModelBox.setColour (juce::ComboBox::backgroundColourId, juce::Colour (0xff202832));
     pickupModelBox.setColour (juce::ComboBox::outlineColourId, juce::Colour (0xff65717c));
@@ -150,8 +156,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureLabel (pickupPositionLabel, "Pickup Position");
     configureSlider (pickupPositionSlider, juce::Colour (0xff75d7d1));
     configureInfoButton (pickupPositionInfoButton,
-                         "0% reads near the bridge for brighter upper partials. 100% reads toward the neck for a fuller tone. "
-                         "Markers show string-fraction landmarks where pickup position changes harmonic balance.");
+                         "Move the virtual pickup from bridge brightness toward neck fullness.\n\n"
+                         "Technical: the model reads string motion at fractional positions along the speaking length. Moving the readout "
+                         "shifts harmonic peaks and nulls; the markers show useful 1/6, 1/5, 1/4, and 1/3 landmarks.");
 
     for (auto* marker : { &pickupSixthLabel, &pickupFifthLabel, &pickupQuarterLabel, &pickupThirdLabel })
     {
@@ -172,19 +179,22 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureLabel (fretPressureLabel, "Fret Pressure");
     configureSlider (fretPressureSlider, juce::Colour (0xffd7a0ff));
     configureInfoButton (fretPressureInfoButton,
-                         "0% adds no fretting-pressure pitch error. 100% models over-gripping/mid-fret pressure by bending fretted notes sharp. "
-                         "Open strings are unaffected; lower strings and higher frets receive more shift. The top of the range is intentionally obvious.");
+                         "Use Fret Pressure to make fretted notes go a little sharp from over-gripping.\n\n"
+                         "Technical: open strings are unaffected. Lower strings and higher frets receive more shift, modeling the extra stretch "
+                         "from pressing between frets. The top of the range is intentionally obvious.");
 
     configureLabel (aftertouchBendLabel, "Aftertouch Bend");
     configureSlider (aftertouchBendSlider, juce::Colour (0xffffb36f));
     configureInfoButton (aftertouchBendInfoButton,
-                         "Poly/key aftertouch bends the matching active note by this many semitones at full pressure. "
-                         "Default is +2 for a normal upward bend; 0 disables it. Negative values are allowed for experimental downward pressure bends.");
+                         "Use key aftertouch to bend just the note you press into.\n\n"
+                         "Technical: poly/key aftertouch targets the matching note and channel, then bends by this many semitones at full pressure. "
+                         "Default is +2, 0 disables it, and negative values allow downward pressure bends.");
 
     configureLabel (lookaheadLabel, "Lookahead");
     configureInfoButton (lookaheadInfoButton,
-                         "Off keeps live response. 150 ms and 250 ms delay note events internally, report matching plugin latency, "
-                         "and create room for finger approach/release noise before the delayed note.");
+                         "Use Lookahead when rendered playback needs finger noises before the note.\n\n"
+                         "Technical: Off keeps live response. 150 ms and 250 ms delay note events internally and report plugin latency, creating "
+                         "time for approach/release noises before the delayed musical note.");
     lookaheadBox.addItem ("Off", 1);
     lookaheadBox.addItem ("150 ms", 2);
     lookaheadBox.addItem ("250 ms", 3);
@@ -197,30 +207,49 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureLabel (fingerNoiseLabel, "Finger Noise");
     configureSlider (fingerNoiseSlider, juce::Colour (0xffd5a36f));
     configureInfoButton (fingerNoiseInfoButton,
-                         "0% disables the performance noise layer. 100% adds the strongest modeled finger approach and release noises. "
-                         "The noise is most useful with Lookahead enabled, because it can happen before the delayed note onset.");
+                         "Add small fretting-hand approach and release noises around notes.\n\n"
+                         "Technical: this layer uses short synthetic scrape/body bursts tied to string and fret assignment. It is most useful with "
+                         "Lookahead enabled, because the approach noise can occur before the delayed note onset.");
 
     configureLabel (ampFeedbackLabel, "Amp Feedback");
     configureSlider (ampFeedbackSlider, juce::Colour (0xffe87070));
     configureInfoButton (ampFeedbackInfoButton,
-                         "0% disables speaker feedback. Low values mostly lengthen resonant sustain; higher values bias harmonic overtones "
-                         "and can push held notes toward controlled howl.");
+                         "Add speaker-to-guitar feedback sustain and controlled howl.\n\n"
+                         "Technical: low values mostly reinforce string sustain. Higher values feed the output through competing resonant bands, "
+                         "then focus the return into the string most coupled to the winning band so one note can take over. New note attacks "
+                         "temporarily duck the loop, then let feedback bloom into the sustain.");
+
+    configureLabel (feedbackReturnLabel, "Return Clip");
+    feedbackReturnDistortedButton.setButtonText ("Distorted Return");
+    feedbackReturnDistortedButton.setColour (juce::ToggleButton::textColourId, juce::Colour (0xffd6dee7));
+    feedbackReturnDistortedButton.setColour (juce::ToggleButton::tickColourId, juce::Colour (0xffe87070));
+    feedbackReturnDistortedButton.setColour (juce::ToggleButton::tickDisabledColourId, juce::Colour (0xff65717c));
+    addAndMakeVisible (feedbackReturnDistortedButton);
+    configureInfoButton (feedbackReturnInfoButton,
+                         "Choose whether the feedback return comes back clean or clipped.\n\n"
+                         "Technical: On is the default because the clipped return gives the resonator bank a more amp-like source and reduces "
+                         "early harmonic chirp. Off uses a cleaner DI-like return that listens to the shaped output.");
 
     configureLabel (vibratoSpeedLabel, "Speed");
     configureSlider (vibratoSpeedSlider, juce::Colour (0xff82cfff));
     configureInfoButton (vibratoSpeedInfoButton,
-                         "Finger-vibrato LFO rate in Hz. If Mod Wheel To Speed is enabled, CC1 adds up to about 6 Hz above this baseline.");
+                         "Set how fast the finger vibrato wobbles.\n\n"
+                         "Technical: this is the per-voice vibrato LFO rate in Hz. If Mod Wheel To Speed is enabled, MIDI CC1 adds up to "
+                         "about 6 Hz above this baseline.");
 
     configureLabel (vibratoDepthLabel, "Depth");
     configureSlider (vibratoDepthSlider, juce::Colour (0xffb9d982));
     configureInfoButton (vibratoDepthInfoButton,
-                         "Pitch depth in cents. If Mod Wheel To Depth is enabled, CC1 adds up to about 55 cents above this baseline.");
+                         "Set how wide the finger vibrato bends the pitch.\n\n"
+                         "Technical: depth is measured in cents, where 100 cents is one semitone. If Mod Wheel To Depth is enabled, MIDI CC1 "
+                         "adds up to about 55 cents above this baseline.");
 
     configureLabel (vibratoDelayLabel, "Delay");
     configureSlider (vibratoDelaySlider, juce::Colour (0xffe6c077));
     configureInfoButton (vibratoDelayInfoButton,
-                         "Wait time before vibrato starts on each note. After the wait, vibrato ramps in over the same duration. "
-                         "At 0 ms the vibrato is immediate.");
+                         "Delay the vibrato so notes can start clean before wobbling.\n\n"
+                         "Technical: each voice waits this long before vibrato begins, then ramps in over the same duration. At 0 ms, vibrato "
+                         "starts immediately.");
 
     for (auto* toggle : { &vibratoModWheelSpeedButton, &vibratoModWheelDepthButton })
     {
@@ -238,23 +267,30 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     mpeEnabledButton.setColour (juce::ToggleButton::tickColourId, juce::Colour (0xffb9d982));
     mpeEnabledButton.setColour (juce::ToggleButton::tickDisabledColourId, juce::Colour (0xff65717c));
     addAndMakeVisible (mpeEnabledButton);
+    configureInfoButton (mpeEnabledInfoButton,
+                         "Turn on MPE when the DAW is sending per-note expression.\n\n"
+                         "Technical: member-channel pitch bend, pressure, and CC74 route only to voices on that MIDI channel. In lower-zone MPE, "
+                         "channel 1 pitch wheel is treated as the master/global whammy source.");
 
     configureLabel (mpePitchBendRangeLabel, "Bend Range");
     configureSlider (mpePitchBendRangeSlider, juce::Colour (0xffb9d982));
     configureInfoButton (mpePitchBendRangeInfoButton,
-                         "Expected MPE pitch-bend range in semitones. Default is +/-48 semitones to match Bitwig's MPE default. "
-                         "Set this to the same value in the DAW so drawn note bends land at the intended interval.");
+                         "Match this to the DAW's MPE pitch-bend range.\n\n"
+                         "Technical: this is the semitone range used for member-channel MPE pitch wheel. Default is +/-48 semitones for Bitwig. "
+                         "If DAW and plugin ranges disagree, drawn note bends land at the wrong interval.");
 
     configureLabel (mpePressureAmountLabel, "Pressure Amt");
     configureSlider (mpePressureAmountSlider, juce::Colour (0xffffb36f));
     configureInfoButton (mpePressureAmountInfoButton,
-                         "Scales MIDI channel pressure for the matching active voice. Higher values add sustain, level, and upper-mode intensity "
-                         "without changing other MPE member channels.");
+                         "Set how strongly MPE pressure changes a held note.\n\n"
+                         "Technical: channel pressure is stored per MIDI channel and applied only to matching active voices. Higher values add "
+                         "sustain, level, and upper-mode intensity without changing other MPE member channels.");
 
     configureLabel (mpeTimbreAmountLabel, "CC74 Amount");
     configureSlider (mpeTimbreAmountSlider, juce::Colour (0xff75d7d1));
     configureInfoButton (mpeTimbreAmountInfoButton,
-                         "Scales MIDI CC74/timbre for the matching active voice. Higher CC74 values lean the held note brighter and more bridge-like "
+                         "Set how strongly MPE timbre brightens a held note.\n\n"
+                         "Technical: MIDI CC74 is the common MPE timbre lane. Higher values lean the matching voice brighter and more bridge-like "
                          "without changing other MPE member channels.");
 
     whammyEnabledButton.setButtonText ("Pitch Wheel Whammy");
@@ -262,51 +298,66 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     whammyEnabledButton.setColour (juce::ToggleButton::tickColourId, juce::Colour (0xfff0a36e));
     whammyEnabledButton.setColour (juce::ToggleButton::tickDisabledColourId, juce::Colour (0xff65717c));
     addAndMakeVisible (whammyEnabledButton);
+    configureInfoButton (whammyEnabledInfoButton,
+                         "Let the MIDI pitch wheel act like a guitar tremolo arm.\n\n"
+                         "Technical: in normal MIDI mode, pitch wheel bends all active strings. In MPE mode, lower-zone channel 1 pitch wheel "
+                         "feeds global whammy while member-channel pitch wheels remain independent note bends.");
 
     configureLabel (whammyUpRangeLabel, "Up Range");
     configureSlider (whammyUpRangeSlider, juce::Colour (0xffffa56f));
     configureInfoButton (whammyUpRangeInfoButton,
-                         "Maximum upward pitch-wheel bend in semitones. Default is +6 semitones.");
+                         "Set how far the whammy can bend upward.\n\n"
+                         "Technical: this is the maximum positive pitch-wheel travel in semitones. Default is +6 semitones, before per-string "
+                         "response variation from Whammy String Spread.");
 
     configureLabel (whammyDownRangeLabel, "Down Range");
     configureSlider (whammyDownRangeSlider, juce::Colour (0xff6fb1ff));
     configureInfoButton (whammyDownRangeInfoButton,
-                         "Maximum downward pitch-wheel bend in semitones. Default is -12 semitones.");
+                         "Set how far the whammy can dive downward.\n\n"
+                         "Technical: this is the maximum negative pitch-wheel travel in semitones. Default is -12 semitones, before per-string "
+                         "response variation from Whammy String Spread.");
 
     configureLabel (whammySpreadLabel, "String Spread");
     configureSlider (whammySpreadSlider, juce::Colour (0xffd5a36f));
     configureInfoButton (whammySpreadInfoButton,
-                         "0% makes pitch wheel act like a perfect pitch shifter. Higher values make strings respond by slightly different amounts, "
-                         "like a tremolo bridge changing string tension mechanically.");
+                         "Make whammy bends less perfectly identical across strings.\n\n"
+                         "Technical: 0% behaves like a clean global pitch shifter. Higher values apply small string-dependent response differences, "
+                         "approximating a tremolo bridge changing each string's tension by a slightly different interval.");
 
     configureLabel (legatoArticulationLabel, "Legato Artic");
     configureSlider (legatoArticulationSlider, juce::Colour (0xffd7a0ff));
     configureInfoButton (legatoArticulationInfoButton,
-                         "0% keeps all notes picked. Above 20%, eligible same-string phrases can become pull-offs, then hammer-ons. "
+                         "Turn plain MIDI note changes into guitar legato gestures.\n\n"
+                         "Technical: 0% keeps notes picked. Above 20%, eligible same-string phrases can become pull-offs, then hammer-ons. "
                          "Above 70%, fast higher-fret leaps can use right-hand tap excitation.");
 
     configureLabel (pickStiffnessLabel, "Pick Stiffness");
     configureSlider (pickStiffnessSlider, juce::Colour (0xffffc56f));
     configureInfoButton (pickStiffnessInfoButton,
-                         "0% is a very soft/flexible release. 100% is a hard pick with a faster edge and stronger upper-mode excitation.");
+                         "Shape the pick attack from soft release to harder snap.\n\n"
+                         "Technical: higher values create a faster edge and stronger upper-mode excitation. Lower values soften the attack "
+                         "like a flexible pick or gentler release.");
 
     configureLabel (pickTextureLabel, "Pick Texture");
     configureSlider (pickTextureSlider, juce::Colour (0xff7bd88f));
     configureInfoButton (pickTextureInfoButton,
-                         "0% is close to a frictionless smooth release. Around 50% is a normal plastic-pick snap. "
-                         "The top range adds rougher coin-like contact texture.");
+                         "Add more surface character to the pick contact.\n\n"
+                         "Technical: 0% is close to a smooth frictionless release. Around 50% is a normal plastic-pick snap. The top range adds "
+                         "rougher, coin-like contact texture to the excitation.");
 
     configureLabel (palmMuteLabel, "Palm Mute");
     configureSlider (palmMuteSlider, juce::Colour (0xfff28b82));
     configureInfoButton (palmMuteInfoButton,
-                         "0% leaves strings open. 100% applies heavy bridge-side palm damping, leaving mostly pick contact and a very short ring. "
-                         "The lower half is curved for fine light-mute control.");
+                         "Dampen the strings near the bridge for palm-muted notes.\n\n"
+                         "Technical: higher values shorten modal decay and emphasize the pick/contact portion of the sound. The lower half of the "
+                         "range is curved for finer light-mute control.");
 
     configureLabel (harmonicTouchLabel, "Harmonic Touch");
     configureSlider (harmonicTouchSlider, juce::Colour (0xffc39cff));
     configureInfoButton (harmonicTouchInfoButton,
-                         "0-25% is off. 25-50% targets the 1/4 touch harmonic, 50-75% targets 1/3, and 75-100% targets 1/2. "
-                         "Higher within each band means a cleaner touch point.");
+                         "Use Harmonic Touch to favor natural-harmonic style notes.\n\n"
+                         "Technical: 0-25% is off. 25-50% targets the 1/4 touch point, 50-75% targets 1/3, and 75-100% targets 1/2. Higher within "
+                         "each band means a cleaner touch point and stronger harmonic masking.");
 
     for (auto* marker : { &harmonicQuarterLabel, &harmonicThirdLabel, &harmonicHalfLabel })
     {
@@ -346,6 +397,10 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     ampFeedbackAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::ampFeedbackParameterId,
                                                                ampFeedbackSlider);
+    feedbackReturnDistortedAttachment = std::make_unique<ButtonAttachment> (
+        audioProcessor.getValueTreeState(),
+        GuitarAgAudioProcessor::feedbackReturnDistortedParameterId,
+        feedbackReturnDistortedButton);
     vibratoSpeedAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                  GuitarAgAudioProcessor::vibratoSpeedParameterId,
                                                                  vibratoSpeedSlider);
@@ -442,7 +497,7 @@ void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
                              juce::Justification::centredRight, 1);
 
     graphics.setColour (juce::Colour (0xff7f8d99));
-    graphics.drawFittedText ("MPE pitch bend, pressure, and CC74 route per member channel.",
+    graphics.drawFittedText ("MPE member bends stay per-note; channel 1 wheel can drive whammy.",
                              headerInfoBounds.removeFromTop (18),
                              juce::Justification::centredRight,
                              1);
@@ -537,6 +592,10 @@ void GuitarAgAudioProcessorEditor::resized()
         auto feedbackBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (feedbackBounds, ampFeedbackLabel, ampFeedbackInfoButton);
         ampFeedbackSlider.setBounds (feedbackBounds);
+
+        auto feedbackReturnBounds = bounds.removeFromTop (34);
+        layoutLabelAndInfo (feedbackReturnBounds, feedbackReturnLabel, feedbackReturnInfoButton);
+        feedbackReturnDistortedButton.setBounds (feedbackReturnBounds.removeFromLeft (190));
     }
 
     if (activePage == 3)
@@ -564,6 +623,7 @@ void GuitarAgAudioProcessorEditor::resized()
         auto enableBounds = bounds.removeFromTop (34);
         enableBounds.removeFromLeft (158);
         mpeEnabledButton.setBounds (enableBounds.removeFromLeft (190));
+        mpeEnabledInfoButton.setBounds (enableBounds.removeFromLeft (22).reduced (2, 6));
 
         auto rangeBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (rangeBounds, mpePitchBendRangeLabel, mpePitchBendRangeInfoButton);
@@ -583,6 +643,7 @@ void GuitarAgAudioProcessorEditor::resized()
         auto enableBounds = bounds.removeFromTop (34);
         enableBounds.removeFromLeft (158);
         whammyEnabledButton.setBounds (enableBounds.removeFromLeft (190));
+        whammyEnabledInfoButton.setBounds (enableBounds.removeFromLeft (22).reduced (2, 6));
 
         auto upBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (upBounds, whammyUpRangeLabel, whammyUpRangeInfoButton);
@@ -732,7 +793,10 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&fingerNoiseSlider),
                              static_cast<juce::Component*> (&ampFeedbackLabel),
                              static_cast<juce::Component*> (&ampFeedbackInfoButton),
-                             static_cast<juce::Component*> (&ampFeedbackSlider) })
+                             static_cast<juce::Component*> (&ampFeedbackSlider),
+                             static_cast<juce::Component*> (&feedbackReturnLabel),
+                             static_cast<juce::Component*> (&feedbackReturnInfoButton),
+                             static_cast<juce::Component*> (&feedbackReturnDistortedButton) })
         component->setVisible (activePage == 2);
 
     for (auto* component : { static_cast<juce::Component*> (&vibratoSpeedLabel),
@@ -749,6 +813,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
         component->setVisible (activePage == 3);
 
     for (auto* component : { static_cast<juce::Component*> (&mpeEnabledButton),
+                             static_cast<juce::Component*> (&mpeEnabledInfoButton),
                              static_cast<juce::Component*> (&mpePitchBendRangeLabel),
                              static_cast<juce::Component*> (&mpePitchBendRangeInfoButton),
                              static_cast<juce::Component*> (&mpePitchBendRangeSlider),
@@ -761,6 +826,7 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
         component->setVisible (activePage == 4);
 
     for (auto* component : { static_cast<juce::Component*> (&whammyEnabledButton),
+                             static_cast<juce::Component*> (&whammyEnabledInfoButton),
                              static_cast<juce::Component*> (&whammyUpRangeLabel),
                              static_cast<juce::Component*> (&whammyUpRangeInfoButton),
                              static_cast<juce::Component*> (&whammyUpRangeSlider),
@@ -799,5 +865,5 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
 
 int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
 {
-    return 360;
+    return 400;
 }

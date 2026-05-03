@@ -65,6 +65,7 @@ private:
     juce::Label lookaheadLabel;
     juce::Label fingerNoiseLabel;
     juce::Label ampFeedbackLabel;
+    juce::Label feedbackReturnLabel;
     juce::Label vibratoSpeedLabel;
     juce::Label vibratoDepthLabel;
     juce::Label vibratoDelayLabel;
@@ -96,12 +97,15 @@ private:
     juce::TextButton lookaheadInfoButton;
     juce::TextButton fingerNoiseInfoButton;
     juce::TextButton ampFeedbackInfoButton;
+    juce::TextButton feedbackReturnInfoButton;
     juce::TextButton vibratoSpeedInfoButton;
     juce::TextButton vibratoDepthInfoButton;
     juce::TextButton vibratoDelayInfoButton;
+    juce::TextButton mpeEnabledInfoButton;
     juce::TextButton mpePitchBendRangeInfoButton;
     juce::TextButton mpePressureAmountInfoButton;
     juce::TextButton mpeTimbreAmountInfoButton;
+    juce::TextButton whammyEnabledInfoButton;
     juce::TextButton whammyUpRangeInfoButton;
     juce::TextButton whammyDownRangeInfoButton;
     juce::TextButton whammySpreadInfoButton;
@@ -116,6 +120,7 @@ private:
     juce::ComboBox pickupModelBox;
     juce::ToggleButton vibratoModWheelSpeedButton;
     juce::ToggleButton vibratoModWheelDepthButton;
+    juce::ToggleButton feedbackReturnDistortedButton;
     juce::ToggleButton mpeEnabledButton;
     juce::ToggleButton whammyEnabledButton;
     std::unique_ptr<SliderAttachment> sustainAttachment;
@@ -126,6 +131,7 @@ private:
     std::unique_ptr<ComboBoxAttachment> lookaheadAttachment;
     std::unique_ptr<SliderAttachment> fingerNoiseAttachment;
     std::unique_ptr<SliderAttachment> ampFeedbackAttachment;
+    std::unique_ptr<ButtonAttachment> feedbackReturnDistortedAttachment;
     std::unique_ptr<SliderAttachment> vibratoSpeedAttachment;
     std::unique_ptr<SliderAttachment> vibratoDepthAttachment;
     std::unique_ptr<SliderAttachment> vibratoDelayAttachment;

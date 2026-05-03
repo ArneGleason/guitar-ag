@@ -68,6 +68,7 @@ Useful hypotheses:
 - Pickup width should low-pass or smooth spatial detail, reducing some high harmonic content.
 - Bridge/neck behavior should emerge from pickup position and filtering before it becomes a preset label.
 - Nonlinear pickup behavior is probably not the first milestone, but it belongs on the roadmap.
+- Pickup microphonics are a separate body/pickup-coupled source, not another string. If modeled, body taps, handling thumps, or external vibration of the pickup should feed a simple auxiliary pickup/body voice or bus mixed into the DI path while the core string allocator remains capped at six physical strings.
 
 Relevant references:
 

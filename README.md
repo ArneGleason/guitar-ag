@@ -37,14 +37,16 @@ Implemented so far:
 - Per-note key/poly aftertouch bend.
 - First MPE pitch-bend milestone: one held note can bend independently while other notes remain stable, provided the DAW sends notes on separate MPE member channels.
 - MPE/channel expression routing for pressure and CC74/timbre, scoped to the matching MIDI channel/voice.
+- MPE-compatible whammy behavior: member-channel pitch wheel stays per-note, while channel 1 pitch wheel can drive global whammy in lower-zone MPE.
 - Player-articulation interpretation for picked notes, hammer-ons, pull-offs, and right-hand taps.
-- `Amp Feedback` control with a global dominant-band feedback loop for controlled harmonic takeover.
+- `Amp Feedback` control with onset-ducked dominant-band/string-focus feedback for controlled harmonic takeover.
+- Six-string voice allocation: repeated or dense MIDI input reuses physical string voices instead of accumulating generic synth voices.
 - Dedicated feature-audition and player-articulation MIDI clips plus offline render tooling.
 
 Current model label:
 
 ```text
-StringVoice EG-050 FeedbackLoop
+StringVoice EG-057 FeedbackBloom
 ```
 
 ## Demo
@@ -226,19 +228,19 @@ The offline renderer is useful for DSP comparison and regression checks. It does
 
 We started with a rough idea: a lightweight physical-model electric guitar VST that could act as a clean DI instrument without samples, then built it in small auditionable steps. First we made the JUCE/CMake VST3 shell and a simple plucked string, then repeatedly listened, measured, and adjusted the model through pickup behavior, sustain, wound/plain string character, pick stiffness and texture, palm muting, harmonics, string age, intonation, fret pressure, finger noise, vibrato, whammy behavior, aftertouch bend, MPE per-note pitch bend, and MPE pressure/CC74 expression.
 
-The newest iteration added a phrase-aware player-articulation layer and a first amp-feedback model. `Legato Articulation` interprets eligible note transitions as pull-offs, hammer-ons, or right-hand taps with distinct excitation profiles. `Amp Feedback` now combines local string sustain with a small global feedback resonator loop, so high settings can let one harmonic band begin to dominate rather than evenly boosting every string.
+The newest iteration added a phrase-aware player-articulation layer, a first amp-feedback model, a tighter six-string voice allocator, a passive modal fast path, a revised out-of-phase pickup model, a lower-zone MPE whammy split, and a string-focused feedback return with note-on bloom. `Legato Articulation` interprets eligible note transitions as pull-offs, hammer-ons, or right-hand taps with distinct excitation profiles. `Amp Feedback` combines local string sustain with a small global feedback resonator loop, so high settings can let one harmonic band and one physical string begin to dominate rather than evenly boosting every string. New note attacks temporarily duck the feedback return, then let it bloom back over the sustain so the picked/chord attack can establish the next resonant target. The voice allocator now caps the core model at six physical string voices and reuses a string's existing voice when new MIDI is assigned to that string. The passive fast path avoids unused modal work and inactive expression/feedback math without intentionally changing the rendered sound. The third pickup choice is now `Singles OOP`, a wider-spaced pair of single-coil readouts summed out of phase. In MPE mode, member-channel pitch wheel stays per-note while channel 1 pitch wheel can still drive global whammy. `Distorted Return` now defaults on, clipping only the internal feedback return while keeping the main output clean DI-style; clean return remains available as the alternate mode.
 
 The process is very "warmer/colder": Codex makes a narrow hypothesis and builds it, the human tests in Bitwig and gives musical feedback, and the project keeps or redirects each experiment based on what actually sounds convincing. The repo has grown from documentation and an empty shell to a buildable, installed, versioned VST3 with real-time modeled guitar-like sound, useful performance controls, offline render tooling, and the core MPE goal working: independent pitch and expression control for notes via MPE.
 
 ## By The Numbers
 
-As of the `EG-050 FeedbackLoop` milestone:
+As of the `EG-057 FeedbackBloom` milestone:
 
-- Git commits before this milestone commit: 69.
-- Model checkpoints documented or build-labeled: 50.
-- VST parameters: 26.
+- Git commits before this milestone commit: 72.
+- Model checkpoints documented or build-labeled: 57.
+- VST parameters: 27.
 - Editor pages: Setup, Pickup, Perform, Vibrato, MPE, Whammy, and Artic.
-- Plan files: 58, including player articulation and feedback-loop plans.
+- Plan files: 63, including player articulation, feedback-loop, CPU-performance, MPE-whammy, feedback-focus, and feedback-bloom plans.
 - Audition MIDI files: feature audition, player-articulation audition, single-note calibration, and velocity ladder.
 - Offline renderer flags now cover core tone controls, MPE expression, legato articulation, and amp feedback.
 

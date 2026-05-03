@@ -42,9 +42,11 @@ The first JUCE build emits a deprecated `std::wstring_convert` warning from JUCE
   - `src/plugin/` contains the JUCE processor and editor.
   - `src/dsp/` contains the audio engine, string voice, tone stage, and first fretboard mapper.
   - `tools/` contains command-line development tools.
-- Current audio behavior: MIDI note-on is assigned to a plausible standard-tuned string/fret location, then triggers the current plucked electric-string model; note-off damps/releases it.
-- Current expression behavior: MPE pitch bend, channel pressure, and CC74 are routed by MIDI channel to matching voices when the DAW sends separate member channels.
-- Current non-goals: no full MPE zone/master-channel negotiation, no amp/cab simulation, and no phrase-level player model for hammer-ons, pull-offs, tapping, or slides yet.
+- Current audio behavior: MIDI note-on is assigned to a plausible standard-tuned string/fret location, then triggers a modeled clean-DI electric-string voice; note-off damps/releases it.
+- Current player behavior: the phrase layer can interpret eligible transitions as picked notes, hammer-ons, pull-offs, or right-hand taps.
+- Current expression behavior: MPE pitch bend, channel pressure, and CC74 are routed by MIDI channel to matching voices when the DAW sends separate member channels. In lower-zone MPE, channel 1 pitch wheel can still drive global whammy.
+- Current feedback behavior: `Amp Feedback` uses a note-on bloom, a dominant resonant band, and a dominant physical-string focus. `Distorted Return` defaults on for new instances so the feedback source behaves more like a clipped amp while the main output remains clean DI-style.
+- Current non-goals: no full MPE zone/master-channel negotiation, no amp/cab simulation, and no sample playback.
 
 ## Prerequisites
 
@@ -100,7 +102,7 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
 
 The offline renderer uses the same `AudioEngine` as the VST3 processor, so it is useful for rapid DSP iteration. It does not test DAW/plugin-host behavior, plugin scanning, or UI behavior.
 
-Optional arguments include `--gain`, `--sustain`, `--pick-stiffness`, `--pick-texture`, `--palm-mute`, `--harmonic-touch`, `--string-age`, `--bridge-intonation`, `--aftertouch`, `--channel-pressure`, `--cc74`, `--mpe-mode`, `--mpe-bend-range`, `--mpe-pressure-amount`, `--mpe-cc74-amount`, `--pickup-position`, and `--pickup-model`. `--gain` can align the offline WAV level with a DAW export if the DAW project has track/output gain applied.
+Optional arguments include `--gain`, `--sustain`, `--pick-stiffness`, `--pick-texture`, `--palm-mute`, `--harmonic-touch`, `--string-age`, `--bridge-intonation`, `--aftertouch`, `--channel-pressure`, `--cc74`, `--mpe-mode`, `--mpe-bend-range`, `--mpe-pressure-amount`, `--mpe-cc74-amount`, `--pickup-position`, `--pickup-model`, `--legato-articulation`, `--amp-feedback`, and `--feedback-return-distorted`. `--gain` can align the offline WAV level with a DAW export if the DAW project has track/output gain applied.
 
 The script copies:
 
@@ -161,8 +163,36 @@ Manual checks for the current VST3 build:
 - No sound is produced when no MIDI note is held.
 - MIDI note-on produces the modeled clean-DI guitar tone.
 - MIDI note-off releases the tone.
+- New plugin instances should open as `v0.2.6 / StringVoice EG-057 FeedbackBloom`.
+- `Distorted Return` should be enabled by default on new instances.
+- High `Amp Feedback` should bloom after picked attacks rather than grabbing the start of the note immediately.
 - With MPE enabled in the DAW and plugin, per-note pitch bend, channel pressure, and CC74 should affect only the matching member-channel voice.
-- The editor identity line should show the current model label, for example `StringVoice EG-047 MPEExpr`.
+- The editor identity line should show the current model label, for example `StringVoice EG-057 FeedbackBloom`.
+
+## Release Packaging
+
+For a macOS VST3 release asset, build Release first, then package the bundle from:
+
+```text
+build/GuitarAG_artefacts/Release/VST3/Guitar AG.vst3
+```
+
+Recommended asset name:
+
+```text
+GuitarAG-v<version>-macOS-vst3.zip
+```
+
+Example:
+
+```bash
+mkdir -p dist
+ditto -c -k --sequesterRsrc --keepParent \
+  "build/GuitarAG_artefacts/Release/VST3/Guitar AG.vst3" \
+  "dist/GuitarAG-v0.2.6-macOS-vst3.zip"
+```
+
+The GitHub release tag should match the CMake project version, for example `v0.2.6`.
 
 ## Bitwig Notes
 

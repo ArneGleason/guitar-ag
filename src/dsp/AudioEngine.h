@@ -13,6 +13,31 @@ namespace guitar_ag
 class AudioEngine
 {
 public:
+    struct PerformanceStats
+    {
+        uint64_t renderedSamples = 0;
+        uint64_t activeVoiceSamples = 0;
+        uint64_t activeFingerNoiseSamples = 0;
+        int maxActiveVoices = 0;
+        int maxActiveFingerNoiseVoices = 0;
+
+        void reset() noexcept { *this = {}; }
+
+        [[nodiscard]] double getAverageActiveVoices() const noexcept
+        {
+            return renderedSamples > 0
+                ? static_cast<double> (activeVoiceSamples) / static_cast<double> (renderedSamples)
+                : 0.0;
+        }
+
+        [[nodiscard]] double getAverageActiveFingerNoiseVoices() const noexcept
+        {
+            return renderedSamples > 0
+                ? static_cast<double> (activeFingerNoiseSamples) / static_cast<double> (renderedSamples)
+                : 0.0;
+        }
+    };
+
     void prepare (double sampleRate, int maximumBlockSize, int outputChannels);
     void reset();
     void setTailSustain (float newTailSustain) noexcept;
@@ -27,6 +52,7 @@ public:
     void setFingerNoise (float newFingerNoise) noexcept;
     void setLegatoArticulation (float newLegatoArticulation) noexcept;
     void setAmpFeedback (float newAmpFeedback) noexcept;
+    void setFeedbackReturnDistorted (bool shouldDistort) noexcept;
     void setVibratoSpeed (float newVibratoSpeed) noexcept;
     void setVibratoDepth (float newVibratoDepth) noexcept;
     void setVibratoDelay (float newVibratoDelay) noexcept;
@@ -45,9 +71,12 @@ public:
     void setPickupModel (int newPickupModel) noexcept;
 
     void render (juce::AudioBuffer<float>& audio, const juce::MidiBuffer& midi);
+    void setPerformanceStats (PerformanceStats* stats) noexcept;
+    [[nodiscard]] int getActiveVoiceCount() const noexcept;
+    [[nodiscard]] int getActiveFingerNoiseVoiceCount() const noexcept;
 
 private:
-    static constexpr auto maxVoices = 8;
+    static constexpr auto maxVoices = 6;
     static constexpr auto maxScheduledMidiEvents = 256;
     static constexpr auto maxFingerNoiseVoices = 12;
     static constexpr auto feedbackResonatorCount = 8;
@@ -57,6 +86,7 @@ private:
     void handleMidiMessage (const juce::MidiMessage& message);
     void noteOn (int noteNumber, int channel, float velocity);
     void noteOff (int noteNumber, int channel);
+    StringVoice& selectVoiceForAssignment (const FretboardAssignment& assignment) noexcept;
     void applyAftertouch (int noteNumber, int channel, float pressure) noexcept;
     void applyMpePitchBend (int channel, float bend) noexcept;
     void applyMpePressure (int channel, float pressure) noexcept;
@@ -86,7 +116,11 @@ private:
     static float nextFingerNoiseRandom (uint32_t& state) noexcept;
     void configureAmpFeedbackLoop() noexcept;
     void resetAmpFeedbackLoop() noexcept;
+    void triggerFeedbackBloomDuck (float velocity, PlayerGesture gesture) noexcept;
+    [[nodiscard]] float updateFeedbackBloom (float amount) noexcept;
     void updateAmpFeedbackLoop (float outputSample, float amount) noexcept;
+    void updateFeedbackStringFocus (float amount, float loopFrequency, float loopAmount) noexcept;
+    void recordPerformanceSample() noexcept;
 
     struct ScheduledMidiEvent
     {
@@ -179,6 +213,7 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> aftertouchBendSemitones { 2.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickupPosition { 0.39f };
     double sampleRate = 44100.0;
+    PerformanceStats* performanceStats = nullptr;
     std::array<float, 16> mpePitchBendByChannel {};
     int64_t timelineSample = 0;
     int lookaheadSamples = 0;
@@ -186,14 +221,22 @@ private:
     int nextVoice = 0;
     int nextFingerNoiseVoice = 0;
     int feedbackDominantBand = 0;
+    int feedbackDominantString = -1;
+    int feedbackFocusUpdateCountdown = 0;
     float feedbackLoopFrequency = 0.0f;
     float feedbackLoopAmount = 0.0f;
     float feedbackLoopSignal = 0.0f;
     float feedbackLoopDominance = 0.0f;
+    float feedbackStringFocus = 0.0f;
+    float feedbackStringFocusTarget = 0.0f;
+    float feedbackStringDominance = 0.0f;
+    float feedbackBloom = 1.0f;
+    int64_t lastFeedbackBloomDuckSample = -1000000000;
     bool vibratoModWheelSpeedEnabled = false;
     bool vibratoModWheelDepthEnabled = false;
     bool mpeEnabled = false;
     bool whammyEnabled = true;
+    bool feedbackReturnDistorted = true;
     std::array<float, 16> mpePressureByChannel {};
     std::array<float, 16> mpeTimbreByChannel {};
 };

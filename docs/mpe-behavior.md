@@ -30,11 +30,12 @@ Default assumptions:
 
 Current implementation:
 
-- `MPE Mode` toggles per-channel pitch-wheel routing.
+- `MPE Mode` toggles member-channel pitch-wheel routing.
 - `MPE Bend Range` defaults to ±48 semitones to match Bitwig's common MPE default.
 - `MPE Pressure Amount` scales channel-pressure response for the matching active voice.
 - `MPE CC74 Amount` scales CC74/timbre response for the matching active voice.
-- In MPE mode, pitch wheel messages are routed to active voices on the same MIDI channel.
+- In MPE mode, pitch wheel messages on member channels are routed to active voices on the same MIDI channel.
+- In lower-zone MPE, pitch wheel on channel 1 is treated as the master/global whammy source when `Pitch Wheel Whammy` is enabled.
 - If multiple active voices share one MIDI channel, they will bend together; a DAW must send separate member channels for independent bends.
 - In non-MPE mode, pitch wheel remains available as the global whammy-bar control.
 - Channel pressure and CC74 are still channel-scoped in normal MIDI mode, which means they behave like global expression when all notes are on one channel.
@@ -66,7 +67,8 @@ In MPE mode:
 - Pitch bend on a member channel applies only to the voice assigned to that channel.
 - It must not affect voices on other channels.
 - The current implementation treats pitch bend as per-channel when `MPE Mode` is enabled.
-- Master-channel/global MPE pitch bend is not modeled yet.
+- Lower-zone master-channel pitch bend on channel 1 feeds the global whammy path instead of per-note bend.
+- Upper-zone master-channel behavior, such as channel 16 master messages, is not modeled yet.
 
 In normal MIDI mode:
 

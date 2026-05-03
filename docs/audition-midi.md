@@ -56,6 +56,24 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
 
 The offline render is useful for a quick sanity check, but the DAW audition is still the better test for imported MIDI-channel behavior, plugin parameters, and host MPE handling.
 
+## Offline Performance Report
+
+Add `--perf-report` to the offline renderer to print timing and voice-activity diagnostics:
+
+```bash
+build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
+  --midi tests/midi/guitar-ag-player-articulation-audition.mid \
+  --output build/diagnostics/guitar-ag-player-articulation-perf.wav \
+  --sample-rate 48000 \
+  --block-size 512 \
+  --tail-seconds 2.0 \
+  --legato-articulation 0.75 \
+  --amp-feedback 1.0 \
+  --perf-report
+```
+
+The report includes rendered seconds, render time, realtime factor, average/max block render time, average/max active string voices, and finger-noise voice activity. It is intended for comparing CPU-sensitive changes before installing a new VST3 build.
+
 ## Player Articulation Audition MIDI
 
 `tests/midi/guitar-ag-player-articulation-audition.mid` focuses on the `Legato Articulation` control added in `StringVoice EG-048 PlayerArtic`.
@@ -104,6 +122,10 @@ Suggested audition pass:
 - Try 60-80% for obvious harmonic emphasis and early loop takeover.
 - Use 100% as the stress-test/high-feedback sound rather than the default musical setting.
 - For EG-050 and later, hold single notes long enough for a dominant feedback band to emerge; very short legato phrases may not give the loop time to take over.
+- For EG-055 and later, also listen on held chords: the high-feedback loop should favor one physical string/harmonic more than the others.
+- For EG-056 and later, listen to the start of picked chords separately from the sustain: feedback should stay down during the attack, then bloom toward the slider setting after the chord settles.
+- `Distorted Return` defaults on in EG-057 and later because it sounds more like a clipped amp signal driving the guitar.
+- Toggle `Distorted Return` off when you want to compare the cleaner return or diagnose the feedback loop.
 
 Offline A/B examples:
 
@@ -121,5 +143,6 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
   --output build/diagnostics/guitar-ag-eg050-feedback100.wav \
   --legato-articulation 1.0 \
   --amp-feedback 1.0 \
+  --feedback-return-distorted 1 \
   --tail-seconds 3.5
 ```

@@ -256,7 +256,7 @@ Status:
 Accepted
 
 Consequences:
-Pitch wheel currently drives all active voices through `Whammy Up Range`, `Whammy Down Range`, and `Whammy String Spread`. MPE pitch bend is still intentionally not implemented, and later MPE work must avoid confusing global whammy behavior with per-note expression routing.
+At the time of this decision, pitch wheel drove all active voices through `Whammy Up Range`, `Whammy Down Range`, and `Whammy String Spread`. Later MPE work must avoid confusing global whammy behavior with per-note expression routing.
 
 ## 2026-04-26 — Add key aftertouch bend before full MPE pressure
 
@@ -284,7 +284,7 @@ Status:
 Accepted
 
 Consequences:
-`MPE Mode` routes pitch wheel per MIDI channel, while non-MPE mode keeps the existing global whammy behavior. Users can set smaller ranges for guitar-focused bends, but the plugin default favors immediate Bitwig compatibility.
+`MPE Mode` routes member-channel pitch wheel per MIDI channel, while non-MPE mode keeps the existing global whammy behavior. As of the lower-zone MPE whammy pass, channel 1 pitch wheel can also remain global whammy in MPE mode. Users can set smaller ranges for guitar-focused bends, but the plugin default favors immediate Bitwig compatibility.
 
 ## 2026-05-02 — Map MPE pressure separately from aftertouch bend
 
@@ -355,3 +355,101 @@ Accepted
 
 Consequences:
 `AudioEngine` now owns a small feedback resonator bank and sends dominant frequency/amount/signal values into `StringVoice`. This is still a bounded approximation, not an acoustic room or body simulation, but it better matches the musical behavior of feedback used as an effect.
+
+## 2026-05-03 — Cap core guitar allocation at six physical string voices
+
+Decision:
+The core guitar voice pool is capped at six `StringVoice` instances, and new notes reuse any still-ringing voice assigned to the same physical string.
+
+Reason:
+The feedback CPU investigation showed that high amp-feedback settings can keep nearly all eight previous voices alive. A standard guitar has six physical strings, so allowing more than six independent ringing string voices is both less realistic and more expensive.
+
+Status:
+Accepted
+
+Consequences:
+The voice allocator now behaves more like a six-string instrument. Dense MIDI input can still play, but a seventh simultaneous string assignment replaces an existing physical string voice instead of adding a generic synth voice. MPE expression remains routed by note/channel to the selected voice.
+
+## 2026-05-03 — Make the third pickup model spaced single-coils out of phase
+
+Decision:
+The third pickup model is now `Singles OOP`: two wider-spaced single-coil readouts subtracted from each other, with `Pickup Position` moving the pair together.
+
+Reason:
+The old `Humbucker OOP` model subtracted two very nearby humbucker coil positions, creating a small differential notch rather than the more familiar neck/middle-style two-pickup out-of-phase sound.
+
+Status:
+Accepted
+
+Consequences:
+Existing projects using pickup model index 2 will now get the revised spaced single-coil out-of-phase sound. The first two pickup choices remain unchanged.
+
+## 2026-05-03 — Keep whammy available in lower-zone MPE mode
+
+Decision:
+When `MPE Mode` is enabled, pitch wheel on channel 1 now feeds the global whammy path, while pitch wheel on member channels 2-16 remains per-note MPE pitch bend.
+
+Reason:
+The first MPE implementation protected independent note bends by sending every MPE pitch wheel to per-channel pitch bend, which meant `Pitch Wheel Whammy` stopped working when MPE mode was enabled. In lower-zone MPE, channel 1 is the practical master/global channel, so it can safely carry a global whammy gesture without stealing member-channel note expression.
+
+Status:
+Accepted
+
+Consequences:
+Bitwig-style MPE note bends remain independent on member channels, and channel 1 pitch wheel can still move all active strings like a tremolo arm. Upper-zone MPE master-channel behavior is still not modeled.
+
+## 2026-05-03 — Add string focus to amp feedback loop
+
+Decision:
+Keep `Amp Feedback` as the main amount control, but make the high-feedback loop choose a dominant physical string as well as a dominant frequency band.
+
+Reason:
+The global resonator band alone can still sound like it is exciting every compatible string evenly. Real musical feedback usually feels like one string/harmonic wins, then sometimes hands off as the instrument angle, damping, or pitch relationship changes.
+
+Status:
+Accepted
+
+Consequences:
+`AudioEngine` now tracks the string most coupled to the current feedback band and passes that focus into `StringVoice`. Focused strings receive more loop return while non-focused strings and local all-string sustain are suppressed. This preserves the six-string cap and keeps the global feedback model bounded.
+
+## 2026-05-03 — Add optional distorted feedback return
+
+Decision:
+Add a `Feedback Return Distorted` switch that clips only the signal feeding the feedback resonator loop.
+
+Reason:
+The plugin should remain a clean DI instrument, but the sound that drives real guitar feedback often comes back from a loud, distorted amp. Clipping just the feedback return gives the loop more harmonic material without adding a full amp/cab model or distorting the main output path.
+
+Status:
+Accepted
+
+Consequences:
+The default return remains cleaner. Enabling the switch hardens the feedback loop input and can make takeover easier or more amp-like, while still leaving external amp sims responsible for the audible amp/cab tone.
+
+## 2026-05-03 — Duck amp feedback on new note attacks
+
+Decision:
+New note-ons temporarily reduce the effective amp-feedback amount, then let it bloom back toward the user-set slider value.
+
+Reason:
+Listening showed that feedback sounded more convincing when it was manually held down during a picked chord attack and raised during the sustain. The model should let the dry guitar attack establish the string/chord energy before the amp loop starts choosing a resonant winner.
+
+Status:
+Accepted
+
+Consequences:
+The `Amp Feedback` slider remains the single amount control, but internally the effective feedback amount is shaped by a note-on bloom envelope. Picked attacks duck the loop most, legato gestures duck it less, and clustered chord notes share one duck event. A fresh attack also lightly reduces previous loop state and clears string focus so the next note or chord can take over.
+
+## 2026-05-03 — Default feedback return to distorted
+
+Decision:
+`Feedback Return Distorted` now defaults on for new plugin instances and offline renders.
+
+Reason:
+Auditioning showed that the clipped return sounded more natural and reduced the clean-return chirp during early feedback bloom. This better approximates a loud amp signal driving the guitar while the main output remains clean DI-style.
+
+Status:
+Accepted
+
+Consequences:
+The default high-feedback sound is now the clipped-return path. Users can still turn `Distorted Return` off for a cleaner alternate behavior or diagnostic comparison. Existing saved DAW projects may retain their stored parameter value.

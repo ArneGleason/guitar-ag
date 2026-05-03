@@ -1018,18 +1018,18 @@ Current behavior:
 - Added a `Pickup Model` choice parameter:
   - `Single Coil`
   - `Humbucker`
-  - `Humbucker OOP`
+  - `Singles OOP`
 - Added a `Pickup Position` parameter, default 39%.
 - The pickup position maps from a bridge-side readout at about 0.055 of the speaking length to a neck-side readout at about 0.335 of the speaking length.
 - The UI marks 1/6, 1/5, 1/4, and 1/3 string-length positions as harmonic landmarks.
 - `Single Coil` uses a narrow single readout.
 - `Humbucker` uses two nearby readouts summed together with a wider aperture and gentle high-partial smoothing.
-- `Humbucker OOP` uses the difference between two nearby readouts for a thinner, notched, out-of-phase style response.
+- `Singles OOP` uses the difference between two wider-spaced single-coil readouts for a thinner, notched, neck/middle-style out-of-phase response.
 - The offline renderer accepts `--pickup-position` and `--pickup-model`.
 
 Expected sound:
 
-Bridge-side pickup positions should be brighter and lower in fundamental weight. Neck-side positions should become warmer and fuller, with audible harmonic peaks/nulls rather than a plain EQ sweep. Humbucker should be thicker and smoother than single coil. Humbucker OOP should be thinner and more nasal.
+Bridge-side pickup positions should be brighter and lower in fundamental weight. Neck-side positions should become warmer and fuller, with audible harmonic peaks/nulls rather than a plain EQ sweep. Humbucker should be thicker and smoother than single coil. Singles OOP should be thinner and more nasal.
 
 ## 2026-04-26 — Bridge Intonation
 
@@ -1183,11 +1183,12 @@ Current behavior:
 - Added an `MPE` editor section.
 - Added `MPE Mode`, default Off.
 - Added `MPE Bend Range`, defaulting to ±48 semitones.
-- When `MPE Mode` is enabled, pitch wheel messages are routed by MIDI channel to active voices on that same channel.
+- At this milestone, when `MPE Mode` is enabled, pitch wheel messages are routed by MIDI channel to active voices on that same channel.
 - When `MPE Mode` is disabled, pitch wheel retains the existing global whammy behavior.
 - The MPE pitch amount is smoothed per voice.
 - If a DAW sends multiple notes on one channel, those notes bend together; independent bends require separate MPE member channels.
 - The offline renderer accepts `--mpe-mode` and `--mpe-bend-range`.
+- Later `EG-054 MPEWhammy` preserves this behavior for member channels 2-16 while reserving lower-zone channel 1 pitch wheel for global whammy.
 
 Expected sound:
 
@@ -1280,6 +1281,143 @@ Expected sound:
 
 Compared with EG-049, high `Amp Feedback` should feel less like every note gets evenly sustained and more like one amp/speaker resonance starts to dominate. Long notes should be the clearest test: one upper resonance should begin to hold or bloom, and changing notes should give the loop a chance to hand off to another band.
 
+## 2026-05-03 — Six-String Voice Cap
+
+Changed voice allocation to behave more like a physical six-string guitar and to bound the high-feedback CPU case.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-051 SixStringCap`.
+- The core `AudioEngine` voice pool is now six `StringVoice` instances.
+- Each new note is still assigned to a standard-tuned string/fret by `FretboardMapper`.
+- If the assigned physical string is still ringing, the existing voice for that string is reused for the new note.
+- If no voice is active on the assigned string, the allocator uses an inactive voice, then falls back to the existing round-robin steal path.
+- This preserves the current sound model inside each `StringVoice`; the change is allocation behavior, not modal tone generation.
+
+Expected behavior:
+
+A six-note guitar-range chord should ring without stealing. A seventh simultaneous note or a repeated note on the same assigned string should replace one physical string voice instead of allowing more than six string voices to accumulate. This should especially reduce the high `Amp Feedback` case where released strings previously stayed active until all eight old voices were running.
+
+Future exception:
+
+The six-voice cap applies to physical strings. A later pickup/body microphonic model may use a seventh auxiliary source for body taps, handling noise, or pickup vibration, but that source should be explicitly non-string and mixed as part of the pickup/body DI path.
+
+## 2026-05-03 — Passive Modal Fast Path
+
+Optimized the existing EG-051 model without intentionally changing its sound.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-052 PassiveFast`.
+- Each note tracks how many modal slots were actually configured and renders only that active modal range.
+- Per-mode constants such as mode position, high/low expression weights, palm-mute weighting, and modal frequency are computed at note start instead of every sample.
+- When pitch ratio is exactly neutral, the voice reuses precomputed modal sine/cosine phase steps instead of recalculating them every sample.
+- When vibrato, whammy, aftertouch bend, MPE bend, or amp feedback are exactly inactive, their ratio/feedback math is bypassed.
+
+Expected behavior:
+
+This pass should be nearly or fully transparent for normal playback. It does not reduce modal count, shorten tails, add amplitude cutoffs, or change the six-string allocation rule. If a render differs, the expected difference should come from floating-point operation ordering rather than a deliberate tone change.
+
+## 2026-05-03 — Spaced Single-Coil Out Of Phase Pickup
+
+Revised the third pickup model so it behaves more like two spaced single-coil pickups out of phase.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-053 SinglesOOP`.
+- The plugin version is now `0.2.2`.
+- The third pickup choice is now labeled `Singles OOP`.
+- `Single Coil` and `Humbucker` are unchanged.
+- `Singles OOP` uses two single-coil-width readouts spaced by 0.086 of the speaking string length.
+- The `Pickup Position` control moves the pair together while preserving that spacing.
+- The pair is constrained so the bridge-side and neck-side readouts stay equally spaced inside the existing pickup-position range.
+- The pair subtracts the bridge-side readout from the neck-side readout, creating a wider-spaced phase-cancellation pattern than the old nearby-coil humbucker OOP model.
+
+Expected sound:
+
+Compared with the old third pickup model, `Singles OOP` should be less like a tiny differential humbucker notch and more like a nasal two-pickup out-of-phase sound. It should stay thin and notched, but the notches should move from wider pickup spacing rather than mostly cancelling nearly identical coil positions.
+
+## 2026-05-03 — MPE Master Channel Whammy
+
+Allowed the whammy pitch wheel to keep working while `MPE Mode` is enabled.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-054 MPEWhammy`.
+- The plugin version is now `0.2.3`.
+- In normal MIDI mode, pitch wheel still feeds the global whammy path.
+- In MPE mode, pitch wheel on lower-zone channel 1 feeds the global whammy path.
+- In MPE mode, pitch wheel on member channels 2-16 still feeds per-channel MPE pitch bend.
+- The whammy amount is still shaped by `Whammy Up Range`, `Whammy Down Range`, and `Whammy String Spread`.
+
+Expected behavior:
+
+MPE note-expression pitch bends should remain independent by member channel, while a DAW or controller that sends pitch wheel on channel 1 can still move all active strings like a tremolo arm. Upper-zone MPE master-channel behavior is still not modeled.
+
+UI notes:
+
+The in-plugin info popovers now use a simple first sentence followed by a `Technical:` detail line where useful. This is meant to keep controls approachable while still exposing the model behavior for users who want to understand what each parameter is doing.
+
+## 2026-05-03 — Feedback String Focus And Clipped Return
+
+Retuned the dominant-band feedback loop so it can take over one physical string instead of evenly reinforcing every active string.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-055 FeedbackFocus`.
+- The plugin version is now `0.2.4`.
+- `AudioEngine` now tracks a dominant feedback string in addition to the dominant feedback band.
+- Each active `StringVoice` reports a cheap coupling score against the current loop frequency using its configured modal frequencies and modal energy.
+- As the loop amount rises, the focused string receives a stronger loop return while other strings receive less.
+- Local all-string feedback sustain is reduced as the focused loop takes over, so high feedback should lean toward one runaway note/harmonic instead of lifting everything evenly.
+- Added `Feedback Return Distorted`, exposed in the UI as `Distorted Return`, which clips the signal that feeds the feedback resonator bank without adding amp/cab processing to the main DI output.
+- The offline renderer accepts `--feedback-return-distorted`.
+
+Expected behavior:
+
+At low settings, `Amp Feedback` should still mostly feel like extra loud-rig sustain. At high settings, held notes and chords should more clearly develop a dominant string/harmonic that can take over and, depending on the loop band and string energy, hand off to another string. `Distorted Return` should make that loop react more like a clipped high-gain amp return while keeping the plugin output clean DI-style.
+
+## 2026-05-03 — Feedback Bloom After Note Attacks
+
+Listening in Bitwig showed that the focused feedback worked better when the `Amp Feedback` slider was held near zero during the note attack, then raised during the sustain. EG-056 automates that behavior with a MIDI-note-on bloom envelope.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-056 FeedbackBloom`.
+- The plugin version is now `0.2.5`.
+- New note-ons temporarily duck the effective amp-feedback amount before it reaches the string voices and feedback resonator loop.
+- Picked notes duck the loop most. Right-hand taps, hammer-ons, and pull-offs duck it less so legato gestures can remain connected.
+- Notes in the same short attack cluster share the duck event, so a strummed or block chord does not repeatedly flush the feedback loop for every string.
+- The ducked feedback blooms back toward the slider setting over roughly 0.7 to 1.5 seconds, depending on the feedback amount.
+- When the effective amount is near zero, the resonator bank no longer listens to the dry attack at full input strength.
+- A fresh attack lightly reduces the previous loop state and clears the dominant string focus, giving the new note or chord a chance to become the next feedback winner.
+
+Expected behavior:
+
+At high `Amp Feedback` settings, picked attacks should stay more like clean guitar attacks instead of instantly exciting every string or harmonic. The feedback should arrive later in the sustain, making it easier for one harmonic or string to take over after the chord has settled. Fast note streams should also release more naturally because instant feedback is no longer extending every new attack.
+
+Render check:
+
+- `tests/midi/guitar-ag-feature-audition.mid`, `Amp Feedback` 100%, clean return: 98.146 seconds rendered in 10.067 seconds, 9.749x realtime, average 2.487 active string voices, max 6.
+- Same MIDI with `Distorted Return` on: 98.146 seconds rendered in 10.157 seconds, 9.663x realtime, average 2.477 active string voices, max 6.
+- `tests/midi/guitar-ag-player-articulation-audition.mid`, `Amp Feedback` 100%, clean return: 61.223 seconds rendered in 2.568 seconds, 23.841x realtime, average 1.164 active string voices, max 3.
+
+## 2026-05-03 — Distorted Feedback Return Default
+
+After auditioning EG-056 in Bitwig, the clipped feedback return sounded more natural than the clean return. The clean return exposed a small early chirp as the feedback loop hunted across harmonics; the clipped return provided denser amp-like excitation and masked that band-hunt.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-057 FeedbackBloom`.
+- The plugin version is now `0.2.6`.
+- `Feedback Return Distorted`, shown as `Distorted Return`, now defaults on for new plugin instances.
+- The offline renderer also defaults `--feedback-return-distorted` to `1`.
+- Turning `Distorted Return` off is still available as a cleaner diagnostic or alternate feedback flavor.
+
+Expected behavior:
+
+The default `Amp Feedback` sound should now use the more natural clipped return while the main instrument output remains clean DI-style. Existing saved DAW projects may preserve their stored switch value; new instances should open with `Distorted Return` enabled.
+
 ## Suggested MVP Signal Flow
 
 ```text
@@ -1338,6 +1476,7 @@ Current simplification:
 - Pickup readout currently lives inside `StringVoice` as a fixed normalized read position.
 - `ElectricGuitarTone` is a post-voice conditioning stage.
 - This is not yet a full per-string, per-pickup, pickup-width, or circuit model.
+- Pickup/body microphonics are intentionally not part of the six-string voice count. If added later, model them as a simple auxiliary non-string voice or body/pickup bus for body taps, handling thumps, or pickup vibration against otherwise static strings.
 
 ## Realism Research
 

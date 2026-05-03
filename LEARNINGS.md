@@ -455,3 +455,39 @@ The first `Amp Feedback` implementation made the broad arpeggio audition safe, b
 ## 2026-05-02 — Feedback needs a winner
 
 Listening feedback on EG-049 showed that per-voice harmonic sustain sounds like even excitation, not amp feedback. A more convincing effect needs a separate loop with memory, band competition, and a dominant frequency that pushes back into matching string modes. The first EG-050 diagnostic renders show the long-note tail concentrating around upper feedback bands instead of merely raising the whole modal bank.
+
+## 2026-05-03 — Pickup microphonics should not count as strings
+
+The six-string cap is about physical string voices. If Guitar AG later models pickup microphonics, body taps, or handling thumps, those should be a separate auxiliary pickup/body source rather than extra string polyphony. A simple seventh non-string voice or bus could carry pickup/body resonance and mix into the DI path without breaking the six-string allocation rule.
+
+## 2026-05-03 — Neutral-path math dominated the modal voice cost
+
+The passive EG-052 optimization kept renders byte-identical while making common offline renders much faster. The biggest wins came from rendering only configured modal slots, reusing precomputed neutral pitch steps, and skipping vibrato/whammy/MPE/feedback math when those features are exactly inactive. This suggests the next risky quality modes should be optional; there was still plenty of free performance available without changing sound.
+
+## 2026-05-03 — Out-of-phase pickup spacing matters
+
+Subtracting two very nearby readouts behaves more like a differential humbucker coil trick than the familiar two-pickup out-of-phase guitar sound. For a neck/middle-style nasal tone, the phase cancellation should come from two single-coil read points separated by a meaningful distance along the string, with the pickup-position control moving that pair together.
+
+## 2026-05-03 — MPE still needs a global performance lane
+
+Turning on MPE should not make the instrument lose guitar-wide gestures. Member-channel pitch wheel belongs to per-note bends, but lower-zone channel 1 can remain a master/global pitch-wheel lane for whammy. This keeps independent note expression and tremolo-arm behavior from fighting over the same MIDI messages.
+
+## 2026-05-03 — Info copy should have two layers
+
+The in-plugin help is more useful when the first sentence says what a control does in plain language, then a short technical note explains the model behavior. That keeps the interface friendly while rewarding users who want to understand the physical-model assumptions.
+
+## 2026-05-03 — Feedback needs a string winner too
+
+A dominant feedback band is not enough by itself if every active string with a compatible harmonic gets reinforced. The loop needs a physical-string focus stage so the high-feedback behavior feels like one string/harmonic taking over, with possible handoffs, rather than a global sustain boost across the whole guitar.
+
+## 2026-05-03 — Distorting only the feedback return preserves clean DI scope
+
+A clipped amp signal can be useful as the excitation source for feedback, but the plugin still should not become an amp simulator. Clipping only the internal feedback return adds harmonic material to the loop while leaving the main output available for external amp/cab sims.
+
+## 2026-05-03 — Feedback should bloom after the guitar attack
+
+The feedback loop sounded more realistic when the user manually kept `Amp Feedback` near zero during the note attack and raised it during the sustain. A convincing feedback model needs onset behavior, not just a steady-state resonance. Letting the picked attack win first gives the loop a cleaner musical target and avoids the "all strings get excited immediately" impression.
+
+## 2026-05-03 — Clean feedback return exposes band-hunt chirp
+
+The clean feedback return can make the loop's early movement across resonant bands too audible as a chirp. The clipped return sounds more natural by feeding the resonator bank a denser, more amp-like signal while leaving the main DI path clean.

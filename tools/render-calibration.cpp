@@ -4,7 +4,9 @@
 #include <juce_core/juce_core.h>
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <vector>
 
@@ -25,11 +27,12 @@ void printUsage()
                  "[--harmonic-touch 0.0] [--string-age 0.0] [--bridge-intonation 0.0] "
                  "[--fret-pressure 0.0] [--aftertouch-bend 2.0] [--aftertouch 0.0] "
                  "[--lookahead-ms 0] [--finger-noise 0.0] [--legato-articulation 0.0] [--amp-feedback 0.0] "
+                 "[--feedback-return-distorted 1] "
                  "[--vibrato-speed 5.5] [--vibrato-depth 0.0] [--vibrato-delay-ms 0] "
                  "[--mpe-mode 0] [--mpe-bend-range 48.0] [--mpe-pressure-amount 0.65] [--mpe-cc74-amount 0.65] "
                  "[--channel-pressure 0.0] [--cc74 0.0] "
                  "[--pitch-wheel 0.0] [--whammy-up 6.0] [--whammy-down 12.0] [--whammy-spread 0.35] "
-                 "[--pickup-position 0.39] [--pickup-model 0]\n";
+                 "[--pickup-position 0.39] [--pickup-model 0] [--perf-report]\n";
 }
 
 bool readMidiEvents (const juce::File& midiFile, double sampleRate, std::vector<MidiEvent>& events, int& lastEventSample)
@@ -134,6 +137,7 @@ int main (int argc, char* argv[])
     auto fingerNoise = 0.0f;
     auto legatoArticulation = 0.0f;
     auto ampFeedback = 0.0f;
+    auto feedbackReturnDistorted = true;
     auto vibratoSpeed = 5.5f;
     auto vibratoDepth = 0.0f;
     auto vibratoDelayMs = 0.0f;
@@ -149,6 +153,7 @@ int main (int argc, char* argv[])
     auto whammySpread = 0.35f;
     auto pickupPosition = 0.39f;
     auto pickupModel = 0;
+    auto perfReport = false;
 
     for (auto i = 1; i < argc; ++i)
     {
@@ -235,6 +240,10 @@ int main (int argc, char* argv[])
         {
             ampFeedback = juce::String (argv[++i]).getFloatValue();
         }
+        else if (argument == "--feedback-return-distorted" && hasValue)
+        {
+            feedbackReturnDistorted = juce::String (argv[++i]).getIntValue() != 0;
+        }
         else if (argument == "--vibrato-speed" && hasValue)
         {
             vibratoSpeed = juce::String (argv[++i]).getFloatValue();
@@ -294,6 +303,10 @@ int main (int argc, char* argv[])
         else if (argument == "--pickup-model" && hasValue)
         {
             pickupModel = juce::String (argv[++i]).getIntValue();
+        }
+        else if (argument == "--perf-report")
+        {
+            perfReport = true;
         }
         else
         {
@@ -400,6 +413,7 @@ int main (int argc, char* argv[])
     engine.setFingerNoise (fingerNoise);
     engine.setLegatoArticulation (legatoArticulation);
     engine.setAmpFeedback (ampFeedback);
+    engine.setFeedbackReturnDistorted (feedbackReturnDistorted);
     engine.setVibratoSpeed (vibratoSpeed);
     engine.setVibratoDepth (vibratoDepth);
     engine.setVibratoDelay (vibratoDelayMs / 1000.0f);
@@ -414,6 +428,16 @@ int main (int argc, char* argv[])
     engine.setPickupPosition (pickupPosition);
     engine.setPickupModel (pickupModel);
     engine.reset();
+
+    guitar_ag::AudioEngine::PerformanceStats performanceStats;
+    auto totalRenderSeconds = 0.0;
+    auto maxBlockRenderSeconds = 0.0;
+
+    if (perfReport)
+    {
+        performanceStats.reset();
+        engine.setPerformanceStats (&performanceStats);
+    }
 
     auto eventIndex = static_cast<size_t> (0);
 
@@ -431,8 +455,20 @@ int main (int argc, char* argv[])
             ++eventIndex;
         }
 
+        const auto blockStartTime = perfReport ? std::chrono::steady_clock::now()
+                                               : std::chrono::steady_clock::time_point {};
         engine.render (block, midi);
+
+        if (perfReport)
+        {
+            const auto blockEndTime = std::chrono::steady_clock::now();
+            const auto blockSeconds = std::chrono::duration<double> (blockEndTime - blockStartTime).count();
+            totalRenderSeconds += blockSeconds;
+            maxBlockRenderSeconds = std::max (maxBlockRenderSeconds, blockSeconds);
+        }
     }
+
+    engine.setPerformanceStats (nullptr);
 
     outputFile.getParentDirectory().createDirectory();
     output.applyGain (gain);
@@ -445,5 +481,36 @@ int main (int argc, char* argv[])
 
     std::cout << "Rendered " << events.size() << " MIDI note events to "
               << outputFile.getFullPathName() << "\n";
+
+    if (perfReport)
+    {
+        const auto renderedSeconds = sampleRate > 0.0
+                                   ? static_cast<double> (performanceStats.renderedSamples) / sampleRate
+                                   : 0.0;
+        const auto realtimeFactor = totalRenderSeconds > 0.0
+                                  ? renderedSeconds / totalRenderSeconds
+                                  : 0.0;
+        const auto averageBlockRenderMs = performanceStats.renderedSamples > 0
+                                        ? 1000.0 * totalRenderSeconds
+                                            / static_cast<double> ((performanceStats.renderedSamples + blockSize - 1)
+                                                                   / blockSize)
+                                        : 0.0;
+
+        std::cout << std::fixed << std::setprecision (3)
+                  << "Performance report:\n"
+                  << "  rendered audio: " << renderedSeconds << " s, "
+                  << performanceStats.renderedSamples << " samples\n"
+                  << "  render time: " << totalRenderSeconds << " s, "
+                  << realtimeFactor << "x realtime\n"
+                  << "  block render: avg " << averageBlockRenderMs << " ms, max "
+                  << (1000.0 * maxBlockRenderSeconds) << " ms\n"
+                  << "  string voices: avg " << performanceStats.getAverageActiveVoices()
+                  << ", max " << performanceStats.maxActiveVoices
+                  << ", voice-samples " << performanceStats.activeVoiceSamples << "\n"
+                  << "  finger-noise voices: avg " << performanceStats.getAverageActiveFingerNoiseVoices()
+                  << ", max " << performanceStats.maxActiveFingerNoiseVoices
+                  << ", voice-samples " << performanceStats.activeFingerNoiseSamples << "\n";
+    }
+
     return 0;
 }

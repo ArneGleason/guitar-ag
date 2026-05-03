@@ -150,8 +150,9 @@ The instrument should behave more like a guitar than a generic synth where pract
 
 ### MVP voice behavior
 
-- Each incoming note creates an independent modeled string voice.
-- Voices decay naturally unless muted or released.
+- Each ringing physical string is represented by one modeled string voice.
+- New notes assigned to an already-ringing physical string replace that string's previous voice.
+- Voices decay naturally unless muted, released, or replaced by a new note on the same string.
 - Re-triggering the same pitch should create a believable new pluck.
 - Voice stealing should avoid clicks and abrupt artifacts.
 
@@ -159,19 +160,18 @@ The instrument should behave more like a guitar than a generic synth where pract
 
 Later versions may include:
 
-- six-string mode
-- automatic string assignment
+- alternate tunings
+- full phrase-aware string assignment
 - per-string pitch ranges
-- repeated note behavior on the same string
+- more nuanced repeated-note behavior on the same string
 - legato slides
 - hammer-ons
 - pull-offs
 - muted notes
 - strums
 - chord voicing logic
-- alternate tunings
 
-For the first build, do **not** require perfect six-string guitar logic. Start with expressive polyphonic strings, then add guitar-specific constraints later.
+For the first build, do **not** require perfect six-string fingering or phrase interpretation. Start with expressive six-string allocation, then refine guitar-specific constraints later.
 
 ## 7. Performance and Stability Requirements
 
@@ -195,8 +195,8 @@ The plugin must be suitable for real-time use.
 
 The first usable version should comfortably handle:
 
-- at least 6 active voices
-- ideally 12–24 active voices
+- 6 active string voices in the core guitar mode
+- bounded CPU when feedback keeps released strings ringing
 - real-time MPE control without zipper noise
 
 ## 8. User Interface Requirements

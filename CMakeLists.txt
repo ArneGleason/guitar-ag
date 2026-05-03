@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(GuitarAG VERSION 0.2.0 LANGUAGES C CXX)
+project(GuitarAG VERSION 0.2.6 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(JUCE_PATH "" CACHE PATH "Optional path to a local JUCE checkout")
-set(GUITAR_AG_MODEL_LABEL "StringVoice EG-050 FeedbackLoop")
+set(GUITAR_AG_MODEL_LABEL "StringVoice EG-057 FeedbackBloom")
 
 find_package(Git QUIET)
 

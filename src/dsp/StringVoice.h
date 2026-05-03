@@ -43,6 +43,8 @@ public:
     [[nodiscard]] bool isActive() const noexcept { return active; }
     [[nodiscard]] int getNoteNumber() const noexcept { return noteNumber; }
     [[nodiscard]] int getChannel() const noexcept { return channel; }
+    [[nodiscard]] int getStringIndex() const noexcept { return stringIndex; }
+    [[nodiscard]] float getFeedbackCouplingScore (float loopFrequency) const noexcept;
     void setAftertouchPressure (int midiNoteNumber, int midiChannel, float pressure) noexcept;
     void setMpePitchBend (int midiChannel, float bend) noexcept;
     void setMpePressure (int midiChannel, float pressure) noexcept;
@@ -59,6 +61,8 @@ public:
                         float feedbackLoopFrequency,
                         float feedbackLoopAmount,
                         float feedbackLoopSignal,
+                        int feedbackFocusedString,
+                        float feedbackStringFocus,
                         float aftertouchBendSemitones,
                         float mpePressureAmount,
                         float mpeTimbreAmount,
@@ -97,6 +101,11 @@ private:
     std::array<float, modalCount> modalAmplitude {};
     std::array<float, modalCount> modalDecay {};
     std::array<float, modalCount> modalTailDampingScale {};
+    std::array<float, modalCount> modalModePosition {};
+    std::array<float, modalCount> modalHighWeight {};
+    std::array<float, modalCount> modalLowWeight {};
+    std::array<float, modalCount> modalPalmWeight {};
+    std::array<float, modalCount> modalFrequency {};
 
     double sampleRate = 44100.0;
     int delayLength = 1;
@@ -105,6 +114,7 @@ private:
     int secondaryPickupOffsetSamples = 1;
     int pickupApertureSamples = 1;
     int samplesSinceStart = 0;
+    int activeModalCount = 0;
 
     int noteNumber = -1;
     int channel = 0;

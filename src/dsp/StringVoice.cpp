@@ -23,6 +23,11 @@ void StringVoice::reset()
     modalAmplitude.fill (0.0f);
     modalDecay.fill (1.0f);
     modalTailDampingScale.fill (1.0f);
+    modalModePosition.fill (0.0f);
+    modalHighWeight.fill (0.0f);
+    modalLowWeight.fill (1.0f);
+    modalPalmWeight.fill (0.78f);
+    modalFrequency.fill (0.0f);
 
     delayLength = 1;
     writeIndex = 0;
@@ -30,6 +35,7 @@ void StringVoice::reset()
     secondaryPickupOffsetSamples = 1;
     pickupApertureSamples = 1;
     samplesSinceStart = 0;
+    activeModalCount = 0;
     noteNumber = -1;
     channel = 0;
     stringIndex = 0;
@@ -274,6 +280,12 @@ void StringVoice::start (int midiNoteNumber,
     modalAmplitude.fill (0.0f);
     modalDecay.fill (1.0f);
     modalTailDampingScale.fill (1.0f);
+    modalModePosition.fill (0.0f);
+    modalHighWeight.fill (0.0f);
+    modalLowWeight.fill (1.0f);
+    modalPalmWeight.fill (0.78f);
+    modalFrequency.fill (0.0f);
+    activeModalCount = 0;
     modalReleaseDecay = 1.0f;
     resonanceState1.fill (0.0f);
     resonanceState2.fill (0.0f);
@@ -312,9 +324,18 @@ void StringVoice::start (int midiNoteNumber,
     const auto hardStrike = std::pow (juce::jlimit (0.0f, 1.0f, (velocityNormal - 0.46f) / 0.54f), 0.55f);
     const auto brightness = strikeAmount;
     const auto pluckPosition = juce::jmap (strikeAmount, 0.225f, 0.080f);
-    const auto pickupPosition = juce::jmap (pickupAmount, 0.055f, 0.335f);
-    const auto pickupWidth = pickupModelIndex == 0 ? 0.024f : 0.056f;
-    const auto pickupCoilSeparation = 0.046f;
+    constexpr auto pickupPositionMin = 0.055f;
+    constexpr auto pickupPositionMax = 0.335f;
+    constexpr auto humbuckerCoilSeparation = 0.046f;
+    constexpr auto outOfPhaseSingleCoilSpacing = 0.086f;
+    const auto pickupPosition = pickupModelIndex == 2
+                              ? juce::jmap (pickupAmount,
+                                             pickupPositionMin + outOfPhaseSingleCoilSpacing * 0.5f,
+                                             pickupPositionMax - outOfPhaseSingleCoilSpacing * 0.5f)
+                              : juce::jmap (pickupAmount, pickupPositionMin, pickupPositionMax);
+    const auto pickupWidth = pickupModelIndex == 1 ? 0.056f : 0.024f;
+    const auto outOfPhaseBridgePosition = pickupPosition - outOfPhaseSingleCoilSpacing * 0.5f;
+    const auto outOfPhaseNeckPosition = pickupPosition + outOfPhaseSingleCoilSpacing * 0.5f;
     const auto displacementAmount = 0.70f * velocityGain * gestureDisplacementScale;
     const auto horizontalAmount = (0.28f + 0.06f * woundAmount) * velocityGain * gestureHorizontalScale;
     const auto ageBrightnessScale = 1.06f - 0.46f * stringAgeAmount;
@@ -507,16 +528,21 @@ void StringVoice::start (int midiNoteNumber,
 
         const auto pluckShape = std::sin (twoPi * 0.5f * harmonicFloat * pluckPosition);
         const auto pickupShape = std::sin (twoPi * 0.5f * harmonicFloat * pickupPosition);
-        const auto coilA = std::sin (twoPi * 0.5f * harmonicFloat
-                                  * juce::jlimit (0.020f, 0.380f, pickupPosition - pickupCoilSeparation * 0.5f));
-        const auto coilB = std::sin (twoPi * 0.5f * harmonicFloat
-                                  * juce::jlimit (0.020f, 0.380f, pickupPosition + pickupCoilSeparation * 0.5f));
+        const auto humbuckerCoilA = std::sin (twoPi * 0.5f * harmonicFloat
+                                           * juce::jlimit (0.020f,
+                                                           0.380f,
+                                                           pickupPosition - humbuckerCoilSeparation * 0.5f));
+        const auto humbuckerCoilB = std::sin (twoPi * 0.5f * harmonicFloat
+                                           * juce::jlimit (0.020f,
+                                                           0.380f,
+                                                           pickupPosition + humbuckerCoilSeparation * 0.5f));
+        const auto outOfPhaseBridgeCoil = std::sin (twoPi * 0.5f * harmonicFloat * outOfPhaseBridgePosition);
+        const auto outOfPhaseNeckCoil = std::sin (twoPi * 0.5f * harmonicFloat * outOfPhaseNeckPosition);
         const auto pickupModelShape = pickupModelIndex == 0 ? pickupShape
-                                  : pickupModelIndex == 1 ? 0.5f * (coilA + coilB) * 2.05f
-                                                          : (coilA - coilB) * 1.10f;
+                                  : pickupModelIndex == 1 ? 0.5f * (humbuckerCoilA + humbuckerCoilB) * 2.05f
+                                                          : (outOfPhaseNeckCoil - outOfPhaseBridgeCoil) * 1.35f;
         const auto pickupElectricalTilt = pickupModelIndex == 1 ? std::exp (-0.010f * harmonicFloat)
-                                      : pickupModelIndex == 2 ? std::exp (-0.004f * harmonicFloat)
-                                                              : 1.0f;
+                                                                : 1.0f;
         const auto aperture = std::abs (harmonicFloat * pickupWidth) < 0.0001f
                             ? 1.0f
                             : std::sin (twoPi * 0.5f * harmonicFloat * pickupWidth)
@@ -643,6 +669,33 @@ void StringVoice::setMpeTimbre (int midiChannel, float timbre) noexcept
     mpeTimbreTarget = juce::jlimit (0.0f, 1.0f, timbre);
 }
 
+float StringVoice::getFeedbackCouplingScore (float loopFrequency) const noexcept
+{
+    if (! active || loopFrequency <= 20.0f || activeModalCount <= 0)
+        return 0.0f;
+
+    auto bestLock = 0.0f;
+    const auto clampedLoopFrequency = juce::jlimit (20.0f, 6000.0f, loopFrequency);
+
+    for (auto mode = 0; mode < activeModalCount; ++mode)
+    {
+        const auto modeIndex = static_cast<size_t> (mode);
+        const auto modeFrequency = modalFrequency[modeIndex];
+
+        if (modeFrequency <= 20.0f)
+            continue;
+
+        const auto frequencyRatio = juce::jlimit (0.001f, 1000.0f, modeFrequency / clampedLoopFrequency);
+        const auto centsDistance = std::abs (1200.0f * std::log2 (frequencyRatio));
+        const auto loopLock = std::exp (-0.5f * (centsDistance / 132.0f) * (centsDistance / 132.0f));
+        const auto modeEnergy = std::abs (modalAmplitude[modeIndex]) * (0.22f + 0.78f * modalHighWeight[modeIndex]);
+        bestLock = juce::jmax (bestLock, loopLock * (0.0015f + modeEnergy));
+    }
+
+    const auto energyGate = juce::jlimit (0.0f, 1.0f, energy / 0.0010f);
+    return bestLock * energyGate * (releasing ? 0.62f : 1.0f);
+}
+
 float StringVoice::renderSample (float tailSustain,
                                  float palmMute,
                                  float vibratoDepthCents,
@@ -654,6 +707,8 @@ float StringVoice::renderSample (float tailSustain,
                                  float feedbackLoopFrequency,
                                  float feedbackLoopAmount,
                                  float feedbackLoopSignal,
+                                 int feedbackFocusedString,
+                                 float feedbackStringFocus,
                                  float aftertouchBendSemitones,
                                  float mpePressureAmount,
                                  float mpeTimbreAmount,
@@ -690,17 +745,25 @@ float StringVoice::renderSample (float tailSustain,
                                : heldSeconds <= clampedVibratoDelay
                                    ? 0.0f
                                    : juce::jlimit (0.0f, 1.0f, (heldSeconds - clampedVibratoDelay) / clampedVibratoDelay);
-    const auto vibratoCents = clampedVibratoDepth * vibratoEnvelope * std::sin (vibratoPhase);
+    const auto vibratoCents = clampedVibratoDepth > 0.0f && vibratoEnvelope > 0.0f
+                            ? clampedVibratoDepth * vibratoEnvelope * std::sin (vibratoPhase)
+                            : 0.0f;
     aftertouchPressure += (aftertouchPressureTarget - aftertouchPressure) * 0.0025f;
-    const auto aftertouchRatio = std::pow (2.0f, aftertouchPressure * aftertouchBendSemitones / 12.0f);
+    const auto aftertouchRatio = aftertouchPressure != 0.0f && aftertouchBendSemitones != 0.0f
+                               ? std::pow (2.0f, aftertouchPressure * aftertouchBendSemitones / 12.0f)
+                               : 1.0f;
     mpePitchBend += (mpePitchBendTarget - mpePitchBend) * 0.0065f;
-    const auto mpePitchRatio = std::pow (2.0f, mpePitchBend * mpePitchBendRange / 12.0f);
+    const auto mpePitchRatio = mpePitchBend != 0.0f && mpePitchBendRange != 0.0f
+                             ? std::pow (2.0f, mpePitchBend * mpePitchBendRange / 12.0f)
+                             : 1.0f;
     mpePressure += (mpePressureTarget - mpePressure) * 0.0030f;
     mpeTimbre += (mpeTimbreTarget - mpeTimbre) * 0.0035f;
     const auto expressionPressure = juce::jlimit (0.0f, 1.0f, mpePressure * juce::jlimit (0.0f, 1.0f, mpePressureAmount));
     const auto expressionTimbre = juce::jlimit (0.0f, 1.0f, mpeTimbre * juce::jlimit (0.0f, 1.0f, mpeTimbreAmount));
-    const auto pitchRatio = std::pow (2.0f, vibratoCents / 1200.0f)
-                          * getWhammyRatio (whammySemitones, whammySpread)
+    const auto vibratoRatio = vibratoCents != 0.0f ? std::pow (2.0f, vibratoCents / 1200.0f) : 1.0f;
+    const auto whammyRatio = whammySemitones != 0.0f ? getWhammyRatio (whammySemitones, whammySpread) : 1.0f;
+    const auto pitchRatio = vibratoRatio
+                          * whammyRatio
                           * aftertouchRatio
                           * mpePitchRatio;
 
@@ -710,35 +773,50 @@ float StringVoice::renderSample (float tailSustain,
         vibratoPhase -= twoPi;
 
     const auto feedbackAmount = juce::jlimit (0.0f, 1.0f, ampFeedback);
-    const auto feedbackDrive = std::pow (feedbackAmount, 1.45f);
-    const auto feedbackHowl = std::pow (juce::jlimit (0.0f, 1.0f, (feedbackAmount - 0.55f) / 0.45f), 1.20f);
-    const auto feedbackSustain = std::pow (juce::jlimit (0.0f, 1.0f, feedbackAmount / 0.72f), 1.30f);
     const auto loopAmount = juce::jlimit (0.0f, 1.0f, feedbackLoopAmount);
     const auto loopFrequency = juce::jlimit (20.0f, 6000.0f, feedbackLoopFrequency);
     const auto loopSignal = juce::jlimit (-1.0f, 1.0f, feedbackLoopSignal);
+    const auto stringFocus = juce::jlimit (0.0f, 1.0f, feedbackStringFocus);
+    const auto stringIsFocused = feedbackFocusedString >= 0 && stringIndex == feedbackFocusedString;
+    const auto loopStringScale = stringFocus <= 0.0001f
+                               ? 1.0f
+                               : stringIsFocused ? 1.0f + 1.40f * stringFocus
+                                                 : 1.0f - 0.88f * stringFocus;
+    const auto feedbackHasAmount = feedbackAmount > 0.0001f;
+    const auto loopActive = loopAmount > 0.0001f && feedbackLoopFrequency > 20.0f;
+    const auto feedbackActive = feedbackHasAmount || loopActive;
+    const auto feedbackDrive = feedbackHasAmount ? std::pow (feedbackAmount, 1.45f) : 0.0f;
+    const auto feedbackHowl = feedbackHasAmount
+                            ? std::pow (juce::jlimit (0.0f, 1.0f, (feedbackAmount - 0.55f) / 0.45f), 1.20f)
+                            : 0.0f;
+    const auto feedbackSustain = feedbackHasAmount
+                               ? std::pow (juce::jlimit (0.0f, 1.0f, feedbackAmount / 0.72f), 1.30f)
+                               : 0.0f;
     const auto loopInfluence = loopAmount * juce::jlimit (0.0f, 1.0f, (feedbackAmount - 0.34f) / 0.66f);
-    const auto localFeedbackScale = 1.0f - 0.70f * loopInfluence;
+    const auto localFeedbackScale = (1.0f - (0.70f + 0.22f * stringFocus) * loopInfluence)
+                                  * (1.0f - 0.45f * stringFocus);
     const auto feedbackRampSeconds = 1.10f - 0.78f * feedbackAmount;
-    const auto feedbackRise = feedbackAmount <= 0.0001f
-                            ? 0.0f
-                            : juce::jlimit (0.0f,
+    const auto feedbackRise = feedbackHasAmount
+                            ? juce::jlimit (0.0f,
                                             1.0f,
-                                            (heldSeconds - 0.10f) / juce::jmax (0.22f, feedbackRampSeconds));
+                                            (heldSeconds - 0.10f) / juce::jmax (0.22f, feedbackRampSeconds))
+                            : 0.0f;
     const auto feedbackReleaseScale = releasing ? 0.22f + 0.78f * feedbackHowl : 1.0f;
-    const auto feedbackFrequency = juce::jlimit (20.0f,
+    const auto feedbackFrequency = feedbackActive
+                                 ? juce::jlimit (20.0f,
                                                  8000.0f,
                                                  static_cast<float> (juce::MidiMessage::getMidiNoteInHertz (noteNumber))
-                                                     * pitchRatio);
+                                                     * pitchRatio)
+                                 : 1.0f;
     const auto feedbackEnergyGate = juce::jlimit (0.0f, 1.0f, energy / 0.0012f);
     const auto loopEnergyGate = juce::jlimit (0.08f, 1.0f, energy / 0.00075f);
     auto feedbackHowlOutput = 0.0f;
 
-    for (auto mode = 0; mode < modalCount; ++mode)
+    for (auto mode = 0; mode < activeModalCount; ++mode)
     {
         const auto modeIndex = static_cast<size_t> (mode);
-        const auto modePosition = static_cast<float> (mode) / static_cast<float> (modalCount - 1);
-        const auto highMode = std::pow (modePosition, 0.68f);
-        const auto lowMode = 1.0f - highMode;
+        const auto highMode = modalHighWeight[modeIndex];
+        const auto lowMode = modalLowWeight[modeIndex];
         const auto expressionModeGain = juce::jlimit (0.72f,
                                                       1.42f,
                                                       1.0f
@@ -746,9 +824,15 @@ float StringVoice::renderSample (float tailSustain,
                                                           + expressionTimbre * (0.24f * highMode - 0.045f * lowMode));
         modalOutput += modalAmplitude[modeIndex] * modalCosine[modeIndex] * expressionModeGain;
 
-        const auto phaseStep = modalPhaseStep[modeIndex] * pitchRatio;
-        const auto sinStep = std::sin (phaseStep);
-        const auto cosStep = std::cos (phaseStep);
+        auto sinStep = modalSinStep[modeIndex];
+        auto cosStep = modalCosStep[modeIndex];
+
+        if (pitchRatio != 1.0f)
+        {
+            const auto phaseStep = modalPhaseStep[modeIndex] * pitchRatio;
+            sinStep = std::sin (phaseStep);
+            cosStep = std::cos (phaseStep);
+        }
 
         const auto nextSine = modalSine[modeIndex] * cosStep + modalCosine[modeIndex] * sinStep;
         const auto nextCosine = modalCosine[modeIndex] * cosStep - modalSine[modeIndex] * sinStep;
@@ -761,44 +845,50 @@ float StringVoice::renderSample (float tailSustain,
         const auto baseEffectiveDecay = normalDecay + (relaxedDecay - normalDecay) * tailBlend;
         const auto pressureDecayLift = expressionPressure * (0.000045f + 0.000120f * highMode);
         const auto timbreDecayTilt = expressionTimbre * (0.000085f * highMode - 0.000030f * lowMode);
-        const auto modeFrequency = modalPhaseStep[modeIndex] * static_cast<float> (sampleRate) / twoPi;
-        const auto harmonicRatio = modeFrequency / feedbackFrequency;
-        const auto nearestHarmonic = juce::jlimit (1, 16, static_cast<int> (std::round (harmonicRatio)));
-        const auto harmonicDistance = std::abs (harmonicRatio - static_cast<float> (nearestHarmonic));
-        const auto harmonicLock = std::exp (-18.0f * harmonicDistance * harmonicDistance);
-        const auto sustainTargetWeight = nearestHarmonic == 1 ? 0.30f
-                                      : nearestHarmonic == 2 ? 1.00f
-                                      : nearestHarmonic == 3 ? 0.78f
-                                      : nearestHarmonic == 4 ? 0.58f
-                                      : nearestHarmonic == 5 ? 0.42f
-                                                              : 0.16f;
-        const auto howlTargetWeight = nearestHarmonic == 2 ? 0.90f
-                                   : nearestHarmonic == 3 ? 1.00f
-                                   : nearestHarmonic == 4 ? 0.78f
-                                   : nearestHarmonic == 5 ? 0.52f
-                                                           : 0.10f;
-        const auto feedbackWeight = harmonicLock
-                                  * (sustainTargetWeight * feedbackSustain + howlTargetWeight * feedbackHowl)
-                                  * feedbackRise
-                                  * feedbackReleaseScale
-                                  * feedbackEnergyGate
-                                  * localFeedbackScale;
+        auto feedbackWeight = 0.0f;
         auto loopWeight = 0.0f;
 
-        if (loopAmount > 0.0001f && feedbackLoopFrequency > 20.0f)
+        if (feedbackActive)
         {
-            const auto frequencyRatio = juce::jlimit (0.001f, 1000.0f, modeFrequency / loopFrequency);
-            const auto centsDistance = std::abs (1200.0f * std::log2 (frequencyRatio));
-            const auto loopLock = std::exp (-0.5f * (centsDistance / 118.0f) * (centsDistance / 118.0f));
-            const auto overtoneFavor = modeFrequency > feedbackFrequency * 1.35f
-                                     ? 1.0f
-                                     : 0.20f + 0.36f * loopAmount;
-            loopWeight = loopLock
-                       * loopAmount
-                       * loopEnergyGate
-                       * feedbackReleaseScale
-                       * overtoneFavor
-                       * (0.62f + 0.38f * std::abs (loopSignal));
+            const auto modeFrequency = modalFrequency[modeIndex];
+            const auto harmonicRatio = modeFrequency / feedbackFrequency;
+            const auto nearestHarmonic = juce::jlimit (1, 16, static_cast<int> (std::round (harmonicRatio)));
+            const auto harmonicDistance = std::abs (harmonicRatio - static_cast<float> (nearestHarmonic));
+            const auto harmonicLock = std::exp (-18.0f * harmonicDistance * harmonicDistance);
+            const auto sustainTargetWeight = nearestHarmonic == 1 ? 0.30f
+                                          : nearestHarmonic == 2 ? 1.00f
+                                          : nearestHarmonic == 3 ? 0.78f
+                                          : nearestHarmonic == 4 ? 0.58f
+                                          : nearestHarmonic == 5 ? 0.42f
+                                                                  : 0.16f;
+            const auto howlTargetWeight = nearestHarmonic == 2 ? 0.90f
+                                       : nearestHarmonic == 3 ? 1.00f
+                                       : nearestHarmonic == 4 ? 0.78f
+                                       : nearestHarmonic == 5 ? 0.52f
+                                                               : 0.10f;
+            feedbackWeight = harmonicLock
+                           * (sustainTargetWeight * feedbackSustain + howlTargetWeight * feedbackHowl)
+                           * feedbackRise
+                           * feedbackReleaseScale
+                           * feedbackEnergyGate
+                           * localFeedbackScale;
+
+            if (loopActive)
+            {
+                const auto frequencyRatio = juce::jlimit (0.001f, 1000.0f, modeFrequency / loopFrequency);
+                const auto centsDistance = std::abs (1200.0f * std::log2 (frequencyRatio));
+                const auto loopLock = std::exp (-0.5f * (centsDistance / 118.0f) * (centsDistance / 118.0f));
+                const auto overtoneFavor = modeFrequency > feedbackFrequency * 1.35f
+                                         ? 1.0f
+                                         : 0.20f + 0.36f * loopAmount;
+                loopWeight = loopLock
+                           * loopAmount
+                           * loopEnergyGate
+                           * feedbackReleaseScale
+                           * overtoneFavor
+                           * (0.62f + 0.38f * std::abs (loopSignal))
+                           * loopStringScale;
+            }
         }
 
         const auto feedbackDecayLift = feedbackDrive * feedbackWeight * (0.000010f + 0.000070f * feedbackHowl)
@@ -806,8 +896,7 @@ float StringVoice::renderSample (float tailSustain,
         const auto effectiveDecay = juce::jlimit (0.90f,
                                                   0.999999f,
                                                   baseEffectiveDecay + pressureDecayLift + timbreDecayTilt + feedbackDecayLift);
-        const auto modeWeight = 0.78f + 0.22f * modePosition;
-        const auto effectivePalmDecay = 1.0f + (palmDecay - 1.0f) * modeWeight;
+        const auto effectivePalmDecay = 1.0f + (palmDecay - 1.0f) * modalPalmWeight[modeIndex];
         modalAmplitude[modeIndex] *= effectiveDecay * modalReleaseDecay * effectivePalmDecay;
 
         if (feedbackWeight + loopWeight > 0.000001f)
@@ -1131,6 +1220,9 @@ void StringVoice::configureMode (int index, float frequency, float amplitude, fl
     const auto clampedIndex = static_cast<size_t> (juce::jlimit (0, modalCount - 1, index));
     const auto clampedFrequency = juce::jlimit (20.0f, static_cast<float> (sampleRate * 0.45), frequency);
     const auto step = 2.0f * 3.14159265358979323846f * clampedFrequency / static_cast<float> (sampleRate);
+    constexpr auto twoPi = 6.28318530717958647692f;
+    const auto modePosition = static_cast<float> (clampedIndex) / static_cast<float> (modalCount - 1);
+    const auto highWeight = std::pow (modePosition, 0.68f);
 
     modalSine[clampedIndex] = std::sin (phase);
     modalCosine[clampedIndex] = std::cos (phase);
@@ -1140,6 +1232,12 @@ void StringVoice::configureMode (int index, float frequency, float amplitude, fl
     modalAmplitude[clampedIndex] = amplitude;
     modalDecay[clampedIndex] = juce::jlimit (0.90f, 0.999999f, decay);
     modalTailDampingScale[clampedIndex] = juce::jlimit (0.05f, 1.0f, tailDampingScale);
+    modalModePosition[clampedIndex] = modePosition;
+    modalHighWeight[clampedIndex] = highWeight;
+    modalLowWeight[clampedIndex] = 1.0f - highWeight;
+    modalPalmWeight[clampedIndex] = 0.78f + 0.22f * modePosition;
+    modalFrequency[clampedIndex] = step * static_cast<float> (sampleRate) / twoPi;
+    activeModalCount = juce::jmax (activeModalCount, static_cast<int> (clampedIndex) + 1);
 }
 
 float StringVoice::getHarmonicTouchMask (int harmonic, int harmonicDivision, float harmonicAccuracy) const noexcept

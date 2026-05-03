@@ -19,6 +19,7 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     fingerNoiseParameter = parameters.getRawParameterValue (fingerNoiseParameterId);
     legatoArticulationParameter = parameters.getRawParameterValue (legatoArticulationParameterId);
     ampFeedbackParameter = parameters.getRawParameterValue (ampFeedbackParameterId);
+    feedbackReturnDistortedParameter = parameters.getRawParameterValue (feedbackReturnDistortedParameterId);
     vibratoSpeedParameter = parameters.getRawParameterValue (vibratoSpeedParameterId);
     vibratoDepthParameter = parameters.getRawParameterValue (vibratoDepthParameterId);
     vibratoDelayParameter = parameters.getRawParameterValue (vibratoDelayParameterId);
@@ -177,6 +178,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
             .withStringFromValueFunction (percentString)
             .withValueFromStringFunction (percentValue)));
 
+    layout.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { feedbackReturnDistortedParameterId, 1 },
+        "Feedback Return Distorted",
+        true));
+
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { vibratoSpeedParameterId, 1 },
         "Vibrato Speed",
@@ -290,7 +296,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
     layout.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { pickupModelParameterId, 1 },
         "Pickup Model",
-        juce::StringArray { "Single Coil", "Humbucker", "Humbucker OOP" },
+        juce::StringArray { "Single Coil", "Humbucker", "Singles OOP" },
         0));
 
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
@@ -381,6 +387,8 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setFingerNoise (fingerNoiseParameter != nullptr ? fingerNoiseParameter->load() : 0.0f);
     audioEngine.setLegatoArticulation (legatoArticulationParameter != nullptr ? legatoArticulationParameter->load() : 0.0f);
     audioEngine.setAmpFeedback (ampFeedbackParameter != nullptr ? ampFeedbackParameter->load() : 0.0f);
+    audioEngine.setFeedbackReturnDistorted (feedbackReturnDistortedParameter != nullptr
+                                            && feedbackReturnDistortedParameter->load() >= 0.5f);
     audioEngine.setVibratoSpeed (vibratoSpeedParameter != nullptr ? vibratoSpeedParameter->load() : 5.5f);
     audioEngine.setVibratoDepth (vibratoDepthParameter != nullptr ? vibratoDepthParameter->load() : 0.0f);
     audioEngine.setVibratoDelay (vibratoDelayParameter != nullptr ? vibratoDelayParameter->load() : 0.0f);
