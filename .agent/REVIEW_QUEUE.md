@@ -6,11 +6,10 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Verify the `StringVoice EG-061 RenderHelpers` maintainability pass in `.agent/handoffs/20260509-144110-codex-render-helpers.md`.
-- Decide which remaining optimization target should come next:
-  - profiler-backed investigation,
-  - manual DAW listening for the recent expression/contact changes,
-  - or pausing the optimization cycle as complete for now.
+- Human DAW/VST3 listening for the accepted optimization cycle:
+  - follow `.agent/handoffs/20260509-162331-codex-human-daw-listening.md`,
+  - use Bitwig or Live,
+  - report host, sample rate, buffer size, amp-sim chain, listening acceptance, audible artifacts, and any CPU regressions.
 
 Known limitations:
 
@@ -19,10 +18,11 @@ Known limitations:
 - Antigravity accepted the 8-sample feedback weight cache as-is, but DAW listening can still sanity-check feedback feel later.
 - Feedback-loop `tanh` approximation was tested and rejected for now because it did not provide meaningful speedup.
 - Antigravity accepted the contact-local sine approximation as-is, but manual listening can still sanity-check pick scrape, coin edge, heavy pick rasp, hammer-on/tap impact, and pull-off snap.
-- EG-061 is intended to be behavior-neutral and matched EG-060 audio sample data exactly in local offline renders.
+- Antigravity accepted EG-061 and recommended ending the code-level optimization cycle.
+- EG-061 is behavior-neutral and matched EG-060 audio sample data exactly in local offline renders.
 - Any future Windows PC machine handle still needs human confirmation before a cross-machine handoff.
 
 Questions:
 
-- Are the new `renderSample` helper boundaries clear and narrow enough to keep?
-- Should the next step be profiler-backed investigation, manual listening, or ending the optimization cycle for now?
+- Does manual DAW listening accept the EG-058 through EG-061 optimization cycle?
+- Are there any audible artifacts or DAW CPU regressions that justify profiler-backed follow-up?

@@ -30,6 +30,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Replaced contact/gesture transient sine calls with a contact-local fast sine approximation and replaced the contact burr `pow(abs(sin), 7)` with explicit multiplication.
 - Changed the model label to `StringVoice EG-061 RenderHelpers`.
 - Extracted `StringVoice::renderSample` modal-bank, pick-transient, and contact-layer stages into helper functions without changing rendered audio sample data.
+- Documented Antigravity acceptance of EG-061, closed the code-level optimization cycle, and added a human DAW/VST3 listening handoff.
 
 ### Fixed
 

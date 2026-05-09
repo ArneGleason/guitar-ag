@@ -71,6 +71,15 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Output does not clip by default.
 - [ ] Tone is useful through an external amp sim.
 
+## EG-061 Optimization Listening Checks
+
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-061 RenderHelpers`.
+- [ ] MPE bends, whammy bends, vibrato, and aftertouch bend are smooth and do not audibly step.
+- [ ] High `Amp Feedback` still blooms naturally and preserves picked attacks before harmonic takeover.
+- [ ] Pick scrape, coin edge, heavy pick rasp, hammer-on/tap impact, and pull-off snap remain natural.
+- [ ] With `Lookahead` at 150 ms or 250 ms, delayed notes stay aligned with pitch wheel, mod wheel/CC1, channel pressure, CC74, and key/poly aftertouch.
+- [ ] Dense strums, high feedback, and MPE audition sections do not show concerning DAW CPU spikes.
+
 ## Pickup Checks
 
 - [ ] `Single Coil` remains narrow and bright.
