@@ -930,7 +930,7 @@ float StringVoice::renderSample (float tailSustain,
         if (pickHeavyPhase > 6.28318530717958647692f)
             pickHeavyPhase -= 6.28318530717958647692f;
 
-        const auto ring = std::sin (pickContactPhase) + 0.32f * std::sin (pickContactPhase * 2.37f);
+        const auto ring = fastContactSin (pickContactPhase) + 0.32f * fastContactSin (pickContactPhase * 2.37f);
         auto grind = 0.0f;
 
         if (pickGrindAmount > 0.000001f)
@@ -942,9 +942,9 @@ float StringVoice::renderSample (float tailSustain,
                 pickSlipImpulse += pickGrindAmount * (0.45f + 0.55f * nextNoiseSample());
             }
 
-            const auto grindTone = std::sin (pickGrindPhase)
-                                 + 0.27f * std::sin (pickGrindPhase * 1.91f)
-                                 + 0.15f * std::sin (pickGrindPhase * 3.07f);
+            const auto grindTone = fastContactSin (pickGrindPhase)
+                                 + 0.27f * fastContactSin (pickGrindPhase * 1.91f)
+                                 + 0.15f * fastContactSin (pickGrindPhase * 3.07f);
             grind = pickSlipImpulse * grindTone;
             pickSlipImpulse *= pickSlipDecay;
             pickGrindAmount *= pickGrindDecay;
@@ -959,13 +959,13 @@ float StringVoice::renderSample (float tailSustain,
             {
                 const auto intervalSeconds = 0.00011f + 0.00046f * (0.5f + 0.5f * nextNoiseSample());
                 pickCoinCountdown = juce::jmax (1, static_cast<int> (sampleRate * intervalSeconds));
-                pickCoinImpulse += pickCoinAmount * (0.58f + 0.42f * std::abs (std::sin (pickCoinPhase * 0.43f + nextNoiseSample())));
+                pickCoinImpulse += pickCoinAmount * (0.58f + 0.42f * std::abs (fastContactSin (pickCoinPhase * 0.43f + nextNoiseSample())));
             }
 
-            const auto ridge = std::tanh (3.2f * (std::sin (pickCoinPhase)
-                                                + 0.42f * std::sin (pickCoinPhase * 2.13f)
-                                                + 0.25f * std::sin (pickCoinPhase * 3.71f)));
-            const auto burr = std::pow (std::abs (std::sin (pickCoinPhase * 0.5f)), 7.0f);
+            const auto ridge = std::tanh (3.2f * (fastContactSin (pickCoinPhase)
+                                                + 0.42f * fastContactSin (pickCoinPhase * 2.13f)
+                                                + 0.25f * fastContactSin (pickCoinPhase * 3.71f)));
+            const auto burr = fastAbsSeventhPower (fastContactSin (pickCoinPhase * 0.5f));
             coin = pickCoinImpulse * (0.72f * ridge + 0.28f * burr * contactScratch);
             pickCoinImpulse *= pickCoinImpulseDecay;
             pickCoinAmount *= pickCoinDecay;
@@ -976,12 +976,12 @@ float StringVoice::renderSample (float tailSustain,
 
         if (pickHeavyAmount > 0.000001f)
         {
-            const auto ridgeCarrier = std::sin (pickHeavyPhase)
-                                    + 0.34f * std::sin (pickHeavyPhase * 0.47f + 1.20f)
-                                    + 0.21f * std::sin (pickHeavyPhase * 1.63f);
-            const auto ridgeTeeth = std::tanh (5.8f * (std::sin (pickHeavyPhase * 5.0f + 0.55f * ridgeCarrier)
-                                                     + 0.24f * std::sin (pickHeavyPhase * 8.0f)));
-            const auto pressure = 0.72f + 0.28f * std::sin (pickHeavyPhase * 0.17f + 0.80f);
+            const auto ridgeCarrier = fastContactSin (pickHeavyPhase)
+                                    + 0.34f * fastContactSin (pickHeavyPhase * 0.47f + 1.20f)
+                                    + 0.21f * fastContactSin (pickHeavyPhase * 1.63f);
+            const auto ridgeTeeth = std::tanh (5.8f * (fastContactSin (pickHeavyPhase * 5.0f + 0.55f * ridgeCarrier)
+                                                     + 0.24f * fastContactSin (pickHeavyPhase * 8.0f)));
+            const auto pressure = 0.72f + 0.28f * fastContactSin (pickHeavyPhase * 0.17f + 0.80f);
             const auto raspTarget = pressure * ridgeCarrier * ridgeTeeth;
             pickHeavyRaspState += 0.24f * (raspTarget - pickHeavyRaspState);
             pickHeavyBodyState += 0.045f * (pickHeavyRaspState - pickHeavyBodyState);
@@ -1007,9 +1007,9 @@ float StringVoice::renderSample (float tailSustain,
         if (fingerImpactPhase > 6.28318530717958647692f)
             fingerImpactPhase -= 6.28318530717958647692f;
 
-        const auto impactTone = std::sin (fingerImpactPhase)
-                              + 0.30f * std::sin (fingerImpactPhase * 2.18f)
-                              + 0.14f * std::sin (fingerImpactPhase * 3.70f);
+        const auto impactTone = fastContactSin (fingerImpactPhase)
+                              + 0.30f * fastContactSin (fingerImpactPhase * 2.18f)
+                              + 0.14f * fastContactSin (fingerImpactPhase * 3.70f);
         contactOutput += softClip (fingerImpact * (0.68f * impactTone + 0.32f * impactScratch));
         fingerImpact *= fingerImpactDecay;
     }
@@ -1019,8 +1019,8 @@ float StringVoice::renderSample (float tailSustain,
         const auto rawRelease = nextNoiseSample();
         const auto releaseScratch = rawRelease - previousGestureNoise * 0.78f;
         previousGestureNoise = rawRelease;
-        const auto sidewaysPulse = std::sin (0.37f * static_cast<float> (samplesSinceStart + 1))
-                                 + 0.45f * std::sin (0.19f * static_cast<float> (samplesSinceStart + 5));
+        const auto sidewaysPulse = fastContactSin (0.37f * static_cast<float> (samplesSinceStart + 1))
+                                 + 0.45f * fastContactSin (0.19f * static_cast<float> (samplesSinceStart + 5));
         contactOutput += softClip (pullOffSnap * (0.52f * releaseScratch + 0.48f * sidewaysPulse));
         pullOffSnap *= pullOffSnapDecay;
     }
@@ -1189,6 +1189,28 @@ float StringVoice::processMovingResonance (float input) noexcept
 float StringVoice::softClip (float value) const noexcept
 {
     return std::tanh (value);
+}
+
+float StringVoice::fastContactSin (float phase) noexcept
+{
+    constexpr auto pi = 3.14159265358979323846f;
+    constexpr auto twoPi = 6.28318530717958647692f;
+
+    while (phase > pi)
+        phase -= twoPi;
+
+    while (phase < -pi)
+        phase += twoPi;
+
+    const auto shaped = 1.27323954473516f * phase - 0.405284734569351f * phase * std::abs (phase);
+    return 0.225f * (shaped * std::abs (shaped) - shaped) + shaped;
+}
+
+float StringVoice::fastAbsSeventhPower (float value) noexcept
+{
+    const auto magnitude = std::abs (value);
+    const auto squared = magnitude * magnitude;
+    return squared * squared * squared * magnitude;
 }
 
 void StringVoice::configureMode (int index, float frequency, float amplitude, float decay, float phase, float tailDampingScale) noexcept

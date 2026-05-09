@@ -107,6 +107,8 @@ private:
                                     float loopAmount,
                                     float feedbackFrequency,
                                     float loopFrequency) noexcept;
+    [[nodiscard]] static float fastContactSin (float phase) noexcept;
+    [[nodiscard]] static float fastAbsSeventhPower (float value) noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
     std::array<float, maxDelaySamples> secondaryDelayLine {};

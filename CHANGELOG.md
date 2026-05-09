@@ -26,6 +26,8 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Changed the model label to `StringVoice EG-059 FeedbackWeightCache`.
 - Cached high-feedback per-mode harmonic/loop weights at an 8-sample control interval while preserving per-sample feedback gates and injection.
 - Documented Antigravity acceptance of the EG-059 feedback weight cache and Codex's rejected feedback-loop `tanh` approximation experiment.
+- Changed the model label to `StringVoice EG-060 ContactTrigFast`.
+- Replaced contact/gesture transient sine calls with a contact-local fast sine approximation and replaced the contact burr `pow(abs(sin), 7)` with explicit multiplication.
 
 ### Fixed
 
@@ -36,4 +38,4 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 ### Deferred
 
 - Deferred feedback-loop `std::tanh` approximation after local candidates failed to produce a meaningful speedup.
-- Deferred contact/pick transient math or modal/contact maintainability to the next optimization routing decision.
+- Deferred contact transient `std::tanh` replacement and modal/contact maintainability to later profiler-backed work.

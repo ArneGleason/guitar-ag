@@ -223,3 +223,30 @@ Conclusion:
 - Keep exact `std::tanh` in the global feedback loop for now.
 - The approximation does not create a meaningful CPU win on the local offline renderer.
 - The next optimization should target contact/pick transient math, modal/contact render maintainability, or a dedicated profiler-backed pass.
+
+## 2026-05-09 Contact Trig Fast Path
+
+Antigravity verified the rejected feedback-loop `tanh` experiment and cleared Codex to target contact/pick transient math.
+
+Implementation notes:
+
+- Added a contact-local sine approximation for transient-only pick/gesture tones in `StringVoice::renderSample`.
+- Replaced the contact burr `std::pow(abs(sin), 7)` with explicit multiplication.
+- Kept exact `std::tanh` in the contact ridge/soft-clip path because the earlier feedback-loop approximation showed that tanh swaps need profiler evidence.
+- Left note-start physical string initialization, modal rendering, MPE pitch modulation, and feedback weight caching unchanged.
+- The visible model label is now `StringVoice EG-060 ContactTrigFast`.
+
+Local validation:
+
+- `cmake --build build --config Release --target GuitarAGOfflineRender`
+- Contact-heavy player-articulation render with `Pick Texture` 100%, `Pick Stiffness` 100%, `Finger Noise` 60%, and feedback off: 35.965x baseline to 38.020x optimized in local sequential runs. Max block time fell from 1.705 ms to 0.671 ms in those runs.
+- Default player-articulation render with feedback off: 43.446x baseline to 43.705x optimized in one local run.
+- Player-articulation render with `Amp Feedback` 100%: 30.445x baseline to 30.103x optimized in one local run.
+- Default player-articulation WAV difference: about 0.0012% relative RMS.
+- High-feedback player-articulation WAV difference: about 0.0012% relative RMS.
+- Heavy contact WAV difference: about 0.060% relative RMS.
+
+Follow-up:
+
+- Manual listening should confirm pick scrape, coin edge, heavy pick rasp, hammer-on/tap impact, and pull-off snap remain natural.
+- A later maintainability pass should consider splitting the modal and contact render branches into smaller helpers after the performance profile settles.

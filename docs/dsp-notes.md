@@ -1471,6 +1471,29 @@ Measured offline render checks:
 
 Manual listening should confirm that high-feedback bloom, string focus, and harmonic takeover still feel natural.
 
+## 2026-05-09 — EG-060 Contact Trig Fast Path
+
+Optimized the transient contact and gesture layer after Antigravity accepted the EG-059 feedback weight cache and agreed that speculative feedback-loop `tanh` replacement should stay rejected.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-060 ContactTrigFast`.
+- `StringVoice::renderSample` uses a contact-local sine approximation for pick-contact ring, grind, coin, heavy-pick, finger-impact, and pull-off transient tones.
+- The contact burr term now computes `abs(sin)^7` with explicit multiplications instead of `std::pow`.
+- Exact `std::tanh` remains in the contact soft-clip/ridge path and in the global feedback loop.
+- The modal string path, MPE pitch path, and feedback weight cache are unchanged.
+
+Measured offline render checks:
+
+- Player-articulation MIDI with `Pick Texture` 100%, `Pick Stiffness` 100%, `Finger Noise` 60%, and `Amp Feedback` 0%: 35.965x to 38.020x realtime in local sequential runs. Max block time fell from 1.705 ms to 0.671 ms in those runs.
+- Player-articulation MIDI, default pick/contact settings and `Amp Feedback` 0%: 43.446x baseline to 43.705x realtime in one local run.
+- Player-articulation MIDI, `Amp Feedback` 100%: 30.445x baseline to 30.103x realtime in one local run.
+- Heavy contact render difference against EG-059: about 0.060% relative RMS.
+- Default player-articulation render difference against EG-059: about 0.0012% relative RMS.
+- High-feedback player-articulation render difference against EG-059: about 0.0012% relative RMS.
+
+Manual listening should focus on pick scrape, coin edge, heavy pick rasp, hammer-on/tap impact, and pull-off snap. The intentionally exaggerated pick-contact render changes more than default playing because it drives the newly approximated transient tones hardest.
+
 ## Suggested MVP Signal Flow
 
 ```text
