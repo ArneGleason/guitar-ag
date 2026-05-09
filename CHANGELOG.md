@@ -17,6 +17,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
   - `.agent/workflows/`
 - Added human-routed handoff notes for the first Antigravity baseline code review and Codex review-fix response.
 - Added `plans/0064-slide-gesture-notation.md` to define the slide/glissando research, DAW authoring model, and phased implementation path for single-note, chord-shape, throw, and slide-out gestures.
+- Added `scripts/create-slide-gesture-midi.py` and `tests/midi/guitar-ag-slide-gesture-audition.mid` for phase-1 slide gesture auditioning with current MPE pitch-bend behavior.
 
 ### Changed
 
@@ -34,6 +35,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Documented Antigravity acceptance of EG-061, closed the code-level optimization cycle, and added a human DAW/VST3 listening handoff.
 - Documented the first human DAW/VST3 listening result: EG-061 sounds the same, shows the expected UI header, and has visible but modest DAW performance improvement.
 - Documented how the slide plan should coexist with existing MPE pitch-bend and CC74/timbre behavior.
+- Updated the slide plan and audition docs to separate the current duplicated-MPE chord-slide proxy from the future global `Slide Offset` automation lane.
 
 ### Fixed
 

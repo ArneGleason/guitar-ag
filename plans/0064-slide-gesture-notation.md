@@ -90,13 +90,14 @@ Useful curve idioms:
 ### Phase 1 - Planning And Audition Assets
 
 - Keep this plan as the implementation source of truth.
-- Add a scripted slide audition MIDI file once the first parameter/control exists.
+- Add a scripted slide audition MIDI file for the current MPE-capable slide subset.
+- Extend that audition workflow with a true global `Slide Offset` automation test once the first slide parameter/control exists.
 - Include at least:
   - single held-note MPE slide to target,
   - single held-note slide throw up and back,
-  - triad or power-chord shift slide using global `Slide Offset` automation in a DAW test,
+  - triad or power-chord shift slide using duplicated MPE curves now, then global `Slide Offset` automation in a DAW test after Phase 2,
   - slide-out release with muted tail,
-  - MPE pitch bend layered with global slide offset.
+  - MPE pitch bend layered with pressure/CC74 now, then global slide offset after Phase 2.
 
 ### Phase 2 - Playback MVP
 
@@ -191,4 +192,10 @@ New checks:
 
 ## Completion Notes
 
-Not started. This is the research and planning artifact for the next implementation cycle.
+Phase 1 started on 2026-05-09.
+
+- Added `scripts/create-slide-gesture-midi.py`.
+- Generated `tests/midi/guitar-ag-slide-gesture-audition.mid`.
+- Documented the segment map and offline render command in `docs/audition-midi.md`.
+- The current audition file covers MPE pitch-bend slide-to, slide-in, slide throw, slide-out, independent chord-note slide, a duplicated-MPE chord-slide proxy, and pitch slide layered with pressure/CC74.
+- True one-lane chord-shape slide automation remains blocked on Phase 2 because the global `Slide Offset` parameter does not exist yet.

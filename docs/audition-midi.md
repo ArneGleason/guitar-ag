@@ -56,17 +56,49 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
 
 The offline render is useful for a quick sanity check, but the DAW audition is still the better test for imported MIDI-channel behavior, plugin parameters, and host MPE handling.
 
-## Planned Slide Gesture Audition
+## Slide Gesture Audition MIDI
 
-`plans/0064-slide-gesture-notation.md` defines the next slide-authoring direction.
+`tests/midi/guitar-ag-slide-gesture-audition.mid` focuses on the phase-1 slide-authoring workflow from `plans/0064-slide-gesture-notation.md`.
 
-Once a slide playback control exists, add a generated audition file or DAW test note that covers:
+Suggested plugin setup:
 
-- single-note MPE pitch-bend slides to a target note,
-- fast slide throws up and back,
-- slide-out releases into a muted tail,
-- chord-shape slides using one global `Slide Offset` automation curve,
-- global slide offset layered with per-note MPE pitch bend.
+- `MPE Mode`: On
+- `MPE Bend Range`: `48.0 st`
+- `MPE Pressure Amount`: nonzero for the final expression-layering section
+- `MPE CC74 Amount`: nonzero for the final expression-layering section
+
+At 100 BPM:
+
+- Bar 2: single held-note `Slide To` using MPE pitch bend.
+- Bar 7: slide-ins from indefinite lower and upper approach pitches.
+- Bar 10: slide throw up, back, below, and back to center.
+- Bar 16: descending and ascending slide-outs before release.
+- Bar 22: independent MPE chord slide where only the top note moves.
+- Bar 28: manual chord-slide proxy, with matching MPE pitch curves on all chord tones. This stands in for the future one-lane `Slide Offset` control.
+- Bar 35: slide plus pressure/CC74 expression layering. Pressure and CC74 are not guitar slide; this checks that they can coexist with pitch slides.
+
+Regenerate it with:
+
+```bash
+scripts/create-slide-gesture-midi.py
+```
+
+Offline render example:
+
+```bash
+build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
+  --midi tests/midi/guitar-ag-slide-gesture-audition.mid \
+  --output build/diagnostics/guitar-ag-slide-gesture-audition.wav \
+  --sample-rate 48000 \
+  --block-size 512 \
+  --tail-seconds 3.0 \
+  --mpe-mode 1 \
+  --mpe-bend-range 48 \
+  --mpe-pressure-amount 1.0 \
+  --mpe-cc74-amount 1.0
+```
+
+This file intentionally does not contain host plugin automation. The chord-slide section duplicates MPE pitch curves on each member channel until the planned global `Slide Offset` parameter exists.
 
 ## Offline Performance Report
 
