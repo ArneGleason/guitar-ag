@@ -25,10 +25,33 @@ Use **MPE**, not MPC.
 
 MPE means MIDI Polyphonic Expression. It is required for independent per-note pitch bend and expression.
 
+## Studio Pattern
+
+This project uses the Studio Pattern for lead/reviewer handoffs and multi-machine project memory.
+
+- Version/date: 2026-05-09 initial canonical scaffold
+- Source repository: `the-studio-pattern`
+- Source commit: `5624928215232b7b82702929a7b9f8f11f19fd5d`
+- Source URL: `https://github.com/ArneGleason/the-studio-pattern`
+- License: CC BY-SA 4.0
+- Local adaptation: keep the guitar-specific engineering rules in this file authoritative, and add lightweight `.agent/` memory surfaces for review cycles, handoffs, and cross-machine state.
+
+Studio Pattern memory lives in:
+
+- `LOCAL_DEV_NOTES.md` — local commands, setup, validation, and workflow notes
+- `.agent/PROJECT_LOG.md` — durable project events and Studio Pattern adoption notes
+- `.agent/REVIEW_QUEUE.md` — known risks and suggested reviewer focus
+- `.agent/session.json` — latest machine-readable session state
+- `.agent/handoffs/` — human-readable lead/reviewer or machine handoffs
+- `.agent/workflows/` — short resume, suspend, and cross-project feedback recipes
+
 ## Core Documents
 
 Read these before making major changes:
 
+- `LOCAL_DEV_NOTES.md` — Studio Pattern local workflow memory
+- `.agent/PROJECT_LOG.md` — Studio Pattern project log
+- `.agent/REVIEW_QUEUE.md` — Studio Pattern reviewer focus queue
 - `PROJECT.md` — plain-language project direction
 - `docs/requirements.md` — product requirements
 - `docs/architecture.md` — preferred architecture and component boundaries
@@ -113,6 +136,10 @@ When DSP behavior changes, update `docs/dsp-notes.md`.
 When MPE behavior changes, update `docs/mpe-behavior.md`.
 
 When starting a larger task, create or update a file in `plans/`.
+
+When handing work to a reviewer agent or another machine, update `.agent/session.json` and create a concise note under `.agent/handoffs/`.
+
+When this project teaches a reusable Studio Pattern lesson, record the local evidence first, then send a cross-project feedback block using `.agent/workflows/cross-project-feedback.md`.
 
 ## Human Verification
 
