@@ -1449,6 +1449,28 @@ Measured offline render checks:
 
 The MPE feature render changes at waveform level because pitch modulation is now control-rate; the 4-sample interval measured about 0.74% relative RMS difference against the previous per-sample render. Manual listening and DAW MPE checks should decide whether this is perceptually transparent enough.
 
+## 2026-05-09 — EG-059 Feedback Weight Cache
+
+Optimized the high-feedback modal branch after Antigravity verified EG-058 and cleared the next pass.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-059 FeedbackWeightCache`.
+- Each `StringVoice` caches per-mode feedback harmonic weights and loop-lock weights at an 8-sample control interval when feedback is active.
+- The cache moves expensive harmonic-lock and loop-lock calculations, including `round`, `exp`, and `log2`, out of the per-mode/per-sample inner loop.
+- Per-sample energy gates, feedback rise, release scaling, loop signal scaling, modal decay, and feedback injection remain per-sample.
+- The exact global feedback-loop `std::tanh` saturation remains unchanged.
+- A first attempted global feedback scalar cache was measured and discarded because it did not improve local high-feedback render speed.
+
+Measured offline render checks:
+
+- Player-articulation MIDI, `Amp Feedback` 100%, before/after: 17.768x to 29.543x realtime in one local run.
+- Feature-audition MIDI with MPE enabled and `Amp Feedback` 100%, before/after: 9.315x to 19.648x realtime in one local run.
+- Player-articulation MIDI, `Amp Feedback` 0%, sample data stayed identical against the EG-058 no-feedback render.
+- High-feedback render sample differences were small in the local WAV comparison: about 0.0015% relative RMS for player-articulation and 0.0199% relative RMS for feature-audition.
+
+Manual listening should confirm that high-feedback bloom, string focus, and harmonic takeover still feel natural.
+
 ## Suggested MVP Signal Flow
 
 ```text

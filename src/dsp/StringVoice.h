@@ -73,6 +73,7 @@ private:
     static constexpr auto resonanceCount = 3;
     static constexpr auto modalCount = 96;
     static constexpr auto pitchControlUpdateInterval = 4;
+    static constexpr auto feedbackControlUpdateInterval = 8;
 
     float nextNoiseSample() noexcept;
     void updateDamping() noexcept;
@@ -100,6 +101,12 @@ private:
                             float aftertouchBendSemitones,
                             float mpePitchBendRange) noexcept;
     void updatePitchStepCache (float pitchRatio) noexcept;
+    void updateFeedbackWeightCache (bool feedbackHasAmount,
+                                    bool loopActive,
+                                    float feedbackAmount,
+                                    float loopAmount,
+                                    float feedbackFrequency,
+                                    float loopFrequency) noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
     std::array<float, maxDelaySamples> secondaryDelayLine {};
@@ -118,6 +125,8 @@ private:
     std::array<float, modalCount> modalLowWeight {};
     std::array<float, modalCount> modalPalmWeight {};
     std::array<float, modalCount> modalFrequency {};
+    std::array<float, modalCount> modalFeedbackWeight {};
+    std::array<float, modalCount> modalLoopWeight {};
 
     double sampleRate = 44100.0;
     int delayLength = 1;
@@ -209,11 +218,14 @@ private:
     float mpePitchBend = 0.0f;
     float mpePitchBendTarget = 0.0f;
     float cachedPitchRatio = 1.0f;
+    float cachedFeedbackDrive = 0.0f;
+    float cachedFeedbackHowl = 0.0f;
     float mpePressure = 0.0f;
     float mpePressureTarget = 0.0f;
     float mpeTimbre = 0.0f;
     float mpeTimbreTarget = 0.0f;
     int pitchControlSamplesUntilUpdate = 0;
+    int feedbackControlSamplesUntilUpdate = 0;
 
     uint32_t randomState = 0x12345678u;
 

@@ -23,6 +23,8 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Updated MPE and test documentation to describe normal MIDI pressure/CC74 fallback and lookahead expression sync checks.
 - Changed the model label to `StringVoice EG-058 PitchControlRate`.
 - Moved pitch-modulation ratio and adjusted modal phase-step recalculation to a 4-sample control interval while keeping expression smoothing per-sample.
+- Changed the model label to `StringVoice EG-059 FeedbackWeightCache`.
+- Cached high-feedback per-mode harmonic/loop weights at an 8-sample control interval while preserving per-sample feedback gates and injection.
 
 ### Fixed
 
@@ -32,4 +34,4 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Deferred
 
-- Deferred remaining feedback-loop `std::tanh`/scalar math and contact transient math candidates to a later optimization pass.
+- Deferred feedback-loop `std::tanh` approximation and contact transient math candidates to a later optimization pass.

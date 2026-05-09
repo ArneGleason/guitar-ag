@@ -167,3 +167,32 @@ Follow-up:
 
 - Manual DAW listening should confirm MPE bends, whammy, vibrato, and aftertouch bend remain smooth.
 - A later pass can still address feedback-loop `tanh` and feedback scalar math if profiling shows it matters.
+
+## 2026-05-09 Feedback Weight Cache Pass
+
+Antigravity verified the 4-sample pitch control-rate pass and cleared Codex to target feedback-loop math next.
+
+Implementation notes:
+
+- Tested a global feedback scalar cache first, then discarded it because it slightly worsened local high-feedback render speed and changed voice-sample counts.
+- Added an 8-sample feedback control interval inside `StringVoice`.
+- Cached per-mode feedback harmonic weights and loop-lock weights when feedback is active.
+- Moved expensive `round`, `exp`, and `log2` work out of the per-mode/per-sample feedback inner loop.
+- Kept per-sample energy gates, feedback rise, release scaling, loop signal scaling, modal decay, and feedback injection.
+- Left exact global feedback-loop `std::tanh` saturation unchanged.
+- The visible model label is now `StringVoice EG-059 FeedbackWeightCache`.
+
+Local validation:
+
+- `cmake --build build --config Release --target GuitarAG_VST3`
+- `cmake --build build --config Release --target GuitarAGOfflineRender`
+- Player-articulation MIDI, `Amp Feedback` 100%: 17.768x baseline to 29.543x optimized in one local run.
+- Feature-audition MIDI with MPE enabled and `Amp Feedback` 100%: 9.315x baseline to 19.648x optimized in one local run.
+- Player-articulation MIDI, `Amp Feedback` 0%: audio sample data remained identical to the EG-058 no-feedback render.
+- High-feedback player-articulation WAV difference: about 0.0015% relative RMS.
+- High-feedback feature-audition WAV difference: about 0.0199% relative RMS.
+
+Follow-up:
+
+- Manual DAW listening should confirm feedback bloom, string focus, and harmonic takeover still feel natural.
+- A later pass can still evaluate fast or approximate `tanh`, but only with explicit listening checks because it directly changes feedback saturation tone.

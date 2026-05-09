@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(JUCE_PATH "" CACHE PATH "Optional path to a local JUCE checkout")
-set(GUITAR_AG_MODEL_LABEL "StringVoice EG-058 PitchControlRate")
+set(GUITAR_AG_MODEL_LABEL "StringVoice EG-059 FeedbackWeightCache")
 
 find_package(Git QUIET)
 
