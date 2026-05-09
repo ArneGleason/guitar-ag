@@ -96,6 +96,7 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] `Lookahead` Off feels immediate for live playing.
 - [ ] `Lookahead` 150 ms and 250 ms report latency to the DAW.
 - [ ] In a DAW render, compensated note onsets still line up with the MIDI grid.
+- [ ] With `Lookahead` enabled, pitch wheel, mod wheel, channel pressure, CC74, and key/poly aftertouch remain aligned with the delayed notes.
 - [ ] `Finger Noise` at 0% is silent or effectively inaudible.
 - [ ] `Finger Noise` at high values creates audible approach/release noises before notes when lookahead is enabled.
 - [ ] Changing `Lookahead` may require transport restart or plugin reload in some hosts; verify the host updates latency compensation.
@@ -150,7 +151,8 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Raising `MPE CC74 Amount` makes CC74 brighten/shift only the matching voice.
 - [ ] In an MPE chord, pressure on one member channel changes only the note on that channel.
 - [ ] In an MPE chord, CC74 on one member channel changes only the note on that channel.
-- [ ] In normal MIDI mode, channel pressure and CC74 remain playable as channel-scoped/global expression when all notes share one channel.
+- [ ] In normal MIDI mode, channel pressure and CC74 apply globally to all active voices.
+- [ ] Toggling `MPE Mode` clears stale per-channel pitch bend, pressure, and CC74 state.
 
 ## Feature Audition MIDI Checks
 

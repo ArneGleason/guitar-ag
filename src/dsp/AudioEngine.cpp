@@ -16,6 +16,23 @@ constexpr std::array<float, 8> feedbackBandBias {
 };
 
 constexpr auto lowerMpeMasterChannel = 1;
+
+bool shouldDelayForLookahead (const juce::MidiMessage& message) noexcept
+{
+    if (message.isNoteOnOrOff()
+        || message.isAftertouch()
+        || message.isChannelPressure()
+        || message.isPitchWheel())
+        return true;
+
+    if (message.isController())
+    {
+        const auto controllerNumber = message.getControllerNumber();
+        return controllerNumber == 1 || controllerNumber == 74;
+    }
+
+    return false;
+}
 } // namespace
 
 void AudioEngine::prepare (double newSampleRate, int, int)
@@ -234,13 +251,15 @@ void AudioEngine::setMpeEnabled (bool enabled) noexcept
         return;
 
     mpeEnabled = enabled;
+    mpePitchBendByChannel.fill (0.0f);
+    mpePressureByChannel.fill (0.0f);
+    mpeTimbreByChannel.fill (0.0f);
 
-    if (! mpeEnabled)
+    for (auto& voice : voices)
     {
-        mpePitchBendByChannel.fill (0.0f);
-
-        for (auto& voice : voices)
-            voice.setMpePitchBend (voice.getChannel(), 0.0f);
+        voice.setMpePitchBend (voice.getChannel(), 0.0f);
+        voice.setMpePressure (voice.getChannel(), 0.0f);
+        voice.setMpeTimbre (voice.getChannel(), 0.0f);
     }
 }
 
@@ -716,39 +735,6 @@ void AudioEngine::updateFeedbackStringFocus (float amount, float loopFrequency, 
 
 void AudioEngine::handleIncomingMidiMessage (const juce::MidiMessage& message)
 {
-    if (message.isController() && message.getControllerNumber() == 1)
-    {
-        modWheel.setTargetValue (static_cast<float> (message.getControllerValue()) / 127.0f);
-        return;
-    }
-
-    if (message.isController() && message.getControllerNumber() == 74)
-    {
-        applyMpeTimbre (message.getChannel(), static_cast<float> (message.getControllerValue()) / 127.0f);
-        return;
-    }
-
-    if (message.isChannelPressure())
-    {
-        applyMpePressure (message.getChannel(), static_cast<float> (message.getChannelPressureValue()) / 127.0f);
-        return;
-    }
-
-    if (message.isPitchWheel())
-    {
-        constexpr auto pitchWheelCenter = 8192.0f;
-        const auto bend = (static_cast<float> (message.getPitchWheelValue()) - pitchWheelCenter)
-                        / pitchWheelCenter;
-        const auto clampedBend = juce::jlimit (-1.0f, 1.0f, bend);
-
-        if (mpeEnabled && message.getChannel() != lowerMpeMasterChannel)
-            applyMpePitchBend (message.getChannel(), clampedBend);
-        else
-            pitchWheel.setTargetValue (clampedBend);
-
-        return;
-    }
-
     if (lookaheadSamples <= 0)
     {
         handleMidiMessage (message);
@@ -760,8 +746,10 @@ void AudioEngine::handleIncomingMidiMessage (const juce::MidiMessage& message)
     else if (message.isNoteOff())
         triggerFingerRelease (message.getNoteNumber(), message.getChannel());
 
-    if (message.isNoteOnOrOff() || message.isAftertouch())
+    if (shouldDelayForLookahead (message))
         scheduleMidiMessage (message, timelineSample + static_cast<int64_t> (lookaheadSamples));
+    else
+        handleMidiMessage (message);
 }
 
 void AudioEngine::handleMidiMessage (const juce::MidiMessage& message)
@@ -783,6 +771,27 @@ void AudioEngine::handleMidiMessage (const juce::MidiMessage& message)
         applyAftertouch (message.getNoteNumber(),
                          message.getChannel(),
                          static_cast<float> (message.getAfterTouchValue()) / 127.0f);
+        return;
+    }
+
+    if (message.isPitchWheel())
+    {
+        constexpr auto pitchWheelCenter = 8192.0f;
+        const auto bend = (static_cast<float> (message.getPitchWheelValue()) - pitchWheelCenter)
+                        / pitchWheelCenter;
+        const auto clampedBend = juce::jlimit (-1.0f, 1.0f, bend);
+
+        if (mpeEnabled && message.getChannel() != lowerMpeMasterChannel)
+            applyMpePitchBend (message.getChannel(), clampedBend);
+        else
+            pitchWheel.setTargetValue (clampedBend);
+
+        return;
+    }
+
+    if (message.isController() && message.getControllerNumber() == 1)
+    {
+        modWheel.setTargetValue (static_cast<float> (message.getControllerValue()) / 127.0f);
         return;
     }
 
@@ -1256,6 +1265,17 @@ void AudioEngine::applyMpePressure (int channel, float pressure) noexcept
 {
     const auto clampedChannel = juce::jlimit (1, 16, channel);
     const auto clampedPressure = juce::jlimit (0.0f, 1.0f, pressure);
+
+    if (! mpeEnabled)
+    {
+        mpePressureByChannel.fill (clampedPressure);
+
+        for (auto& voice : voices)
+            voice.setMpePressure (voice.getChannel(), clampedPressure);
+
+        return;
+    }
+
     mpePressureByChannel[static_cast<size_t> (clampedChannel - 1)] = clampedPressure;
 
     for (auto& voice : voices)
@@ -1266,6 +1286,17 @@ void AudioEngine::applyMpeTimbre (int channel, float timbre) noexcept
 {
     const auto clampedChannel = juce::jlimit (1, 16, channel);
     const auto clampedTimbre = juce::jlimit (0.0f, 1.0f, timbre);
+
+    if (! mpeEnabled)
+    {
+        mpeTimbreByChannel.fill (clampedTimbre);
+
+        for (auto& voice : voices)
+            voice.setMpeTimbre (voice.getChannel(), clampedTimbre);
+
+        return;
+    }
+
     mpeTimbreByChannel[static_cast<size_t> (clampedChannel - 1)] = clampedTimbre;
 
     for (auto& voice : voices)

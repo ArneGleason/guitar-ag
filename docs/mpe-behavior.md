@@ -38,7 +38,8 @@ Current implementation:
 - In lower-zone MPE, pitch wheel on channel 1 is treated as the master/global whammy source when `Pitch Wheel Whammy` is enabled.
 - If multiple active voices share one MIDI channel, they will bend together; a DAW must send separate member channels for independent bends.
 - In non-MPE mode, pitch wheel remains available as the global whammy-bar control.
-- Channel pressure and CC74 are still channel-scoped in normal MIDI mode, which means they behave like global expression when all notes are on one channel.
+- In non-MPE mode, channel pressure and CC74 are applied globally to all active voices and stored as the fallback value for newly started voices.
+- Toggling MPE mode clears per-channel pitch bend, pressure, and CC74 state so stale expression does not carry across modes.
 
 ## Required MPE Messages
 
@@ -91,7 +92,8 @@ Current implementation:
 
 - MIDI key/poly aftertouch is routed by note number and channel to matching active voices.
 - The `Aftertouch Bend` parameter maps full key/poly aftertouch pressure to a configurable pitch bend, defaulting to +2 semitones.
-- Channel pressure is routed by MIDI channel to matching active voices.
+- In MPE mode, channel pressure is routed by MIDI channel to matching active voices.
+- In normal MIDI mode, channel pressure is applied globally to all active voices.
 - `MPE Pressure Amount` scales the channel-pressure effect.
 - The first pressure mapping is intentionally conservative: it adds sustain, output intensity, and upper-mode emphasis rather than pitch bend.
 
@@ -102,6 +104,10 @@ In MPE mode:
 - CC74 on a member channel applies only to that channel's active voice.
 - `MPE CC74 Amount` scales the response.
 - The first CC74 mapping leans the held voice brighter and more bridge-like by emphasizing upper modes and their decay.
+
+In normal MIDI mode:
+
+- CC74 is applied globally to all active voices.
 
 Suggested mappings:
 
@@ -169,3 +175,12 @@ The other note remains unchanged.
 
 Pass condition:
 The plugin remains playable and pitch bend behaves predictably, even if global.
+
+### Test 4 — Normal MIDI Pressure And Timbre
+
+1. Disable MPE mode.
+2. Play a chord from a normal MIDI keyboard.
+3. Send channel pressure or CC74.
+
+Pass condition:
+All active chord tones respond together, regardless of the MIDI channel used for the controller.

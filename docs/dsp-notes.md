@@ -1107,6 +1107,17 @@ Expected sound:
 
 With `Lookahead` off, playback should remain immediate and finger noise should effectively stay out of the way. With lookahead on and `Finger Noise` raised, rendered playback should include short pre-note and pre-release motion noises. In a DAW with plugin delay compensation, the delayed note should line up with the MIDI grid while the finger noise appears just before the note.
 
+## 2026-05-09 — Lookahead Expression Sync And Normal MIDI Expression Fallback
+
+Reviewer feedback found that lookahead delayed notes and key/poly aftertouch while applying pitch wheel, mod wheel, channel pressure, and CC74 immediately. This could desync expression from delayed note playback at `150 ms` or `250 ms` lookahead.
+
+Current behavior:
+
+- With lookahead enabled, note on/off, key/poly aftertouch, pitch wheel, mod wheel, channel pressure, and CC74 are scheduled through the same fixed MIDI delay queue.
+- Finger approach/release noises still trigger immediately from incoming note on/off so they can precede the delayed note event.
+- MPE mode changes now clear per-channel pitch bend, pressure, and CC74 state.
+- In normal MIDI mode, channel pressure and CC74 apply globally to all active voices and seed new voices with the current global expression value.
+
 ## 2026-04-26 — Finger Vibrato
 
 Added a first fretting-hand pitch-vibrato control set.
