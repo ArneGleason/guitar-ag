@@ -72,6 +72,7 @@ private:
     static constexpr auto maxDelaySamples = 8192;
     static constexpr auto resonanceCount = 3;
     static constexpr auto modalCount = 96;
+    static constexpr auto pitchControlUpdateInterval = 4;
 
     float nextNoiseSample() noexcept;
     void updateDamping() noexcept;
@@ -90,6 +91,15 @@ private:
     float getBridgeIntonationRatio (const FretboardAssignment& assignment, float bridgeIntonation) const noexcept;
     float getFretPressureRatio (const FretboardAssignment& assignment, float fretPressure) const noexcept;
     float getWhammyRatio (float whammySemitones, float whammySpread) const noexcept;
+    float updatePitchRatio (float heldSeconds,
+                            float vibratoDepthCents,
+                            float vibratoSpeedHz,
+                            float vibratoDelaySeconds,
+                            float whammySemitones,
+                            float whammySpread,
+                            float aftertouchBendSemitones,
+                            float mpePitchBendRange) noexcept;
+    void updatePitchStepCache (float pitchRatio) noexcept;
 
     std::array<float, maxDelaySamples> delayLine {};
     std::array<float, maxDelaySamples> secondaryDelayLine {};
@@ -97,6 +107,8 @@ private:
     std::array<float, modalCount> modalCosine {};
     std::array<float, modalCount> modalSinStep {};
     std::array<float, modalCount> modalCosStep {};
+    std::array<float, modalCount> modalPitchSinStep {};
+    std::array<float, modalCount> modalPitchCosStep {};
     std::array<float, modalCount> modalPhaseStep {};
     std::array<float, modalCount> modalAmplitude {};
     std::array<float, modalCount> modalDecay {};
@@ -196,16 +208,19 @@ private:
     float aftertouchPressureTarget = 0.0f;
     float mpePitchBend = 0.0f;
     float mpePitchBendTarget = 0.0f;
+    float cachedPitchRatio = 1.0f;
     float mpePressure = 0.0f;
     float mpePressureTarget = 0.0f;
     float mpeTimbre = 0.0f;
     float mpeTimbreTarget = 0.0f;
+    int pitchControlSamplesUntilUpdate = 0;
 
     uint32_t randomState = 0x12345678u;
 
     bool active = false;
     bool releasing = false;
     bool woundString = false;
+    bool useCachedPitchSteps = false;
 };
 
 } // namespace guitar_ag

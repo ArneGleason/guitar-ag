@@ -1107,17 +1107,6 @@ Expected sound:
 
 With `Lookahead` off, playback should remain immediate and finger noise should effectively stay out of the way. With lookahead on and `Finger Noise` raised, rendered playback should include short pre-note and pre-release motion noises. In a DAW with plugin delay compensation, the delayed note should line up with the MIDI grid while the finger noise appears just before the note.
 
-## 2026-05-09 — Lookahead Expression Sync And Normal MIDI Expression Fallback
-
-Reviewer feedback found that lookahead delayed notes and key/poly aftertouch while applying pitch wheel, mod wheel, channel pressure, and CC74 immediately. This could desync expression from delayed note playback at `150 ms` or `250 ms` lookahead.
-
-Current behavior:
-
-- With lookahead enabled, note on/off, key/poly aftertouch, pitch wheel, mod wheel, channel pressure, and CC74 are scheduled through the same fixed MIDI delay queue.
-- Finger approach/release noises still trigger immediately from incoming note on/off so they can precede the delayed note event.
-- MPE mode changes now clear per-channel pitch bend, pressure, and CC74 state.
-- In normal MIDI mode, channel pressure and CC74 apply globally to all active voices and seed new voices with the current global expression value.
-
 ## 2026-04-26 — Finger Vibrato
 
 Added a first fretting-hand pitch-vibrato control set.
@@ -1428,6 +1417,37 @@ Current behavior:
 Expected behavior:
 
 The default `Amp Feedback` sound should now use the more natural clipped return while the main instrument output remains clean DI-style. Existing saved DAW projects may preserve their stored switch value; new instances should open with `Distorted Return` enabled.
+
+## 2026-05-09 — Lookahead Expression Sync And Normal MIDI Expression Fallback
+
+Reviewer feedback found that lookahead delayed notes and key/poly aftertouch while applying pitch wheel, mod wheel, channel pressure, and CC74 immediately. This could desync expression from delayed note playback at `150 ms` or `250 ms` lookahead.
+
+Current behavior:
+
+- With lookahead enabled, note on/off, key/poly aftertouch, pitch wheel, mod wheel, channel pressure, and CC74 are scheduled through the same fixed MIDI delay queue.
+- Finger approach/release noises still trigger immediately from incoming note on/off so they can precede the delayed note event.
+- MPE mode changes now clear per-channel pitch bend, pressure, and CC74 state.
+- In normal MIDI mode, channel pressure and CC74 apply globally to all active voices and seed new voices with the current global expression value.
+
+## 2026-05-09 — EG-058 Pitch Control-Rate Cache
+
+Optimized the pitch-modulation path identified by reviewer feedback.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-058 PitchControlRate`.
+- Each `StringVoice` still smooths aftertouch and MPE pitch values every sample.
+- Expensive pitch ratios for vibrato, whammy, aftertouch bend, and MPE bend are recalculated every 4 samples instead of every sample.
+- When pitch modulation is active, adjusted modal phase-step sine/cosine values are cached every 4 samples instead of being recomputed inside every modal slot on every sample.
+- Neutral renders with no pitch modulation remain byte-identical against the pre-optimization baseline in the player-articulation smoke renders, including `Amp Feedback` at 100%.
+
+Measured offline render checks:
+
+- Player-articulation MIDI, feedback 0%, before/after: 37.636x to 43.545x realtime in one local run; WAVs were byte-identical.
+- Player-articulation MIDI, feedback 100%, before/after: 17.726x to 17.702x realtime in one local run; WAVs were byte-identical.
+- Feature-audition MIDI with MPE enabled, before/after: 31.692x to 37.858x realtime in one local run.
+
+The MPE feature render changes at waveform level because pitch modulation is now control-rate; the 4-sample interval measured about 0.74% relative RMS difference against the previous per-sample render. Manual listening and DAW MPE checks should decide whether this is perceptually transparent enough.
 
 ## Suggested MVP Signal Flow
 

@@ -141,3 +141,29 @@ Listening verification:
 - Confirm no more than six guitar-string voices ring at once.
 - Confirm MPE bends still affect only the intended held note.
 - Listen for lost tail detail, feedback onset changes, and note-stealing artifacts.
+
+## 2026-05-09 Pitch Control-Rate Pass
+
+Antigravity's baseline review re-raised the per-sample pitch modulation cost in `StringVoice::renderSample`.
+
+Implementation notes:
+
+- Added a 4-sample pitch control interval inside `StringVoice`.
+- Kept aftertouch and MPE pitch smoothing per-sample.
+- Recomputed vibrato, whammy, aftertouch-bend, and MPE pitch ratios every 4 samples.
+- Cached adjusted modal phase-step sine/cosine values every 4 samples when pitch modulation is active.
+- Left neutral-pitch rendering on the existing precomputed modal phase-step path.
+
+Local validation:
+
+- `cmake --build build --config Release --target GuitarAG_VST3`
+- `cmake --build build --config Release --target GuitarAGOfflineRender`
+- Player-articulation MIDI, feedback 0%: 37.636x baseline to 43.545x optimized in one local run; WAVs byte-identical.
+- Player-articulation MIDI, feedback 100%: 17.726x baseline to 17.702x optimized in one local run; WAVs byte-identical.
+- Feature-audition MIDI with MPE mode enabled: 31.692x baseline to 37.858x optimized in one local run.
+- The MPE feature WAV differs because pitch modulation is now control-rate. The 4-sample interval measured about 0.74% relative RMS difference against the previous per-sample render.
+
+Follow-up:
+
+- Manual DAW listening should confirm MPE bends, whammy, vibrato, and aftertouch bend remain smooth.
+- A later pass can still address feedback-loop `tanh` and feedback scalar math if profiling shows it matters.

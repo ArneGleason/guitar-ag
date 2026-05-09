@@ -112,13 +112,16 @@ void StringVoice::reset()
     aftertouchPressureTarget = 0.0f;
     mpePitchBend = 0.0f;
     mpePitchBendTarget = 0.0f;
+    cachedPitchRatio = 1.0f;
     mpePressure = 0.0f;
     mpePressureTarget = 0.0f;
     mpeTimbre = 0.0f;
     mpeTimbreTarget = 0.0f;
+    pitchControlSamplesUntilUpdate = 0;
     active = false;
     releasing = false;
     woundString = false;
+    useCachedPitchSteps = false;
 }
 
 void StringVoice::start (int midiNoteNumber,
@@ -276,6 +279,8 @@ void StringVoice::start (int midiNoteNumber,
     modalCosine.fill (1.0f);
     modalSinStep.fill (0.0f);
     modalCosStep.fill (1.0f);
+    modalPitchSinStep.fill (0.0f);
+    modalPitchCosStep.fill (1.0f);
     modalPhaseStep.fill (0.0f);
     modalAmplitude.fill (0.0f);
     modalDecay.fill (1.0f);
@@ -299,13 +304,16 @@ void StringVoice::start (int midiNoteNumber,
     aftertouchPressureTarget = 0.0f;
     mpePitchBend = 0.0f;
     mpePitchBendTarget = 0.0f;
+    cachedPitchRatio = 1.0f;
     mpePressure = 0.0f;
     mpePressureTarget = 0.0f;
     mpeTimbre = 0.0f;
     mpeTimbreTarget = 0.0f;
+    pitchControlSamplesUntilUpdate = 0;
     releasing = false;
     active = true;
     woundString = woundAmount > 0.0f;
+    useCachedPitchSteps = false;
 
     const auto frequency = juce::jlimit (20.0,
                                          8000.0,
@@ -736,41 +744,18 @@ float StringVoice::renderSample (float tailSustain,
     auto modalOutput = 0.0f;
     const auto heldSeconds = static_cast<float> (samplesSinceStart) / static_cast<float> (sampleRate);
     const auto tailBlend = releasing ? 0.0f : sustainAmount * juce::jlimit (0.0f, 1.0f, (heldSeconds - 0.55f) / 1.60f);
-    constexpr auto twoPi = 6.28318530717958647692f;
-    const auto clampedVibratoSpeed = juce::jlimit (0.0f, 14.0f, vibratoSpeedHz);
-    const auto clampedVibratoDepth = juce::jlimit (0.0f, 90.0f, vibratoDepthCents);
-    const auto clampedVibratoDelay = juce::jlimit (0.0f, 2.0f, vibratoDelaySeconds);
-    const auto vibratoEnvelope = clampedVibratoDelay <= 0.0001f
-                               ? 1.0f
-                               : heldSeconds <= clampedVibratoDelay
-                                   ? 0.0f
-                                   : juce::jlimit (0.0f, 1.0f, (heldSeconds - clampedVibratoDelay) / clampedVibratoDelay);
-    const auto vibratoCents = clampedVibratoDepth > 0.0f && vibratoEnvelope > 0.0f
-                            ? clampedVibratoDepth * vibratoEnvelope * std::sin (vibratoPhase)
-                            : 0.0f;
-    aftertouchPressure += (aftertouchPressureTarget - aftertouchPressure) * 0.0025f;
-    const auto aftertouchRatio = aftertouchPressure != 0.0f && aftertouchBendSemitones != 0.0f
-                               ? std::pow (2.0f, aftertouchPressure * aftertouchBendSemitones / 12.0f)
-                               : 1.0f;
-    mpePitchBend += (mpePitchBendTarget - mpePitchBend) * 0.0065f;
-    const auto mpePitchRatio = mpePitchBend != 0.0f && mpePitchBendRange != 0.0f
-                             ? std::pow (2.0f, mpePitchBend * mpePitchBendRange / 12.0f)
-                             : 1.0f;
     mpePressure += (mpePressureTarget - mpePressure) * 0.0030f;
     mpeTimbre += (mpeTimbreTarget - mpeTimbre) * 0.0035f;
     const auto expressionPressure = juce::jlimit (0.0f, 1.0f, mpePressure * juce::jlimit (0.0f, 1.0f, mpePressureAmount));
     const auto expressionTimbre = juce::jlimit (0.0f, 1.0f, mpeTimbre * juce::jlimit (0.0f, 1.0f, mpeTimbreAmount));
-    const auto vibratoRatio = vibratoCents != 0.0f ? std::pow (2.0f, vibratoCents / 1200.0f) : 1.0f;
-    const auto whammyRatio = whammySemitones != 0.0f ? getWhammyRatio (whammySemitones, whammySpread) : 1.0f;
-    const auto pitchRatio = vibratoRatio
-                          * whammyRatio
-                          * aftertouchRatio
-                          * mpePitchRatio;
-
-    vibratoPhase += twoPi * clampedVibratoSpeed / static_cast<float> (sampleRate);
-
-    if (vibratoPhase > twoPi)
-        vibratoPhase -= twoPi;
+    const auto pitchRatio = updatePitchRatio (heldSeconds,
+                                              vibratoDepthCents,
+                                              vibratoSpeedHz,
+                                              vibratoDelaySeconds,
+                                              whammySemitones,
+                                              whammySpread,
+                                              aftertouchBendSemitones,
+                                              mpePitchBendRange);
 
     const auto feedbackAmount = juce::jlimit (0.0f, 1.0f, ampFeedback);
     const auto loopAmount = juce::jlimit (0.0f, 1.0f, feedbackLoopAmount);
@@ -824,15 +809,8 @@ float StringVoice::renderSample (float tailSustain,
                                                           + expressionTimbre * (0.24f * highMode - 0.045f * lowMode));
         modalOutput += modalAmplitude[modeIndex] * modalCosine[modeIndex] * expressionModeGain;
 
-        auto sinStep = modalSinStep[modeIndex];
-        auto cosStep = modalCosStep[modeIndex];
-
-        if (pitchRatio != 1.0f)
-        {
-            const auto phaseStep = modalPhaseStep[modeIndex] * pitchRatio;
-            sinStep = std::sin (phaseStep);
-            cosStep = std::cos (phaseStep);
-        }
+        const auto sinStep = useCachedPitchSteps ? modalPitchSinStep[modeIndex] : modalSinStep[modeIndex];
+        const auto cosStep = useCachedPitchSteps ? modalPitchCosStep[modeIndex] : modalCosStep[modeIndex];
 
         const auto nextSine = modalSine[modeIndex] * cosStep + modalCosine[modeIndex] * sinStep;
         const auto nextCosine = modalCosine[modeIndex] * cosStep - modalSine[modeIndex] * sinStep;
@@ -1305,6 +1283,75 @@ float StringVoice::getWhammyRatio (float whammySemitones, float whammySpread) co
     const auto adjustedSemitones = clampedBend * response;
 
     return std::pow (2.0f, adjustedSemitones / 12.0f);
+}
+
+float StringVoice::updatePitchRatio (float heldSeconds,
+                                     float vibratoDepthCents,
+                                     float vibratoSpeedHz,
+                                     float vibratoDelaySeconds,
+                                     float whammySemitones,
+                                     float whammySpread,
+                                     float aftertouchBendSemitones,
+                                     float mpePitchBendRange) noexcept
+{
+    constexpr auto twoPi = 6.28318530717958647692f;
+    const auto clampedVibratoSpeed = juce::jlimit (0.0f, 14.0f, vibratoSpeedHz);
+
+    aftertouchPressure += (aftertouchPressureTarget - aftertouchPressure) * 0.0025f;
+    mpePitchBend += (mpePitchBendTarget - mpePitchBend) * 0.0065f;
+
+    if (pitchControlSamplesUntilUpdate <= 0)
+    {
+        const auto clampedVibratoDepth = juce::jlimit (0.0f, 90.0f, vibratoDepthCents);
+        const auto clampedVibratoDelay = juce::jlimit (0.0f, 2.0f, vibratoDelaySeconds);
+        const auto vibratoEnvelope = clampedVibratoDelay <= 0.0001f
+                                   ? 1.0f
+                                   : heldSeconds <= clampedVibratoDelay
+                                       ? 0.0f
+                                       : juce::jlimit (0.0f, 1.0f, (heldSeconds - clampedVibratoDelay) / clampedVibratoDelay);
+        const auto vibratoCents = clampedVibratoDepth > 0.0f && vibratoEnvelope > 0.0f
+                                ? clampedVibratoDepth * vibratoEnvelope * std::sin (vibratoPhase)
+                                : 0.0f;
+        const auto aftertouchRatio = aftertouchPressure != 0.0f && aftertouchBendSemitones != 0.0f
+                                   ? std::pow (2.0f, aftertouchPressure * aftertouchBendSemitones / 12.0f)
+                                   : 1.0f;
+        const auto mpePitchRatio = mpePitchBend != 0.0f && mpePitchBendRange != 0.0f
+                                 ? std::pow (2.0f, mpePitchBend * mpePitchBendRange / 12.0f)
+                                 : 1.0f;
+        const auto vibratoRatio = vibratoCents != 0.0f ? std::pow (2.0f, vibratoCents / 1200.0f) : 1.0f;
+        const auto whammyRatio = whammySemitones != 0.0f ? getWhammyRatio (whammySemitones, whammySpread) : 1.0f;
+
+        cachedPitchRatio = vibratoRatio
+                         * whammyRatio
+                         * aftertouchRatio
+                         * mpePitchRatio;
+        updatePitchStepCache (cachedPitchRatio);
+        pitchControlSamplesUntilUpdate = pitchControlUpdateInterval;
+    }
+
+    vibratoPhase += twoPi * clampedVibratoSpeed / static_cast<float> (sampleRate);
+
+    while (vibratoPhase > twoPi)
+        vibratoPhase -= twoPi;
+
+    --pitchControlSamplesUntilUpdate;
+    return cachedPitchRatio;
+}
+
+void StringVoice::updatePitchStepCache (float pitchRatio) noexcept
+{
+    useCachedPitchSteps = std::abs (pitchRatio - 1.0f) > 0.000001f;
+
+    if (! useCachedPitchSteps)
+        return;
+
+    for (auto mode = 0; mode < activeModalCount; ++mode)
+    {
+        const auto modeIndex = static_cast<size_t> (mode);
+        const auto phaseStep = modalPhaseStep[modeIndex] * pitchRatio;
+        modalPitchSinStep[modeIndex] = std::sin (phaseStep);
+        modalPitchCosStep[modeIndex] = std::cos (phaseStep);
+    }
 }
 
 } // namespace guitar_ag
