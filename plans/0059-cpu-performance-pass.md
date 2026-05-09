@@ -196,3 +196,30 @@ Follow-up:
 
 - Manual DAW listening should confirm feedback bloom, string focus, and harmonic takeover still feel natural.
 - A later pass can still evaluate fast or approximate `tanh`, but only with explicit listening checks because it directly changes feedback saturation tone.
+
+## 2026-05-09 Feedback Tanh Experiment
+
+Antigravity verified EG-059, accepted the 8-sample feedback weight cache as-is, and cleared Codex to evaluate the remaining feedback-loop `std::tanh` target.
+
+Result: no production code change kept.
+
+Implementation candidates tested:
+
+- A high-accuracy rational `tanh` approximation for the three global feedback-loop saturation calls in `AudioEngine::updateAmpFeedbackLoop`.
+- A cheaper rational `tanh` approximation for the same three calls.
+
+Local measurements:
+
+- EG-059 baseline, player-articulation MIDI with `Amp Feedback` 100%: 30.445x realtime.
+- EG-059 baseline, feature-audition MIDI with MPE enabled and `Amp Feedback` 100%: 19.865x realtime.
+- EG-059 baseline, player-articulation MIDI with `Amp Feedback` 0%: 43.446x realtime.
+- EG-059 baseline, player-articulation MIDI with heavy pick/contact settings and feedback off: 36.268x realtime.
+- High-accuracy `tanh` candidate, player-articulation MIDI with `Amp Feedback` 100%: 30.172x realtime.
+- High-accuracy `tanh` candidate, feature-audition MIDI with MPE enabled and `Amp Feedback` 100%: 19.906x realtime.
+- Cheaper `tanh` candidate, player-articulation MIDI with `Amp Feedback` 100%: 30.139x realtime, with a slight voice-sample count change.
+
+Conclusion:
+
+- Keep exact `std::tanh` in the global feedback loop for now.
+- The approximation does not create a meaningful CPU win on the local offline renderer.
+- The next optimization should target contact/pick transient math, modal/contact render maintainability, or a dedicated profiler-backed pass.

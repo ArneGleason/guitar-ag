@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Implement feedback weight cache optimization",
-  "status": "feedback-optimization-ready-for-human-routing",
-  "updatedAt": "2026-05-09T14:10:06-04:00",
-  "lastHandoff": ".agent/handoffs/20260509-141006-codex-feedback-weight-cache.md",
+  "lastTask": "Evaluate feedback tanh optimization",
+  "status": "tanh-optimization-rejected-ready-for-routing",
+  "updatedAt": "2026-05-09T14:21:19-04:00",
+  "lastHandoff": ".agent/handoffs/20260509-142119-codex-feedback-tanh-response.md",
   "branch": "main",
-  "commit": "latest pushed origin/main after feedback weight cache optimization",
+  "commit": "latest pushed origin/main after feedback tanh experiment documentation",
   "projectState": {
-    "summary": "Antigravity verified the EG-058 pitch control-rate optimization. Codex implemented EG-059 FeedbackWeightCache, caching modal feedback harmonic/loop weights at an 8-sample control interval. High-feedback offline renders improved substantially; DAW listening and reviewer verification are still needed."
+    "summary": "Antigravity verified and accepted EG-059 FeedbackWeightCache. Codex tested high-accuracy and cheap feedback-loop tanh approximations, rejected both because they did not provide meaningful speedup, and kept production DSP code unchanged."
   }
 }

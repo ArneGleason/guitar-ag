@@ -25,6 +25,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Moved pitch-modulation ratio and adjusted modal phase-step recalculation to a 4-sample control interval while keeping expression smoothing per-sample.
 - Changed the model label to `StringVoice EG-059 FeedbackWeightCache`.
 - Cached high-feedback per-mode harmonic/loop weights at an 8-sample control interval while preserving per-sample feedback gates and injection.
+- Documented Antigravity acceptance of the EG-059 feedback weight cache and Codex's rejected feedback-loop `tanh` approximation experiment.
 
 ### Fixed
 
@@ -34,4 +35,5 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Deferred
 
-- Deferred feedback-loop `std::tanh` approximation and contact transient math candidates to a later optimization pass.
+- Deferred feedback-loop `std::tanh` approximation after local candidates failed to produce a meaningful speedup.
+- Deferred contact/pick transient math or modal/contact maintainability to the next optimization routing decision.
