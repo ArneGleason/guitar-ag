@@ -250,3 +250,28 @@ Follow-up:
 
 - Manual listening should confirm pick scrape, coin edge, heavy pick rasp, hammer-on/tap impact, and pull-off snap remain natural.
 - A later maintainability pass should consider splitting the modal and contact render branches into smaller helpers after the performance profile settles.
+
+## 2026-05-09 Render Helper Maintainability Pass
+
+Antigravity verified EG-060, accepted the contact trig fast path as-is, and cleared Codex to make `StringVoice::renderSample` easier to maintain.
+
+Implementation notes:
+
+- Extracted modal-bank execution and feedback injection to `renderModalBank`.
+- Extracted pick transient decay to `renderPickTransient`.
+- Extracted pick/contact, finger-impact, and pull-off transient generation to `renderContactLayer`.
+- Added `FeedbackRenderContext` to group feedback gate values passed into the modal bank.
+- Preserved arithmetic and update order; this is a behavior-neutral refactor.
+- The visible model label is now `StringVoice EG-061 RenderHelpers`.
+
+Local validation:
+
+- `cmake --build build --config Release --target GuitarAGOfflineRender`
+- Player-articulation MIDI, default settings, `Amp Feedback` 0%: audio sample data matched EG-060 exactly.
+- Player-articulation MIDI, `Pick Texture` 100%, `Pick Stiffness` 100%, `Finger Noise` 60%, `Amp Feedback` 0%: audio sample data matched EG-060 exactly.
+- Player-articulation MIDI, `Amp Feedback` 100%: audio sample data matched EG-060 exactly.
+
+Follow-up:
+
+- Antigravity should review whether the helper boundaries are clear enough for future work.
+- The next performance decision should be profiler-backed rather than speculative math substitution.

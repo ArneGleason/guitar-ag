@@ -1494,6 +1494,27 @@ Measured offline render checks:
 
 Manual listening should focus on pick scrape, coin edge, heavy pick rasp, hammer-on/tap impact, and pull-off snap. The intentionally exaggerated pick-contact render changes more than default playing because it drives the newly approximated transient tones hardest.
 
+## 2026-05-09 — EG-061 Render Helpers
+
+Refactored `StringVoice::renderSample` after Antigravity accepted EG-060 and recommended a modal/contact maintainability pass.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-061 RenderHelpers`.
+- The modal execution and feedback-injection loop now lives in `renderModalBank`.
+- Pick transient decay now lives in `renderPickTransient`.
+- Pick/contact, finger-impact, and pull-off transient generation now lives in `renderContactLayer`.
+- The arithmetic and update order are preserved; this is intended as a behavior-neutral readability pass.
+- No modal count, feedback cache, pitch cache, contact approximation, or saturation behavior changed.
+
+Measured offline render checks:
+
+- Player-articulation MIDI with default settings and `Amp Feedback` 0%: audio sample data matched EG-060 exactly.
+- Player-articulation MIDI with `Pick Texture` 100%, `Pick Stiffness` 100%, `Finger Noise` 60%, and `Amp Feedback` 0%: audio sample data matched EG-060 exactly.
+- Player-articulation MIDI with `Amp Feedback` 100%: audio sample data matched EG-060 exactly.
+
+Because this pass is behavior-neutral, reviewer focus should be on helper boundaries, naming, and whether future profiling/maintenance work now has cleaner surfaces.
+
 ## Suggested MVP Signal Flow
 
 ```text

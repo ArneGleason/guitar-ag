@@ -751,7 +751,6 @@ float StringVoice::renderSample (float tailSustain,
     if (releasing)
         modalReleaseDecay = juce::jmin (modalReleaseDecay, 0.99935f);
 
-    auto modalOutput = 0.0f;
     const auto heldSeconds = static_cast<float> (samplesSinceStart) / static_cast<float> (sampleRate);
     const auto tailBlend = releasing ? 0.0f : sustainAmount * juce::jlimit (0.0f, 1.0f, (heldSeconds - 0.55f) / 1.60f);
     mpePressure += (mpePressureTarget - mpePressure) * 0.0030f;
@@ -814,9 +813,53 @@ float StringVoice::renderSample (float tailSustain,
         feedbackControlSamplesUntilUpdate = 0;
     }
 
-    const auto feedbackEnergyGate = juce::jlimit (0.0f, 1.0f, energy / 0.0012f);
-    const auto loopEnergyGate = juce::jlimit (0.08f, 1.0f, energy / 0.00075f);
-    const auto feedbackReleaseScale = releasing ? 0.22f + 0.78f * cachedFeedbackHowl : 1.0f;
+    const FeedbackRenderContext feedback {
+        feedbackActive,
+        loopActive,
+        feedbackRise,
+        releasing ? 0.22f + 0.78f * cachedFeedbackHowl : 1.0f,
+        juce::jlimit (0.0f, 1.0f, energy / 0.0012f),
+        juce::jlimit (0.08f, 1.0f, energy / 0.00075f),
+        localFeedbackScale,
+        loopAmount,
+        loopSignal,
+        loopStringScale
+    };
+
+    auto modalOutput = renderModalBank (tailBlend, palmDecay, expressionPressure, expressionTimbre, feedback);
+    modalOutput += renderPickTransient();
+    const auto contactOutput = renderContactLayer();
+
+    const auto attackRampSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * attackRampSeconds);
+    modalOutput *= juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / attackRampSamples);
+    modalOutput *= 1.0f - 0.22f * pickHeavyChoke;
+    modalOutput *= 1.0f - 0.28f * palmCurve;
+    modalOutput *= 1.0f + 0.10f * expressionPressure + 0.06f * expressionTimbre;
+    modalOutput += contactOutput;
+
+    ++samplesSinceStart;
+    energy = 0.9994f * energy + 0.0006f * std::abs (modalOutput);
+
+    const auto feedbackHold = 1.0f - 0.78f * feedbackRise * cachedFeedbackHowl - 0.58f * loopAmount;
+    const auto energyCutoff = (0.00004f + (0.000008f - 0.00004f) * sustainAmount)
+                            * juce::jlimit (0.18f, 1.0f, feedbackHold);
+
+    if (energy < energyCutoff)
+    {
+        reset();
+        return 0.0f;
+    }
+
+    return modalOutput * outputGain;
+}
+
+float StringVoice::renderModalBank (float tailBlend,
+                                    float palmDecay,
+                                    float expressionPressure,
+                                    float expressionTimbre,
+                                    const FeedbackRenderContext& feedback) noexcept
+{
+    auto modalOutput = 0.0f;
     auto feedbackHowlOutput = 0.0f;
 
     for (auto mode = 0; mode < activeModalCount; ++mode)
@@ -848,27 +891,27 @@ float StringVoice::renderSample (float tailSustain,
         auto feedbackWeight = 0.0f;
         auto loopWeight = 0.0f;
 
-        if (feedbackActive)
+        if (feedback.feedbackActive)
         {
             feedbackWeight = modalFeedbackWeight[modeIndex]
-                           * feedbackRise
-                           * feedbackReleaseScale
-                           * feedbackEnergyGate
-                           * localFeedbackScale;
+                           * feedback.feedbackRise
+                           * feedback.releaseScale
+                           * feedback.feedbackEnergyGate
+                           * feedback.localFeedbackScale;
 
-            if (loopActive)
+            if (feedback.loopActive)
             {
                 loopWeight = modalLoopWeight[modeIndex]
-                           * loopAmount
-                           * loopEnergyGate
-                           * feedbackReleaseScale
-                           * (0.62f + 0.38f * std::abs (loopSignal))
-                           * loopStringScale;
+                           * feedback.loopAmount
+                           * feedback.loopEnergyGate
+                           * feedback.releaseScale
+                           * (0.62f + 0.38f * std::abs (feedback.loopSignal))
+                           * feedback.loopStringScale;
             }
         }
 
         const auto feedbackDecayLift = cachedFeedbackDrive * feedbackWeight * (0.000010f + 0.000070f * cachedFeedbackHowl)
-                                     + loopWeight * (0.000080f + 0.000300f * loopAmount);
+                                     + loopWeight * (0.000080f + 0.000300f * feedback.loopAmount);
         const auto effectiveDecay = juce::jlimit (0.90f,
                                                   0.999999f,
                                                   baseEffectiveDecay + pressureDecayLift + timbreDecayTilt + feedbackDecayLift);
@@ -882,15 +925,15 @@ float StringVoice::renderSample (float tailSustain,
                                          * feedbackWeight
                                          * (0.0000004f + 0.0000028f * cachedFeedbackHowl)
                                          * (1.0f + 0.28f * expressionPressure);
-            const auto loopPhasePush = loopSignal * modalCosine[modeIndex];
+            const auto loopPhasePush = feedback.loopSignal * modalCosine[modeIndex];
             const auto loopInjection = loopWeight
-                                     * (0.0000038f + 0.0000180f * loopAmount)
+                                     * (0.0000038f + 0.0000180f * feedback.loopAmount)
                                      * (loopPhasePush >= 0.0f ? loopPhasePush : loopPhasePush * 0.30f);
             modalAmplitude[modeIndex] = juce::jlimit (-1.6f,
                                                       1.6f,
                                                       modalAmplitude[modeIndex] + amplitudeSign * feedbackInjection + loopInjection);
             feedbackHowlOutput += modalCosine[modeIndex]
-                                 * (feedbackWeight + loopWeight * (0.55f + 0.95f * std::abs (loopSignal)))
+                                 * (feedbackWeight + loopWeight * (0.55f + 0.95f * std::abs (feedback.loopSignal)))
                                  * (0.35f + 0.65f * highMode);
         }
     }
@@ -898,14 +941,25 @@ float StringVoice::renderSample (float tailSustain,
     if (feedbackHowlOutput != 0.0f)
         modalOutput += feedbackHowlOutput
                      * (cachedFeedbackHowl * (0.00035f + 0.0014f * cachedFeedbackHowl)
-                        + loopAmount * (0.00062f + 0.00235f * loopAmount));
+                        + feedback.loopAmount * (0.00062f + 0.00235f * feedback.loopAmount));
 
+    return modalOutput;
+}
+
+float StringVoice::renderPickTransient() noexcept
+{
     if (std::abs (pickTransient) > 0.000001f)
     {
-        modalOutput += pickTransient;
+        const auto output = pickTransient;
         pickTransient *= pickTransientDecay;
+        return output;
     }
 
+    return 0.0f;
+}
+
+float StringVoice::renderContactLayer() noexcept
+{
     auto contactOutput = 0.0f;
 
     if (pickContactSamplesRemaining > 0)
@@ -1025,27 +1079,7 @@ float StringVoice::renderSample (float tailSustain,
         pullOffSnap *= pullOffSnapDecay;
     }
 
-    const auto attackRampSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * attackRampSeconds);
-    modalOutput *= juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / attackRampSamples);
-    modalOutput *= 1.0f - 0.22f * pickHeavyChoke;
-    modalOutput *= 1.0f - 0.28f * palmCurve;
-    modalOutput *= 1.0f + 0.10f * expressionPressure + 0.06f * expressionTimbre;
-    modalOutput += contactOutput;
-
-    ++samplesSinceStart;
-    energy = 0.9994f * energy + 0.0006f * std::abs (modalOutput);
-
-    const auto feedbackHold = 1.0f - 0.78f * feedbackRise * cachedFeedbackHowl - 0.58f * loopAmount;
-    const auto energyCutoff = (0.00004f + (0.000008f - 0.00004f) * sustainAmount)
-                            * juce::jlimit (0.18f, 1.0f, feedbackHold);
-
-    if (energy < energyCutoff)
-    {
-        reset();
-        return 0.0f;
-    }
-
-    return modalOutput * outputGain;
+    return contactOutput;
 }
 
 float StringVoice::nextNoiseSample() noexcept

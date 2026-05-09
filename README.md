@@ -46,7 +46,7 @@ Implemented so far:
 Current model label:
 
 ```text
-StringVoice EG-060 ContactTrigFast
+StringVoice EG-061 RenderHelpers
 ```
 
 ## Demo
@@ -234,10 +234,10 @@ The process is very "warmer/colder": Codex makes a narrow hypothesis and builds 
 
 ## By The Numbers
 
-As of the `EG-060 ContactTrigFast` milestone:
+As of the `EG-061 RenderHelpers` milestone:
 
 - Git commits before this milestone commit: 72.
-- Model checkpoints documented or build-labeled: 60.
+- Model checkpoints documented or build-labeled: 61.
 - VST parameters: 27.
 - Editor pages: Setup, Pickup, Perform, Vibrato, MPE, Whammy, and Artic.
 - Plan files: 63, including player articulation, feedback-loop, CPU-performance, MPE-whammy, feedback-focus, and feedback-bloom plans.

@@ -75,6 +75,20 @@ private:
     static constexpr auto pitchControlUpdateInterval = 4;
     static constexpr auto feedbackControlUpdateInterval = 8;
 
+    struct FeedbackRenderContext
+    {
+        bool feedbackActive = false;
+        bool loopActive = false;
+        float feedbackRise = 0.0f;
+        float releaseScale = 1.0f;
+        float feedbackEnergyGate = 0.0f;
+        float loopEnergyGate = 0.0f;
+        float localFeedbackScale = 1.0f;
+        float loopAmount = 0.0f;
+        float loopSignal = 0.0f;
+        float loopStringScale = 1.0f;
+    };
+
     float nextNoiseSample() noexcept;
     void updateDamping() noexcept;
     void startLeftHandRelease() noexcept;
@@ -107,6 +121,13 @@ private:
                                     float loopAmount,
                                     float feedbackFrequency,
                                     float loopFrequency) noexcept;
+    float renderModalBank (float tailBlend,
+                           float palmDecay,
+                           float expressionPressure,
+                           float expressionTimbre,
+                           const FeedbackRenderContext& feedback) noexcept;
+    float renderPickTransient() noexcept;
+    float renderContactLayer() noexcept;
     [[nodiscard]] static float fastContactSin (float phase) noexcept;
     [[nodiscard]] static float fastAbsSeventhPower (float value) noexcept;
 

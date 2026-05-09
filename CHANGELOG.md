@@ -28,6 +28,8 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Documented Antigravity acceptance of the EG-059 feedback weight cache and Codex's rejected feedback-loop `tanh` approximation experiment.
 - Changed the model label to `StringVoice EG-060 ContactTrigFast`.
 - Replaced contact/gesture transient sine calls with a contact-local fast sine approximation and replaced the contact burr `pow(abs(sin), 7)` with explicit multiplication.
+- Changed the model label to `StringVoice EG-061 RenderHelpers`.
+- Extracted `StringVoice::renderSample` modal-bank, pick-transient, and contact-layer stages into helper functions without changing rendered audio sample data.
 
 ### Fixed
 
@@ -38,4 +40,4 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 ### Deferred
 
 - Deferred feedback-loop `std::tanh` approximation after local candidates failed to produce a meaningful speedup.
-- Deferred contact transient `std::tanh` replacement and modal/contact maintainability to later profiler-backed work.
+- Deferred contact transient `std::tanh` replacement to later profiler-backed work.
