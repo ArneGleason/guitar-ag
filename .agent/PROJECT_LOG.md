@@ -26,3 +26,4 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Implemented `StringVoice EG-061 RenderHelpers`, extracting modal, pick-transient, and contact-layer stages from `renderSample` with byte-identical audio sample output.
 - Received Antigravity verification that EG-061 should be kept and that the code-level optimization cycle should end; recorded it in `.agent/handoffs/20260509-162200-antigravity-render-helper-verification.md`.
 - Routed the next step to human DAW/VST3 listening in `.agent/handoffs/20260509-162331-codex-human-daw-listening.md`.
+- Received the first human DAW/VST3 listening result: the installed EG-061 VST sounds the same, shows the expected UI header, and has visible but more modest DAW performance gains than offline render factors suggested.

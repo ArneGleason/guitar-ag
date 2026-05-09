@@ -6,10 +6,10 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Human DAW/VST3 listening for the accepted optimization cycle:
-  - follow `.agent/handoffs/20260509-162331-codex-human-daw-listening.md`,
-  - use Bitwig or Live,
-  - report host, sample rate, buffer size, amp-sim chain, listening acceptance, audible artifacts, and any CPU regressions.
+- Human DAW/VST3 listening follow-up only if needed:
+  - initial result is recorded in `.agent/handoffs/20260509-165145-human-daw-listening-result.md`,
+  - EG-061 sounds the same and shows the expected UI header,
+  - DAW performance improved, but less dramatically than offline render factors suggested.
 
 Known limitations:
 
@@ -20,9 +20,9 @@ Known limitations:
 - Antigravity accepted the contact-local sine approximation as-is, but manual listening can still sanity-check pick scrape, coin edge, heavy pick rasp, hammer-on/tap impact, and pull-off snap.
 - Antigravity accepted EG-061 and recommended ending the code-level optimization cycle.
 - EG-061 is behavior-neutral and matched EG-060 audio sample data exactly in local offline renders.
+- Initial human listening provisionally accepted sound equivalence and identity, with modest DAW-visible performance improvement.
 - Any future Windows PC machine handle still needs human confirmation before a cross-machine handoff.
 
 Questions:
 
-- Does manual DAW listening accept the EG-058 through EG-061 optimization cycle?
-- Are there any audible artifacts or DAW CPU regressions that justify profiler-backed follow-up?
+- If performance still feels short of target in a specific DAW scenario, capture host, sample rate, buffer size, amp-sim chain, MIDI clip, and parameter settings before profiling.

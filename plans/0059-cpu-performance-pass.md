@@ -292,3 +292,18 @@ Next step:
 
 - Human DAW/VST3 listening in Bitwig or Live using `.agent/handoffs/20260509-162331-codex-human-daw-listening.md`.
 - Listen specifically for MPE pitch/expression smoothness, feedback bloom/string focus, contact transient naturalness, lookahead expression sync, and DAW CPU stability.
+
+## 2026-05-09 Human DAW Listening Result
+
+Initial human DAW/VST3 listening after installing EG-061:
+
+- The VST sounds the same.
+- The UI header shows `EG-061`, confirming the expected installed build.
+- DAW-visible performance improvements are present.
+- The DAW-visible gains are more modest than the offline render factors suggested.
+
+Interpretation:
+
+- This is provisionally accepted for sound equivalence and build identity.
+- The smaller DAW-visible gain is expected because offline render reports isolate Guitar AG DSP throughput, while a DAW CPU meter includes host scheduling, buffer deadlines, wrapper overhead, UI work, amp-sim chains, other plugins/tracks, and host-specific CPU-meter behavior.
+- If performance still feels short in a specific scenario, capture host, sample rate, buffer size, amp-sim chain, MIDI clip, and parameter settings before starting profiler-backed follow-up.
