@@ -288,10 +288,21 @@ def add_manual_chord_slide_proxy(track: Track, start: int) -> int:
     return next_bar(tick + BAR * 7)
 
 
+def add_neck_slide_automation_bed(track: Track, start: int) -> int:
+    tick = start
+    track.marker(tick, "7 Neck Slide automation bed: held chord for host automation")
+    track.text(tick, "Draw the VST Neck Slide lane here: 0 st to +5 st, down to -2 st, then back to 0 st.")
+    reset_expression(track, tick)
+    notes = [(47, 2, 88), (54, 3, 84), (59, 4, 82), (62, 5, 80)]
+    track.mpe_chord(tick, notes, BAR * 6, strum_ticks=20)
+    reset_expression(track, tick + BAR * 6)
+    return next_bar(tick + BAR * 7)
+
+
 def add_slide_with_expression(track: Track, start: int) -> int:
     tick = start
     channel = 2
-    track.marker(tick, "7 Slide plus expression: pitch motion with pressure and CC74")
+    track.marker(tick, "8 Slide plus expression: pitch motion with pressure and CC74")
     track.text(tick, "Pressure and CC74 are not guitar slide; this checks that they can layer with pitch slides.")
     reset_expression(track, tick)
     track.note(tick, 64, BAR * 5, 96, channel)
@@ -321,6 +332,7 @@ def build_track() -> bytes:
     tick = add_slide_outs(track, tick)
     tick = add_independent_chord_slide(track, tick)
     tick = add_manual_chord_slide_proxy(track, tick)
+    tick = add_neck_slide_automation_bed(track, tick)
     add_slide_with_expression(track, tick)
 
     return track.render()

@@ -103,6 +103,12 @@ Useful curve idioms:
 
 Add a global, automatable `Slide Offset` performance lane and make it behavior-neutral at zero.
 
+Reviewer adjustment:
+
+- Use `Neck Slide` as the host-facing parameter name.
+- Keep `Slide Offset` as the internal design concept.
+- Use a `-24.0 st` to `+24.0 st` host-facing range for more precise guitar-like automation.
+
 Likely code touchpoints:
 
 - `src/plugin/PluginProcessor.h`
@@ -198,4 +204,15 @@ Phase 1 started on 2026-05-09.
 - Generated `tests/midi/guitar-ag-slide-gesture-audition.mid`.
 - Documented the segment map and offline render command in `docs/audition-midi.md`.
 - The current audition file covers MPE pitch-bend slide-to, slide-in, slide throw, slide-out, independent chord-note slide, a duplicated-MPE chord-slide proxy, and pitch slide layered with pressure/CC74.
-- True one-lane chord-shape slide automation remains blocked on Phase 2 because the global `Slide Offset` parameter does not exist yet.
+- At the end of Phase 1, true one-lane chord-shape slide automation remained blocked until the global slide parameter existed.
+
+Phase 2 started on 2026-05-09.
+
+- Added a global automatable `Neck Slide` VST parameter with an internal slide-offset role.
+- The range is `-24.0 st` to `+24.0 st`, defaulting to `0.0 st`.
+- Added smoothing in `AudioEngine` and passed the value to each active `StringVoice`.
+- Layered neck slide into `StringVoice::updatePitchRatio` alongside vibrato, whammy, aftertouch bend, and MPE pitch bend.
+- Added final pitch-ratio and per-mode pitch-step clamping to keep stacked bends bounded.
+- Added `--neck-slide` to `GuitarAGOfflineRender`.
+- Added a held-chord automation bed to the slide audition MIDI for DAW-side `Neck Slide` automation.
+- Physical slide scrape, fret-crossing texture, slide-out tail modes, and same-string speaking-length changes remain future work.

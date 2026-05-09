@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Implement slide gesture plan phase 1 audition assets",
-  "status": "slide-gesture-phase-1-ready-for-review",
-  "updatedAt": "2026-05-09T17:15:18-04:00",
-  "lastHandoff": ".agent/handoffs/20260509-171518-codex-slide-phase-1.md",
+  "lastTask": "Implement slide gesture plan phase 2 Neck Slide playback lane",
+  "status": "slide-gesture-phase-2-ready-for-review",
+  "updatedAt": "2026-05-09T17:52:05-04:00",
+  "lastHandoff": ".agent/handoffs/20260509-175205-codex-neck-slide-phase-2.md",
   "branch": "main",
-  "commit": "slide gesture phase 1 committed on main; see latest git commit",
+  "commit": "slide gesture phase 2 committed on main; see latest git commit",
   "projectState": {
-    "summary": "Slide gesture Phase 1 adds a generated MPE audition MIDI workflow. True one-lane chord-shape slides remain Phase 2 because the global Slide Offset parameter is not implemented yet."
+    "summary": "Slide gesture Phase 2 implements the global Neck Slide parameter, adds offline --neck-slide support, clamps stacked pitch ratios/modal steps, and adds a held-chord automation bed to the slide audition MIDI."
   }
 }

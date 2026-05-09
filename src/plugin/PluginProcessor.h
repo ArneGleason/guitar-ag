@@ -34,6 +34,7 @@ public:
     static constexpr auto whammyDownRangeParameterId = "whammyDownRange";
     static constexpr auto whammySpreadParameterId = "whammySpread";
     static constexpr auto aftertouchBendParameterId = "aftertouchBend";
+    static constexpr auto neckSlideParameterId = "neckSlide";
     static constexpr auto pickupPositionParameterId = "pickupPosition";
     static constexpr auto pickupModelParameterId = "pickupModel";
 
@@ -99,6 +100,7 @@ private:
     std::atomic<float>* whammyDownRangeParameter = nullptr;
     std::atomic<float>* whammySpreadParameter = nullptr;
     std::atomic<float>* aftertouchBendParameter = nullptr;
+    std::atomic<float>* neckSlideParameter = nullptr;
     std::atomic<float>* pickupPositionParameter = nullptr;
     std::atomic<float>* pickupModelParameter = nullptr;
     double currentSampleRate = 44100.0;

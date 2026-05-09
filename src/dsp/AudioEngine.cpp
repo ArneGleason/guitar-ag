@@ -60,6 +60,8 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     fretPressure.setCurrentAndTargetValue (0.0f);
     fingerNoise.reset (sampleRate, 0.030);
     fingerNoise.setCurrentAndTargetValue (0.0f);
+    neckSlideSemitones.reset (sampleRate, 0.030);
+    neckSlideSemitones.setCurrentAndTargetValue (0.0f);
     legatoArticulation.reset (sampleRate, 0.035);
     legatoArticulation.setCurrentAndTargetValue (0.0f);
     ampFeedback.reset (sampleRate, 0.080);
@@ -126,6 +128,7 @@ void AudioEngine::reset()
     bridgeIntonation.setCurrentAndTargetValue (bridgeIntonation.getTargetValue());
     fretPressure.setCurrentAndTargetValue (fretPressure.getTargetValue());
     fingerNoise.setCurrentAndTargetValue (fingerNoise.getTargetValue());
+    neckSlideSemitones.setCurrentAndTargetValue (neckSlideSemitones.getTargetValue());
     legatoArticulation.setCurrentAndTargetValue (legatoArticulation.getTargetValue());
     ampFeedback.setCurrentAndTargetValue (ampFeedback.getTargetValue());
     vibratoSpeed.setCurrentAndTargetValue (vibratoSpeed.getTargetValue());
@@ -203,6 +206,11 @@ void AudioEngine::setLookaheadSamples (int newLookaheadSamples) noexcept
 void AudioEngine::setFingerNoise (float newFingerNoise) noexcept
 {
     fingerNoise.setTargetValue (juce::jlimit (0.0f, 1.0f, newFingerNoise));
+}
+
+void AudioEngine::setNeckSlideSemitones (float newNeckSlideSemitones) noexcept
+{
+    neckSlideSemitones.setTargetValue (juce::jlimit (-24.0f, 24.0f, newNeckSlideSemitones));
 }
 
 void AudioEngine::setLegatoArticulation (float newLegatoArticulation) noexcept
@@ -393,6 +401,7 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         const auto feedbackLoopSignalForVoices = feedbackLoopSignal;
         updateFeedbackStringFocus (ampFeedbackAmount, feedbackLoopFrequencyForVoices, feedbackLoopAmountForVoices);
         const auto aftertouchBendAmount = aftertouchBendSemitones.getNextValue();
+        const auto neckSlideAmount = neckSlideSemitones.getNextValue();
         pickStiffness.getNextValue();
         pickTexture.getNextValue();
         harmonicTouch.getNextValue();
@@ -422,7 +431,8 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
                                                aftertouchBendAmount,
                                                mpePressureAmountValue,
                                                mpeTimbreAmountValue,
-                                               mpePitchBendRangeAmount);
+                                               mpePitchBendRangeAmount,
+                                               neckSlideAmount);
 
         mixedSample += renderFingerNoiseSample() * fingerNoiseAmount;
         mixedSample = tone.processSample (mixedSample);

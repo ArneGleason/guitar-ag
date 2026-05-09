@@ -34,6 +34,7 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     whammyDownRangeParameter = parameters.getRawParameterValue (whammyDownRangeParameterId);
     whammySpreadParameter = parameters.getRawParameterValue (whammySpreadParameterId);
     aftertouchBendParameter = parameters.getRawParameterValue (aftertouchBendParameterId);
+    neckSlideParameter = parameters.getRawParameterValue (neckSlideParameterId);
     pickupPositionParameter = parameters.getRawParameterValue (pickupPositionParameterId);
     pickupModelParameter = parameters.getRawParameterValue (pickupModelParameterId);
 }
@@ -137,6 +138,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
         "Aftertouch Bend",
         juce::NormalisableRange<float> { -12.0f, 12.0f, 0.1f, 1.0f },
         2.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("st")
+            .withStringFromValueFunction (semitoneString)
+            .withValueFromStringFunction (semitoneValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { neckSlideParameterId, 1 },
+        "Neck Slide",
+        juce::NormalisableRange<float> { -24.0f, 24.0f, 0.1f, 1.0f },
+        0.0f,
         juce::AudioParameterFloatAttributes()
             .withLabel ("st")
             .withStringFromValueFunction (semitoneString)
@@ -375,6 +386,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setBridgeIntonation (bridgeIntonationParameter != nullptr ? bridgeIntonationParameter->load() : 0.0f);
     audioEngine.setFretPressure (fretPressureParameter != nullptr ? fretPressureParameter->load() : 0.0f);
     audioEngine.setAftertouchBendSemitones (aftertouchBendParameter != nullptr ? aftertouchBendParameter->load() : 2.0f);
+    audioEngine.setNeckSlideSemitones (neckSlideParameter != nullptr ? neckSlideParameter->load() : 0.0f);
     const auto newLatencySamples = getLookaheadSamples();
 
     if (newLatencySamples != currentLatencySamples)

@@ -29,3 +29,5 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Received the first human DAW/VST3 listening result: the installed EG-061 VST sounds the same, shows the expected UI header, and has visible but more modest DAW performance gains than offline render factors suggested.
 - Completed a research/planning pass for guitar slide gestures, including slide/glissando terminology, MPE pitch-curve authoring for single notes, a proposed global `Slide Offset` automation lane for chord-shape slides, and implementation phases in `plans/0064-slide-gesture-notation.md`.
 - Started Phase 1 of the slide gesture plan by adding a generated MPE slide audition MIDI workflow for slide-to, slide-in, throw, slide-out, independent chord-note slides, and a duplicated-MPE chord-slide proxy.
+- Received Antigravity clearance for Phase 2 with adjustments: host-facing name `Neck Slide`, range `-24..+24 st`, and final aggregate pitch safety clamps.
+- Implemented the Phase 2 global `Neck Slide` lane, offline `--neck-slide`, pitch-ratio/modal-step clamps, EG-062 model label, and a slide audition automation bed.

@@ -1515,6 +1515,31 @@ Measured offline render checks:
 
 Because this pass is behavior-neutral, reviewer focus should be on helper boundaries, naming, and whether future profiling/maintenance work now has cleaner surfaces.
 
+## 2026-05-09 — EG-062 Neck Slide
+
+Added the first global slide playback lane after the slide gesture research and Phase 1 audition assets.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-062 NeckSlide`.
+- New plugin instances expose an automatable `Neck Slide` parameter on the Performance page.
+- `Neck Slide` ranges from `-24.0 st` to `+24.0 st` and defaults to `0.0 st`.
+- Internally, the lane is a smoothed global semitone offset passed from `AudioEngine` into each active `StringVoice`.
+- `StringVoice::updatePitchRatio` layers neck slide additively with vibrato, whammy, aftertouch bend, and MPE pitch bend.
+- The final aggregate pitch ratio is clamped against the active voice's base frequency before pitch step caching.
+- Adjusted per-mode pitch steps are also clamped to the safe frequency range before sine/cosine steps are recalculated.
+- The offline renderer accepts `--neck-slide`.
+
+Scope limit:
+
+- This pass is pitch-motion only. It does not yet add fret-crossing noise, slide velocity scrape, open/muted slide tails, or same-string speaking-length preservation.
+
+Measured offline checks:
+
+- `--neck-slide 0` matched the default no-flag render exactly on the slide gesture audition MIDI.
+- `--neck-slide 12` produced a different render, confirming the new lane affects playback.
+- An extreme stacked render with `--neck-slide 24`, full pitch wheel whammy, and full aftertouch bend completed successfully through the clamp path.
+
 ## Suggested MVP Signal Flow
 
 ```text

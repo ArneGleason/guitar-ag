@@ -453,3 +453,17 @@ Accepted
 
 Consequences:
 The default high-feedback sound is now the clipped-return path. Users can still turn `Distorted Return` off for a cleaner alternate behavior or diagnostic comparison. Existing saved DAW projects may retain their stored parameter value.
+
+## 2026-05-09 — Use Neck Slide as the first global slide lane
+
+Decision:
+Expose the first global slide-control parameter as `Neck Slide`, with an internal slide-offset meaning and a `-24.0 st` to `+24.0 st` range.
+
+Reason:
+Single-note slides can already be authored with MPE per-note pitch bend, but chord-shape slides need one automatable guitar-wide lane. Antigravity reviewed the phase-1 slide plan and recommended `Neck Slide` as the more guitar-idiomatic host-facing name, with a two-octave range for more precise 1- or 2-fret automation than a `-48..+48 st` lane.
+
+Status:
+Accepted
+
+Consequences:
+`Neck Slide` is a global performance parameter layered additively with MPE pitch bend, whammy, vibrato, and aftertouch bend. The final pitch ratio is clamped before modal phase-step calculation, and individual modal pitch steps are also kept below the safe high-frequency limit. Physical slide scrape, fret-crossing texture, and same-string speaking-length preservation remain later phases.

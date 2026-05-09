@@ -730,7 +730,8 @@ float StringVoice::renderSample (float tailSustain,
                                  float aftertouchBendSemitones,
                                  float mpePressureAmount,
                                  float mpeTimbreAmount,
-                                 float mpePitchBendRange) noexcept
+                                 float mpePitchBendRange,
+                                 float neckSlideSemitones) noexcept
 {
     if (! active)
         return 0.0f;
@@ -764,7 +765,8 @@ float StringVoice::renderSample (float tailSustain,
                                               whammySemitones,
                                               whammySpread,
                                               aftertouchBendSemitones,
-                                              mpePitchBendRange);
+                                              mpePitchBendRange,
+                                              neckSlideSemitones);
 
     const auto feedbackAmount = juce::jlimit (0.0f, 1.0f, ampFeedback);
     const auto loopAmount = juce::jlimit (0.0f, 1.0f, feedbackLoopAmount);
@@ -1346,7 +1348,8 @@ float StringVoice::updatePitchRatio (float heldSeconds,
                                      float whammySemitones,
                                      float whammySpread,
                                      float aftertouchBendSemitones,
-                                     float mpePitchBendRange) noexcept
+                                     float mpePitchBendRange,
+                                     float neckSlideSemitones) noexcept
 {
     constexpr auto twoPi = 6.28318530717958647692f;
     const auto clampedVibratoSpeed = juce::jlimit (0.0f, 14.0f, vibratoSpeedHz);
@@ -1372,13 +1375,23 @@ float StringVoice::updatePitchRatio (float heldSeconds,
         const auto mpePitchRatio = mpePitchBend != 0.0f && mpePitchBendRange != 0.0f
                                  ? std::pow (2.0f, mpePitchBend * mpePitchBendRange / 12.0f)
                                  : 1.0f;
+        const auto clampedNeckSlide = juce::jlimit (-24.0f, 24.0f, neckSlideSemitones);
+        const auto neckSlideRatio = clampedNeckSlide != 0.0f ? std::pow (2.0f, clampedNeckSlide / 12.0f) : 1.0f;
         const auto vibratoRatio = vibratoCents != 0.0f ? std::pow (2.0f, vibratoCents / 1200.0f) : 1.0f;
         const auto whammyRatio = whammySemitones != 0.0f ? getWhammyRatio (whammySemitones, whammySpread) : 1.0f;
+        const auto baseFrequency = activeModalCount > 0 && modalFrequency[0] > 0.0f
+                                 ? modalFrequency[0]
+                                 : 20.0f;
+        const auto minPitchRatio = 20.0f / baseFrequency;
+        const auto maxPitchRatio = static_cast<float> (sampleRate * 0.45) / baseFrequency;
 
-        cachedPitchRatio = vibratoRatio
-                         * whammyRatio
-                         * aftertouchRatio
-                         * mpePitchRatio;
+        cachedPitchRatio = juce::jlimit (minPitchRatio,
+                                         maxPitchRatio,
+                                         vibratoRatio
+                                             * whammyRatio
+                                             * aftertouchRatio
+                                             * mpePitchRatio
+                                             * neckSlideRatio);
         updatePitchStepCache (cachedPitchRatio);
         pitchControlSamplesUntilUpdate = pitchControlUpdateInterval;
     }
@@ -1402,7 +1415,11 @@ void StringVoice::updatePitchStepCache (float pitchRatio) noexcept
     for (auto mode = 0; mode < activeModalCount; ++mode)
     {
         const auto modeIndex = static_cast<size_t> (mode);
-        const auto phaseStep = modalPhaseStep[modeIndex] * pitchRatio;
+        constexpr auto twoPi = 6.28318530717958647692f;
+        const auto clampedFrequency = juce::jlimit (20.0f,
+                                                    static_cast<float> (sampleRate * 0.45),
+                                                    modalFrequency[modeIndex] * pitchRatio);
+        const auto phaseStep = twoPi * clampedFrequency / static_cast<float> (sampleRate);
         modalPitchSinStep[modeIndex] = std::sin (phaseStep);
         modalPitchCosStep[modeIndex] = std::cos (phaseStep);
     }

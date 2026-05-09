@@ -66,7 +66,8 @@ public:
                         float aftertouchBendSemitones,
                         float mpePressureAmount,
                         float mpeTimbreAmount,
-                        float mpePitchBendRange) noexcept;
+                        float mpePitchBendRange,
+                        float neckSlideSemitones) noexcept;
 
 private:
     static constexpr auto maxDelaySamples = 8192;
@@ -113,7 +114,8 @@ private:
                             float whammySemitones,
                             float whammySpread,
                             float aftertouchBendSemitones,
-                            float mpePitchBendRange) noexcept;
+                            float mpePitchBendRange,
+                            float neckSlideSemitones) noexcept;
     void updatePitchStepCache (float pitchRatio) noexcept;
     void updateFeedbackWeightCache (bool feedbackHasAmount,
                                     bool loopActive,

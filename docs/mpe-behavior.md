@@ -139,6 +139,14 @@ Do not confuse that guitar-slide plan with the MPE dimension that some DAWs labe
 
 The planned `Slide Offset` lane is guitar-global rather than member-channel MPE: it is intended to move a held chord shape with one automation curve, while member-channel MPE pitch bend remains available for independent per-note detail.
 
+Current implementation:
+
+- The first global slide lane is exposed as `Neck Slide`.
+- `Neck Slide` is not an MPE member-channel lane. It applies globally to active voices and is intended for chord-shape slides or broad neck-position throws.
+- Member-channel MPE pitch bend still handles independent single-note slides and can be layered with `Neck Slide`.
+- The host-facing range is `-24.0 st` to `+24.0 st`.
+- The final pitch ratio is clamped before adjusted modal phase steps are calculated, so stacked MPE bend, whammy, vibrato, aftertouch bend, and neck slide remain bounded.
+
 ## Debugging Requirements
 
 A debug display or logging mode should make MPE easier to verify.

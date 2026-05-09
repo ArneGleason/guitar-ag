@@ -74,8 +74,16 @@ At 100 BPM:
 - Bar 10: slide throw up, back, below, and back to center.
 - Bar 16: descending and ascending slide-outs before release.
 - Bar 22: independent MPE chord slide where only the top note moves.
-- Bar 28: manual chord-slide proxy, with matching MPE pitch curves on all chord tones. This stands in for the future one-lane `Slide Offset` control.
-- Bar 35: slide plus pressure/CC74 expression layering. Pressure and CC74 are not guitar slide; this checks that they can coexist with pitch slides.
+- Bar 28: manual chord-slide proxy, with matching MPE pitch curves on all chord tones. Use this to compare drawn per-note bends against the global `Neck Slide` lane.
+- Bar 35: clean held-chord automation bed for drawing the VST `Neck Slide` lane in the host.
+- Bar 42: slide plus pressure/CC74 expression layering. Pressure and CC74 are not guitar slide; this checks that they can coexist with pitch slides.
+
+For the `Neck Slide` automation bed, draw the host parameter lane roughly as:
+
+- Bar 35: `0 st`
+- Bar 36-37: ramp to `+5 st`
+- Bar 38: ramp down to `-2 st`
+- Bar 39: return to `0 st`
 
 Regenerate it with:
 
@@ -95,10 +103,11 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
   --mpe-mode 1 \
   --mpe-bend-range 48 \
   --mpe-pressure-amount 1.0 \
-  --mpe-cc74-amount 1.0
+  --mpe-cc74-amount 1.0 \
+  --neck-slide 0
 ```
 
-This file intentionally does not contain host plugin automation. The chord-slide section duplicates MPE pitch curves on each member channel until the planned global `Slide Offset` parameter exists.
+This file intentionally does not contain host plugin automation. The chord-slide proxy section duplicates MPE pitch curves on each member channel. The separate `Neck Slide` automation bed is the clean place to draw the global host-automation lane in a DAW.
 
 ## Offline Performance Report
 
