@@ -19,6 +19,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Added `plans/0064-slide-gesture-notation.md` to define the slide/glissando research, DAW authoring model, and phased implementation path for single-note, chord-shape, throw, and slide-out gestures.
 - Added `scripts/create-slide-gesture-midi.py` and `tests/midi/guitar-ag-slide-gesture-audition.mid` for phase-1 slide gesture auditioning with current MPE pitch-bend behavior.
 - Added the `Neck Slide` automatable VST parameter and offline-renderer `--neck-slide` flag for global chord-shape slide pitch motion.
+- Added the `Fret Steps` automatable VST parameter and offline-renderer `--slide-fret-steps` flag to make `Neck Slide` behave more like a fretted glissando.
 
 ### Changed
 
@@ -40,6 +41,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Changed the model label to `StringVoice EG-062 NeckSlide`.
 - Updated the slide audition MIDI with a clean held-chord automation bed for drawing host `Neck Slide` curves.
 - Clamped the aggregate pitch ratio and adjusted modal phase steps so stacked `Neck Slide`, MPE bend, whammy, vibrato, and aftertouch bend remain bounded.
+- Changed the model label to `StringVoice EG-063 FretSlide`.
+- Reduced `Neck Slide` to an octave range (`-12.0 st` to `+12.0 st`) after DAW listening showed the two-octave lane was broader than a practical slide gesture.
+- Added fret-stepped slide pitch shaping and small fret-crossing contact ticks/scrape controlled by `Fret Steps`.
 
 ### Fixed
 

@@ -1540,6 +1540,25 @@ Measured offline checks:
 - `--neck-slide 12` produced a different render, confirming the new lane affects playback.
 - An extreme stacked render with `--neck-slide 24`, full pitch wheel whammy, and full aftertouch bend completed successfully through the clamp path.
 
+## 2026-05-09 — EG-063 Fret Slide
+
+Refined the first slide lane after human DAW listening. The original smooth two-octave lane moved pitch correctly, but sounded too much like a tension/whammy effect instead of a fretted hand shifting along the neck.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-063 FretSlide`.
+- `Neck Slide` now ranges from `-12.0 st` to `+12.0 st` and defaults to `0.0 st`.
+- New plugin instances expose a `Fret Steps` amount control on the Performance page, defaulting to 65%.
+- `Fret Steps` blends the `Neck Slide` pitch contribution toward semitone plateaus with a smoothed half-fret transition between adjacent fret positions.
+- The fret-stepped shaping applies only to the global `Neck Slide` component; MPE pitch bend, whammy, aftertouch bend, and vibrato remain continuous.
+- While `Neck Slide` moves across a semitone boundary, `StringVoice` adds a small fret-crossing contact tick and short scrape burst scaled by `Fret Steps` and string woundness.
+- When `Neck Slide` is static or `Fret Steps` is 0%, the fret-contact layer stays silent.
+- The offline renderer accepts `--slide-fret-steps`.
+
+Scope limit:
+
+- This pass approximates fret engagement/disengagement. It does not yet model a true same-string speaking-length transition, slide-in/out tail modes, or explicit notation import.
+
 ## Suggested MVP Signal Flow
 
 ```text

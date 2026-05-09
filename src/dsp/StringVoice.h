@@ -67,7 +67,8 @@ public:
                         float mpePressureAmount,
                         float mpeTimbreAmount,
                         float mpePitchBendRange,
-                        float neckSlideSemitones) noexcept;
+                        float neckSlideSemitones,
+                        float slideFretSteps) noexcept;
 
 private:
     static constexpr auto maxDelaySamples = 8192;
@@ -115,7 +116,9 @@ private:
                             float whammySpread,
                             float aftertouchBendSemitones,
                             float mpePitchBendRange,
-                            float neckSlideSemitones) noexcept;
+                            float neckSlideSemitones,
+                            float slideFretSteps) noexcept;
+    void updateSlideFretContact (float neckSlideSemitones, float slideFretSteps) noexcept;
     void updatePitchStepCache (float pitchRatio) noexcept;
     void updateFeedbackWeightCache (bool feedbackHasAmount,
                                     bool loopActive,
@@ -130,6 +133,7 @@ private:
                            const FeedbackRenderContext& feedback) noexcept;
     float renderPickTransient() noexcept;
     float renderContactLayer() noexcept;
+    [[nodiscard]] static float getFretSteppedSlideSemitones (float neckSlideSemitones, float slideFretSteps) noexcept;
     [[nodiscard]] static float fastContactSin (float phase) noexcept;
     [[nodiscard]] static float fastAbsSeventhPower (float value) noexcept;
 
@@ -216,6 +220,14 @@ private:
     float pullOffSnap = 0.0f;
     float pullOffSnapDecay = 0.0f;
     float previousGestureNoise = 0.0f;
+    float slideFretContact = 0.0f;
+    float slideFretContactDecay = 0.0f;
+    float slideFretScrape = 0.0f;
+    float slideFretScrapeDecay = 0.0f;
+    float slideFretContactPhase = 0.0f;
+    float slideFretContactPhaseStep = 0.0f;
+    float previousSlideFretNoise = 0.0f;
+    float previousNeckSlideSemitones = 0.0f;
     float attackRampSeconds = 0.0025f;
     float modalReleaseDecay = 1.0f;
     std::array<float, resonanceCount> resonanceCoefficient {};
@@ -251,6 +263,7 @@ private:
     float mpeTimbreTarget = 0.0f;
     int pitchControlSamplesUntilUpdate = 0;
     int feedbackControlSamplesUntilUpdate = 0;
+    int previousSlideFret = 0;
 
     uint32_t randomState = 0x12345678u;
 
@@ -258,6 +271,7 @@ private:
     bool releasing = false;
     bool woundString = false;
     bool useCachedPitchSteps = false;
+    bool slideFretStateInitialized = false;
 };
 
 } // namespace guitar_ag

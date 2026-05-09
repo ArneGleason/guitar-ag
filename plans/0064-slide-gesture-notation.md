@@ -107,7 +107,12 @@ Reviewer adjustment:
 
 - Use `Neck Slide` as the host-facing parameter name.
 - Keep `Slide Offset` as the internal design concept.
-- Use a `-24.0 st` to `+24.0 st` host-facing range for more precise guitar-like automation.
+- The first implementation used a `-24.0 st` to `+24.0 st` host-facing range.
+
+Human DAW adjustment:
+
+- Reduce `Neck Slide` to `-12.0 st` to `+12.0 st`.
+- Add `Fret Steps` as a separate amount control so the lane can move through semitone/fret plateaus instead of behaving like a smooth whammy bend.
 
 Likely code touchpoints:
 
@@ -126,7 +131,7 @@ Engine direction:
 - Pass the current slide semitone offset into `StringVoice::renderSample`.
 - Include the offset in `StringVoice::updatePitchRatio`.
 - Keep MPE pitch bend, aftertouch bend, vibrato, and whammy behavior additive with slide offset.
-- Use existing `Finger Noise` as the first amount control for slide scrape/drag, driven by the absolute velocity of the slide curve.
+- Use `Fret Steps` as the first amount control for fret-stepped pitch shaping and fret-crossing contact texture.
 - Keep `Slide Offset == 0.0f` neutral and sample-identical to the current path when no slide curve is active.
 
 ### Phase 3 - Physical Same-String Slide
@@ -176,7 +181,7 @@ Later, MusicXML or tab import can map:
 
 - Should the first exposed parameter be named `Slide Offset`, `Fret Slide`, or `Neck Slide`?
 - Should `Slide Offset` be on the Artic page, a new Slide page, or the MPE/Performance page?
-- What should the first default range be: `-24..+24 st` for guitar-like use, or `-48..+48 st` to match the current MPE default?
+- Should `Fret Steps` default higher or lower than 65% after more DAW listening across slow slides, fast throws, and chord moves?
 - For slide-out, should the first tail be muted-only, or should a simple `Muted/Open` tail mode exist from the beginning?
 - Should chord slides apply to all active voices, or only voices whose notes started within a short grouping window?
 
@@ -209,10 +214,13 @@ Phase 1 started on 2026-05-09.
 Phase 2 started on 2026-05-09.
 
 - Added a global automatable `Neck Slide` VST parameter with an internal slide-offset role.
-- The range is `-24.0 st` to `+24.0 st`, defaulting to `0.0 st`.
+- The initial range was `-24.0 st` to `+24.0 st`, defaulting to `0.0 st`.
 - Added smoothing in `AudioEngine` and passed the value to each active `StringVoice`.
 - Layered neck slide into `StringVoice::updatePitchRatio` alongside vibrato, whammy, aftertouch bend, and MPE pitch bend.
 - Added final pitch-ratio and per-mode pitch-step clamping to keep stacked bends bounded.
 - Added `--neck-slide` to `GuitarAGOfflineRender`.
 - Added a held-chord automation bed to the slide audition MIDI for DAW-side `Neck Slide` automation.
-- Physical slide scrape, fret-crossing texture, slide-out tail modes, and same-string speaking-length changes remain future work.
+- After human DAW listening, Phase 2b reduced `Neck Slide` to `-12.0 st` to `+12.0 st`.
+- Added `Fret Steps` to blend the global slide lane toward semitone/fret plateaus and add subtle fret-crossing contact ticks/scrape while the lane moves.
+- Added `--slide-fret-steps` to `GuitarAGOfflineRender`.
+- Slide-out tail modes and same-string speaking-length changes remain future work.

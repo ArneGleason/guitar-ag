@@ -74,9 +74,9 @@ Current first implementation:
 - It maps MIDI notes to standard-tuned string/fret assignments before voice start.
 - `AudioEngine` keeps the core voice pool to six physical string voices.
 - If a new note is assigned to a string that is still ringing, that string's existing `StringVoice` is reused for the new note.
-- It does not yet choose pick direction, slides, bends, or MPE expression routing.
+- It does not yet choose pick direction, phrase-level slides, bends, or MPE expression routing.
 - The mapper is intentionally heuristic so it can later be replaced by a phrase-aware interpreter without changing the string voice's sound-generation role.
-- `plans/0064-slide-gesture-notation.md` defines the next planned articulation family: authoring guitar slides from DAW notes plus MPE pitch curves or one shared `Slide Offset` automation lane for chord-shape moves.
+- `plans/0064-slide-gesture-notation.md` defines the slide articulation family: MPE pitch curves for per-note slides and the global `Neck Slide` lane, with `Fret Steps`, for chord-shape slide moves.
 
 ### Tone / Pickup Model
 

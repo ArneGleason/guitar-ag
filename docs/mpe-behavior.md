@@ -135,16 +135,18 @@ Possible defaults:
 
 `plans/0064-slide-gesture-notation.md` treats single-note guitar slides as pitch-motion gestures that can be authored with existing MPE per-note pitch bend curves.
 
-Do not confuse that guitar-slide plan with the MPE dimension that some DAWs label "Slide". In Guitar AG's current mapping, CC74/timbre remains a timbre lane. Guitar slides should use pitch bend or the planned global `Slide Offset` automation lane unless a later explicit mode changes that mapping.
+Do not confuse that guitar-slide plan with the MPE dimension that some DAWs label "Slide". In Guitar AG's current mapping, CC74/timbre remains a timbre lane. Guitar slides should use pitch bend or the global `Neck Slide` automation lane unless a later explicit mode changes that mapping.
 
-The planned `Slide Offset` lane is guitar-global rather than member-channel MPE: it is intended to move a held chord shape with one automation curve, while member-channel MPE pitch bend remains available for independent per-note detail.
+The global slide lane is guitar-global rather than member-channel MPE: it is intended to move a held chord shape with one automation curve, while member-channel MPE pitch bend remains available for independent per-note detail.
 
 Current implementation:
 
 - The first global slide lane is exposed as `Neck Slide`.
 - `Neck Slide` is not an MPE member-channel lane. It applies globally to active voices and is intended for chord-shape slides or broad neck-position throws.
 - Member-channel MPE pitch bend still handles independent single-note slides and can be layered with `Neck Slide`.
-- The host-facing range is `-24.0 st` to `+24.0 st`.
+- The host-facing range is `-12.0 st` to `+12.0 st`.
+- `Fret Steps` is a global amount control that turns `Neck Slide` from a smooth pitch offset toward a fretted glissando with semitone plateaus and light fret-crossing contact texture.
+- `Fret Steps` only shapes the global `Neck Slide` component. Member-channel MPE pitch bend remains continuous and per-note.
 - The final pitch ratio is clamped before adjusted modal phase steps are calculated, so stacked MPE bend, whammy, vibrato, aftertouch bend, and neck slide remain bounded.
 
 ## Debugging Requirements

@@ -467,3 +467,17 @@ Accepted
 
 Consequences:
 `Neck Slide` is a global performance parameter layered additively with MPE pitch bend, whammy, vibrato, and aftertouch bend. The final pitch ratio is clamped before modal phase-step calculation, and individual modal pitch steps are also kept below the safe high-frequency limit. Physical slide scrape, fret-crossing texture, and same-string speaking-length preservation remain later phases.
+
+## 2026-05-09 — Make Neck Slide octave-ranged and fret-stepped
+
+Decision:
+Reduce `Neck Slide` to `-12.0 st` to `+12.0 st` and add a separate `Fret Steps` amount control that blends the lane toward semitone plateaus with small fret-crossing contact noise.
+
+Reason:
+Human DAW listening confirmed the first `Neck Slide` lane changed pitch, but the two-octave smooth response felt more like tensioning strings or using a whammy control than sliding a fretted hand position. A practical fast neck slide rarely needs more than an octave up/back, and a fretted slide should imply repeated engagement/disengagement of adjacent frets rather than a perfectly continuous bend.
+
+Status:
+Accepted
+
+Consequences:
+At `Fret Steps` 0%, `Neck Slide` remains a smooth global pitch offset for diagnostic or special-effect use. Higher `Fret Steps` values pull the slide pitch toward semitone plateaus and add a light fret-crossing contact layer while the slide lane moves. This is still an approximation: same-string speaking-length preservation, explicit slide-in/out tail modes, and notation import remain later phases.

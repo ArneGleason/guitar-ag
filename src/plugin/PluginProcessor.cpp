@@ -35,6 +35,7 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     whammySpreadParameter = parameters.getRawParameterValue (whammySpreadParameterId);
     aftertouchBendParameter = parameters.getRawParameterValue (aftertouchBendParameterId);
     neckSlideParameter = parameters.getRawParameterValue (neckSlideParameterId);
+    slideFretStepsParameter = parameters.getRawParameterValue (slideFretStepsParameterId);
     pickupPositionParameter = parameters.getRawParameterValue (pickupPositionParameterId);
     pickupModelParameter = parameters.getRawParameterValue (pickupModelParameterId);
 }
@@ -146,12 +147,22 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { neckSlideParameterId, 1 },
         "Neck Slide",
-        juce::NormalisableRange<float> { -24.0f, 24.0f, 0.1f, 1.0f },
+        juce::NormalisableRange<float> { -12.0f, 12.0f, 0.1f, 1.0f },
         0.0f,
         juce::AudioParameterFloatAttributes()
             .withLabel ("st")
             .withStringFromValueFunction (semitoneString)
             .withValueFromStringFunction (semitoneValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { slideFretStepsParameterId, 1 },
+        "Fret Steps",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.65f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
 
     layout.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { lookaheadParameterId, 1 },
@@ -387,6 +398,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setFretPressure (fretPressureParameter != nullptr ? fretPressureParameter->load() : 0.0f);
     audioEngine.setAftertouchBendSemitones (aftertouchBendParameter != nullptr ? aftertouchBendParameter->load() : 2.0f);
     audioEngine.setNeckSlideSemitones (neckSlideParameter != nullptr ? neckSlideParameter->load() : 0.0f);
+    audioEngine.setSlideFretSteps (slideFretStepsParameter != nullptr ? slideFretStepsParameter->load() : 0.65f);
     const auto newLatencySamples = getLookaheadSamples();
 
     if (newLatencySamples != currentLatencySamples)

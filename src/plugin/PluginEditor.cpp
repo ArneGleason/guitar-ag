@@ -194,8 +194,16 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureSlider (neckSlideSlider, juce::Colour (0xff9ccf8a));
     configureInfoButton (neckSlideInfoButton,
                          "Move all currently ringing strings up or down the neck together.\n\n"
-                         "Technical: this is a global semitone offset intended for slide gestures and chord-shape moves. It layers with MPE pitch "
-                         "bend, whammy, vibrato, and aftertouch bend, with the final pitch ratio clamped before modal phase steps are calculated.");
+                         "Technical: this is a global octave-range semitone offset intended for slide gestures and chord-shape moves. It layers "
+                         "with MPE pitch bend, whammy, vibrato, and aftertouch bend, with the final pitch ratio clamped before modal phase steps "
+                         "are calculated.");
+
+    configureLabel (slideFretStepsLabel, "Fret Steps");
+    configureSlider (slideFretStepsSlider, juce::Colour (0xffd6cf6f));
+    configureInfoButton (slideFretStepsInfoButton,
+                         "Make Neck Slide move like a fretted gliss instead of a smooth pitch bend.\n\n"
+                         "Technical: higher values pull the slide lane toward semitone plateaus and add small fret-crossing contact ticks while "
+                         "the slide is moving. 0% leaves the slide lane smooth.");
 
     configureLabel (lookaheadLabel, "Lookahead");
     configureInfoButton (lookaheadInfoButton,
@@ -398,6 +406,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     neckSlideAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                               GuitarAgAudioProcessor::neckSlideParameterId,
                                                               neckSlideSlider);
+    slideFretStepsAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                   GuitarAgAudioProcessor::slideFretStepsParameterId,
+                                                                   slideFretStepsSlider);
     lookaheadAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::lookaheadParameterId,
                                                                lookaheadBox);
@@ -594,6 +605,10 @@ void GuitarAgAudioProcessorEditor::resized()
         auto neckSlideBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (neckSlideBounds, neckSlideLabel, neckSlideInfoButton);
         neckSlideSlider.setBounds (neckSlideBounds);
+
+        auto slideFretStepsBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (slideFretStepsBounds, slideFretStepsLabel, slideFretStepsInfoButton);
+        slideFretStepsSlider.setBounds (slideFretStepsBounds);
 
         auto lookaheadBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (lookaheadBounds, lookaheadLabel, lookaheadInfoButton);
@@ -802,6 +817,9 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&neckSlideLabel),
                              static_cast<juce::Component*> (&neckSlideInfoButton),
                              static_cast<juce::Component*> (&neckSlideSlider),
+                             static_cast<juce::Component*> (&slideFretStepsLabel),
+                             static_cast<juce::Component*> (&slideFretStepsInfoButton),
+                             static_cast<juce::Component*> (&slideFretStepsSlider),
                              static_cast<juce::Component*> (&lookaheadLabel),
                              static_cast<juce::Component*> (&lookaheadInfoButton),
                              static_cast<juce::Component*> (&lookaheadBox),
@@ -882,5 +900,5 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
 
 int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
 {
-    return 436;
+    return 472;
 }

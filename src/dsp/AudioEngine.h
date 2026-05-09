@@ -51,6 +51,7 @@ public:
     void setLookaheadSamples (int newLookaheadSamples) noexcept;
     void setFingerNoise (float newFingerNoise) noexcept;
     void setNeckSlideSemitones (float newNeckSlideSemitones) noexcept;
+    void setSlideFretSteps (float newSlideFretSteps) noexcept;
     void setLegatoArticulation (float newLegatoArticulation) noexcept;
     void setAmpFeedback (float newAmpFeedback) noexcept;
     void setFeedbackReturnDistorted (bool shouldDistort) noexcept;
@@ -199,6 +200,7 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> fretPressure { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> fingerNoise { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> neckSlideSemitones { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> slideFretSteps { 0.65f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> legatoArticulation { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> ampFeedback { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> vibratoSpeed { 5.5f };

@@ -25,7 +25,8 @@ void printUsage()
                  "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5] [--palm-mute 0.0] "
                  "[--harmonic-touch 0.0] [--string-age 0.0] [--bridge-intonation 0.0] "
-                 "[--fret-pressure 0.0] [--aftertouch-bend 2.0] [--neck-slide 0.0] [--aftertouch 0.0] "
+                 "[--fret-pressure 0.0] [--aftertouch-bend 2.0] [--neck-slide 0.0] [--slide-fret-steps 0.65] "
+                 "[--aftertouch 0.0] "
                  "[--lookahead-ms 0] [--finger-noise 0.0] [--legato-articulation 0.0] [--amp-feedback 0.0] "
                  "[--feedback-return-distorted 1] "
                  "[--vibrato-speed 5.5] [--vibrato-depth 0.0] [--vibrato-delay-ms 0] "
@@ -133,6 +134,7 @@ int main (int argc, char* argv[])
     auto fretPressure = 0.0f;
     auto aftertouchBend = 2.0f;
     auto neckSlide = 0.0f;
+    auto slideFretSteps = 0.65f;
     auto aftertouch = 0.0f;
     auto lookaheadMs = 0.0f;
     auto fingerNoise = 0.0f;
@@ -224,6 +226,10 @@ int main (int argc, char* argv[])
         else if (argument == "--neck-slide" && hasValue)
         {
             neckSlide = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--slide-fret-steps" && hasValue)
+        {
+            slideFretSteps = juce::String (argv[++i]).getFloatValue();
         }
         else if (argument == "--aftertouch" && hasValue)
         {
@@ -415,6 +421,7 @@ int main (int argc, char* argv[])
     engine.setFretPressure (fretPressure);
     engine.setAftertouchBendSemitones (aftertouchBend);
     engine.setNeckSlideSemitones (neckSlide);
+    engine.setSlideFretSteps (slideFretSteps);
     engine.setLookaheadSamples (static_cast<int> (std::round (sampleRate * static_cast<double> (lookaheadMs) / 1000.0)));
     engine.setFingerNoise (fingerNoise);
     engine.setLegatoArticulation (legatoArticulation);

@@ -80,12 +80,16 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] With `Lookahead` at 150 ms or 250 ms, delayed notes stay aligned with pitch wheel, mod wheel/CC1, channel pressure, CC74, and key/poly aftertouch.
 - [ ] Dense strums, high feedback, and MPE audition sections do not show concerning DAW CPU spikes.
 
-## EG-062 Neck Slide Checks
+## EG-063 Fret Slide Checks
 
-- [ ] New plugin instances show `v0.2.6 / StringVoice EG-062 NeckSlide`.
-- [ ] The Performance page exposes `Neck Slide` with a `-24.0 st` to `+24.0 st` range and a `0.0 st` default.
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-063 FretSlide`.
+- [ ] The Performance page exposes `Neck Slide` with a `-12.0 st` to `+12.0 st` range and a `0.0 st` default.
+- [ ] The Performance page exposes `Fret Steps` with a `0%` to `100%` range and a 65% default.
 - [ ] At `0.0 st`, existing MIDI clips sound unchanged.
 - [ ] Automating `Neck Slide` on a held chord moves the whole chord together.
+- [ ] With `Fret Steps` at 0%, `Neck Slide` sounds like the earlier smooth global pitch lane.
+- [ ] With `Fret Steps` above 50%, `Neck Slide` has audible semitone/fret position definition rather than behaving like a pure whammy bend.
+- [ ] Moving `Neck Slide` across fret boundaries adds subtle contact ticks/scrape, and holding it static does not produce continuous scrape.
 - [ ] MPE per-note pitch bend still moves only the intended note when `Neck Slide` is at `0.0 st`.
 - [ ] MPE per-note pitch bend stacks predictably with a nonzero `Neck Slide`.
 - [ ] Extreme stacked pitch motion remains bounded and does not produce runaway output or obvious aliasing artifacts.

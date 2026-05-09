@@ -31,3 +31,5 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Started Phase 1 of the slide gesture plan by adding a generated MPE slide audition MIDI workflow for slide-to, slide-in, throw, slide-out, independent chord-note slides, and a duplicated-MPE chord-slide proxy.
 - Received Antigravity clearance for Phase 2 with adjustments: host-facing name `Neck Slide`, range `-24..+24 st`, and final aggregate pitch safety clamps.
 - Implemented the Phase 2 global `Neck Slide` lane, offline `--neck-slide`, pitch-ratio/modal-step clamps, EG-062 model label, and a slide audition automation bed.
+- Received human DAW feedback that EG-062 pitch motion worked but felt too much like a smooth tension/whammy bend and had too much range for a practical slide.
+- Implemented `StringVoice EG-063 FretSlide`: reduced `Neck Slide` to `-12..+12 st`, added `Fret Steps`, and added semitone plateau shaping plus subtle fret-crossing contact texture.
