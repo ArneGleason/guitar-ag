@@ -58,6 +58,7 @@ Read these before making major changes:
 - `docs/mpe-behavior.md` — MPE behavior and voice-routing rules
 - `docs/dsp-notes.md` — physical modeling and tone-generation notes
 - `docs/test-plan.md` — testing and manual verification notes
+- `CHANGELOG.md` — notable project changes
 - `DECISIONS.md` — accepted project decisions
 - `LEARNINGS.md` — accumulated project learnings
 - `plans/` — active or completed implementation plans
@@ -136,6 +137,8 @@ When DSP behavior changes, update `docs/dsp-notes.md`.
 When MPE behavior changes, update `docs/mpe-behavior.md`.
 
 When starting a larger task, create or update a file in `plans/`.
+
+When making code changes, user-visible behavior changes, workflow changes, or notable docs/process changes, update `CHANGELOG.md`.
 
 When handing work to a reviewer agent or another machine, update `.agent/session.json` and create a concise note under `.agent/handoffs/`.
 

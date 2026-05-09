@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Address immediate Antigravity review findings",
-  "status": "review-fixes-ready-for-human-routing",
-  "updatedAt": "2026-05-09T13:40:47-04:00",
+  "lastTask": "Add changelog coverage for review-fix cycle",
+  "status": "changelog-ready-for-human-routing",
+  "updatedAt": "2026-05-09T13:45:28-04:00",
   "lastHandoff": ".agent/handoffs/20260509-134047-codex-review-fix-response.md",
   "branch": "main",
   "commit": "latest pushed origin/main; immediate review fixes introduced at 7de166cf87fc6ff35f10de14ebfeb5d31a15f709",
   "projectState": {
-    "summary": "Codex addressed the immediate Antigravity review findings for lookahead expression timing, MPE expression reset, and normal MIDI pressure/CC74 fallback. The per-sample math performance finding remains queued for the optimization pass."
+    "summary": "Codex addressed the immediate Antigravity review findings for lookahead expression timing, MPE expression reset, and normal MIDI pressure/CC74 fallback, then added a project changelog and maintenance rule. The per-sample math performance finding remains queued for the optimization pass."
   }
 }
