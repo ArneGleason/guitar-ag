@@ -76,6 +76,7 @@ Current first implementation:
 - If a new note is assigned to a string that is still ringing, that string's existing `StringVoice` is reused for the new note.
 - It does not yet choose pick direction, slides, bends, or MPE expression routing.
 - The mapper is intentionally heuristic so it can later be replaced by a phrase-aware interpreter without changing the string voice's sound-generation role.
+- `plans/0064-slide-gesture-notation.md` defines the next planned articulation family: authoring guitar slides from DAW notes plus MPE pitch curves or one shared `Slide Offset` automation lane for chord-shape moves.
 
 ### Tone / Pickup Model
 

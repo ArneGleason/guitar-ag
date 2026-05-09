@@ -491,3 +491,11 @@ The feedback loop sounded more realistic when the user manually kept `Amp Feedba
 ## 2026-05-03 — Clean feedback return exposes band-hunt chirp
 
 The clean feedback return can make the loop's early movement across resonant bands too audible as a chirp. The clipped return sounds more natural by feeding the resonator bank a denser, more amp-like signal while leaving the main DI path clean.
+
+## 2026-05-09 — Guitar slide authoring needs two lanes
+
+Single-note slides can use existing MPE per-note pitch bend, but chord slides are awkward if the human must draw identical per-note curves. A shared automatable slide-offset lane would let a held chord move as one guitar shape, while MPE pitch bend remains available for independent note detail.
+
+## 2026-05-09 — MPE Slide is not automatically guitar slide
+
+Some DAWs label the MPE Y dimension as Slide, but Guitar AG currently maps CC74/timbre as timbre. The planned guitar-slide feature should avoid overloading CC74 by default and treat fret slides as pitch-motion plus physical contact/noise behavior.

@@ -131,6 +131,14 @@ Possible defaults:
 - ±12 semitones for guitar-like slides
 - ±2 semitones for traditional guitar bend behavior
 
+## Slide Gesture Planning Note
+
+`plans/0064-slide-gesture-notation.md` treats single-note guitar slides as pitch-motion gestures that can be authored with existing MPE per-note pitch bend curves.
+
+Do not confuse that guitar-slide plan with the MPE dimension that some DAWs label "Slide". In Guitar AG's current mapping, CC74/timbre remains a timbre lane. Guitar slides should use pitch bend or the planned global `Slide Offset` automation lane unless a later explicit mode changes that mapping.
+
+The planned `Slide Offset` lane is guitar-global rather than member-channel MPE: it is intended to move a held chord shape with one automation curve, while member-channel MPE pitch bend remains available for independent per-note detail.
+
 ## Debugging Requirements
 
 A debug display or logging mode should make MPE easier to verify.

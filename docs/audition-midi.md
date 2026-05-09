@@ -56,6 +56,18 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
 
 The offline render is useful for a quick sanity check, but the DAW audition is still the better test for imported MIDI-channel behavior, plugin parameters, and host MPE handling.
 
+## Planned Slide Gesture Audition
+
+`plans/0064-slide-gesture-notation.md` defines the next slide-authoring direction.
+
+Once a slide playback control exists, add a generated audition file or DAW test note that covers:
+
+- single-note MPE pitch-bend slides to a target note,
+- fast slide throws up and back,
+- slide-out releases into a muted tail,
+- chord-shape slides using one global `Slide Offset` automation curve,
+- global slide offset layered with per-note MPE pitch bend.
+
 ## Offline Performance Report
 
 Add `--perf-report` to the offline renderer to print timing and voice-activity diagnostics:
