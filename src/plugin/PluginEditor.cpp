@@ -202,8 +202,8 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureSlider (slideFretStepsSlider, juce::Colour (0xffd6cf6f));
     configureInfoButton (slideFretStepsInfoButton,
                          "Make Neck Slide move like a fretted gliss instead of a smooth pitch bend.\n\n"
-                         "Technical: higher values pull the slide lane toward semitone plateaus and add small fret-crossing contact ticks while "
-                         "the slide is moving. 0% leaves the slide lane smooth.");
+                         "Technical: the control uses a perceptual curve, so 10% already reaches the old 90% engagement point and the rest of "
+                         "the slider fine-tunes the audible fret-crossing zone. 0% leaves the slide lane smooth.");
 
     configureLabel (lookaheadLabel, "Lookahead");
     configureInfoButton (lookaheadInfoButton,

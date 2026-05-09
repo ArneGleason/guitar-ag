@@ -1398,10 +1398,20 @@ float StringVoice::getWhammyRatio (float whammySemitones, float whammySpread) co
     return std::pow (2.0f, adjustedSemitones / 12.0f);
 }
 
+float StringVoice::getEffectiveSlideFretSteps (float slideFretSteps) noexcept
+{
+    const auto control = juce::jlimit (0.0f, 1.0f, slideFretSteps);
+
+    if (control <= 0.10f)
+        return control * 9.0f;
+
+    return 0.90f + (control - 0.10f) * (0.10f / 0.90f);
+}
+
 float StringVoice::getFretSteppedSlideSemitones (float neckSlideSemitones, float slideFretSteps) noexcept
 {
     const auto clampedSlide = juce::jlimit (-12.0f, 12.0f, neckSlideSemitones);
-    const auto amount = juce::jlimit (0.0f, 1.0f, slideFretSteps);
+    const auto amount = getEffectiveSlideFretSteps (slideFretSteps);
 
     if (amount <= 0.0001f || std::abs (clampedSlide) <= 0.0001f)
         return clampedSlide;
@@ -1423,7 +1433,7 @@ float StringVoice::getFretSteppedSlideSemitones (float neckSlideSemitones, float
 void StringVoice::updateSlideFretContact (float neckSlideSemitones, float slideFretSteps) noexcept
 {
     const auto clampedSlide = juce::jlimit (-12.0f, 12.0f, neckSlideSemitones);
-    const auto amount = juce::jlimit (0.0f, 1.0f, slideFretSteps);
+    const auto amount = getEffectiveSlideFretSteps (slideFretSteps);
     const auto currentFret = static_cast<int> (std::floor (clampedSlide + 0.5f));
 
     if (! slideFretStateInitialized)

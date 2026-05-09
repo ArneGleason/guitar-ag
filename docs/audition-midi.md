@@ -85,7 +85,7 @@ For the `Neck Slide` automation bed, draw the host parameter lane roughly as:
 - Bar 38: ramp down to `-2 st`
 - Bar 39: return to `0 st`
 
-For the fretted-slide character, leave `Fret Steps` near its 65% default or automate it higher for more obvious semitone/fret definition. Set `Fret Steps` to 0% when you want to compare against the earlier smooth global pitch lane.
+For the fretted-slide character, start with `Fret Steps` around 10% to 25%. The control is perceptually remapped, so 10% now reaches the former 90% engagement point and the rest of the slider fine-tunes the audible fret-crossing range. Set `Fret Steps` to 0% when you want to compare against the earlier smooth global pitch lane.
 
 Regenerate it with:
 

@@ -223,4 +223,5 @@ Phase 2 started on 2026-05-09.
 - After human DAW listening, Phase 2b reduced `Neck Slide` to `-12.0 st` to `+12.0 st`.
 - Added `Fret Steps` to blend the global slide lane toward semitone/fret plateaus and add subtle fret-crossing contact ticks/scrape while the lane moves.
 - Added `--slide-fret-steps` to `GuitarAGOfflineRender`.
+- After human DAW listening, Phase 2c remapped `Fret Steps` so 10% reaches the former 90% engagement point and 10% to 100% covers the audible fret-engagement zone.
 - Slide-out tail modes and same-string speaking-length changes remain future work.

@@ -44,6 +44,8 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Changed the model label to `StringVoice EG-063 FretSlide`.
 - Reduced `Neck Slide` to an octave range (`-12.0 st` to `+12.0 st`) after DAW listening showed the two-octave lane was broader than a practical slide gesture.
 - Added fret-stepped slide pitch shaping and small fret-crossing contact ticks/scrape controlled by `Fret Steps`.
+- Changed the model label to `StringVoice EG-064 FretStepCurve`.
+- Remapped `Fret Steps` so 10% reaches the former 90% engagement point, spreading the audible fret-engagement range across the rest of the control.
 
 ### Fixed
 

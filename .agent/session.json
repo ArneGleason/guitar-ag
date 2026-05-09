@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Refine slide gesture phase 2 with fret-stepped Neck Slide behavior",
-  "status": "slide-gesture-phase-2b-ready-for-review",
-  "updatedAt": "2026-05-09T19:25:58-04:00",
+  "lastTask": "Recalibrate Fret Steps control curve",
+  "status": "slide-gesture-phase-2c-in-progress",
+  "updatedAt": "2026-05-09T19:50:49-04:00",
   "lastHandoff": ".agent/handoffs/20260509-192558-codex-fret-slide-phase-2b.md",
   "branch": "main",
-  "commit": "slide gesture phase 2b will be latest pushed main after Codex commit",
+  "commit": "slide gesture phase 2c pending commit on main",
   "projectState": {
-    "summary": "Slide gesture Phase 2b reduces Neck Slide to an octave range and adds Fret Steps for semitone plateau shaping plus subtle fret-crossing contact texture."
+    "summary": "Slide gesture Phase 2c remaps Fret Steps so the audible fret-engagement range is spread across the control instead of hiding near the top."
   }
 }

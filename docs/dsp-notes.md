@@ -1559,6 +1559,18 @@ Scope limit:
 
 - This pass approximates fret engagement/disengagement. It does not yet model a true same-string speaking-length transition, slide-in/out tail modes, or explicit notation import.
 
+## 2026-05-09 — EG-064 Fret Step Curve
+
+Recalibrated the `Fret Steps` control after human DAW listening. The EG-063 sound direction was accepted, but the first 90% of the control barely exposed audible fret engagement.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-064 FretStepCurve`.
+- `Fret Steps` still stores and displays as a normal 0% to 100% automatable parameter.
+- Internally, the control is remapped so 0% to 10% covers the former 0% to 90% engagement range.
+- The remaining 10% to 100% of the control covers the former 90% to 100% engagement range, giving most of the slider to the audible fret-crossing zone.
+- This perceptual mapping feeds both semitone plateau shaping and fret-crossing contact ticks/scrape.
+
 ## Suggested MVP Signal Flow
 
 ```text

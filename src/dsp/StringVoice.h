@@ -133,6 +133,7 @@ private:
                            const FeedbackRenderContext& feedback) noexcept;
     float renderPickTransient() noexcept;
     float renderContactLayer() noexcept;
+    [[nodiscard]] static float getEffectiveSlideFretSteps (float slideFretSteps) noexcept;
     [[nodiscard]] static float getFretSteppedSlideSemitones (float neckSlideSemitones, float slideFretSteps) noexcept;
     [[nodiscard]] static float fastContactSin (float phase) noexcept;
     [[nodiscard]] static float fastAbsSeventhPower (float value) noexcept;

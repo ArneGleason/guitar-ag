@@ -33,3 +33,5 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Implemented the Phase 2 global `Neck Slide` lane, offline `--neck-slide`, pitch-ratio/modal-step clamps, EG-062 model label, and a slide audition automation bed.
 - Received human DAW feedback that EG-062 pitch motion worked but felt too much like a smooth tension/whammy bend and had too much range for a practical slide.
 - Implemented `StringVoice EG-063 FretSlide`: reduced `Neck Slide` to `-12..+12 st`, added `Fret Steps`, and added semitone plateau shaping plus subtle fret-crossing contact texture.
+- Received human DAW feedback that EG-063 was better but that the audible `Fret Steps` engagement lived almost entirely in the top 10% of the slider.
+- Implemented `StringVoice EG-064 FretStepCurve`, remapping `Fret Steps` so 10% reaches the former 90% engagement point and 10% to 100% covers the useful high-engagement zone.
