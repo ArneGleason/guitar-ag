@@ -16,11 +16,10 @@ Suggested focus:
 Known limitations:
 
 - This adoption pass did not perform a code review or run a build.
-- Machine handles for the Mac and Windows environments are not assigned yet.
-- No first reviewer handoff has been created yet; create one once the human chooses the first review target and reviewer environment.
+- The first reviewer handoff asks Antigravity on `mac-mini-pro-m4` to pull from GitHub before reviewing.
+- Any future Windows PC machine handle still needs human confirmation before a cross-machine handoff.
 
 Questions:
 
-- What stable machine handles should we use for the Mac and Windows PC?
-- Which reviewer agent/tool and machine should receive the first review?
-- Should the first review be a full current-code baseline review, or should it focus on performance and maintainability risks first?
+- For the first pass, produce a baseline code review before implementation changes.
+- After review, decide which findings should feed the performance and maintainability optimization pass.

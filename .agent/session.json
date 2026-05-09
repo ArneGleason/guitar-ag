@@ -10,26 +10,26 @@
     "localAdaptation": "Guitar AG keeps its existing project-specific agent rules and adds lightweight Studio Pattern memory for review, handoff, and multi-machine coordination."
   },
   "currentLead": "Codex",
-  "intendedReviewer": "reviewer agent, human-routed",
+  "intendedReviewer": "Antigravity",
   "participants": {
     "lead": {
       "agentTool": "Codex",
-      "machineHandle": "pending-human-assignment",
+      "machineHandle": "macbook-pro-m5",
       "localCheckout": "/Users/arnegleason/code/github.com/arnegleason/guitar-ag"
     },
     "reviewer": {
-      "agentTool": "pending-human-assignment",
-      "machineHandle": "pending-human-assignment",
-      "localCheckout": ""
+      "agentTool": "Antigravity",
+      "machineHandle": "mac-mini-pro-m4",
+      "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Adopt Studio Pattern references for first review cycle",
-  "status": "initialized-for-review-cycle",
-  "updatedAt": "2026-05-09T13:20:39-04:00",
-  "lastHandoff": "",
+  "lastTask": "Prepare Antigravity reviewer bootstrap handoff",
+  "status": "handoff-ready-for-review",
+  "updatedAt": "2026-05-09T13:25:42-04:00",
+  "lastHandoff": ".agent/handoffs/20260509-132542-antigravity-review-bootstrap.md",
   "branch": "main",
-  "commit": "ef6e31c519db96c47c3c9328bad7b9492b927a6d",
+  "commit": "80e02ddf93c9406add0447be3cae7ecaa040df71",
   "projectState": {
-    "summary": "Repository is prepared with Studio Pattern memory surfaces so a lead can create a human-readable handoff and route a code review through GitHub."
+    "summary": "Repository is prepared for a human-routed baseline code review by Antigravity on mac-mini-pro-m4. Reviewer should clone or pull latest main from GitHub before reading memory surfaces and reviewing."
   }
 }

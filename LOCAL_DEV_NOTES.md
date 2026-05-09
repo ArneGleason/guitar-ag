@@ -13,13 +13,18 @@ This is the Studio Pattern local workflow memory for Guitar AG. Keep commands, s
 
 ## Local Environment
 
-- Machine handle: `pending-human-assignment`
+- Machine handle: `macbook-pro-m5`
 - Primary agent/tool here: Codex
 - Local checkout: `/Users/arnegleason/code/github.com/arnegleason/guitar-ag`
 - Canonical repo: `https://github.com/ArneGleason/guitar-ag`
 - Canonical Studio Pattern repo: `https://github.com/ArneGleason/the-studio-pattern`
 
 Machine handles are assigned by the human owner. Do not treat OS hostname, username, serial number, or network name as canonical unless the human explicitly maps it here.
+
+## Known Studio Environments
+
+- `macbook-pro-m5`: Codex lead environment for this checkout.
+- `mac-mini-pro-m4`: Antigravity reviewer environment. The human may create an empty `guitar-ag` folder there before handoff; Antigravity should clone or pull from GitHub before reviewing.
 
 ## Multi-Machine Git Hygiene
 
@@ -39,6 +44,28 @@ git pull --ff-only
 If there are local changes, ahead commits, or uncertainty about work on another machine, pause and ask whether anything should be committed, pushed, or pulled before continuing.
 
 Before handing work to the reviewer agent, prefer pushing the branch so the reviewer can inspect the same commit from GitHub.
+
+Reviewer bootstrap on `mac-mini-pro-m4` with Antigravity:
+
+If the human created an empty `guitar-ag` folder:
+
+```sh
+git clone https://github.com/ArneGleason/guitar-ag.git .
+git switch main
+git pull --ff-only
+git status --short --branch
+```
+
+If the folder is already a Git checkout:
+
+```sh
+git fetch origin --prune
+git switch main
+git pull --ff-only
+git status --short --branch
+```
+
+If the folder is not empty and not a Git checkout, do not delete files without human confirmation. Move aside stray local files or clone into the parent directory instead.
 
 ## Setup
 
@@ -153,4 +180,4 @@ Then update `.agent/session.json`, `.agent/PROJECT_LOG.md`, `.agent/REVIEW_QUEUE
 
 - If the DAW-side MPE bend range and `MPE Bend Range` disagree, drawn bends will not match the expected semitone movement.
 - The offline renderer is not a substitute for testing the VST3 in a host such as Bitwig or Reaper.
-- Machine handles are currently unassigned; confirm the Mac and Windows handles before the first cross-machine handoff.
+- The Mac lead and reviewer machine handles are assigned; any future Windows PC handle still needs human confirmation before a cross-machine handoff.
