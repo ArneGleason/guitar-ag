@@ -232,7 +232,8 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Compare the pick-stroke audition file against forced `Down` and forced `Up` to judge whether `Alternate` feels like right-hand travel rather than a mechanical toggle.
 - [ ] In the pick-stroke audition chord sections, strummed notes should feel like a held left-hand chord being re-articulated by the right hand, not like the fretting hand releases every note between strokes.
 - [ ] `Player Feel` at 0% sounds and renders like the current neutral picked path.
-- [ ] New plugin instances show `v0.2.6 / StringVoice EG-078 StrumAwareFeel`.
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-079 AutoStrum`.
+- [ ] The `Player Feel` slider shows Bot, Pro, and Loose landmarks at 0%, 50%, and 100%.
 - [ ] Raising `Player Feel` adds picked-note timing/energy variation that grows during fast repetition, string skips, and awkward changes.
 - [ ] `Player Feel` around 50% lands near the accepted natural EG-075 100% feel.
 - [ ] `Player Feel` near 100% overshoots into visibly/audibly sloppier playing without breaking the phrase, with timing variation clearly larger than 50%.
@@ -246,6 +247,13 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Re-rendering the same MIDI with the same `Player Feel` settings remains deterministic.
 - [ ] `Pick Stiffness` and `Pick Texture` remain useful after the plastic-plectrum retune.
 - [ ] Re-rendering the same MIDI with the same `Pick Stroke` setting remains deterministic.
+- [ ] The Articulation page exposes `Strum Speed` after `Pick Stroke`.
+- [ ] `Strum Speed` at 0% leaves same-time block chords simultaneous.
+- [ ] Raising `Strum Speed` fans exact same-sample chord note-ons across assigned strings.
+- [ ] `Pick Stroke = Down` makes block chords fan low-to-high; `Pick Stroke = Up` makes them fan high-to-low.
+- [ ] `Pick Stroke = Alternate` alternates repeated block-chord strokes while still using economy direction between chord areas.
+- [ ] Single-note runs remain unchanged by `Strum Speed`.
+- [ ] Drag `tests/midi/guitar-ag-auto-strum-audition.mid` into a DAW and compare `Strum Speed` at 0%, around 40-70%, and 100%.
 
 ## MPE Pitch Bend Checks
 

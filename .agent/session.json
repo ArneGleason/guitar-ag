@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Make Player Feel strum-aware",
-  "status": "EG-078 StrumAwareFeel implemented, built, installed, and ready for review/audition",
-  "updatedAt": "2026-05-10T11:56:58-04:00",
-  "lastHandoff": ".agent/handoffs/20260510-115658-codex-strum-aware-feel.md",
+  "lastTask": "Add exact-block Auto Strum and Player Feel landmarks",
+  "status": "EG-079 AutoStrum implemented, built, installed, and ready for review/audition",
+  "updatedAt": "2026-05-10T12:23:10-04:00",
+  "lastHandoff": ".agent/handoffs/20260510-122310-codex-auto-strum.md",
   "branch": "main",
-  "commit": "EG-078 StrumAwareFeel implementation will be the latest pushed main commit after Codex commit",
+  "commit": "Add exact-block auto strum (current main commit)",
   "projectState": {
-    "summary": "EG-078 treats very short cross-string note clusters as continuing strum strokes for Player Feel load accounting, reducing misleading cognitive/dexterity buildup on already-staggered chord MIDI. It also adds an Auto Strum interpreter plan and gives the header Export Settings control more vertical room."
+    "summary": "EG-079 adds Bot/Pro/Loose Player Feel landmarks and a Strum Speed parameter that turns exact same-sample block chord note-ons into internally scheduled right-hand strums using fretboard assignment and Pick Stroke direction. Near-time collection tolerance remains deferred."
   }
 }

@@ -1893,3 +1893,30 @@ For these continuation notes:
 - timing/energy variation still uses the accumulated load and remains deterministic.
 
 This does not schedule strums from block chords yet. It only prevents existing staggered strum MIDI from overcharging the load model. Full Auto Strum planning lives in `plans/0079-auto-strum-interpreter.md`.
+
+## 2026-05-10 — EG-079 Auto Strum Exact-Block Interpreter
+
+EG-079 adds the first Auto Strum implementation for chords whose MIDI note-ons arrive at the exact same sample position.
+
+Implementation shape:
+
+- `AudioEngine::render` groups MIDI messages with the same block sample position before dispatching them.
+- When a same-sample group contains at least two note-ons and `Strum Speed` is above 0%, the engine predicts fretboard string assignments for the chord.
+- Groups containing same-sample controller/expression events bypass Auto Strum and use the normal dispatch order for this first pass.
+- The predicted notes are sorted by `Pick Stroke` direction:
+  - `Down`: low-string index toward high-string index;
+  - `Up`: high-string index toward low-string index;
+  - `Alternate`: follows existing right-hand memory, including repeated chord down/up alternation.
+- Each note-on receives an internal delay based on string distance. At 100%, adjacent strings are spaced by about 100 ms, so a six-string chord can spread to roughly half a second.
+- The predicted string assignment is remembered until the delayed note-on fires, so the final `FretboardMapper` assignment matches the strum order that was calculated up front.
+- Player Feel now receives the strum delay as the effective note-event time, so cognitive/dexterity load decays and accumulates along the generated stroke instead of treating all block-chord notes as zero-time events.
+
+Neutral behavior:
+
+- `Strum Speed = 0%` bypasses the Auto Strum path.
+- Single-note MIDI is unchanged.
+- Already-staggered authored strums are still handled by the EG-078 strum-continuation heuristic, not rescheduled.
+
+Known limitation:
+
+This pass intentionally does not collect notes that arrive a few samples apart. Supporting DAW jitter/tolerance windows will require an explicit lookahead/collection design so live latency and host compensation remain understandable.

@@ -13,6 +13,7 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     pickTextureParameter = parameters.getRawParameterValue (pickTextureParameterId);
     pickBiteParameter = parameters.getRawParameterValue (pickBiteParameterId);
     pickStrokeParameter = parameters.getRawParameterValue (pickStrokeParameterId);
+    strumSpeedParameter = parameters.getRawParameterValue (strumSpeedParameterId);
     playerFeelParameter = parameters.getRawParameterValue (playerFeelParameterId);
     playerFeelRecoveryParameter = parameters.getRawParameterValue (playerFeelRecoveryParameterId);
     palmMuteParameter = parameters.getRawParameterValue (palmMuteParameterId);
@@ -404,6 +405,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
         2));
 
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { strumSpeedParameterId, 1 },
+        "Strum Speed",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { playerFeelParameterId, 1 },
         "Player Feel",
         juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
@@ -475,6 +486,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setPickTexture (pickTextureParameter != nullptr ? pickTextureParameter->load() : 0.5f);
     audioEngine.setPickBite (pickBiteParameter != nullptr ? pickBiteParameter->load() : 0.5f);
     audioEngine.setPickStrokeMode (pickStrokeParameter != nullptr ? juce::roundToInt (pickStrokeParameter->load()) : 2);
+    audioEngine.setStrumSpeed (strumSpeedParameter != nullptr ? strumSpeedParameter->load() : 0.0f);
     audioEngine.setPlayerFeel (playerFeelParameter != nullptr ? playerFeelParameter->load() : 0.0f);
     audioEngine.setPlayerFeelRecoverySeconds (playerFeelRecoveryParameter != nullptr ? playerFeelRecoveryParameter->load() : 2.0f);
 
@@ -574,6 +586,7 @@ juce::String GuitarAgAudioProcessor::exportSettingsJson() const
     add (pickTextureParameterId, pickTextureParameter);
     add (pickBiteParameterId, pickBiteParameter);
     add (pickStrokeParameterId, pickStrokeParameter);
+    add (strumSpeedParameterId, strumSpeedParameter);
     add (playerFeelParameterId, playerFeelParameter);
     add (playerFeelRecoveryParameterId, playerFeelRecoveryParameter);
     add (palmMuteParameterId, palmMuteParameter);

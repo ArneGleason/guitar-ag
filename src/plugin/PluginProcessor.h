@@ -19,6 +19,7 @@ public:
     static constexpr auto pickTextureParameterId = "pickTexture";
     static constexpr auto pickBiteParameterId = "pickBite";
     static constexpr auto pickStrokeParameterId = "pickStroke";
+    static constexpr auto strumSpeedParameterId = "strumSpeed";
     static constexpr auto playerFeelParameterId = "playerFeel";
     static constexpr auto playerFeelRecoveryParameterId = "playerFeelRecovery";
     static constexpr auto palmMuteParameterId = "palmMute";
@@ -96,6 +97,7 @@ private:
     std::atomic<float>* pickTextureParameter = nullptr;
     std::atomic<float>* pickBiteParameter = nullptr;
     std::atomic<float>* pickStrokeParameter = nullptr;
+    std::atomic<float>* strumSpeedParameter = nullptr;
     std::atomic<float>* playerFeelParameter = nullptr;
     std::atomic<float>* playerFeelRecoveryParameter = nullptr;
     std::atomic<float>* palmMuteParameter = nullptr;

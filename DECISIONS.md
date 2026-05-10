@@ -691,3 +691,17 @@ Accepted
 
 Consequences:
 EG-078 reduces the Player Feel load contribution for adjacent or near-adjacent cross-string note starts inside a short strum window. This preserves existing authored strum MIDI while lowering misleading load buildup. A later Auto Strum interpreter can accept simultaneous chord notes and internally schedule string-order timing.
+
+## 2026-05-10 — Start Auto Strum with exact block chords
+
+Decision:
+Add `Strum Speed` as an optional exact-same-sample block-chord interpreter before adding a broader near-time collection window.
+
+Reason:
+The immediate musical need is to let DAWs author a held chord as simultaneous note-ons and let Guitar AG perform the right-hand sweep. Exact same-sample grouping can be done without introducing input latency. A tolerance window for notes that arrive a fraction of a millisecond apart would require deliberate collection/lookahead behavior and should be designed separately.
+
+Status:
+Accepted
+
+Consequences:
+`Strum Speed = 0%` preserves current MIDI timing. Higher values fan simultaneous chord note-ons across predicted string assignments using the current `Pick Stroke` direction and schedule those note starts internally. The first pass does not reinterpret already-staggered strums, and it does not yet collect notes that arrive in adjacent samples or small host jitter windows.

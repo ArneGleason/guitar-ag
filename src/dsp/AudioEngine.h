@@ -52,6 +52,7 @@ public:
     void setPickTexture (float newPickTexture) noexcept;
     void setPickBite (float newPickBite) noexcept;
     void setPickStrokeMode (int newPickStrokeMode) noexcept;
+    void setStrumSpeed (float newStrumSpeed) noexcept;
     void setPlayerFeel (float newPlayerFeel) noexcept;
     void setPlayerFeelRecoverySeconds (float newPlayerFeelRecoverySeconds) noexcept;
     void resetPlayerFeel() noexcept;
@@ -96,11 +97,21 @@ public:
 private:
     static constexpr auto maxVoices = 6;
     static constexpr auto maxScheduledMidiEvents = 256;
+    static constexpr auto maxIncomingMidiGroup = 32;
     static constexpr auto maxFingerNoiseVoices = 12;
     static constexpr auto feedbackResonatorCount = 8;
 
+    struct IncomingMidiGroup;
+    struct LegatoSource;
+    struct PlayerFeelResult;
+
     void renderRange (juce::AudioBuffer<float>& audio, int startSample, int endSample) noexcept;
+    void handleIncomingMidiGroup (const IncomingMidiGroup& group);
+    [[nodiscard]] bool handleAutoStrumGroup (const IncomingMidiGroup& group);
     void handleIncomingMidiMessage (const juce::MidiMessage& message);
+    void handleIncomingNoteOn (const juce::MidiMessage& message,
+                               int additionalDelaySamples = 0,
+                               int preferredStringIndex = -1);
     void handleMidiMessage (const juce::MidiMessage& message);
     void noteOn (int noteNumber, int channel, float velocity);
     void noteOff (int noteNumber, int channel);
@@ -112,10 +123,10 @@ private:
     void scheduleMidiMessage (const juce::MidiMessage& message, int64_t sampleTime) noexcept;
     void dispatchScheduledMidiEvents() noexcept;
     void clearScheduledMidiEvents() noexcept;
+    void rememberPendingStrumAssignment (int noteNumber, int channel, int64_t sampleTime, int stringIndex) noexcept;
+    [[nodiscard]] int consumePendingStrumString (int noteNumber, int channel) noexcept;
     void triggerFingerApproach (int noteNumber, int channel, float velocity) noexcept;
     void triggerFingerRelease (int noteNumber, int channel) noexcept;
-    struct LegatoSource;
-    struct PlayerFeelResult;
     [[nodiscard]] LegatoSource findLegatoSource (int noteNumber, int channel, float amount) const noexcept;
     void rememberArticulationNote (int noteNumber,
                                    int channel,
@@ -135,10 +146,12 @@ private:
                                                               int channel,
                                                               int sourceNoteNumber,
                                                               int64_t sampleTime) noexcept;
-    [[nodiscard]] PlayerFeelResult processPlayerFeelNoteOn (const juce::MidiMessage& message) noexcept;
+    [[nodiscard]] PlayerFeelResult processPlayerFeelNoteOn (const juce::MidiMessage& message,
+                                                            int additionalDelaySamples = 0,
+                                                            int preferredStringIndex = -1) noexcept;
     void decayPlayerFeelLoads (int64_t sampleTime) noexcept;
     void releasePlayerFeelNote (int noteNumber, int channel) noexcept;
-    [[nodiscard]] float getPlayerFeelNoise (uint32_t salt) const noexcept;
+    [[nodiscard]] float getPlayerFeelNoise (uint32_t salt, int64_t sampleTime) const noexcept;
     [[nodiscard]] static int getDirectionSign (int value) noexcept;
     void rememberFingerAssignment (int noteNumber, int channel, const FretboardAssignment& assignment) noexcept;
     FretboardAssignment findFingerAssignment (int noteNumber, int channel) const noexcept;
@@ -200,6 +213,29 @@ private:
         int delaySamples = 0;
     };
 
+    struct IncomingMidiGroup
+    {
+        std::array<juce::MidiMessage, maxIncomingMidiGroup> messages {};
+        int count = 0;
+    };
+
+    struct AutoStrumNote
+    {
+        juce::MidiMessage message;
+        FretboardAssignment assignment {};
+        int originalIndex = 0;
+        bool active = false;
+    };
+
+    struct PendingStrumAssignment
+    {
+        int64_t sampleTime = 0;
+        int noteNumber = -1;
+        int channel = -1;
+        int stringIndex = -1;
+        bool active = false;
+    };
+
     struct FingerNoiseVoice
     {
         int samplesRemaining = 0;
@@ -220,6 +256,7 @@ private:
 
     std::array<StringVoice, maxVoices> voices;
     std::array<ScheduledMidiEvent, maxScheduledMidiEvents> scheduledMidiEvents {};
+    std::array<PendingStrumAssignment, maxScheduledMidiEvents> pendingStrumAssignments {};
     std::array<FingerAssignment, maxVoices> fingerAssignments {};
     std::array<ArticulationNote, maxVoices> articulationNotes {};
     std::array<FingerNoiseVoice, maxFingerNoiseVoices> fingerNoiseVoices {};
@@ -236,6 +273,7 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickStiffness { 0.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickTexture { 0.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickBite { 0.5f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> strumSpeed { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> playerFeel { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> playerFeelRecoverySeconds { 2.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> palmMute { 0.0f };

@@ -63,3 +63,4 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Implemented `StringVoice EG-076 PlayerFeelCalibration`, recalibrating `Player Feel` for natural midpoint plus sloppy overshoot, extending/defaulting `Feel Recovery`, adding live load meters, and adding a copyable settings JSON export for audition handoffs.
 - Implemented `StringVoice EG-077 PlayerFeelSlop`, slowing load-meter accumulation, widening the top-half sloppy timing/energy range, moving settings export to the global header, and storing the first human-exported audition settings snapshot.
 - Implemented `StringVoice EG-078 StrumAwareFeel`, reducing Player Feel load for very short cross-string strum continuations and adding the Auto Strum interpreter plan.
+- Implemented `StringVoice EG-079 AutoStrum`, adding Bot/Pro/Loose Player Feel landmarks, `Strum Speed`, exact same-sample block-chord strum scheduling, offline `--strum-speed`, and an Auto Strum audition MIDI.

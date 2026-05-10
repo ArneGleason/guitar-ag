@@ -20,6 +20,13 @@ Add notes here when something sounds good, bad, unstable, too bright, too dull, 
 - EG-063 proved that fret engagement during `Neck Slide` is musically useful, but the audible effect was concentrated near the top of the `Fret Steps` slider.
 - EG-064's remap makes the useful fret-engagement range available across the slider breadth and is accepted as the better control feel.
 
+## 2026-05-10 — Block chords versus right-hand articulation
+
+- MIDI clips that stagger chord notes are effectively hand-authoring the right-hand stroke, while block chords leave that interpretation to the instrument.
+- The useful Auto Strum first slice is exact-same-sample chord grouping: it covers normal DAW block chords without adding latency or a collection window.
+- Near-simultaneous note jitter from hosts may still need a future tolerance window, but that choice should be explicit because it can trade live immediacy for interpretation accuracy.
+- Player Feel should see internally generated strum delays as the actual picked event times, otherwise same-sample block chords look like zero-time unrelated picking decisions.
+
 ## DAW Compatibility Notes
 
 Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Live, Logic, or others.

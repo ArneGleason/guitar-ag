@@ -205,7 +205,7 @@ scripts/create-pick-stroke-audition-midi.py
 
 The chord-strum sections sustain each fretted string until that string is struck again or the chord changes. This keeps the MIDI closer to a held left-hand chord shape with right-hand re-articulation instead of short left-hand note gates on every stroke.
 
-EG-078 makes Player Feel less aggressive on these already-staggered strums by treating quick cross-string note clusters as a continuing right-hand stroke. A future Auto Strum interpreter should let this audition file include simultaneous block chords and let the plugin generate the inter-string stroke timing itself.
+EG-078 makes Player Feel less aggressive on these already-staggered strums by treating quick cross-string note clusters as a continuing right-hand stroke. EG-079 adds a separate Auto Strum audition file for simultaneous block chords where the plugin generates the inter-string stroke timing itself.
 
 Offline A/B example:
 
@@ -223,6 +223,46 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
 ```
 
 Use the header `Export Settings` button to copy a JSON snapshot of the current audition context when reporting useful defaults or suspicious behavior. One human-provided reference snapshot from EG-076 is stored at `docs/audition-settings/20260510-eg076-pick-tone-reference.json`.
+
+## Auto Strum Audition MIDI
+
+`tests/midi/guitar-ag-auto-strum-audition.mid` focuses on the EG-079 `Strum Speed` interpreter.
+
+Suggested plugin setup:
+
+- `Pick Stroke`: start with `Alternate`, then compare forced `Down` and forced `Up`
+- `Strum Speed`: compare `0%`, about `40-70%`, and `100%`
+- `Player Feel`: around `Pro`/50% if you want the generated stroke to include natural timing and energy variation
+- `Legato Articulation`: `0%` for the first pass
+
+At 96 BPM:
+
+- Bar 2: exact same-time block chords. At `Strum Speed = 0%`, these should sound like stacked note-ons; above 0%, Guitar AG should create the right-hand stroke.
+- Bar 7: repeated block-chord groove. This checks whether `Pick Stroke = Alternate` feels like down/up hand motion without writing staggered notes into the MIDI.
+- Bar 12: partial-string block grips and skipped strings.
+- Bar 20: single-note control line. `Strum Speed` should not change this section.
+- Bar 24: final held block chord.
+
+Regenerate it with:
+
+```bash
+scripts/create-auto-strum-audition-midi.py
+```
+
+Offline A/B example:
+
+```bash
+build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
+  --midi tests/midi/guitar-ag-auto-strum-audition.mid \
+  --output build/diagnostics/guitar-ag-auto-strum-60.wav \
+  --pick-stroke alternate \
+  --strum-speed 0.60 \
+  --player-feel 0.50 \
+  --player-feel-recovery 2.0 \
+  --tail-seconds 3.0
+```
+
+The first implementation only groups note-ons that share the exact same sample. If a host imports or emits chord notes a few samples apart, those notes will behave like normal authored timing until a future tolerance-window pass exists.
 
 ## Amp Feedback Audition
 

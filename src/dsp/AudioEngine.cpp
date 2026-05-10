@@ -1,6 +1,8 @@
 #include "AudioEngine.h"
 
+#include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace guitar_ag
 {
@@ -50,6 +52,8 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     pickTexture.setCurrentAndTargetValue (0.5f);
     pickBite.reset (sampleRate, 0.035);
     pickBite.setCurrentAndTargetValue (0.5f);
+    strumSpeed.reset (sampleRate, 0.050);
+    strumSpeed.setCurrentAndTargetValue (0.0f);
     playerFeel.reset (sampleRate, 0.050);
     playerFeel.setCurrentAndTargetValue (0.0f);
     playerFeelRecoverySeconds.reset (sampleRate, 0.050);
@@ -129,6 +133,9 @@ void AudioEngine::reset()
     for (auto& note : articulationNotes)
         note = {};
 
+    for (auto& assignment : pendingStrumAssignments)
+        assignment = {};
+
     for (auto& voice : fingerNoiseVoices)
         voice = {};
 
@@ -138,6 +145,7 @@ void AudioEngine::reset()
     pickStiffness.setCurrentAndTargetValue (pickStiffness.getTargetValue());
     pickTexture.setCurrentAndTargetValue (pickTexture.getTargetValue());
     pickBite.setCurrentAndTargetValue (pickBite.getTargetValue());
+    strumSpeed.setCurrentAndTargetValue (strumSpeed.getTargetValue());
     playerFeel.setCurrentAndTargetValue (playerFeel.getTargetValue());
     playerFeelRecoverySeconds.setCurrentAndTargetValue (playerFeelRecoverySeconds.getTargetValue());
     palmMute.setCurrentAndTargetValue (palmMute.getTargetValue());
@@ -211,6 +219,11 @@ void AudioEngine::setPickStrokeMode (int newPickStrokeMode) noexcept
         nextAlternatePickDown = true;
         lastPickStrokeDirection = PickStrokeDirection::Up;
     }
+}
+
+void AudioEngine::setStrumSpeed (float newStrumSpeed) noexcept
+{
+    strumSpeed.setTargetValue (juce::jlimit (0.0f, 1.0f, newStrumSpeed));
 }
 
 void AudioEngine::setPlayerFeel (float newPlayerFeel) noexcept
@@ -452,13 +465,31 @@ void AudioEngine::render (juce::AudioBuffer<float>& audio, const juce::MidiBuffe
 {
     auto currentSample = 0;
     const auto totalSamples = audio.getNumSamples();
+    IncomingMidiGroup group;
+    auto groupSample = -1;
 
     for (const auto metadata : midi)
     {
         const auto eventSample = juce::jlimit (0, totalSamples, metadata.samplePosition);
-        renderRange (audio, currentSample, eventSample);
-        handleIncomingMidiMessage (metadata.getMessage());
-        currentSample = eventSample;
+
+        if (group.count > 0 && (eventSample != groupSample || group.count >= maxIncomingMidiGroup))
+        {
+            renderRange (audio, currentSample, groupSample);
+            handleIncomingMidiGroup (group);
+            currentSample = groupSample;
+            group = {};
+        }
+
+        groupSample = eventSample;
+        group.messages[static_cast<size_t> (group.count)] = metadata.getMessage();
+        ++group.count;
+    }
+
+    if (group.count > 0)
+    {
+        renderRange (audio, currentSample, groupSample);
+        handleIncomingMidiGroup (group);
+        currentSample = groupSample;
     }
 
     renderRange (audio, currentSample, totalSamples);
@@ -506,6 +537,7 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         pickStiffness.getNextValue();
         pickTexture.getNextValue();
         pickBite.getNextValue();
+        strumSpeed.getNextValue();
         playerFeel.getNextValue();
         playerFeelRecoverySeconds.getNextValue();
         harmonicTouch.getNextValue();
@@ -851,21 +883,176 @@ void AudioEngine::updateFeedbackStringFocus (float amount, float loopFrequency, 
     smoothFocus (0.0040f);
 }
 
+void AudioEngine::handleIncomingMidiGroup (const IncomingMidiGroup& group)
+{
+    if (group.count <= 0)
+        return;
+
+    if (group.count == 1)
+    {
+        handleIncomingMidiMessage (group.messages[0]);
+        return;
+    }
+
+    if (handleAutoStrumGroup (group))
+        return;
+
+    for (auto index = 0; index < group.count; ++index)
+        handleIncomingMidiMessage (group.messages[static_cast<size_t> (index)]);
+}
+
+bool AudioEngine::handleAutoStrumGroup (const IncomingMidiGroup& group)
+{
+    const auto strumAmount = juce::jlimit (0.0f, 1.0f, strumSpeed.getTargetValue());
+
+    if (strumAmount <= 0.0001f)
+        return false;
+
+    std::array<int, maxIncomingMidiGroup> noteIndices {};
+    auto noteCount = 0;
+
+    for (auto index = 0; index < group.count; ++index)
+    {
+        if (group.messages[static_cast<size_t> (index)].isNoteOn())
+        {
+            noteIndices[static_cast<size_t> (noteCount)] = index;
+            ++noteCount;
+        }
+    }
+
+    if (noteCount < 2)
+        return false;
+
+    for (auto index = 0; index < group.count; ++index)
+    {
+        if (! group.messages[static_cast<size_t> (index)].isNoteOnOrOff())
+            return false;
+    }
+
+    for (auto index = 0; index < group.count; ++index)
+    {
+        const auto& message = group.messages[static_cast<size_t> (index)];
+
+        if (message.isNoteOff())
+            handleIncomingMidiMessage (message);
+    }
+
+    for (auto index = 0; index < group.count; ++index)
+    {
+        const auto& message = group.messages[static_cast<size_t> (index)];
+
+        if (! message.isNoteOnOrOff())
+            handleIncomingMidiMessage (message);
+    }
+
+    std::sort (noteIndices.begin(), noteIndices.begin() + noteCount, [&group] (int left, int right)
+    {
+        const auto& leftMessage = group.messages[static_cast<size_t> (left)];
+        const auto& rightMessage = group.messages[static_cast<size_t> (right)];
+
+        if (leftMessage.getNoteNumber() != rightMessage.getNoteNumber())
+            return leftMessage.getNoteNumber() < rightMessage.getNoteNumber();
+
+        if (leftMessage.getChannel() != rightMessage.getChannel())
+            return leftMessage.getChannel() < rightMessage.getChannel();
+
+        return left < right;
+    });
+
+    auto previewFretboard = fretboard;
+    std::array<AutoStrumNote, maxIncomingMidiGroup> notes {};
+    auto minString = maxVoices;
+    auto maxString = -1;
+
+    for (auto noteIndex = 0; noteIndex < noteCount; ++noteIndex)
+    {
+        const auto sourceIndex = noteIndices[static_cast<size_t> (noteIndex)];
+        const auto& message = group.messages[static_cast<size_t> (sourceIndex)];
+        auto& note = notes[static_cast<size_t> (noteIndex)];
+        note.message = message;
+        note.assignment = previewFretboard.assignNote (message.getNoteNumber(), message.getChannel());
+        note.originalIndex = sourceIndex;
+        note.active = true;
+
+        minString = juce::jmin (minString, note.assignment.stringIndex);
+        maxString = juce::jmax (maxString, note.assignment.stringIndex);
+    }
+
+    auto strokeDirection = PickStrokeDirection::Down;
+
+    if (pickStrokeMode == PickStrokeMode::Up)
+        strokeDirection = PickStrokeDirection::Up;
+    else if (pickStrokeMode == PickStrokeMode::Alternate)
+    {
+        if (lastPickedStringIndex >= 0 && minString > lastPickedStringIndex)
+            strokeDirection = PickStrokeDirection::Down;
+        else if (lastPickedStringIndex >= 0 && maxString < lastPickedStringIndex)
+            strokeDirection = PickStrokeDirection::Up;
+        else
+            strokeDirection = nextAlternatePickDown ? PickStrokeDirection::Down : PickStrokeDirection::Up;
+    }
+
+    std::sort (notes.begin(), notes.begin() + noteCount, [strokeDirection] (const auto& left, const auto& right)
+    {
+        if (left.assignment.stringIndex != right.assignment.stringIndex)
+        {
+            return strokeDirection == PickStrokeDirection::Down
+                ? left.assignment.stringIndex < right.assignment.stringIndex
+                : left.assignment.stringIndex > right.assignment.stringIndex;
+        }
+
+        return left.originalIndex < right.originalIndex;
+    });
+
+    const auto perStringSeconds = 0.100f * std::pow (strumAmount, 1.35f);
+
+    for (auto noteIndex = 0; noteIndex < noteCount; ++noteIndex)
+    {
+        const auto& note = notes[static_cast<size_t> (noteIndex)];
+        const auto stringDistance = strokeDirection == PickStrokeDirection::Down
+                                  ? note.assignment.stringIndex - minString
+                                  : maxString - note.assignment.stringIndex;
+        const auto delaySamples = juce::jmax (0,
+                                              static_cast<int> (std::round (static_cast<double> (stringDistance)
+                                                                            * static_cast<double> (perStringSeconds)
+                                                                            * sampleRate)));
+        handleIncomingNoteOn (note.message, delaySamples, note.assignment.stringIndex);
+    }
+
+    return true;
+}
+
+void AudioEngine::handleIncomingNoteOn (const juce::MidiMessage& message,
+                                        int additionalDelaySamples,
+                                        int preferredStringIndex)
+{
+    const auto clampedAdditionalDelay = juce::jlimit (0,
+                                                     static_cast<int> (std::round (sampleRate * 0.750)),
+                                                     additionalDelaySamples);
+    const auto preferredString = preferredStringIndex >= 0 && preferredStringIndex < maxVoices
+                               ? preferredStringIndex
+                               : -1;
+    const auto feelResult = processPlayerFeelNoteOn (message, clampedAdditionalDelay, preferredString);
+    const auto totalDelaySamples = lookaheadSamples + clampedAdditionalDelay + feelResult.delaySamples;
+    const auto scheduledSample = timelineSample + static_cast<int64_t> (totalDelaySamples);
+
+    if (preferredString >= 0)
+        rememberPendingStrumAssignment (message.getNoteNumber(), message.getChannel(), scheduledSample, preferredString);
+
+    if (lookaheadSamples > 0)
+        triggerFingerApproach (message.getNoteNumber(), message.getChannel(), message.getFloatVelocity());
+
+    if (totalDelaySamples > 0)
+        scheduleMidiMessage (feelResult.message, scheduledSample);
+    else
+        handleMidiMessage (feelResult.message);
+}
+
 void AudioEngine::handleIncomingMidiMessage (const juce::MidiMessage& message)
 {
     if (message.isNoteOn())
     {
-        const auto feelResult = processPlayerFeelNoteOn (message);
-        const auto totalDelaySamples = lookaheadSamples + feelResult.delaySamples;
-
-        if (lookaheadSamples > 0)
-            triggerFingerApproach (message.getNoteNumber(), message.getChannel(), message.getFloatVelocity());
-
-        if (totalDelaySamples > 0)
-            scheduleMidiMessage (feelResult.message, timelineSample + static_cast<int64_t> (totalDelaySamples));
-        else
-            handleMidiMessage (feelResult.message);
-
+        handleIncomingNoteOn (message);
         return;
     }
 
@@ -893,22 +1080,27 @@ void AudioEngine::handleIncomingMidiMessage (const juce::MidiMessage& message)
         handleMidiMessage (message);
 }
 
-AudioEngine::PlayerFeelResult AudioEngine::processPlayerFeelNoteOn (const juce::MidiMessage& message) noexcept
+AudioEngine::PlayerFeelResult AudioEngine::processPlayerFeelNoteOn (const juce::MidiMessage& message,
+                                                                    int additionalDelaySamples,
+                                                                    int preferredStringIndex) noexcept
 {
     PlayerFeelResult result { message, 0 };
     const auto noteNumber = message.getNoteNumber();
     const auto channel = message.getChannel();
+    const auto eventSample = timelineSample + static_cast<int64_t> (juce::jmax (0, additionalDelaySamples));
     const auto amount = juce::jlimit (0.0f, 1.0f, playerFeel.getTargetValue());
     const auto hadPrevious = playerFeelLastEventSample >= 0 && playerFeelLastStringIndex >= 0;
     const auto intervalSeconds = hadPrevious
                                ? juce::jmax (0.0f,
-                                             static_cast<float> (timelineSample - playerFeelLastEventSample)
+                                             static_cast<float> (eventSample - playerFeelLastEventSample)
                                                  / static_cast<float> (sampleRate))
                                : 0.50f;
 
-    decayPlayerFeelLoads (timelineSample);
+    decayPlayerFeelLoads (eventSample);
 
-    const auto assignment = playerFeelFretboard.assignNote (noteNumber, channel);
+    const auto assignment = preferredStringIndex >= 0 && preferredStringIndex < maxVoices
+                          ? playerFeelFretboard.assignNote (noteNumber, channel, preferredStringIndex, 100.0f)
+                          : playerFeelFretboard.assignNote (noteNumber, channel);
     const auto stringDistance = hadPrevious ? std::abs (assignment.stringIndex - playerFeelLastStringIndex) : 0;
     const auto fretDistance = hadPrevious ? std::abs (assignment.fret - playerFeelLastFret) : 0;
     const auto travelSign = hadPrevious ? getDirectionSign (assignment.stringIndex - playerFeelLastStringIndex) : 0;
@@ -969,9 +1161,9 @@ AudioEngine::PlayerFeelResult AudioEngine::processPlayerFeelNoteOn (const juce::
                                             + 0.010f * fast);
 
     ++playerFeelEventCounter;
-    const auto noiseA = getPlayerFeelNoise (0x4f1bbcddu);
-    const auto noiseB = getPlayerFeelNoise (0x72a3d113u);
-    const auto noiseC = getPlayerFeelNoise (0x1b873593u);
+    const auto noiseA = getPlayerFeelNoise (0x4f1bbcddu, eventSample);
+    const auto noiseB = getPlayerFeelNoise (0x72a3d113u, eventSample);
+    const auto noiseC = getPlayerFeelNoise (0x1b873593u, eventSample);
     const auto load = juce::jlimit (0.0f,
                                     1.0f,
                                     0.34f * playerFeelCognitiveLoad
@@ -1023,7 +1215,7 @@ AudioEngine::PlayerFeelResult AudioEngine::processPlayerFeelNoteOn (const juce::
     playerFeelLastFret = assignment.fret;
     playerFeelLastNoteNumber = noteNumber;
     playerFeelLastTravelSign = travelSign != 0 ? travelSign : playerFeelLastTravelSign;
-    playerFeelLastEventSample = timelineSample + result.delaySamples;
+    playerFeelLastEventSample = eventSample + result.delaySamples;
 
     return result;
 }
@@ -1055,11 +1247,11 @@ void AudioEngine::releasePlayerFeelNote (int noteNumber, int channel) noexcept
     playerFeelFretboard.releaseNote (noteNumber, channel);
 }
 
-float AudioEngine::getPlayerFeelNoise (uint32_t salt) const noexcept
+float AudioEngine::getPlayerFeelNoise (uint32_t salt, int64_t sampleTime) const noexcept
 {
     auto seed = salt;
-    seed ^= static_cast<uint32_t> (timelineSample);
-    seed ^= static_cast<uint32_t> (timelineSample >> 32u) * 0x9e3779b9u;
+    seed ^= static_cast<uint32_t> (sampleTime);
+    seed ^= static_cast<uint32_t> (sampleTime >> 32u) * 0x9e3779b9u;
     seed ^= playerFeelEventCounter * 0x85ebca6bu;
     seed ^= static_cast<uint32_t> (playerFeelLastNoteNumber + 128) * 0x27d4eb2du;
     seed ^= static_cast<uint32_t> (playerFeelLastStringIndex + 16) * 0x3449a1u;
@@ -1164,12 +1356,67 @@ void AudioEngine::clearScheduledMidiEvents() noexcept
 {
     for (auto& event : scheduledMidiEvents)
         event.active = false;
+
+    for (auto& assignment : pendingStrumAssignments)
+        assignment.active = false;
+}
+
+void AudioEngine::rememberPendingStrumAssignment (int noteNumber,
+                                                  int channel,
+                                                  int64_t sampleTime,
+                                                  int stringIndex) noexcept
+{
+    for (auto& assignment : pendingStrumAssignments)
+    {
+        if (! assignment.active)
+        {
+            assignment.sampleTime = sampleTime;
+            assignment.noteNumber = noteNumber;
+            assignment.channel = channel;
+            assignment.stringIndex = stringIndex;
+            assignment.active = true;
+            return;
+        }
+    }
+}
+
+int AudioEngine::consumePendingStrumString (int noteNumber, int channel) noexcept
+{
+    auto bestIndex = -1;
+    auto bestDistance = std::numeric_limits<int64_t>::max();
+
+    for (auto index = 0; index < static_cast<int> (pendingStrumAssignments.size()); ++index)
+    {
+        const auto& assignment = pendingStrumAssignments[static_cast<size_t> (index)];
+
+        if (! assignment.active || assignment.noteNumber != noteNumber || assignment.channel != channel)
+            continue;
+
+        const auto distance = assignment.sampleTime > timelineSample
+                            ? assignment.sampleTime - timelineSample
+                            : timelineSample - assignment.sampleTime;
+
+        if (distance < bestDistance)
+        {
+            bestDistance = distance;
+            bestIndex = index;
+        }
+    }
+
+    if (bestIndex < 0)
+        return -1;
+
+    auto& assignment = pendingStrumAssignments[static_cast<size_t> (bestIndex)];
+    const auto stringIndex = assignment.stringIndex;
+    assignment.active = false;
+    return stringIndex;
 }
 
 void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
 {
     const auto articulationAmount = legatoArticulation.getTargetValue();
     auto legatoSource = findLegatoSource (noteNumber, channel, articulationAmount);
+    const auto strumPreferredString = consumePendingStrumString (noteNumber, channel);
 
     if (legatoSource.valid)
     {
@@ -1178,11 +1425,12 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
         releaseArticulationNote (legatoSource.noteNumber, legatoSource.channel);
     }
 
-    const auto preferredString = legatoSource.valid ? legatoSource.assignment.stringIndex : -1;
+    const auto preferredString = legatoSource.valid ? legatoSource.assignment.stringIndex : strumPreferredString;
+    const auto preferredStringBonus = preferredString >= 0 ? 100.0f : 0.0f;
     const auto assignment = fretboard.assignNote (noteNumber,
                                                   channel,
                                                   preferredString,
-                                                  legatoSource.valid ? 100.0f : 0.0f,
+                                                  preferredStringBonus,
                                                   legatoSource.valid);
     const auto gesture = legatoSource.valid && assignment.stringIndex == preferredString
                        ? legatoSource.gesture

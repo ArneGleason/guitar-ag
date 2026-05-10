@@ -494,6 +494,14 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     pickStrokeBox.setColour (juce::ComboBox::arrowColourId, juce::Colour (0xffe8edf2));
     addAndMakeVisible (pickStrokeBox);
 
+    configureLabel (strumSpeedLabel, "Strum Speed");
+    configureSlider (strumSpeedSlider, juce::Colour (0xff75d7d1));
+    configureInfoButton (strumSpeedInfoButton,
+                         "Turn same-time block chords into right-hand strums.\n\n"
+                         "Technical: 0% preserves simultaneous note-ons exactly. Higher values fan same-sample chord note-ons across the "
+                         "assigned strings using the current Pick Stroke direction. 100% is about 100 ms per adjacent string, roughly "
+                         "a half-second across all six strings. This first pass does not collect notes that arrive at slightly different samples.");
+
     configureLabel (playerFeelLabel, "Player Feel");
     configureSlider (playerFeelSlider, juce::Colour (0xff9ad1ff));
     configureInfoButton (playerFeelInfoButton,
@@ -502,6 +510,20 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "string skips, direction changes, and fret jumps. Higher values add small late timing offsets and picked-note energy "
                          "variation scaled by those loads. The middle stays natural; the top half opens a deliberately wider sloppy range. "
                          "At 0%, the timing and velocity path is neutral.");
+
+    for (auto* marker : { &playerFeelBotLabel, &playerFeelProLabel, &playerFeelLooseLabel })
+    {
+        marker->setColour (juce::Label::textColourId, juce::Colour (0xff9aa8b5));
+        marker->setJustificationType (juce::Justification::centred);
+        addAndMakeVisible (*marker);
+    }
+
+    playerFeelBotLabel.setText ("Bot", juce::dontSendNotification);
+    playerFeelProLabel.setText ("Pro", juce::dontSendNotification);
+    playerFeelLooseLabel.setText ("Loose", juce::dontSendNotification);
+    playerFeelBotLabel.setTooltip ("0%: mechanically perfect timing and velocity.");
+    playerFeelProLabel.setTooltip ("50%: human but controlled, like a strong take.");
+    playerFeelLooseLabel.setTooltip ("100%: deliberately looser timing and energy variation.");
 
     configureLabel (playerFeelRecoveryLabel, "Feel Recovery");
     configureSlider (playerFeelRecoverySlider, juce::Colour (0xffa6e6b1));
@@ -693,6 +715,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     pickStrokeAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
                                                                  GuitarAgAudioProcessor::pickStrokeParameterId,
                                                                  pickStrokeBox);
+    strumSpeedAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                               GuitarAgAudioProcessor::strumSpeedParameterId,
+                                                               strumSpeedSlider);
     playerFeelAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::playerFeelParameterId,
                                                                playerFeelSlider);
@@ -960,9 +985,29 @@ void GuitarAgAudioProcessorEditor::resized()
         layoutLabelAndInfo (strokeBounds, pickStrokeLabel, pickStrokeInfoButton);
         pickStrokeBox.setBounds (strokeBounds.reduced (0, 4));
 
-        auto feelBounds = bounds.removeFromTop (36);
+        auto strumBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (strumBounds, strumSpeedLabel, strumSpeedInfoButton);
+        strumSpeedSlider.setBounds (strumBounds);
+
+        auto feelBounds = bounds.removeFromTop (54);
         layoutLabelAndInfo (feelBounds, playerFeelLabel, playerFeelInfoButton);
-        playerFeelSlider.setBounds (feelBounds);
+        const auto feelSliderBounds = feelBounds.removeFromTop (34);
+        playerFeelSlider.setBounds (feelSliderBounds);
+
+        auto feelMarkerTrackBounds = feelSliderBounds;
+        feelMarkerTrackBounds.removeFromRight (78);
+        const auto feelMarkerY = feelBounds.getY() - 1;
+        constexpr auto feelMarkerWidth = 44;
+        const auto feelMarkerX = [&feelMarkerTrackBounds] (float normalized)
+        {
+            return feelMarkerTrackBounds.getX()
+                 + juce::roundToInt (normalized * static_cast<float> (feelMarkerTrackBounds.getWidth()))
+                 - feelMarkerWidth / 2;
+        };
+
+        playerFeelBotLabel.setBounds (feelMarkerX (0.0f), feelMarkerY, feelMarkerWidth, 18);
+        playerFeelProLabel.setBounds (feelMarkerX (0.5f), feelMarkerY, feelMarkerWidth, 18);
+        playerFeelLooseLabel.setBounds (feelMarkerX (1.0f), feelMarkerY, feelMarkerWidth, 18);
 
         auto recoveryBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (recoveryBounds, playerFeelRecoveryLabel, playerFeelRecoveryInfoButton);
@@ -1220,9 +1265,15 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&pickStrokeLabel),
                              static_cast<juce::Component*> (&pickStrokeInfoButton),
                              static_cast<juce::Component*> (&pickStrokeBox),
+                             static_cast<juce::Component*> (&strumSpeedLabel),
+                             static_cast<juce::Component*> (&strumSpeedInfoButton),
+                             static_cast<juce::Component*> (&strumSpeedSlider),
                              static_cast<juce::Component*> (&playerFeelLabel),
                              static_cast<juce::Component*> (&playerFeelInfoButton),
                              static_cast<juce::Component*> (&playerFeelSlider),
+                             static_cast<juce::Component*> (&playerFeelBotLabel),
+                             static_cast<juce::Component*> (&playerFeelProLabel),
+                             static_cast<juce::Component*> (&playerFeelLooseLabel),
                              static_cast<juce::Component*> (&playerFeelRecoveryLabel),
                              static_cast<juce::Component*> (&playerFeelRecoveryInfoButton),
                              static_cast<juce::Component*> (&playerFeelRecoverySlider),

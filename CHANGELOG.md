@@ -111,6 +111,12 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Changed the model label to `StringVoice EG-078 StrumAwareFeel`.
 - Made Player Feel strum-aware: very short cross-string note clusters now count as a continuing right-hand stroke with reduced cognitive and dexterity load.
 - Increased header vertical spacing so the global `Export Settings` button no longer crowds the heading text.
+- Changed the model label to `StringVoice EG-079 AutoStrum`.
+- Added Bot/Pro/Loose landmarks under the `Player Feel` slider so the control reads as perfect machine timing, controlled human feel, and deliberately loose playing.
+- Added the `Strum Speed` host parameter and Articulation-page slider to fan exact same-sample block chord note-ons across assigned guitar strings.
+- Wired Auto Strum into `Pick Stroke` direction, fretboard assignment, delayed note scheduling, and Player Feel timing/load accounting while leaving `Strum Speed = 0%` neutral.
+- Added offline-renderer `--strum-speed` support.
+- Added `scripts/create-auto-strum-audition-midi.py` and `tests/midi/guitar-ag-auto-strum-audition.mid` for block-chord Auto Strum auditioning.
 
 ### Fixed
 

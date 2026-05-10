@@ -42,8 +42,36 @@ Likely phases:
 - Apply deterministic per-string timing/energy variation from the same player-feel state.
 - Keep Auto Strum optional so precisely authored MIDI and MPE clips can bypass it.
 
+## 2026-05-10 First Implementation Result
+
+Implemented `StringVoice EG-079 AutoStrum`.
+
+This first slice adds a host parameter named `Strum Speed`:
+
+- `0%`: same-sample chord note-ons remain simultaneous.
+- `100%`: adjacent strings are spaced by about 100 ms, yielding roughly a half-second spread across all six strings.
+- Intermediate values use a gentle curve so moderate settings are useful for normal strums.
+
+Engine behavior:
+
+- `AudioEngine::render` groups MIDI messages that share the exact same block sample position.
+- If the group contains at least two note-ons and `Strum Speed` is above zero, the engine predicts fretboard assignments from the current `FretboardMapper`.
+- It sorts the chord by `Pick Stroke` direction and schedules note-ons internally.
+- It remembers each predicted string assignment until the delayed note-on fires, so sorting and final voice assignment stay coherent.
+- It passes the generated strum delay into Player Feel so load/recovery and deterministic timing variation are calculated against the generated picked-event time.
+
+UI/audition behavior:
+
+- The Articulation page now places `Strum Speed` after `Pick Stroke`.
+- The `Player Feel` slider now has Bot/Pro/Loose landmarks at 0/50/100.
+- `scripts/create-auto-strum-audition-midi.py` generates `tests/midi/guitar-ag-auto-strum-audition.mid` with same-time block chords, repeated block grooves, partial grips, and a single-note control section.
+
+Deferred:
+
+- Near-time collection tolerance remains future work. This implementation does not gather notes that arrive in adjacent samples or within a 1 ms window, because that requires an explicit latency/lookahead policy.
+
 ## Open Questions
 
-- Should Auto Strum be a global amount, a mode, or a per-note/CC trigger?
+- Should Auto Strum remain one global amount, or eventually gain a mode/CC trigger for selective chord interpretation?
 - How should it interact with DAW-authored staggered strums?
-- Should the collection window require lookahead/latency, or should it only work for exact-same-time chord note-ons in live mode?
+- Should the collection window require lookahead/latency, or should exact-same-time chord note-ons remain the live-mode boundary?
