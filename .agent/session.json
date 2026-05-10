@@ -24,12 +24,12 @@
     }
   },
   "lastTask": "Polish Articulation groups and release-candidate defaults",
-  "status": "EG-081 ArticGroups implemented, built, installed, and ready for review/audition",
-  "updatedAt": "2026-05-10T13:20:19-04:00",
-  "lastHandoff": ".agent/handoffs/20260510-132019-codex-artic-groups.md",
+  "status": "EG-081 ArticGroups verified by Antigravity; awaiting human Bitwig sign-off",
+  "updatedAt": "2026-05-10T17:45:00-04:00",
+  "lastHandoff": ".agent/handoffs/20260510-174500-antigravity-eg081-artic-groups.md",
   "branch": "main",
-  "commit": "Polish articulation release defaults (current main commit)",
+  "commit": "6ed57ff",
   "projectState": {
-    "summary": "EG-081 reorganizes Articulation controls into parent/subordinate groups and changes new-instance defaults to Pick Texture 25%, Strum Speed 10%, Strum Balance -13%, and Player Feel 50%."
+    "summary": "EG-081 reorganizes Articulation controls into parent/subordinate groups and changes new-instance defaults to Pick Texture 25%, Strum Speed 10%, Strum Balance -13%, and Player Feel 50%. Antigravity verified the pass; awaiting human Bitwig sign-off before any v3.0 release/version bump."
   }
 }

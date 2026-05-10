@@ -6,16 +6,14 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Review the EG-081 `ArticGroups` release-candidate polish on top of the already-cleared EG-079 path and EG-080 `StrumBalance` delta.
-- Confirm `Strum Balance = 0` still preserves EG-079 generated strum velocities, and positive/negative values still reduce only the intended generated stroke direction.
-- Confirm the Articulation page groups `Pick Stiffness` and `Pick Texture` under `Pick Bite`.
-- Confirm the Articulation page groups `Strum Speed` and `Strum Balance` under `Pick Stroke`.
-- Confirm the Articulation page groups `Feel Recovery`, `Reset Feel`, and load meters under `Player Feel`.
-- Confirm the new default values are wired consistently in APVTS, `AudioEngine` fallbacks, and offline renderer defaults: `Pick Texture` 25%, `Strum Speed` 10%, `Strum Balance` -13%, and `Player Feel` 50%.
-- Confirm Export Settings remains in the header and was not moved or changed.
+- No code-review item is currently queued.
+- Await the human Bitwig audition of EG-081.
+- If the human signs off, the next likely task is the release/version bump decision for v3.0.
 
 Recently cleared:
 
+- Antigravity review at `2026-05-10T17:45:00-04:00` cleared EG-081 `ArticGroups` at commit `6ed57ff` with no required fixes.
+- The EG-081 review specifically passed Articulation grouping/readability, release-candidate defaults, session/export behavior, and `Strum Balance` string conversion.
 - Antigravity broad review at `2026-05-10T16:55:00-04:00` cleared EG-066 through EG-079 at commit `585049a` with no required fixes.
 - The review specifically passed audio-thread safety, scheduling correctness, deterministic Player Feel rendering, parameter wiring, offline flag coverage, UI grouping, changelog/decision/learning hygiene, and plan focus.
 - Reviewer cadence recommendation: ask for a reviewer handoff every third major feature or whenever DSP core math changes fundamentally.
