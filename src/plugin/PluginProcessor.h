@@ -10,6 +10,7 @@ public:
     static constexpr auto tailSustainParameterId = "tailSustain";
     static constexpr auto pickStiffnessParameterId = "pickStiffness";
     static constexpr auto pickTextureParameterId = "pickTexture";
+    static constexpr auto pickStrokeParameterId = "pickStroke";
     static constexpr auto palmMuteParameterId = "palmMute";
     static constexpr auto harmonicTouchParameterId = "harmonicTouch";
     static constexpr auto stringAgeParameterId = "stringAge";
@@ -80,6 +81,7 @@ private:
     std::atomic<float>* tailSustainParameter = nullptr;
     std::atomic<float>* pickStiffnessParameter = nullptr;
     std::atomic<float>* pickTextureParameter = nullptr;
+    std::atomic<float>* pickStrokeParameter = nullptr;
     std::atomic<float>* palmMuteParameter = nullptr;
     std::atomic<float>* harmonicTouchParameter = nullptr;
     std::atomic<float>* stringAgeParameter = nullptr;

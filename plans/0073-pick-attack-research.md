@@ -4,7 +4,7 @@
 
 Human DAW audition after EG-071 found the slide-squeak controls musically useful. Chord/strum examples sound convincing, especially when note starts are staggered across strings, but single-note picked attacks still read as synthetic, almost like an older digital/FM attack artifact.
 
-This pass is research and diagnosis only. No DSP or UI behavior is changed here.
+This pass is research and diagnosis only. No DSP or UI behavior is changed here. The first implementation pass that followed this research is tracked in `plans/0074-pick-stroke-plectrum.md`.
 
 ## Local Diagnosis
 

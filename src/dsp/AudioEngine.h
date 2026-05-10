@@ -43,6 +43,7 @@ public:
     void setTailSustain (float newTailSustain) noexcept;
     void setPickStiffness (float newPickStiffness) noexcept;
     void setPickTexture (float newPickTexture) noexcept;
+    void setPickStrokeMode (int newPickStrokeMode) noexcept;
     void setPalmMute (float newPalmMute) noexcept;
     void setHarmonicTouch (float newHarmonicTouch) noexcept;
     void setStringAge (float newStringAge) noexcept;
@@ -109,6 +110,13 @@ private:
                                    PlayerGesture gesture) noexcept;
     void releaseArticulationNote (int noteNumber, int channel) noexcept;
     void releaseLegatoSource (const LegatoSource& source) noexcept;
+    [[nodiscard]] PickStrokeDirection resolvePickStrokeDirection (PlayerGesture gesture) noexcept;
+    [[nodiscard]] uint32_t makePickAttackSeed (int noteNumber,
+                                               int channel,
+                                               const FretboardAssignment& assignment,
+                                               PlayerGesture gesture,
+                                               PickStrokeDirection strokeDirection) noexcept;
+    [[nodiscard]] static uint32_t mixPickAttackSeed (uint32_t value) noexcept;
     [[nodiscard]] static float getDeterministicGestureChance (int noteNumber,
                                                               int channel,
                                                               int sourceNoteNumber,
@@ -227,14 +235,23 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> whammySpread { 0.35f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> aftertouchBendSemitones { 2.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickupPosition { 0.39f };
+    enum class PickStrokeMode
+    {
+        Down = 0,
+        Up = 1,
+        Alternate = 2
+    };
+
     double sampleRate = 44100.0;
     PerformanceStats* performanceStats = nullptr;
     std::array<float, 16> mpePitchBendByChannel {};
     int64_t timelineSample = 0;
     int lookaheadSamples = 0;
     int pickupModel = 0;
+    PickStrokeMode pickStrokeMode = PickStrokeMode::Alternate;
     int nextVoice = 0;
     int nextFingerNoiseVoice = 0;
+    uint32_t pickAttackCounter = 0;
     int feedbackDominantBand = 0;
     int feedbackDominantString = -1;
     int feedbackFocusUpdateCountdown = 0;
@@ -252,6 +269,7 @@ private:
     bool mpeEnabled = false;
     bool whammyEnabled = true;
     bool feedbackReturnDistorted = true;
+    bool nextAlternatePickDown = true;
     std::array<float, 16> mpePressureByChannel {};
     std::array<float, 16> mpeTimbreByChannel {};
 };

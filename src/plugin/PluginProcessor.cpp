@@ -10,6 +10,7 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     tailSustainParameter = parameters.getRawParameterValue (tailSustainParameterId);
     pickStiffnessParameter = parameters.getRawParameterValue (pickStiffnessParameterId);
     pickTextureParameter = parameters.getRawParameterValue (pickTextureParameterId);
+    pickStrokeParameter = parameters.getRawParameterValue (pickStrokeParameterId);
     palmMuteParameter = parameters.getRawParameterValue (palmMuteParameterId);
     harmonicTouchParameter = parameters.getRawParameterValue (harmonicTouchParameterId);
     stringAgeParameter = parameters.getRawParameterValue (stringAgeParameterId);
@@ -374,6 +375,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
             .withStringFromValueFunction (percentString)
             .withValueFromStringFunction (percentValue)));
 
+    layout.push_back (std::make_unique<juce::AudioParameterChoice> (
+        juce::ParameterID { pickStrokeParameterId, 1 },
+        "Pick Stroke",
+        juce::StringArray { "Down", "Up", "Alternate" },
+        2));
+
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { palmMuteParameterId, 1 },
         "Palm Mute",
@@ -424,6 +431,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setTailSustain (tailSustainParameter != nullptr ? tailSustainParameter->load() : 1.0f);
     audioEngine.setPickStiffness (pickStiffnessParameter != nullptr ? pickStiffnessParameter->load() : 0.5f);
     audioEngine.setPickTexture (pickTextureParameter != nullptr ? pickTextureParameter->load() : 0.5f);
+    audioEngine.setPickStrokeMode (pickStrokeParameter != nullptr ? juce::roundToInt (pickStrokeParameter->load()) : 2);
     audioEngine.setPalmMute (palmMuteParameter != nullptr ? palmMuteParameter->load() : 0.0f);
     audioEngine.setHarmonicTouch (harmonicTouchParameter != nullptr ? harmonicTouchParameter->load() : 0.0f);
     audioEngine.setStringAge (stringAgeParameter != nullptr ? stringAgeParameter->load() : 0.0f);

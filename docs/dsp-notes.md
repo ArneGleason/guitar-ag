@@ -1675,6 +1675,18 @@ Human audition found that upward slide squeak and downward slide squeak benefit 
 - The split only scales the slide contact squeak/scrape contribution in `renderContactLayer`; pitch, fret-step shaping, slide-lift damping, MPE, whammy, and global `Finger Noise` are unchanged.
 - `GuitarAGOfflineRender` keeps `--slide-squeak` as the legacy/upward flag, also accepts `--slide-squeak-up`, and adds `--slide-squeak-down`.
 
+## 2026-05-10 — EG-072 Pick Stroke Plectrum
+
+Human audition after EG-071 found that staggered chords feel much more convincing than isolated single-note picked attacks. EG-072 starts the pick realism work with one normal plastic plectrum model:
+
+- `Pick Stroke` is a host parameter with `Down`, `Up`, and default `Alternate` modes.
+- Alternation advances only for `PlayerGesture::Picked` note starts. Hammer-ons, pull-offs, and right-hand taps receive their existing gesture models and do not consume the alternating stroke.
+- `AudioEngine` resolves a concrete `PickStrokeDirection` and deterministic attack seed before starting a `StringVoice`.
+- The attack seed includes note, channel, assigned string/fret, render timeline sample, stroke direction, gesture, and a resettable attack counter. Re-rendering the same MIDI and parameters stays byte-identical, while repeated note attacks no longer reuse a note/channel-only fingerprint.
+- Down and up strokes slightly change release polarization, horizontal string motion, pluck position, contact amount, and contact carrier scale.
+- The default plastic-pick region has less exposed tonal contact ring and shorter chirp/transient decay. High `Pick Texture` still reaches rougher/coin-like contact regimes, but the ordinary midpoint is protected from sounding like a synthetic oscillator attack.
+- `GuitarAGOfflineRender` accepts `--pick-stroke down|up|alternate`.
+
 ## Suggested MVP Signal Flow
 
 ```text

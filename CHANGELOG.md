@@ -75,6 +75,12 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Added `plans/0072-preset-model.md` to define the recommended stock/user preset architecture before implementing preset UI.
 - Changed the model label to `StringVoice EG-071 SlideSqueakDirection`.
 - Added `plans/0073-pick-attack-research.md` to diagnose the synthetic single-note pick attack and outline a direction-aware plectrum improvement pass.
+- Added the `Pick Stroke` host parameter and Articulation-page choice with `Down`, `Up`, and default `Alternate` modes.
+- Added offline-renderer `--pick-stroke down|up|alternate` support for pick-stroke calibration renders.
+- Added `plans/0074-pick-stroke-plectrum.md` to document the first normal-plastic-plectrum implementation pass.
+- Changed the model label to `StringVoice EG-072 PickStrokePlectrum`.
+- Revoiced the default picked attack toward a normal plastic plectrum by reducing exposed tonal contact ring/chirp energy, shortening the pick transient, and letting stroke direction shape release polarization.
+- Made per-attack variation deterministic by seeding picked voices from note/channel/string/fret, render timeline, stroke direction, gesture, and a resettable attack counter.
 
 ### Fixed
 

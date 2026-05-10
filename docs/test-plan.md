@@ -213,6 +213,17 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Negative `Aftertouch Bend` values bend downward if deliberately selected.
 - [ ] Channel pressure no longer drives pitch bend directly; it uses the MPE pressure/tone mapping.
 
+## Pick Stroke Plectrum Checks
+
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-072 PickStrokePlectrum`.
+- [ ] The Articulation page exposes `Pick Stroke` with `Down`, `Up`, and `Alternate`.
+- [ ] `Alternate` is the default on new plugin instances.
+- [ ] Repeated single-note lines at the default pick settings sound less like a tonal digital/FM attack than EG-071.
+- [ ] `Pick Stroke = Down` and `Pick Stroke = Up` produce audible but bounded differences in the attack and string response.
+- [ ] `Pick Stroke = Alternate` alternates picked note starts but does not turn hammer-ons, pull-offs, or taps into alternating picked attacks.
+- [ ] `Pick Stiffness` and `Pick Texture` remain useful after the plastic-plectrum retune.
+- [ ] Re-rendering the same MIDI with the same `Pick Stroke` setting remains deterministic.
+
 ## MPE Pitch Bend Checks
 
 - [ ] `MPE Mode` Off keeps pitch wheel operating as global whammy.

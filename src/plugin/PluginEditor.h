@@ -69,6 +69,7 @@ private:
     juce::Slider legatoArticulationSlider;
     juce::Slider pickStiffnessSlider;
     juce::Slider pickTextureSlider;
+    juce::ComboBox pickStrokeBox;
     juce::Slider palmMuteSlider;
     juce::Slider harmonicTouchSlider;
     juce::Label sustainLabel;
@@ -103,6 +104,7 @@ private:
     juce::Label legatoArticulationLabel;
     juce::Label pickStiffnessLabel;
     juce::Label pickTextureLabel;
+    juce::Label pickStrokeLabel;
     juce::Label palmMuteLabel;
     juce::Label harmonicTouchLabel;
     juce::Label harmonicQuarterLabel;
@@ -138,6 +140,7 @@ private:
     juce::TextButton legatoArticulationInfoButton;
     juce::TextButton pickStiffnessInfoButton;
     juce::TextButton pickTextureInfoButton;
+    juce::TextButton pickStrokeInfoButton;
     juce::TextButton palmMuteInfoButton;
     juce::TextButton harmonicTouchInfoButton;
     juce::ComboBox lookaheadBox;
@@ -179,6 +182,7 @@ private:
     std::unique_ptr<SliderAttachment> legatoArticulationAttachment;
     std::unique_ptr<SliderAttachment> pickStiffnessAttachment;
     std::unique_ptr<SliderAttachment> pickTextureAttachment;
+    std::unique_ptr<ComboBoxAttachment> pickStrokeAttachment;
     std::unique_ptr<SliderAttachment> palmMuteAttachment;
     std::unique_ptr<SliderAttachment> harmonicTouchAttachment;
     int activePage = 0;

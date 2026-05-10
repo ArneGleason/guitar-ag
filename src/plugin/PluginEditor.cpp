@@ -432,6 +432,21 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "Technical: 0% is close to a smooth frictionless release. Around 50% is a normal plastic-pick snap. The top range adds "
                          "rougher, coin-like contact texture to the excitation.");
 
+    configureLabel (pickStrokeLabel, "Pick Stroke");
+    configureInfoButton (pickStrokeInfoButton,
+                         "Choose the picking direction used for newly picked notes.\n\n"
+                         "Technical: Down and Up force one stroke direction. Alternate flips direction for each picked note only, leaving "
+                         "hammer-ons, pull-offs, and taps out of the alternating count. Each attack also receives deterministic variation so "
+                         "repeated renders stay identical while repeated notes avoid a cloned pick transient.");
+    pickStrokeBox.addItem ("Down", 1);
+    pickStrokeBox.addItem ("Up", 2);
+    pickStrokeBox.addItem ("Alternate", 3);
+    pickStrokeBox.setColour (juce::ComboBox::textColourId, juce::Colour (0xffe8edf2));
+    pickStrokeBox.setColour (juce::ComboBox::backgroundColourId, juce::Colour (0xff202832));
+    pickStrokeBox.setColour (juce::ComboBox::outlineColourId, juce::Colour (0xff65717c));
+    pickStrokeBox.setColour (juce::ComboBox::arrowColourId, juce::Colour (0xffe8edf2));
+    addAndMakeVisible (pickStrokeBox);
+
     configureLabel (palmMuteLabel, "Palm Mute");
     configureSlider (palmMuteSlider, juce::Colour (0xfff28b82));
     configureInfoButton (palmMuteInfoButton,
@@ -557,6 +572,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     pickTextureAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::pickTextureParameterId,
                                                                pickTextureSlider);
+    pickStrokeAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
+                                                                 GuitarAgAudioProcessor::pickStrokeParameterId,
+                                                                 pickStrokeBox);
     palmMuteAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                             GuitarAgAudioProcessor::palmMuteParameterId,
                                                             palmMuteSlider);
@@ -805,6 +823,10 @@ void GuitarAgAudioProcessorEditor::resized()
         layoutLabelAndInfo (textureBounds, pickTextureLabel, pickTextureInfoButton);
         pickTextureSlider.setBounds (textureBounds);
 
+        auto strokeBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (strokeBounds, pickStrokeLabel, pickStrokeInfoButton);
+        pickStrokeBox.setBounds (strokeBounds.reduced (0, 4));
+
         auto palmMuteBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (palmMuteBounds, palmMuteLabel, palmMuteInfoButton);
         palmMuteSlider.setBounds (palmMuteBounds);
@@ -1030,6 +1052,9 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&pickTextureLabel),
                              static_cast<juce::Component*> (&pickTextureInfoButton),
                              static_cast<juce::Component*> (&pickTextureSlider),
+                             static_cast<juce::Component*> (&pickStrokeLabel),
+                             static_cast<juce::Component*> (&pickStrokeInfoButton),
+                             static_cast<juce::Component*> (&pickStrokeBox),
                              static_cast<juce::Component*> (&palmMuteLabel),
                              static_cast<juce::Component*> (&palmMuteInfoButton),
                              static_cast<juce::Component*> (&palmMuteSlider),

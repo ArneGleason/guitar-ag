@@ -19,6 +19,12 @@ enum class PlayerGesture
     RightHandTap
 };
 
+enum class PickStrokeDirection
+{
+    Down,
+    Up
+};
+
 class StringVoice
 {
 public:
@@ -37,7 +43,9 @@ public:
                 float fretPressure,
                 float pickupPosition,
                 int pickupModel,
-                PlayerGesture gesture);
+                PlayerGesture gesture,
+                PickStrokeDirection pickStrokeDirection,
+                uint32_t attackSeed);
     void release (int midiNoteNumber, int midiChannel);
 
     [[nodiscard]] bool isActive() const noexcept { return active; }

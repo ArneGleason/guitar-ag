@@ -534,3 +534,7 @@ The motion-coupled slide squeak is now musically useful, but the older note appr
 ## 2026-05-10 — Performance controls need primary/character hierarchy
 
 As the instrument gains expressive controls, a flat Performance page hides important controls by making every tweak look equally primary. The usable taxonomy is gesture first, then character: keep the thing a player automates most visible, and tuck shaping details beneath it without moving the slider column.
+
+## 2026-05-10 — Pick attack variation must be deterministic but not cloned
+
+Repeated same-note attacks need small contact/release differences, but offline rendering and reviewer checks still need repeatability. Seeding the voice from note, channel, assigned string/fret, render sample time, stroke direction, gesture, and a resettable attack counter gives varied attacks inside a phrase while rendering the same MIDI and parameters byte-identically.

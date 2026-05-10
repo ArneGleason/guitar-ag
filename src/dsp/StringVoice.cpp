@@ -165,7 +165,9 @@ void StringVoice::start (int midiNoteNumber,
                          float fretPressure,
                          float pickupPositionControl,
                          int pickupModel,
-                         PlayerGesture gesture)
+                         PlayerGesture gesture,
+                         PickStrokeDirection pickStrokeDirection,
+                         uint32_t attackSeed)
 {
     const auto harmonicTouchAmount = juce::jlimit (0.0f, 1.0f, harmonicTouch);
     const auto stringAgeAmount = juce::jlimit (0.0f, 1.0f, stringAge);
@@ -175,6 +177,16 @@ void StringVoice::start (int midiNoteNumber,
     const auto pickupModelIndex = juce::jlimit (0, 2, pickupModel);
     const auto harmonicActive = harmonicTouchAmount > 0.25f;
     const auto inputVelocity = juce::jlimit (0.0f, 1.0f, velocity);
+    const auto fallbackAttackSeed = static_cast<uint32_t> ((midiNoteNumber + 1) * 1103515245u
+                                                           + (midiChannel + 17) * 12345u);
+    randomState = attackSeed != 0u ? attackSeed : fallbackAttackSeed;
+
+    if (randomState == 0u)
+        randomState = 0x12345678u;
+
+    const auto attackScatter = nextNoiseSample();
+    const auto textureScatter = nextNoiseSample();
+    const auto ringScatter = nextNoiseSample();
     auto gestureEnergyScale = 1.0f;
     auto gestureDisplacementScale = 1.0f;
     auto gestureHorizontalScale = 1.0f;
@@ -238,6 +250,27 @@ void StringVoice::start (int midiNoteNumber,
 
     const auto stiffnessAmount = harmonicActive ? 0.0f : gestureStiffness;
     const auto textureAmount = harmonicActive ? 0.0f : gestureTexture;
+    const auto isPickedGesture = gesture == PlayerGesture::Picked;
+    const auto strokeIsDown = pickStrokeDirection == PickStrokeDirection::Down;
+    const auto strokeSign = strokeIsDown ? 1.0f : -1.0f;
+    const auto strokeHorizontalSign = ! isPickedGesture ? 1.0f : (strokeIsDown ? 1.0f : -0.82f);
+    const auto strokeDisplacementScale = ! isPickedGesture ? 1.0f : (strokeIsDown ? 1.0f : 0.92f);
+    const auto strokeBrightnessScale = ! isPickedGesture ? 1.0f : (strokeIsDown ? 1.0f : 0.94f);
+    const auto strokeContactScale = ! isPickedGesture ? 1.0f : (strokeIsDown ? 1.0f : 0.86f);
+    const auto attackVariationGain = ! isPickedGesture ? 1.0f
+                                                       : juce::jlimit (0.84f,
+                                                                       1.16f,
+                                                                       1.0f + 0.095f * attackScatter + 0.045f * textureScatter);
+    const auto attackVariationBrightness = ! isPickedGesture ? 1.0f
+                                                             : juce::jlimit (0.88f,
+                                                                             1.12f,
+                                                                             1.0f + 0.075f * textureScatter);
+    const auto attackVariationContact = ! isPickedGesture ? 1.0f
+                                                          : juce::jlimit (0.82f,
+                                                                          1.18f,
+                                                                          1.0f - 0.080f * attackScatter + 0.060f * ringScatter);
+    const auto strokePluckOffset = ! isPickedGesture ? 0.0f
+                                                     : (strokeIsDown ? -0.0035f : 0.0060f) + 0.0045f * attackScatter;
     const auto stiffnessBipolar = 2.0f * stiffnessAmount - 1.0f;
     const auto mappedTexture = juce::jlimit (0.0f, 1.0f, textureAmount / 0.8f);
     const auto coinTexture = juce::jlimit (0.0f, 1.0f, (textureAmount - 0.8f) * 5.0f);
@@ -396,7 +429,7 @@ void StringVoice::start (int midiNoteNumber,
     const auto strikeAmount = std::pow (strikeInput, 0.58f);
     const auto hardStrike = std::pow (juce::jlimit (0.0f, 1.0f, (velocityNormal - 0.46f) / 0.54f), 0.55f);
     const auto brightness = strikeAmount;
-    const auto pluckPosition = juce::jmap (strikeAmount, 0.225f, 0.080f);
+    const auto pluckPosition = juce::jlimit (0.055f, 0.280f, juce::jmap (strikeAmount, 0.225f, 0.080f) + strokePluckOffset);
     constexpr auto pickupPositionMin = 0.055f;
     constexpr auto pickupPositionMax = 0.335f;
     constexpr auto humbuckerCoilSeparation = 0.046f;
@@ -409,14 +442,18 @@ void StringVoice::start (int midiNoteNumber,
     const auto pickupWidth = pickupModelIndex == 1 ? 0.056f : 0.024f;
     const auto outOfPhaseBridgePosition = pickupPosition - outOfPhaseSingleCoilSpacing * 0.5f;
     const auto outOfPhaseNeckPosition = pickupPosition + outOfPhaseSingleCoilSpacing * 0.5f;
-    const auto displacementAmount = 0.70f * velocityGain * gestureDisplacementScale;
-    const auto horizontalAmount = (0.28f + 0.06f * woundAmount) * velocityGain * gestureHorizontalScale;
+    const auto displacementAmount = 0.70f * velocityGain * gestureDisplacementScale
+                                  * strokeDisplacementScale * attackVariationGain;
+    const auto horizontalAmount = (0.28f + 0.06f * woundAmount) * velocityGain
+                                * gestureHorizontalScale * strokeHorizontalSign * attackVariationGain;
     const auto ageBrightnessScale = 1.06f - 0.46f * stringAgeAmount;
     const auto ageContactScale = 1.04f - 0.38f * stringAgeAmount;
     const auto noiseAmount = (0.004f + 0.014f * brightness) * (1.0f + 0.2f * woundAmount)
-                           * textureScale * ageContactScale * gesturePickLayerScale;
+                           * textureScale * ageContactScale * gesturePickLayerScale
+                           * strokeContactScale * attackVariationContact;
     const auto steelPartialAmount = (0.012f + 0.032f * brightness) * velocityGain
-                                  * partialStiffnessScale * ageBrightnessScale * gestureSteelScale;
+                                  * partialStiffnessScale * ageBrightnessScale * gestureSteelScale
+                                  * strokeBrightnessScale * attackVariationBrightness;
     auto mean = 0.0f;
     auto secondaryMean = 0.0f;
     auto harmonicDivision = 1;
@@ -446,8 +483,6 @@ void StringVoice::start (int midiNoteNumber,
                                   : harmonicDivision == 4 ? 0.58f
                                                           : 1.0f;
 
-    randomState = static_cast<uint32_t> ((midiNoteNumber + 1) * 1103515245u + (midiChannel + 17) * 12345u);
-
     for (auto i = 0; i < delayLength; ++i)
     {
         const auto x = static_cast<float> (i) / static_cast<float> (delayLength);
@@ -463,7 +498,8 @@ void StringVoice::start (int midiNoteNumber,
         const auto horizontalPartials = 0.38f * std::sin (twoPi * (5.0f * x + 0.19f))
                                       + 0.28f * std::sin (twoPi * (7.0f * x + 0.31f))
                                       + 0.18f * std::sin (twoPi * (11.0f * x + 0.43f));
-        const auto pickKink = juce::jlimit (-1.0f, 1.0f, (pluckPosition - x) * 8.0f);
+        const auto pickKink = (isPickedGesture ? strokeSign : 1.0f)
+                            * juce::jlimit (-1.0f, 1.0f, (pluckPosition - x) * 8.0f);
         const auto sample = shape * displacementAmount
                           + scrapeNoise
                           + steelPartials * steelPartialAmount
@@ -471,6 +507,7 @@ void StringVoice::start (int midiNoteNumber,
         const auto secondarySample = horizontalShape * horizontalAmount
                                    - scrapeNoise * 0.18f
                                    + horizontalPartials * steelPartialAmount * (0.42f + 0.46f * mappedTexture)
+                                       * strokeHorizontalSign
                                    - pickKink * localPickContact * steelPartialAmount * 0.38f * pickEdgeScale;
 
         delayLine[static_cast<size_t> (i)] = sample;
@@ -495,24 +532,31 @@ void StringVoice::start (int midiNoteNumber,
     }
 
     energy = velocityGain * harmonicEnergyScale;
-    pickTransient = (0.004f + 0.014f * brightness) * pickEdgeScale * ageContactScale
-                  * gesturePickLayerScale * (nextNoiseSample() >= 0.0f ? 1.0f : -1.0f);
-    pickTransientDecay = 0.9990f - 0.0015f * brightness - 0.00025f * stiffnessBipolar - 0.00020f * stringAgeAmount;
+    pickTransient = (0.0018f + 0.0075f * brightness) * pickEdgeScale * ageContactScale
+                  * gesturePickLayerScale * strokeSign * strokeContactScale * attackVariationGain;
+    pickTransientDecay = 0.9964f - 0.0016f * brightness - 0.00020f * stiffnessBipolar - 0.00024f * stringAgeAmount;
     const auto smoothTexture = mappedTexture <= 0.5f ? std::pow (mappedTexture * 2.0f, 1.35f)
                                                      : 1.0f - 0.42f * highTexture;
     const auto grindTexture = std::pow (highTexture, 1.35f);
-    pickContact = (0.006f + 0.050f * brightness) * velocityGain * smoothTexture
-                * ageContactScale * gesturePickLayerScale;
-    pickContactDecay = 0.9987f - 0.00020f * brightness + 0.00038f * mappedTexture - 0.00025f * stringAgeAmount;
-    pickContactRing = (0.002f + 0.025f * brightness) * velocityGain * smoothTexture
-                    * ageBrightnessScale * gesturePickLayerScale;
-    pickContactRingDecay = 0.9986f + 0.00040f * mappedTexture - 0.00035f * stringAgeAmount;
+    const auto plasticContactScale = 0.58f + 0.42f * highTexture;
+    pickContact = (0.0040f + 0.028f * brightness) * velocityGain * smoothTexture
+                * ageContactScale * gesturePickLayerScale * strokeContactScale
+                * attackVariationContact * plasticContactScale;
+    pickContactDecay = 0.9974f - 0.00016f * brightness + 0.00024f * mappedTexture - 0.00026f * stringAgeAmount;
+    pickContactRing = (0.0011f + 0.010f * brightness) * velocityGain * smoothTexture
+                    * ageBrightnessScale * gesturePickLayerScale * strokeContactScale
+                    * attackVariationBrightness;
+    pickContactRingDecay = 0.9970f + 0.00058f * mappedTexture - 0.00036f * stringAgeAmount;
     pickContactPhase = nextNoiseSample() * twoPi;
     pickContactPhaseStep = twoPi * juce::jlimit (1200.0f,
                                                   static_cast<float> (sampleRate * 0.42),
-                                                  static_cast<float> (frequency) * (11.0f + 10.0f * mappedTexture + 3.0f * woundAmount))
+                                                  static_cast<float> (frequency)
+                                                      * (7.0f + 5.5f * mappedTexture + 2.5f * woundAmount)
+                                                      * (1.0f + 0.055f * ringScatter)
+                                                      * (strokeIsDown ? 1.0f : 0.90f))
                          / static_cast<float> (sampleRate);
-    pickGrindAmount = (0.018f + 0.115f * brightness) * velocityGain * grindTexture * gesturePickLayerScale;
+    pickGrindAmount = (0.018f + 0.115f * brightness) * velocityGain * grindTexture
+                    * gesturePickLayerScale * strokeContactScale;
     pickGrindDecay = 0.99925f + 0.00045f * highTexture;
     pickGrindPhase = nextNoiseSample() * twoPi;
     pickGrindPhaseStep = twoPi * juce::jlimit (900.0f,
@@ -547,7 +591,7 @@ void StringVoice::start (int midiNoteNumber,
     pickHeavyChoke = 0.08f * heavyCoinTexture;
     pickContactSamplesRemaining = textureAmount <= 0.0f || gesturePickLayerScale <= 0.0f
                                 ? 0
-                                : static_cast<int> (sampleRate * (0.010f + 0.040f * mappedTexture + 0.055f * highTexture + 0.085f * coinTexture + 0.075f * heavyCoinTexture + 0.010f * brightness));
+                                : static_cast<int> (sampleRate * (0.006f + 0.020f * mappedTexture + 0.045f * highTexture + 0.085f * coinTexture + 0.075f * heavyCoinTexture + 0.008f * brightness));
     fingerImpact = gestureImpactAmount * gestureEnergyScale * ageContactScale;
 
     if (fingerImpact > 0.0f)
@@ -681,14 +725,18 @@ void StringVoice::start (int midiNoteNumber,
 
         if (strikeAmount > 0.18f && harmonic >= 4 && harmonic <= 26 && modeIndex < modalCount)
         {
-            const auto chirpFrequency = stiffFrequency * (1.030f + 0.0025f * harmonicFloat + 0.010f * hardStrike);
-            const auto chirpSeconds = (juce::jmap (strikeAmount, 0.075f, 0.032f)
-                                    + 0.0015f * harmonicFloat) * (1.0f - 0.28f * stringAgeAmount);
+            const auto chirpFrequency = stiffFrequency
+                                      * (1.014f + 0.0012f * harmonicFloat + 0.004f * hardStrike
+                                         + 0.0025f * textureScatter);
+            const auto chirpSeconds = (juce::jmap (strikeAmount, 0.046f, 0.020f)
+                                    + 0.0009f * harmonicFloat) * (1.0f - 0.28f * stringAgeAmount);
             const auto chirpDecay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * chirpSeconds));
+            const auto chirpPickScale = (0.20f + 0.26f * highTexture + 0.14f * hardStrike)
+                                      * strokeBrightnessScale * attackVariationBrightness;
 
             configureMode (modeIndex++,
                            chirpFrequency,
-                           std::abs (amplitude) * attackModeGain * 0.48f * std::pow (harmonicFloat, 0.72f)
+                           std::abs (amplitude) * attackModeGain * chirpPickScale * std::pow (harmonicFloat, 0.72f)
                                * (0.35f + 0.65f * touchMask)
                                * (0.90f - 0.35f * stringAgeAmount),
                            chirpDecay,

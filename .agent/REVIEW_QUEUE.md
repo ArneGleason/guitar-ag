@@ -6,18 +6,18 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Review the EG-071 `SlideSqueakDirection` implementation.
-- Confirm the existing `slideSqueak` parameter ID remains the upward amount and the new `slideSqueakDown` parameter is wired end to end.
-- Confirm `StringVoice::slideFretDirection` only affects slide contact squeak/scrape amount selection and does not alter pitch, MPE, whammy, `Fret Steps`, or `Slide Lift`.
-- Confirm the Performance page shows `Squeak Up` and `Squeak Down` under `Neck Slide` with complete info notes.
-- Review `plans/0072-preset-model.md` for architecture sanity, treating it as planning-only.
-- Review `plans/0073-pick-attack-research.md` for pick-attack diagnosis and the proposed `Pick Stroke` / plectrum-model direction, treating it as planning-only.
+- Review the EG-072 `PickStrokePlectrum` implementation.
+- Confirm the new `pickStroke` APVTS parameter is wired from processor to UI to `AudioEngine` and offline `--pick-stroke`.
+- Confirm `Pick Stroke = Alternate` advances only on `PlayerGesture::Picked` note starts and does not consume alternation for hammer-ons, pull-offs, or taps.
+- Confirm the attack seed is deterministic, reset with engine reset, and includes enough per-attack information to avoid cloned same-note transients.
+- Confirm the normal plastic-pick retune is scoped to picked attack/contact and does not alter slide squeak, MPE, whammy, vibrato, or feedback paths.
+- Review `plans/0074-pick-stroke-plectrum.md` for implementation/test coverage.
 
 Known limitations:
 
-- EG-071 uses one persisted last-direction value per voice, so overlapping up/down contact tails are direction-approximated rather than separately accumulated.
 - The preset model is planned but not implemented.
-- The pick-attack research is planned but not implemented. Current single-note picked attacks may still sound synthetic until an EG-072-style plectrum pass is done.
+- EG-071 uses one persisted last-direction value per voice, so overlapping up/down contact tails are direction-approximated rather than separately accumulated.
+- EG-072 is one ordinary plastic plectrum model only; fingerpicking, fingernail attack, material families, and pick-depth UI remain deferred.
 - EG-066 is still an approximation of lifted fretting pressure. Same-string speaking-length preservation remains future work.
 - DAW verification is still required for the lookahead/expression timing fix.
 - DAW listening is required for the new 4-sample pitch control-rate optimization.
@@ -33,4 +33,4 @@ Questions:
 
 - If performance still feels short of target in a specific DAW scenario, capture host, sample rate, buffer size, amp-sim chain, MIDI clip, and parameter settings before profiling.
 - If up/down squeak levels still feel uneven in a DAW, capture `Squeak Up`, `Squeak Down`, `Fret Steps`, `Slide Lift`, slide speed, interval, and direction before changing the contact model.
-- Decide whether the next implementation pass should be preset save/load UI or same-string speaking-length work.
+- If EG-072 still sounds too tonal on isolated single notes, decide whether to target the remaining chirp modes, contact ring, or a fuller contact/release envelope before adding pick-material UI.

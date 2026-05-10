@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Research synthetic single-note pick attack",
-  "status": "pick-attack research documented",
-  "updatedAt": "2026-05-10T08:53:43-04:00",
-  "lastHandoff": ".agent/handoffs/20260510-083010-codex-slide-squeak-direction.md",
+  "lastTask": "Implement first-pass normal plastic plectrum and pick stroke modes",
+  "status": "EG-072 PickStrokePlectrum implemented, built, installed, and ready for review",
+  "updatedAt": "2026-05-10T09:13:36-04:00",
+  "lastHandoff": ".agent/handoffs/20260510-091336-codex-pick-stroke-plectrum.md",
   "branch": "main",
-  "commit": "EG-071 SlideSqueakDirection implementation will be the latest pushed main commit after Codex commit",
+  "commit": "EG-072 PickStrokePlectrum implementation will be the latest pushed main commit after Codex commit",
   "projectState": {
-    "summary": "EG-071 is pushed and installed. Human audition accepted up/down slide squeak controls. Pick-attack research is documented in plans/0073-pick-attack-research.md; next likely implementation is an EG-072 plectrum/stroke pass."
+    "summary": "EG-072 adds Pick Stroke Down/Up/Alternate, deterministic per-attack variation, and a less tonal normal plastic-pick attack. Build/install succeeded locally. Next likely step is Antigravity review followed by human DAW audition of isolated picked lines."
   }
 }

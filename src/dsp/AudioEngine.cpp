@@ -162,6 +162,8 @@ void AudioEngine::reset()
     timelineSample = 0;
     nextVoice = 0;
     nextFingerNoiseVoice = 0;
+    pickAttackCounter = 0;
+    nextAlternatePickDown = true;
 }
 
 void AudioEngine::setTailSustain (float newTailSustain) noexcept
@@ -177,6 +179,16 @@ void AudioEngine::setPickStiffness (float newPickStiffness) noexcept
 void AudioEngine::setPickTexture (float newPickTexture) noexcept
 {
     pickTexture.setTargetValue (juce::jlimit (0.0f, 1.0f, newPickTexture));
+}
+
+void AudioEngine::setPickStrokeMode (int newPickStrokeMode) noexcept
+{
+    const auto clampedMode = juce::jlimit (0, 2, newPickStrokeMode);
+    const auto oldMode = pickStrokeMode;
+    pickStrokeMode = static_cast<PickStrokeMode> (clampedMode);
+
+    if (oldMode != pickStrokeMode && pickStrokeMode == PickStrokeMode::Alternate)
+        nextAlternatePickDown = true;
 }
 
 void AudioEngine::setPalmMute (float newPalmMute) noexcept
@@ -921,6 +933,8 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
     const auto noteFretPressure = fretPressure.getTargetValue();
     const auto notePickupPosition = pickupPosition.getTargetValue();
     const auto notePickupModel = pickupModel;
+    const auto pickStrokeDirection = resolvePickStrokeDirection (gesture);
+    const auto pickAttackSeed = makePickAttackSeed (noteNumber, channel, assignment, gesture, pickStrokeDirection);
 
     auto& voice = selectVoiceForAssignment (assignment);
 
@@ -942,12 +956,67 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                  noteFretPressure,
                  notePickupPosition,
                  notePickupModel,
-                 gesture);
+                 gesture,
+                 pickStrokeDirection,
+                 pickAttackSeed);
     const auto channelIndex = static_cast<size_t> (juce::jlimit (1, 16, channel) - 1);
     voice.setMpePitchBend (channel, mpePitchBendByChannel[channelIndex]);
     voice.setMpePressure (channel, mpePressureByChannel[channelIndex]);
     voice.setMpeTimbre (channel, mpeTimbreByChannel[channelIndex]);
     rememberArticulationNote (noteNumber, channel, assignment, gesture);
+}
+
+PickStrokeDirection AudioEngine::resolvePickStrokeDirection (PlayerGesture gesture) noexcept
+{
+    if (gesture != PlayerGesture::Picked)
+        return PickStrokeDirection::Down;
+
+    if (pickStrokeMode == PickStrokeMode::Down)
+        return PickStrokeDirection::Down;
+
+    if (pickStrokeMode == PickStrokeMode::Up)
+        return PickStrokeDirection::Up;
+
+    const auto strokeDirection = nextAlternatePickDown ? PickStrokeDirection::Down : PickStrokeDirection::Up;
+    nextAlternatePickDown = ! nextAlternatePickDown;
+    return strokeDirection;
+}
+
+uint32_t AudioEngine::makePickAttackSeed (int noteNumber,
+                                          int channel,
+                                          const FretboardAssignment& assignment,
+                                          PlayerGesture gesture,
+                                          PickStrokeDirection strokeDirection) noexcept
+{
+    auto seed = 0x6d2b79f5u;
+    const auto combine = [&seed] (uint32_t component) noexcept
+    {
+        seed ^= mixPickAttackSeed (component + 0x9e3779b9u + (seed << 6u) + (seed >> 2u));
+    };
+
+    const auto sampleTime = static_cast<uint64_t> (timelineSample);
+    combine (static_cast<uint32_t> (noteNumber + 128) * 0x45d9f3bu);
+    combine (static_cast<uint32_t> (channel + 32) * 0x119de1f3u);
+    combine (static_cast<uint32_t> (assignment.stringIndex + 16) * 0x3449a1u);
+    combine (static_cast<uint32_t> (assignment.fret + 64) * 0x27d4eb2du);
+    combine (static_cast<uint32_t> (sampleTime));
+    combine (static_cast<uint32_t> (sampleTime >> 32u));
+    combine (++pickAttackCounter * 0x85ebca6bu);
+    combine (static_cast<uint32_t> (gesture) * 0xc2b2ae35u);
+    combine (static_cast<uint32_t> (strokeDirection) * 0x27d4eb2fu);
+
+    seed = mixPickAttackSeed (seed);
+    return seed == 0u ? 0x12345678u : seed;
+}
+
+uint32_t AudioEngine::mixPickAttackSeed (uint32_t value) noexcept
+{
+    value ^= value >> 16u;
+    value *= 0x7feb352du;
+    value ^= value >> 15u;
+    value *= 0x846ca68bu;
+    value ^= value >> 16u;
+    return value;
 }
 
 StringVoice& AudioEngine::selectVoiceForAssignment (const FretboardAssignment& assignment) noexcept

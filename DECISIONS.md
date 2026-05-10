@@ -593,3 +593,17 @@ Planned
 
 Consequences:
 Stock presets should be loaded from bundled resources or an installed stock preset folder, while user presets should live in the user's application support preset folder. Adding user presets should not require recompilation. Updating bundled stock presets can happen through release packaging or a preset-folder installer; embedding them directly in the binary would require a rebuild.
+
+## 2026-05-10 — Start pick realism with one plastic plectrum model
+
+Decision:
+Implement one direction-aware normal plastic plectrum model first, with `Pick Stroke` choices for `Down`, `Up`, and `Alternate`, instead of adding a broad pick/finger/nail material menu.
+
+Reason:
+Human DAW audition found that strummed chords are already convincing, while isolated single-note picked attacks expose a synthetic tonal chirp. The smallest useful first pass is to improve the ordinary plectrum onset itself: deterministic per-attack variation, stroke direction, and a less tonal default contact/ring layer.
+
+Status:
+Accepted
+
+Consequences:
+`Pick Stiffness` and `Pick Texture` remain the main continuous pick-character controls. `Pick Stroke` defaults to `Alternate` and only advances on picked note starts, leaving hammer-ons, pull-offs, and taps out of the alternating count. The implementation still intentionally avoids fingerpicking/nail models until the normal plectrum baseline is musically solid.
