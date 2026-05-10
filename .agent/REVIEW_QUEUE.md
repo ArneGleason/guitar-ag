@@ -6,14 +6,16 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Review the EG-076 `PlayerFeelCalibration` implementation.
-- Confirm `Player Feel` is intentionally scaled so 50% approximates the previous EG-075 100% natural setting and 100% overshoots into sloppier timing/energy behavior.
+- Review the EG-077 `PlayerFeelSlop` implementation.
+- Confirm `Player Feel` still has a natural middle range while 100% has a meaningfully wider sloppy timing/energy range than EG-076.
+- Confirm the high-end timing delay cap and widened velocity/energy scale are bounded and deterministic.
+- Confirm cognitive/dexterity/endurance impulses are reduced enough that meters do not saturate too quickly.
 - Confirm `Feel Recovery` defaults to 2.0 seconds and clamps to the new 0.10 to 8.0 second range in APVTS, `AudioEngine`, and the offline renderer.
 - Confirm cognitive, dexterity, and endurance meter values are exported from `AudioEngine` to the processor through atomics and read by the editor timer without audio-thread allocation or UI calls.
 - Confirm meter decay remains deterministic and visibly clears during rests/easier passages.
 - Confirm the `Export Settings` popup returns valid JSON with current parameter values plus Player Feel meters, and that it is copyable in the UI.
-- Confirm the new Articulation-page meter/export rows do not obscure existing controls or break the disclosure/tabs layout.
-- Review the EG-075 `PlayerFeel` pass, now as the base for EG-076:
+- Confirm `Export Settings` is globally available in the header and no longer consumes Articulation-page row space.
+- Review the EG-075/EG-076 `PlayerFeel` path as the base for EG-077:
   - confirm `Player Feel = 0` leaves the render path neutral;
   - confirm load accumulation/recovery is deterministic and bounded;
   - confirm `Feel Recovery` and `Reset Feel` clear cognitive/dexterity/endurance state as intended;
@@ -31,6 +33,7 @@ Suggested focus:
 - Confirm the info note accurately describes the smarter `Alternate` interpretation without adding a new user-facing mode.
 - Review `plans/0076-economy-pick-stroke.md` for implementation/test coverage and physical-model framing.
 - Optionally use `tests/midi/guitar-ag-pick-stroke-audition.mid` to audition repeated picking, string crossings, string skips, chord strums, and riff-like phrases with `Pick Stroke = Alternate`.
+
 Known limitations:
 
 - The preset model is planned but not implemented.

@@ -663,3 +663,17 @@ Accepted
 
 Consequences:
 `Player Feel` at 50% now approximates the previous natural high setting. `Player Feel` at 100% can get noticeably less precise. `Feel Recovery` ranges up to 8 seconds and defaults to 2 seconds. The UI shows cognitive, dexterity, and endurance meters, and `Export Settings` emits a JSON snapshot of current parameters plus those meters.
+
+## 2026-05-10 — Make Player Feel top half genuinely sloppy
+
+Decision:
+Keep the natural-feel midpoint, but reduce load accumulation impulses and give the top half of `Player Feel` a wider nonlinear timing/energy range.
+
+Reason:
+Human DAW audition of EG-076 found the gauges useful but too quick to saturate, while `Player Feel = 100%` still sounded natural rather than meaningfully sloppy. The control needs two separate behaviors: meters that have room to breathe, and an upper range that can clearly audition timing imprecision.
+
+Status:
+Accepted
+
+Consequences:
+Load meters should climb more gradually during demanding passages. `Player Feel` near 50% remains the practical natural range, while 100% can delay picked note starts much more noticeably and widen velocity/energy variation. `Export Settings` is treated as a global audition/preset-context action and now lives in the header instead of inside the Articulation page.

@@ -220,7 +220,7 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
   --tail-seconds 2.0
 ```
 
-After EG-076, use the Articulation page's `Export Settings` button to copy a JSON snapshot of the current audition context when reporting useful defaults or suspicious behavior.
+Use the header `Export Settings` button to copy a JSON snapshot of the current audition context when reporting useful defaults or suspicious behavior. One human-provided reference snapshot from EG-076 is stored at `docs/audition-settings/20260510-eg076-pick-tone-reference.json`.
 
 ## Amp Feedback Audition
 

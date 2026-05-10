@@ -195,3 +195,14 @@ Verification:
 - Build/install succeeded locally.
 - `Player Feel = 0`, `50%`, and `100%` pick-stroke audition renders produced distinct hashes.
 - Repeating `Player Feel = 100%` with the same MIDI/settings produced byte-identical WAVs.
+
+## 2026-05-10 Second Calibration Result
+
+Implemented `StringVoice EG-077 PlayerFeelSlop` after human audition of EG-076.
+
+- Reduced cognitive/dexterity/endurance impulse sizes so the gauges have more readable headroom and do not pin to max as quickly.
+- Kept the natural-feel middle range.
+- Added a nonlinear top-half overshoot so `Player Feel = 100%` can produce clearly sloppy timing and stronger velocity/energy variation.
+- Raised the high-end timing-delay cap to about 75 ms.
+- Moved `Export Settings` into the global header.
+- Stored the human-provided EG-076 reference snapshot at `docs/audition-settings/20260510-eg076-pick-tone-reference.json`.

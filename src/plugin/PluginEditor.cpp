@@ -500,8 +500,8 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "Add deterministic player timing and energy feel to picked notes.\n\n"
                          "Technical: this is not random humanization. Cognitive load, dexterity load, and endurance build from fast picking, "
                          "string skips, direction changes, and fret jumps. Higher values add small late timing offsets and picked-note energy "
-                         "variation scaled by those loads. 50% is now near the original natural EG-075 maximum; the top half intentionally "
-                         "overshoots into sloppier playing. At 0%, the timing and velocity path is neutral.");
+                         "variation scaled by those loads. The middle stays natural; the top half opens a deliberately wider sloppy range. "
+                         "At 0%, the timing and velocity path is neutral.");
 
     configureLabel (playerFeelRecoveryLabel, "Feel Recovery");
     configureSlider (playerFeelRecoverySlider, juce::Colour (0xffa6e6b1));
@@ -753,6 +753,8 @@ void GuitarAgAudioProcessorEditor::resized()
     auto bounds = getLocalBounds().reduced (24);
     const auto titleBounds = bounds.removeFromTop (40);
     projectInfoButton.setBounds (titleBounds.getX() + 116, titleBounds.getY() + 8, 22, 22);
+    exportSettingsButton.setBounds (getWidth() - 172, 60, 112, 24);
+    exportSettingsInfoButton.setBounds (getWidth() - 56, 60, 22, 22);
     bounds.removeFromTop (38);
 
     auto tabBounds = bounds.removeFromTop (32);
@@ -978,11 +980,6 @@ void GuitarAgAudioProcessorEditor::resized()
         layoutMeter (bounds.removeFromTop (24), playerFeelCognitiveLabel, playerFeelCognitiveMeter);
         layoutMeter (bounds.removeFromTop (24), playerFeelDexterityLabel, playerFeelDexterityMeter);
         layoutMeter (bounds.removeFromTop (24), playerFeelEnduranceLabel, playerFeelEnduranceMeter);
-
-        auto exportBounds = bounds.removeFromTop (34);
-        exportBounds.removeFromLeft (158);
-        exportSettingsButton.setBounds (exportBounds.removeFromLeft (150).reduced (0, 2));
-        exportSettingsInfoButton.setBounds (exportBounds.removeFromLeft (22).reduced (2, 6));
 
         auto palmMuteBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (palmMuteBounds, palmMuteLabel, palmMuteInfoButton);
@@ -1235,8 +1232,6 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&playerFeelDexterityMeter),
                              static_cast<juce::Component*> (&playerFeelEnduranceLabel),
                              static_cast<juce::Component*> (&playerFeelEnduranceMeter),
-                             static_cast<juce::Component*> (&exportSettingsButton),
-                             static_cast<juce::Component*> (&exportSettingsInfoButton),
                              static_cast<juce::Component*> (&palmMuteLabel),
                              static_cast<juce::Component*> (&palmMuteInfoButton),
                              static_cast<juce::Component*> (&palmMuteSlider),
@@ -1247,6 +1242,9 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&harmonicThirdLabel),
                              static_cast<juce::Component*> (&harmonicHalfLabel) })
         component->setVisible (activePage == 6);
+
+    exportSettingsButton.setVisible (true);
+    exportSettingsInfoButton.setVisible (true);
 
     setSize (560, getPreferredHeight());
     resized();

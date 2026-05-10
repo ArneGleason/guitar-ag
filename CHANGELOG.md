@@ -102,6 +102,11 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Changed the model label to `StringVoice EG-076 PlayerFeelCalibration`.
 - Recalibrated `Player Feel` so 50% is near the previously accepted natural EG-075 maximum and 100% deliberately overshoots into sloppier playing.
 - Changed `Feel Recovery` to default to 2.0 seconds and extended its range to 8.0 seconds for longer accumulated-load auditioning.
+- Added `docs/audition-settings/20260510-eg076-pick-tone-reference.json` as a human-provided reference setting snapshot for a useful picked tone/feel context.
+- Changed the model label to `StringVoice EG-077 PlayerFeelSlop`.
+- Reduced Player Feel load impulse rates so cognitive/dexterity/endurance meters do not saturate as quickly.
+- Expanded the top half of `Player Feel` with a wider nonlinear timing and velocity/energy variation range for intentionally sloppier playing at 100%.
+- Moved `Export Settings` from the Articulation page to the global header.
 
 ### Fixed
 

@@ -1858,3 +1858,21 @@ Verification:
 - Build/install succeeded locally.
 - Offline renders with `Player Feel = 0`, `50%`, and `100%` produced distinct hashes.
 - Repeating the same `Player Feel = 100%` render produced byte-identical WAVs.
+
+## 2026-05-10 — EG-077 Player Feel Slop
+
+Human audition of EG-076 found two follow-up issues:
+
+- cognitive/dexterity/endurance meters accumulated to maximum too quickly;
+- `Player Feel = 100%` still sounded natural rather than clearly sloppy.
+
+EG-077 changes the player-feel transfer function without adding new parameters:
+
+- Cognitive and dexterity impulses are smaller across fast picking, string skips, fret jumps, and direction changes.
+- Endurance accumulates more slowly from cognitive/dexterity impulses.
+- `Player Feel` keeps the natural midpoint, but values above 50% add a quadratic overshoot term.
+- At high settings, timing delay can now reach a wider cap of about 75 ms instead of the previous 28 ms cap.
+- Velocity/energy variation has a wider top-end range, especially when load and the overshoot term are both high.
+- `Export Settings` moved to the global header because it describes the whole plugin state, not only articulation.
+
+The model remains deterministic: it still uses musical context and stable render position, not arbitrary per-render randomness.

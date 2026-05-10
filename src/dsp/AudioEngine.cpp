@@ -928,19 +928,19 @@ AudioEngine::PlayerFeelResult AudioEngine::processPlayerFeelNoteOn (const juce::
     const auto stringSkip = juce::jlimit (0.0f, 1.0f, static_cast<float> (juce::jmax (0, stringDistance - 1)) / 3.0f);
     const auto fretJump = juce::jlimit (0.0f, 1.0f, static_cast<float> (fretDistance) / 9.0f);
 
-    auto cognitiveImpulse = 0.018f
-                          + 0.085f * fast
-                          + 0.130f * stringSkip
-                          + 0.105f * fretJump
-                          + (directionChange ? 0.115f : 0.0f);
-    auto dexterityImpulse = 0.022f
-                          + 0.190f * fast
-                          + 0.175f * veryFast
-                          + (sameString ? 0.150f * fast : 0.0f)
-                          + 0.115f * static_cast<float> (juce::jmin (stringDistance, 3)) / 3.0f
-                          + 0.130f * stringSkip
-                          + 0.050f * fretJump
-                          + (directionChange ? 0.080f : 0.0f);
+    auto cognitiveImpulse = 0.010f
+                          + 0.055f * fast
+                          + 0.085f * stringSkip
+                          + 0.070f * fretJump
+                          + (directionChange ? 0.075f : 0.0f);
+    auto dexterityImpulse = 0.012f
+                          + 0.110f * fast
+                          + 0.110f * veryFast
+                          + (sameString ? 0.080f * fast : 0.0f)
+                          + 0.075f * static_cast<float> (juce::jmin (stringDistance, 3)) / 3.0f
+                          + 0.085f * stringSkip
+                          + 0.035f * fretJump
+                          + (directionChange ? 0.055f : 0.0f);
 
     if (economyFlow)
     {
@@ -953,9 +953,9 @@ AudioEngine::PlayerFeelResult AudioEngine::processPlayerFeelNoteOn (const juce::
     playerFeelEndurance = juce::jlimit (0.0f,
                                         1.0f,
                                         playerFeelEndurance
-                                            + 0.060f * cognitiveImpulse
-                                            + 0.115f * dexterityImpulse
-                                            + 0.018f * fast);
+                                            + 0.040f * cognitiveImpulse
+                                            + 0.075f * dexterityImpulse
+                                            + 0.010f * fast);
 
     ++playerFeelEventCounter;
     const auto noiseA = getPlayerFeelNoise (0x4f1bbcddu);
@@ -969,29 +969,35 @@ AudioEngine::PlayerFeelResult AudioEngine::processPlayerFeelNoteOn (const juce::
 
     if (amount > 0.0001f)
     {
-        const auto feelScale = amount * 2.0f;
-        const auto delayMs = feelScale
+        const auto overshoot = juce::jlimit (0.0f, 1.0f, (amount - 0.5f) * 2.0f);
+        const auto overshootCurve = overshoot * overshoot;
+        const auto timingScale = amount * 2.0f + 2.7f * overshootCurve;
+        const auto energyScale = amount * 2.0f + 1.5f * overshootCurve;
+        const auto positiveTimingScatter = juce::jmax (0.0f, noiseA)
+                                         + overshootCurve * std::abs (noiseC);
+        const auto delayMs = timingScale
                            * juce::jlimit (0.0f,
-                                           14.0f,
-                                           0.25f
-                                               + 6.20f * load
-                                               + 2.80f * playerFeelEndurance
-                                               + 1.35f * juce::jmax (0.0f, noiseA));
+                                           16.0f,
+                                           0.35f
+                                               + 8.50f * load
+                                               + 4.00f * playerFeelEndurance
+                                               + 2.40f * positiveTimingScatter);
         result.delaySamples = juce::jlimit (0,
-                                            static_cast<int> (std::round (sampleRate * 0.028)),
+                                            static_cast<int> (std::round (sampleRate * 0.075)),
                                             static_cast<int> (std::round (static_cast<double> (delayMs)
                                                                           * sampleRate
                                                                           / 1000.0)));
 
-        const auto velocityScale = juce::jlimit (0.55f,
-                                                1.12f,
+        const auto velocityScale = juce::jlimit (0.42f,
+                                                1.18f,
                                                 1.0f
-                                                    + feelScale
+                                                    + energyScale
                                                         * (0.030f * noiseB
-                                                           + 0.018f * noiseC
-                                                           - 0.050f * playerFeelCognitiveLoad
-                                                           - 0.070f * playerFeelDexterityLoad
-                                                           - 0.055f * playerFeelEndurance));
+                                                           + 0.025f * noiseC
+                                                           - 0.060f * playerFeelCognitiveLoad
+                                                           - 0.085f * playerFeelDexterityLoad
+                                                           - 0.065f * playerFeelEndurance
+                                                           - 0.045f * overshootCurve * load));
         const auto adjustedVelocity = juce::jlimit (1,
                                                     127,
                                                     juce::roundToInt (message.getFloatVelocity()

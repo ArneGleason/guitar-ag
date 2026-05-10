@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Calibrate Player Feel and add audition export",
-  "status": "EG-076 PlayerFeelCalibration implemented, built, installed, and ready for review/audition",
-  "updatedAt": "2026-05-10T11:20:11-04:00",
-  "lastHandoff": ".agent/handoffs/20260510-112011-codex-player-feel-calibration.md",
+  "lastTask": "Recalibrate Player Feel slop and move settings export",
+  "status": "EG-077 PlayerFeelSlop implemented, built, installed, and ready for review/audition",
+  "updatedAt": "2026-05-10T11:39:25-04:00",
+  "lastHandoff": ".agent/handoffs/20260510-113925-codex-player-feel-slop.md",
   "branch": "main",
-  "commit": "EG-076 PlayerFeelCalibration implementation will be the latest pushed main commit after Codex commit",
+  "commit": "EG-077 PlayerFeelSlop implementation will be the latest pushed main commit after Codex commit",
   "projectState": {
-    "summary": "EG-076 recalibrates Player Feel so 50% approximates the previous natural high setting and 100% overshoots into sloppier playing. Feel Recovery defaults to 2 seconds and ranges to 8 seconds. The Articulation page now shows cognitive/dexterity/endurance meters and can export a copyable JSON snapshot of current parameters plus meters. Build/install and offline deterministic renders succeeded."
+    "summary": "EG-077 reduces player-feel load impulses so cognitive/dexterity/endurance meters saturate less quickly, widens the top-half Player Feel timing and velocity/energy range so 100% can sound genuinely sloppy, moves Export Settings into the global header, and stores the human-provided EG-076 tone/feel snapshot as an audition reference."
   }
 }

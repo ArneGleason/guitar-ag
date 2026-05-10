@@ -558,3 +558,9 @@ Random timing and velocity offsets can make MIDI less grid-perfect, but they do 
 Human DAW audition found EG-075 `Player Feel = 100%` musically natural rather than excessive, with recovery closer to 2 to 2.5 seconds. That means the first scale underused the control range. EG-076 makes the previous natural maximum land around 50%, keeps the top half available for sloppier playing, and adds visible cognitive/dexterity/endurance meters so the load model can be tuned by watching it breathe while listening.
 
 Audition settings should be easy to pass back through the Studio Pattern. A copyable JSON snapshot from the plugin is more reliable than describing slider positions by memory, especially as the UI grows.
+
+## 2026-05-10 — Load meters need headroom too
+
+EG-076 proved the cognitive/dexterity/endurance gauges are useful, but meters that hit 100% too quickly stop teaching the human what the model is doing. For EG-077, the load impulses are intentionally smaller while the `Player Feel` top half gets a larger timing/energy scale. That separates "how hard is the passage" from "how much should we exaggerate the player's imprecision."
+
+The first exported audition setting worth keeping is stored at `docs/audition-settings/20260510-eg076-pick-tone-reference.json`. It has high `String Age`, high `Pick Bite`, bridge-side `Pickup Position`, `Pickup Model = Humbucker`, and moderate `Player Feel`; use it as a reference context for future tone/preset discussion, not as a default.
