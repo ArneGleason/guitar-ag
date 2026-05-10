@@ -491,7 +491,21 @@ Reason:
 Slide-out gestures need different endings than ordinary note-offs, but always changing release behavior would make normal playing unpredictable. Gating the special release colors behind recent slide motion lets the first tail implementation stay behavior-neutral for ordinary notes while giving DAW automation a way to author muted tails, more open/ringing tails, and slide-off scrapes.
 
 Status:
-Accepted
+Superseded by `2026-05-09 — Replace Slide Tail with Slide Lift`
 
 Consequences:
 `Normal` remains the default and preserves existing release behavior. `Muted`, `Open`, and `Slide Off` are first-pass release colors, not complete same-string/open-string speaking-length models. The true physical update of string/fret assignment remains in the later same-string slide phase.
+
+## 2026-05-09 — Replace Slide Tail with Slide Lift
+
+Decision:
+Remove the host-facing `Slide Tail` mode choice and replace it with a continuous `Slide Lift` parameter.
+
+Reason:
+Human DAW audition showed that note-off is the wrong anchor for slide-ending behavior. In Bitwig loop playback, the note boundary can be ambiguous and the EG-065 tail modes did not feel convincing. A slide lift is a more explicit guitar gesture: the player progressively eases fretting pressure while the hand is still sliding.
+
+Status:
+Accepted
+
+Consequences:
+`Slide Lift` is a 0% to 100% automatable performance slider. At 0%, slides keep full fretted pressure. Higher values fade fret-step engagement, add light lifted string scrape, and damp modal sustain while `Neck Slide` is moving. The lift envelope is motion-driven rather than note-off-driven: 50% reaches its lift over about 500 ms and 100% reaches full lift over about 50 ms.

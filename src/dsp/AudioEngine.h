@@ -52,7 +52,7 @@ public:
     void setFingerNoise (float newFingerNoise) noexcept;
     void setNeckSlideSemitones (float newNeckSlideSemitones) noexcept;
     void setSlideFretSteps (float newSlideFretSteps) noexcept;
-    void setSlideTailMode (int newSlideTailMode) noexcept;
+    void setSlideLift (float newSlideLift) noexcept;
     void setLegatoArticulation (float newLegatoArticulation) noexcept;
     void setAmpFeedback (float newAmpFeedback) noexcept;
     void setFeedbackReturnDistorted (bool shouldDistort) noexcept;
@@ -202,6 +202,7 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> fingerNoise { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> neckSlideSemitones { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> slideFretSteps { 0.65f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> slideLift { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> legatoArticulation { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> ampFeedback { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> vibratoSpeed { 5.5f };
@@ -223,7 +224,6 @@ private:
     int64_t timelineSample = 0;
     int lookaheadSamples = 0;
     int pickupModel = 0;
-    int slideTailMode = 0;
     int nextVoice = 0;
     int nextFingerNoiseVoice = 0;
     int feedbackDominantBand = 0;

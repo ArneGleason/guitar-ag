@@ -1575,6 +1575,8 @@ Current behavior:
 
 Added the first slide-ending behavior after EG-064 was accepted by human audition and reviewer verification.
 
+Status: superseded by EG-066 `SlideLift`.
+
 Current behavior:
 
 - The visible model label is now `StringVoice EG-065 SlideTail`.
@@ -1591,6 +1593,27 @@ Scope limit:
 
 - `Open` is a first-pass release color. It does not yet retune the voice to a true open string or update the physical string/fret assignment.
 - Special slide tails are intentionally gated by recent slide movement so settled chord releases and ordinary note-offs stay unchanged.
+
+## 2026-05-09 — EG-066 Slide Lift
+
+Replaced EG-065's note-off-based `Slide Tail` choice with a continuous pressure-lift model.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-066 SlideLift`.
+- The Performance page exposes `Slide Lift` as a 0% to 100% slider.
+- `Slide Tail` has been removed from the plugin and engine.
+- `Slide Lift` only acts from recent `Neck Slide` motion; ordinary static notes and non-sliding releases stay on the normal release path.
+- Higher lift values fade the effective `Fret Steps` amount after its perceptual mapping, so the slide stops catching fret plateaus as the finger pressure lifts.
+- Higher lift values add a light lifted-string scrape while the slide is moving.
+- Higher lift values add modal damping while the lift envelope is active, making the slide behave more like a progressive mute.
+- The lift rise time is tied to the slider: 50% reaches its lift over about 500 ms, while 100% reaches full lift over about 50 ms.
+- `GuitarAGOfflineRender` accepts `--slide-lift`; `--slide-tail` was removed.
+- `GuitarAGOfflineRender --neck-slide-at <seconds>` remains as a block-granular calibration hook for moving-slide checks.
+
+Scope limit:
+
+- `Slide Lift` models pressure easing and damping during global `Neck Slide`. It does not yet retune the string to an open string or update same-string speaking length.
 
 ## Suggested MVP Signal Flow
 

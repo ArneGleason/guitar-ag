@@ -36,7 +36,7 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     aftertouchBendParameter = parameters.getRawParameterValue (aftertouchBendParameterId);
     neckSlideParameter = parameters.getRawParameterValue (neckSlideParameterId);
     slideFretStepsParameter = parameters.getRawParameterValue (slideFretStepsParameterId);
-    slideTailParameter = parameters.getRawParameterValue (slideTailParameterId);
+    slideLiftParameter = parameters.getRawParameterValue (slideLiftParameterId);
     pickupPositionParameter = parameters.getRawParameterValue (pickupPositionParameterId);
     pickupModelParameter = parameters.getRawParameterValue (pickupModelParameterId);
 }
@@ -165,11 +165,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
             .withStringFromValueFunction (percentString)
             .withValueFromStringFunction (percentValue)));
 
-    layout.push_back (std::make_unique<juce::AudioParameterChoice> (
-        juce::ParameterID { slideTailParameterId, 1 },
-        "Slide Tail",
-        juce::StringArray { "Normal", "Muted", "Open", "Slide Off" },
-        0));
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { slideLiftParameterId, 1 },
+        "Slide Lift",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
 
     layout.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { lookaheadParameterId, 1 },
@@ -406,7 +410,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setAftertouchBendSemitones (aftertouchBendParameter != nullptr ? aftertouchBendParameter->load() : 2.0f);
     audioEngine.setNeckSlideSemitones (neckSlideParameter != nullptr ? neckSlideParameter->load() : 0.0f);
     audioEngine.setSlideFretSteps (slideFretStepsParameter != nullptr ? slideFretStepsParameter->load() : 0.65f);
-    audioEngine.setSlideTailMode (slideTailParameter != nullptr ? juce::roundToInt (slideTailParameter->load()) : 0);
+    audioEngine.setSlideLift (slideLiftParameter != nullptr ? slideLiftParameter->load() : 0.0f);
     const auto newLatencySamples = getLookaheadSamples();
 
     if (newLatencySamples != currentLatencySamples)

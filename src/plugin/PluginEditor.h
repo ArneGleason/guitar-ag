@@ -42,6 +42,7 @@ private:
     juce::Slider aftertouchBendSlider;
     juce::Slider neckSlideSlider;
     juce::Slider slideFretStepsSlider;
+    juce::Slider slideLiftSlider;
     juce::Slider fingerNoiseSlider;
     juce::Slider ampFeedbackSlider;
     juce::Slider vibratoSpeedSlider;
@@ -66,7 +67,7 @@ private:
     juce::Label aftertouchBendLabel;
     juce::Label neckSlideLabel;
     juce::Label slideFretStepsLabel;
-    juce::Label slideTailLabel;
+    juce::Label slideLiftLabel;
     juce::Label lookaheadLabel;
     juce::Label fingerNoiseLabel;
     juce::Label ampFeedbackLabel;
@@ -101,7 +102,7 @@ private:
     juce::TextButton aftertouchBendInfoButton;
     juce::TextButton neckSlideInfoButton;
     juce::TextButton slideFretStepsInfoButton;
-    juce::TextButton slideTailInfoButton;
+    juce::TextButton slideLiftInfoButton;
     juce::TextButton lookaheadInfoButton;
     juce::TextButton fingerNoiseInfoButton;
     juce::TextButton ampFeedbackInfoButton;
@@ -125,7 +126,6 @@ private:
     juce::TextButton palmMuteInfoButton;
     juce::TextButton harmonicTouchInfoButton;
     juce::ComboBox lookaheadBox;
-    juce::ComboBox slideTailBox;
     juce::ComboBox pickupModelBox;
     juce::ToggleButton vibratoModWheelSpeedButton;
     juce::ToggleButton vibratoModWheelDepthButton;
@@ -139,7 +139,7 @@ private:
     std::unique_ptr<SliderAttachment> aftertouchBendAttachment;
     std::unique_ptr<SliderAttachment> neckSlideAttachment;
     std::unique_ptr<SliderAttachment> slideFretStepsAttachment;
-    std::unique_ptr<ComboBoxAttachment> slideTailAttachment;
+    std::unique_ptr<SliderAttachment> slideLiftAttachment;
     std::unique_ptr<ComboBoxAttachment> lookaheadAttachment;
     std::unique_ptr<SliderAttachment> fingerNoiseAttachment;
     std::unique_ptr<SliderAttachment> ampFeedbackAttachment;

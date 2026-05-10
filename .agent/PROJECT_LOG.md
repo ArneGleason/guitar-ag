@@ -41,3 +41,6 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Added offline `--slide-tail` and `--neck-slide-at` smoke checks for EG-065, confirming non-slide releases stay byte-identical and moving-slide releases diverge by tail mode.
 - Received Antigravity verification approving EG-065 `SlideTail`; recorded it in `.agent/handoffs/20260509-203500-antigravity-slide-tail-verification.md`.
 - Routed EG-065 to human DAW audition in `.agent/handoffs/20260509-203700-codex-slide-tail-human-audition.md`.
+- Received human Bitwig feedback that EG-065 note-off slide tails were not convincing and could spike CPU at loop boundaries; recorded it in `.agent/handoffs/20260509-213804-human-slide-tail-feedback.md`.
+- Implemented `StringVoice EG-066 SlideLift`, replacing the `Slide Tail` choice with a continuous slide-pressure lift envelope during `Neck Slide` motion.
+- Routed EG-066 for review in `.agent/handoffs/20260509-214401-codex-slide-lift-implementation.md`.

@@ -504,3 +504,7 @@ Single-note slides can use existing MPE per-note pitch bend, but chord slides ar
 ## 2026-05-09 — MPE Slide is not automatically guitar slide
 
 Some DAWs label the MPE Y dimension as Slide, but Guitar AG currently maps CC74/timbre as timbre. The planned guitar-slide feature should avoid overloading CC74 by default and treat fret slides as pitch-motion plus physical contact/noise behavior.
+
+## 2026-05-09 — Slide release should not depend on note-off
+
+Human Bitwig audition of EG-065 showed that note-off-driven slide tails are a weak fit for DAW loop playback and do not model the physical gesture well. Sliding off should be an explicit pressure-lift envelope during slide motion, not an inferred release color at the note boundary.

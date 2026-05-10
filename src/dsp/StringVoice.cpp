@@ -96,10 +96,11 @@ void StringVoice::reset()
     slideFretContactPhaseStep = 0.0f;
     previousSlideFretNoise = 0.0f;
     previousNeckSlideSemitones = 0.0f;
-    slideTailActivity = 0.0f;
-    slideTailActivityDecay = std::pow (0.001f,
-                                       static_cast<float> (pitchControlUpdateInterval)
-                                           / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.22f)));
+    slideMotionActivity = 0.0f;
+    slideMotionActivityDecay = std::pow (0.001f,
+                                         static_cast<float> (pitchControlUpdateInterval)
+                                             / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.95f)));
+    slideLiftEnvelope = 0.0f;
     attackRampSeconds = 0.0025f;
     modalReleaseDecay = 1.0f;
     resonanceCoefficient.fill (0.0f);
@@ -299,10 +300,11 @@ void StringVoice::start (int midiNoteNumber,
     slideFretContactPhaseStep = 0.0f;
     previousSlideFretNoise = 0.0f;
     previousNeckSlideSemitones = 0.0f;
-    slideTailActivity = 0.0f;
-    slideTailActivityDecay = std::pow (0.001f,
-                                       static_cast<float> (pitchControlUpdateInterval)
-                                           / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.22f)));
+    slideMotionActivity = 0.0f;
+    slideMotionActivityDecay = std::pow (0.001f,
+                                         static_cast<float> (pitchControlUpdateInterval)
+                                             / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.95f)));
+    slideLiftEnvelope = 0.0f;
     attackRampSeconds = gestureAttackRampSeconds > 0.0f
                         ? gestureAttackRampSeconds
                         : juce::jmap (stiffnessAmount, 0.0090f, 0.0013f);
@@ -679,12 +681,12 @@ void StringVoice::start (int midiNoteNumber,
     updateDamping();
 }
 
-void StringVoice::release (int midiNoteNumber, int midiChannel, SlideTailMode slideTailMode)
+void StringVoice::release (int midiNoteNumber, int midiChannel)
 {
     if (active && noteNumber == midiNoteNumber && channel == midiChannel)
     {
         releasing = true;
-        startLeftHandRelease (slideTailMode);
+        startLeftHandRelease();
         updateDamping();
     }
 }
@@ -766,7 +768,8 @@ float StringVoice::renderSample (float tailSustain,
                                  float mpeTimbreAmount,
                                  float mpePitchBendRange,
                                  float neckSlideSemitones,
-                                 float slideFretSteps) noexcept
+                                 float slideFretSteps,
+                                 float slideLift) noexcept
 {
     if (! active)
         return 0.0f;
@@ -802,7 +805,8 @@ float StringVoice::renderSample (float tailSustain,
                                               aftertouchBendSemitones,
                                               mpePitchBendRange,
                                               neckSlideSemitones,
-                                              slideFretSteps);
+                                              slideFretSteps,
+                                              slideLift);
 
     const auto feedbackAmount = juce::jlimit (0.0f, 1.0f, ampFeedback);
     const auto loopAmount = juce::jlimit (0.0f, 1.0f, feedbackLoopAmount);
@@ -864,7 +868,8 @@ float StringVoice::renderSample (float tailSustain,
         loopStringScale
     };
 
-    auto modalOutput = renderModalBank (tailBlend, palmDecay, expressionPressure, expressionTimbre, feedback);
+    const auto effectiveSlideLift = juce::jlimit (0.0f, 1.0f, slideLiftEnvelope);
+    auto modalOutput = renderModalBank (tailBlend, palmDecay, expressionPressure, expressionTimbre, effectiveSlideLift, feedback);
     modalOutput += renderPickTransient();
     const auto contactOutput = renderContactLayer();
 
@@ -872,6 +877,7 @@ float StringVoice::renderSample (float tailSustain,
     modalOutput *= juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / attackRampSamples);
     modalOutput *= 1.0f - 0.22f * pickHeavyChoke;
     modalOutput *= 1.0f - 0.28f * palmCurve;
+    modalOutput *= 1.0f - 0.10f * effectiveSlideLift;
     modalOutput *= 1.0f + 0.10f * expressionPressure + 0.06f * expressionTimbre;
     modalOutput += contactOutput;
 
@@ -895,6 +901,7 @@ float StringVoice::renderModalBank (float tailBlend,
                                     float palmDecay,
                                     float expressionPressure,
                                     float expressionTimbre,
+                                    float slideLift,
                                     const FeedbackRenderContext& feedback) noexcept
 {
     auto modalOutput = 0.0f;
@@ -954,7 +961,10 @@ float StringVoice::renderModalBank (float tailBlend,
                                                   0.999999f,
                                                   baseEffectiveDecay + pressureDecayLift + timbreDecayTilt + feedbackDecayLift);
         const auto effectivePalmDecay = 1.0f + (palmDecay - 1.0f) * modalPalmWeight[modeIndex];
-        modalAmplitude[modeIndex] *= effectiveDecay * modalReleaseDecay * effectivePalmDecay;
+        const auto slideLiftDamping = juce::jlimit (0.9950f,
+                                                    1.0f,
+                                                    1.0f - slideLift * (0.00022f + 0.00072f * highMode));
+        modalAmplitude[modeIndex] *= effectiveDecay * modalReleaseDecay * effectivePalmDecay * slideLiftDamping;
 
         if (feedbackWeight + loopWeight > 0.000001f)
         {
@@ -1163,16 +1173,8 @@ void StringVoice::updateDamping() noexcept
     damping = releasing ? releaseDamping : baseDamping;
 }
 
-void StringVoice::startLeftHandRelease (SlideTailMode slideTailMode) noexcept
+void StringVoice::startLeftHandRelease() noexcept
 {
-    const auto recentSlideActivity = juce::jlimit (0.0f, 1.0f, slideTailActivity);
-
-    if (slideTailMode != SlideTailMode::Normal && recentSlideActivity > 0.050f)
-    {
-        startSlideTailRelease (slideTailMode, recentSlideActivity);
-        return;
-    }
-
     const auto heldSeconds = static_cast<float> (samplesSinceStart) / static_cast<float> (sampleRate);
 
     if (heldSeconds < 0.12f)
@@ -1201,64 +1203,6 @@ void StringVoice::startLeftHandRelease (SlideTailMode slideTailMode) noexcept
     modalReleaseDecay = 0.99935f;
     const auto transitionSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * 0.06f);
     leftHandDampingStep = (leftHandDamping - leftHandDampingTarget) / transitionSamples;
-}
-
-void StringVoice::startSlideTailRelease (SlideTailMode slideTailMode, float activity) noexcept
-{
-    const auto slideActivity = juce::jlimit (0.0f, 1.0f, activity);
-    auto modalScale = 1.0f;
-    auto highModeScale = 1.0f;
-    auto transitionSeconds = 0.020f;
-
-    switch (slideTailMode)
-    {
-        case SlideTailMode::Muted:
-            leftHandDampingTarget = 0.34f;
-            modalReleaseDecay = 0.9915f - 0.0030f * slideActivity;
-            modalScale = 0.52f - 0.16f * slideActivity;
-            highModeScale = 0.62f;
-            energy *= 0.34f + 0.12f * (1.0f - slideActivity);
-            slideFretContact = juce::jlimit (0.0f, 0.090f, slideFretContact + slideActivity * (0.006f + 0.004f * woundAmount));
-            slideFretScrape = juce::jlimit (0.0f, 0.060f, slideFretScrape + slideActivity * (0.008f + 0.007f * woundAmount));
-            transitionSeconds = 0.008f;
-            break;
-
-        case SlideTailMode::Open:
-            leftHandDampingTarget = 0.97f;
-            modalReleaseDecay = 0.99945f;
-            modalScale = 0.90f + 0.08f * slideActivity;
-            highModeScale = 0.78f;
-            energy *= 0.82f + 0.10f * slideActivity;
-            pullOffSnap = juce::jlimit (0.0f, 0.080f, pullOffSnap + slideActivity * (0.008f + 0.012f * woundAmount));
-            slideFretScrape = juce::jlimit (0.0f, 0.060f, slideFretScrape + slideActivity * (0.0025f + 0.0035f * woundAmount));
-            transitionSeconds = 0.028f;
-            break;
-
-        case SlideTailMode::SlideOff:
-            leftHandDampingTarget = 0.20f;
-            modalReleaseDecay = 0.9875f - 0.0035f * slideActivity;
-            modalScale = 0.28f - 0.08f * slideActivity;
-            highModeScale = 0.48f;
-            energy *= 0.18f + 0.07f * (1.0f - slideActivity);
-            pullOffSnap = juce::jlimit (0.0f, 0.080f, pullOffSnap + slideActivity * (0.012f + 0.018f * woundAmount));
-            slideFretContact = juce::jlimit (0.0f, 0.090f, slideFretContact + slideActivity * (0.016f + 0.012f * woundAmount));
-            slideFretScrape = juce::jlimit (0.0f, 0.060f, slideFretScrape + slideActivity * (0.018f + 0.014f * woundAmount));
-            transitionSeconds = 0.005f;
-            break;
-
-        case SlideTailMode::Normal:
-            break;
-    }
-
-    const auto transitionSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * transitionSeconds);
-    leftHandDampingStep = (leftHandDamping - leftHandDampingTarget) / transitionSamples;
-
-    for (auto mode = 0; mode < activeModalCount; ++mode)
-    {
-        const auto modeIndex = static_cast<size_t> (mode);
-        const auto highDamping = 1.0f + (highModeScale - 1.0f) * modalHighWeight[modeIndex];
-        modalAmplitude[modeIndex] *= juce::jmax (0.0f, modalScale) * highDamping;
-    }
 }
 
 float StringVoice::pluckShapeAt (float position, float pluckPosition) const noexcept
@@ -1482,10 +1426,10 @@ float StringVoice::getEffectiveSlideFretSteps (float slideFretSteps) noexcept
     return 0.90f + (control - 0.10f) * (0.10f / 0.90f);
 }
 
-float StringVoice::getFretSteppedSlideSemitones (float neckSlideSemitones, float slideFretSteps) noexcept
+float StringVoice::getFretSteppedSlideSemitones (float neckSlideSemitones, float slideFretSteps, float slideLift) noexcept
 {
     const auto clampedSlide = juce::jlimit (-12.0f, 12.0f, neckSlideSemitones);
-    const auto amount = getEffectiveSlideFretSteps (slideFretSteps);
+    const auto amount = getEffectiveSlideFretSteps (slideFretSteps) * (1.0f - juce::jlimit (0.0f, 1.0f, slideLift));
 
     if (amount <= 0.0001f || std::abs (clampedSlide) <= 0.0001f)
         return clampedSlide;
@@ -1504,18 +1448,26 @@ float StringVoice::getFretSteppedSlideSemitones (float neckSlideSemitones, float
     return clampedSlide + (steppedSlide - clampedSlide) * amount;
 }
 
-void StringVoice::updateSlideFretContact (float neckSlideSemitones, float slideFretSteps) noexcept
+float StringVoice::getSlideLiftRiseSeconds (float slideLift) noexcept
+{
+    const auto amount = juce::jlimit (0.0f, 1.0f, slideLift);
+    const auto remainingPressure = 1.0f - amount;
+    return 0.050f + 1.80f * remainingPressure * remainingPressure;
+}
+
+void StringVoice::updateSlideFretContact (float neckSlideSemitones, float slideFretSteps, float slideLift) noexcept
 {
     const auto clampedSlide = juce::jlimit (-12.0f, 12.0f, neckSlideSemitones);
-    const auto amount = getEffectiveSlideFretSteps (slideFretSteps);
+    const auto liftAmount = juce::jlimit (0.0f, 1.0f, slideLift);
     const auto currentFret = static_cast<int> (std::floor (clampedSlide + 0.5f));
-    slideTailActivity *= slideTailActivityDecay;
+    slideMotionActivity *= slideMotionActivityDecay;
 
     if (! slideFretStateInitialized)
     {
         previousNeckSlideSemitones = clampedSlide;
         previousSlideFret = currentFret;
         slideFretStateInitialized = true;
+        slideLiftEnvelope = 0.0f;
         return;
     }
 
@@ -1527,18 +1479,46 @@ void StringVoice::updateSlideFretContact (float neckSlideSemitones, float slideF
                                                 1.0f,
                                                 std::abs (slideDelta) * 220.0f
                                                     + (crossedFrets > 0 ? 0.40f : 0.0f));
-    slideTailActivity = juce::jmax (slideTailActivity, movementActivity);
+    slideMotionActivity = juce::jmax (slideMotionActivity, movementActivity);
 
-    if (amount > 0.0001f && crossedFrets > 0 && std::abs (slideDelta) > 0.00001f)
+    const auto liftTarget = liftAmount * juce::jlimit (0.0f, 1.0f, slideMotionActivity / 0.025f);
+
+    if (liftTarget > slideLiftEnvelope)
+    {
+        const auto controlTicks = juce::jmax (1.0f,
+                                              static_cast<float> (sampleRate)
+                                                  * getSlideLiftRiseSeconds (liftAmount)
+                                                  / static_cast<float> (pitchControlUpdateInterval));
+        slideLiftEnvelope = juce::jmin (liftTarget, slideLiftEnvelope + juce::jmax (0.000001f, liftAmount / controlTicks));
+    }
+    else
+    {
+        const auto controlTicks = juce::jmax (1.0f,
+                                              static_cast<float> (sampleRate)
+                                                  * (0.120f + 0.280f * (1.0f - liftAmount))
+                                                  / static_cast<float> (pitchControlUpdateInterval));
+        slideLiftEnvelope = juce::jmax (liftTarget, slideLiftEnvelope - 1.0f / controlTicks);
+    }
+
+    const auto frettedAmount = getEffectiveSlideFretSteps (slideFretSteps) * (1.0f - slideLiftEnvelope);
+
+    if (frettedAmount > 0.0001f && crossedFrets > 0 && std::abs (slideDelta) > 0.00001f)
     {
         const auto crossingScale = static_cast<float> (juce::jmin (crossedFrets, 4));
         const auto speedScale = juce::jlimit (0.35f, 1.0f, std::abs (slideDelta) * 220.0f);
         const auto directionScale = slideDelta >= 0.0f ? 1.0f : 0.86f;
-        const auto tickAmount = amount * crossingScale * speedScale * directionScale * (0.0080f + 0.0060f * woundAmount);
-        const auto scrapeAmount = amount * crossingScale * (0.0025f + 0.0045f * woundAmount);
+        const auto tickAmount = frettedAmount * crossingScale * speedScale * directionScale * (0.0080f + 0.0060f * woundAmount);
+        const auto scrapeAmount = frettedAmount * crossingScale * (0.0025f + 0.0045f * woundAmount);
 
         slideFretContact = juce::jlimit (0.0f, 0.090f, slideFretContact + tickAmount);
         slideFretScrape = juce::jlimit (0.0f, 0.060f, slideFretScrape + scrapeAmount);
+    }
+
+    if (slideLiftEnvelope > 0.0001f && std::abs (slideDelta) > 0.00001f)
+    {
+        const auto speedScale = juce::jlimit (0.0f, 1.0f, std::abs (slideDelta) * 180.0f);
+        const auto liftedScrape = slideLiftEnvelope * speedScale * (0.0016f + 0.0038f * woundAmount);
+        slideFretScrape = juce::jlimit (0.0f, 0.060f, slideFretScrape + liftedScrape);
     }
 
     previousNeckSlideSemitones = clampedSlide;
@@ -1554,7 +1534,8 @@ float StringVoice::updatePitchRatio (float heldSeconds,
                                      float aftertouchBendSemitones,
                                      float mpePitchBendRange,
                                      float neckSlideSemitones,
-                                     float slideFretSteps) noexcept
+                                     float slideFretSteps,
+                                     float slideLift) noexcept
 {
     constexpr auto twoPi = 6.28318530717958647692f;
     const auto clampedVibratoSpeed = juce::jlimit (0.0f, 14.0f, vibratoSpeedHz);
@@ -1580,8 +1561,8 @@ float StringVoice::updatePitchRatio (float heldSeconds,
         const auto mpePitchRatio = mpePitchBend != 0.0f && mpePitchBendRange != 0.0f
                                  ? std::pow (2.0f, mpePitchBend * mpePitchBendRange / 12.0f)
                                  : 1.0f;
-        const auto shapedNeckSlide = getFretSteppedSlideSemitones (neckSlideSemitones, slideFretSteps);
-        updateSlideFretContact (neckSlideSemitones, slideFretSteps);
+        updateSlideFretContact (neckSlideSemitones, slideFretSteps, slideLift);
+        const auto shapedNeckSlide = getFretSteppedSlideSemitones (neckSlideSemitones, slideFretSteps, slideLiftEnvelope);
         const auto neckSlideRatio = shapedNeckSlide != 0.0f ? std::pow (2.0f, shapedNeckSlide / 12.0f) : 1.0f;
         const auto vibratoRatio = vibratoCents != 0.0f ? std::pow (2.0f, vibratoCents / 1200.0f) : 1.0f;
         const auto whammyRatio = whammySemitones != 0.0f ? getWhammyRatio (whammySemitones, whammySpread) : 1.0f;

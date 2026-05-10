@@ -96,16 +96,17 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Extreme stacked pitch motion remains bounded and does not produce runaway output or obvious aliasing artifacts.
 - [ ] The slide audition MIDI's held-chord automation bed is usable for drawing host `Neck Slide` curves.
 
-## EG-065 Slide Tail Checks
+## EG-066 Slide Lift Checks
 
-- [ ] New plugin instances show `v0.2.6 / StringVoice EG-065 SlideTail`.
-- [ ] The Performance page exposes `Slide Tail` with `Normal`, `Muted`, `Open`, and `Slide Off`.
-- [ ] With `Slide Tail` set to `Normal`, releases sound like EG-064.
-- [ ] With `Neck Slide` at `0.0 st`, `Muted`, `Open`, and `Slide Off` do not change ordinary note releases.
-- [ ] During a moving `Neck Slide` release, `Muted` damps the tail quickly.
-- [ ] During a moving `Neck Slide` release, `Open` gives a more ringing release color without clicks.
-- [ ] During a moving `Neck Slide` release, `Slide Off` creates the strongest scraped/off-string exit and decays quickly.
-- [ ] Offline smoke: render a short note with `--neck-slide 5.3 --neck-slide-at 0.001 --slide-tail 0/1/2/3`; the non-normal modes should differ from `Normal`.
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-066 SlideLift`.
+- [ ] The Performance page exposes `Slide Lift` as a slider and no longer exposes `Slide Tail`.
+- [ ] With `Slide Lift` at 0%, releases and slides sound like EG-064/normal slide behavior.
+- [ ] With `Neck Slide` at `0.0 st`, raising `Slide Lift` does not mute ordinary static notes.
+- [ ] During a moving `Neck Slide`, `Slide Lift` fades fret-step engagement and adds light string scrape.
+- [ ] At 50%, the lift feels gradual, roughly a half-second pressure release.
+- [ ] At 100%, the lift feels quick, roughly a 50 ms pressure release.
+- [ ] Bitwig loop playback does not produce the EG-065 loop-boundary CPU spike.
+- [ ] Offline smoke: render a short note with `--neck-slide 5.3 --neck-slide-at 0.001 --slide-fret-steps 0.25 --slide-lift 0/1`; the lifted render should differ from the neutral render.
 
 ## Pickup Checks
 

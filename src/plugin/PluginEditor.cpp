@@ -205,20 +205,13 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "Technical: the control uses a perceptual curve, so 10% already reaches the old 90% engagement point and the rest of "
                          "the slider fine-tunes the audible fret-crossing zone. 0% leaves the slide lane smooth.");
 
-    configureLabel (slideTailLabel, "Slide Tail");
-    configureInfoButton (slideTailInfoButton,
-                         "Choose how an active slide gesture releases.\n\n"
-                         "Technical: Normal keeps ordinary note-off behavior. Muted, Open, and Slide Off only engage when a voice has recent "
-                         "Neck Slide motion, so normal releases stay unchanged.");
-    slideTailBox.addItem ("Normal", 1);
-    slideTailBox.addItem ("Muted", 2);
-    slideTailBox.addItem ("Open", 3);
-    slideTailBox.addItem ("Slide Off", 4);
-    slideTailBox.setColour (juce::ComboBox::textColourId, juce::Colour (0xffe8edf2));
-    slideTailBox.setColour (juce::ComboBox::backgroundColourId, juce::Colour (0xff202832));
-    slideTailBox.setColour (juce::ComboBox::outlineColourId, juce::Colour (0xff65717c));
-    slideTailBox.setColour (juce::ComboBox::arrowColourId, juce::Colour (0xffe8edf2));
-    addAndMakeVisible (slideTailBox);
+    configureLabel (slideLiftLabel, "Slide Lift");
+    configureSlider (slideLiftSlider, juce::Colour (0xffd5a36f));
+    configureInfoButton (slideLiftInfoButton,
+                         "Lift fretting pressure during Neck Slide motion.\n\n"
+                         "Technical: 0% keeps full fret pressure. Higher values fade the fret-step engagement, add light string scrape, and "
+                         "damp the modal sustain while the slide is moving. 50% reaches its lift over about 500 ms; 100% reaches full lift in "
+                         "about 50 ms. This does not wait for note-off.");
 
     configureLabel (lookaheadLabel, "Lookahead");
     configureInfoButton (lookaheadInfoButton,
@@ -424,9 +417,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     slideFretStepsAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                    GuitarAgAudioProcessor::slideFretStepsParameterId,
                                                                    slideFretStepsSlider);
-    slideTailAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
-                                                                GuitarAgAudioProcessor::slideTailParameterId,
-                                                                slideTailBox);
+    slideLiftAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                              GuitarAgAudioProcessor::slideLiftParameterId,
+                                                              slideLiftSlider);
     lookaheadAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::lookaheadParameterId,
                                                                lookaheadBox);
@@ -628,9 +621,9 @@ void GuitarAgAudioProcessorEditor::resized()
         layoutLabelAndInfo (slideFretStepsBounds, slideFretStepsLabel, slideFretStepsInfoButton);
         slideFretStepsSlider.setBounds (slideFretStepsBounds);
 
-        auto slideTailBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (slideTailBounds, slideTailLabel, slideTailInfoButton);
-        slideTailBox.setBounds (slideTailBounds.reduced (0, 4));
+        auto slideLiftBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (slideLiftBounds, slideLiftLabel, slideLiftInfoButton);
+        slideLiftSlider.setBounds (slideLiftBounds);
 
         auto lookaheadBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (lookaheadBounds, lookaheadLabel, lookaheadInfoButton);
@@ -842,9 +835,9 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&slideFretStepsLabel),
                              static_cast<juce::Component*> (&slideFretStepsInfoButton),
                              static_cast<juce::Component*> (&slideFretStepsSlider),
-                             static_cast<juce::Component*> (&slideTailLabel),
-                             static_cast<juce::Component*> (&slideTailInfoButton),
-                             static_cast<juce::Component*> (&slideTailBox),
+                             static_cast<juce::Component*> (&slideLiftLabel),
+                             static_cast<juce::Component*> (&slideLiftInfoButton),
+                             static_cast<juce::Component*> (&slideLiftSlider),
                              static_cast<juce::Component*> (&lookaheadLabel),
                              static_cast<juce::Component*> (&lookaheadInfoButton),
                              static_cast<juce::Component*> (&lookaheadBox),

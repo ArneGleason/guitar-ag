@@ -52,6 +52,10 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Added offline-renderer `--slide-tail` and `--neck-slide-at` support for slide-ending smoke checks.
 - Changed the model label to `StringVoice EG-065 SlideTail`.
 - Documented Antigravity approval of EG-065 and routed the next step to human DAW audition.
+- Documented human DAW feedback that EG-065 note-off-based slide tails were not convincing and could misbehave around Bitwig loop boundaries.
+- Replaced the `Slide Tail` choice with a continuous `Slide Lift` parameter that reduces fretted pressure during actual `Neck Slide` motion instead of waiting for note-off.
+- Added offline-renderer `--slide-lift` support and removed `--slide-tail`.
+- Changed the model label to `StringVoice EG-066 SlideLift`.
 
 ### Fixed
 

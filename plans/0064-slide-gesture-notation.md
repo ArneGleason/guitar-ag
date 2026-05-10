@@ -227,4 +227,7 @@ Phase 2 started on 2026-05-09.
 - After Antigravity verified EG-064, Phase 2d added the first `Slide Tail` modes: `Normal`, `Muted`, `Open`, and `Slide Off`.
 - `Slide Tail` special modes are gated by recent `Neck Slide` movement so ordinary note releases remain unchanged.
 - Added offline `--slide-tail` and `--neck-slide-at` checks so slide-ending behavior can be smoke-tested without DAW automation.
+- After human Bitwig audition, Phase 2e superseded `Slide Tail` with `Slide Lift`: a continuous pressure-lift envelope during `Neck Slide` motion.
+- `Slide Lift` fades fret-step engagement, adds light lifted-string scrape, and damps modal sustain without depending on note-off.
+- Added offline `--slide-lift` support and removed `--slide-tail`.
 - Same-string speaking-length changes remain future work.
