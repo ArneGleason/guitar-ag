@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Add Auto Strum direction balance",
-  "status": "EG-066 through EG-079 cleared by Antigravity; EG-080 StrumBalance remains current review item",
-  "updatedAt": "2026-05-10T16:55:00-04:00",
-  "lastHandoff": ".agent/handoffs/20260510-125655-codex-strum-balance.md",
+  "lastTask": "Polish Articulation groups and release-candidate defaults",
+  "status": "EG-081 ArticGroups implemented, built, installed, and ready for review/audition",
+  "updatedAt": "2026-05-10T13:20:19-04:00",
+  "lastHandoff": ".agent/handoffs/20260510-132019-codex-artic-groups.md",
   "branch": "main",
-  "commit": "Add strum direction balance (current main commit)",
+  "commit": "Polish articulation release defaults (current main commit)",
   "projectState": {
-    "summary": "Antigravity broadly reviewed and cleared EG-066 through EG-079 at commit 585049a. EG-080 adds Strum Balance afterward at 48851b9 and remains the focused follow-up for review."
+    "summary": "EG-081 reorganizes Articulation controls into parent/subordinate groups and changes new-instance defaults to Pick Texture 25%, Strum Speed 10%, Strum Balance -13%, and Player Feel 50%."
   }
 }

@@ -226,14 +226,14 @@ Use the header `Export Settings` button to copy a JSON snapshot of the current a
 
 ## Auto Strum Audition MIDI
 
-`tests/midi/guitar-ag-auto-strum-audition.mid` focuses on the EG-079/EG-080 Auto Strum controls.
+`tests/midi/guitar-ag-auto-strum-audition.mid` focuses on the EG-079 through EG-081 Auto Strum controls.
 
 Suggested plugin setup:
 
 - `Pick Stroke`: start with `Alternate`, then compare forced `Down` and forced `Up`
-- `Strum Speed`: compare `0%`, about `40-70%`, and `100%`
-- `Strum Balance`: start centered, then compare positive values for softer upstrokes and negative values for softer downstrokes
-- `Player Feel`: around `Pro`/50% if you want the generated stroke to include natural timing and energy variation
+- `Strum Speed`: start with the 10% default, then compare `0%`, about `40-70%`, and `100%`
+- `Strum Balance`: start with the -13% default, then compare centered and positive values
+- `Player Feel`: the 50% `Pro` default includes natural timing and energy variation
 - `Legato Articulation`: `0%` for the first pass
 
 At 96 BPM:

@@ -719,3 +719,17 @@ Accepted
 
 Consequences:
 The control affects generated Auto Strum note-on velocities before Player Feel variation is applied. It does not affect single-note picking or already-staggered authored strums. A center value preserves EG-079 behavior exactly.
+
+## 2026-05-10 — Make articulation defaults audition-ready
+
+Decision:
+Group Articulation-page controls around the primary musical action and update new-instance defaults for the release-candidate sound.
+
+Reason:
+Human DAW audition found the current strum and feel model musically strong enough to be on by default. A new user previewing the instrument should hear a light right-hand strum and controlled human feel without discovering multiple subordinate controls first. The page should make the most important gesture controls read as parents while keeping character controls close but visually secondary.
+
+Status:
+Accepted
+
+Consequences:
+`Pick Bite` is the primary pick-character row, with `Pick Stiffness` and `Pick Texture` grouped beneath it. `Pick Stroke` is the primary right-hand direction row, with `Strum Speed` and `Strum Balance` beneath it. `Player Feel` keeps the Bot/Pro/Loose parent row, with recovery/reset/meters beneath it. New instances default to `Pick Texture` 25%, `Strum Speed` 10%, `Strum Balance` -13%, and `Player Feel` 50%. Existing DAW sessions should continue loading their saved parameter states.

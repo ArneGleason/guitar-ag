@@ -1938,3 +1938,20 @@ Implementation details:
 - The control only changes generated Auto Strum note-on velocities.
 - Single-note picking and already-staggered authored strums are unaffected.
 - Player Feel still applies deterministic timing/energy variation after the direction balance, so the generated stroke remains part of the same player-interpretation path.
+
+## 2026-05-10 — EG-081 Articulation Groups and Defaults
+
+EG-081 is a release-candidate usability/defaults pass rather than a new DSP algorithm.
+
+- The visible model label is now `StringVoice EG-081 ArticGroups`.
+- The Articulation page now groups secondary character controls under their parent gesture:
+  - `Pick Bite` with `Pick Stiffness` and `Pick Texture`;
+  - `Pick Stroke` with `Strum Speed` and `Strum Balance`;
+  - `Player Feel` with `Feel Recovery`, `Reset Feel`, and the load meters.
+- New-instance and offline-render defaults now start closer to the accepted audition setup:
+  - `Pick Texture`: 25%;
+  - `Strum Speed`: 10%;
+  - `Strum Balance`: -13%;
+  - `Player Feel`: 50%.
+
+These defaults make block-chord previews lightly strummed and human-feeling immediately, while existing sessions should retain their saved parameter values.

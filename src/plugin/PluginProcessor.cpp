@@ -410,7 +410,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
         juce::ParameterID { pickTextureParameterId, 1 },
         "Pick Texture",
         juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
-        0.5f,
+        0.25f,
         juce::AudioParameterFloatAttributes()
             .withLabel ("%")
             .withStringFromValueFunction (percentString)
@@ -436,7 +436,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
         juce::ParameterID { strumSpeedParameterId, 1 },
         "Strum Speed",
         juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
-        0.0f,
+        0.10f,
         juce::AudioParameterFloatAttributes()
             .withLabel ("%")
             .withStringFromValueFunction (percentString)
@@ -446,7 +446,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
         juce::ParameterID { strumBalanceParameterId, 1 },
         "Strum Balance",
         juce::NormalisableRange<float> { -1.0f, 1.0f, 0.001f, 1.0f },
-        0.0f,
+        -0.13f,
         juce::AudioParameterFloatAttributes()
             .withStringFromValueFunction (strumBalanceString)
             .withValueFromStringFunction (strumBalanceValue)));
@@ -455,7 +455,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
         juce::ParameterID { playerFeelParameterId, 1 },
         "Player Feel",
         juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
-        0.0f,
+        0.5f,
         juce::AudioParameterFloatAttributes()
             .withLabel ("%")
             .withStringFromValueFunction (percentString)
@@ -520,12 +520,12 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     buffer.clear();
     audioEngine.setTailSustain (tailSustainParameter != nullptr ? tailSustainParameter->load() : 1.0f);
     audioEngine.setPickStiffness (pickStiffnessParameter != nullptr ? pickStiffnessParameter->load() : 0.5f);
-    audioEngine.setPickTexture (pickTextureParameter != nullptr ? pickTextureParameter->load() : 0.5f);
+    audioEngine.setPickTexture (pickTextureParameter != nullptr ? pickTextureParameter->load() : 0.25f);
     audioEngine.setPickBite (pickBiteParameter != nullptr ? pickBiteParameter->load() : 0.5f);
     audioEngine.setPickStrokeMode (pickStrokeParameter != nullptr ? juce::roundToInt (pickStrokeParameter->load()) : 2);
-    audioEngine.setStrumSpeed (strumSpeedParameter != nullptr ? strumSpeedParameter->load() : 0.0f);
-    audioEngine.setStrumBalance (strumBalanceParameter != nullptr ? strumBalanceParameter->load() : 0.0f);
-    audioEngine.setPlayerFeel (playerFeelParameter != nullptr ? playerFeelParameter->load() : 0.0f);
+    audioEngine.setStrumSpeed (strumSpeedParameter != nullptr ? strumSpeedParameter->load() : 0.10f);
+    audioEngine.setStrumBalance (strumBalanceParameter != nullptr ? strumBalanceParameter->load() : -0.13f);
+    audioEngine.setPlayerFeel (playerFeelParameter != nullptr ? playerFeelParameter->load() : 0.5f);
     audioEngine.setPlayerFeelRecoverySeconds (playerFeelRecoveryParameter != nullptr ? playerFeelRecoveryParameter->load() : 2.0f);
 
     if (playerFeelResetRequested.exchange (false))

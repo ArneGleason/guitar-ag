@@ -47,6 +47,9 @@ private:
     juce::TextButton slideTweaksButton;
     juce::TextButton fingerNoiseTweaksButton;
     juce::TextButton feedbackTweaksButton;
+    juce::TextButton pickTweaksButton;
+    juce::TextButton pickStrokeTweaksButton;
+    juce::TextButton playerFeelTweaksButton;
     juce::Slider sustainSlider;
     juce::Slider stringAgeSlider;
     juce::Slider bridgeIntonationSlider;
@@ -228,6 +231,9 @@ private:
     bool slideTweaksOpen = true;
     bool fingerNoiseTweaksOpen = false;
     bool feedbackTweaksOpen = false;
+    bool pickTweaksOpen = true;
+    bool pickStrokeTweaksOpen = true;
+    bool playerFeelTweaksOpen = true;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAgAudioProcessorEditor)
 };

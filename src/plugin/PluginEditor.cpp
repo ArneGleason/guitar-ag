@@ -123,12 +123,15 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureDisclosureButton (slideTweaksButton);
     configureDisclosureButton (fingerNoiseTweaksButton);
     configureDisclosureButton (feedbackTweaksButton);
+    configureDisclosureButton (pickTweaksButton);
+    configureDisclosureButton (pickStrokeTweaksButton);
+    configureDisclosureButton (playerFeelTweaksButton);
     slideTweaksButton.setTooltip ("Show slide character controls.");
     fingerNoiseTweaksButton.setTooltip ("Show finger-noise timing controls.");
     feedbackTweaksButton.setTooltip ("Show feedback character controls.");
-    configureDisclosureButton (slideTweaksButton);
-    configureDisclosureButton (fingerNoiseTweaksButton);
-    configureDisclosureButton (feedbackTweaksButton);
+    pickTweaksButton.setTooltip ("Show pick character controls.");
+    pickStrokeTweaksButton.setTooltip ("Show strum controls.");
+    playerFeelTweaksButton.setTooltip ("Show player feel recovery and meters.");
 
     setupSectionButton.onClick = [this]
     {
@@ -183,21 +186,21 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
         updateSectionVisibility();
     };
 
-    slideTweaksButton.onClick = [this]
+    pickTweaksButton.onClick = [this]
     {
-        slideTweaksOpen = ! slideTweaksOpen;
+        pickTweaksOpen = ! pickTweaksOpen;
         updateSectionVisibility();
     };
 
-    fingerNoiseTweaksButton.onClick = [this]
+    pickStrokeTweaksButton.onClick = [this]
     {
-        fingerNoiseTweaksOpen = ! fingerNoiseTweaksOpen;
+        pickStrokeTweaksOpen = ! pickStrokeTweaksOpen;
         updateSectionVisibility();
     };
 
-    feedbackTweaksButton.onClick = [this]
+    playerFeelTweaksButton.onClick = [this]
     {
-        feedbackTweaksOpen = ! feedbackTweaksOpen;
+        playerFeelTweaksOpen = ! playerFeelTweaksOpen;
         updateSectionVisibility();
     };
 
@@ -353,7 +356,20 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "Technical: On is the default because the clipped return gives the resonator bank a more amp-like source and reduces "
                          "early harmonic chirp. Off uses a cleaner DI-like return that listens to the shaped output.");
 
-    for (auto* label : { &slideFretStepsLabel, &slideLiftLabel, &slideSqueakLabel, &slideSqueakDownLabel, &lookaheadLabel, &feedbackReturnLabel })
+    for (auto* label : { &slideFretStepsLabel,
+                         &slideLiftLabel,
+                         &slideSqueakLabel,
+                         &slideSqueakDownLabel,
+                         &lookaheadLabel,
+                         &feedbackReturnLabel,
+                         &pickStiffnessLabel,
+                         &pickTextureLabel,
+                         &strumSpeedLabel,
+                         &strumBalanceLabel,
+                         &playerFeelRecoveryLabel,
+                         &playerFeelCognitiveLabel,
+                         &playerFeelDexterityLabel,
+                         &playerFeelEnduranceLabel })
         label->setColour (juce::Label::textColourId, juce::Colour (0xffa9b7c3));
 
     configureLabel (vibratoSpeedLabel, "Speed");
@@ -980,32 +996,38 @@ void GuitarAgAudioProcessorEditor::resized()
         layoutLabelAndInfo (legatoBounds, legatoArticulationLabel, legatoArticulationInfoButton);
         legatoArticulationSlider.setBounds (legatoBounds);
 
-        auto stiffnessBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (stiffnessBounds, pickStiffnessLabel, pickStiffnessInfoButton);
-        pickStiffnessSlider.setBounds (stiffnessBounds);
-
-        auto textureBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (textureBounds, pickTextureLabel, pickTextureInfoButton);
-        pickTextureSlider.setBounds (textureBounds);
-
         auto biteBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (biteBounds, pickBiteLabel, pickBiteInfoButton);
+        layoutLabelInfoDisclosure (biteBounds, pickBiteLabel, pickBiteInfoButton, pickTweaksButton);
         pickBiteSlider.setBounds (biteBounds);
 
+        if (pickTweaksOpen)
+        {
+            auto stiffnessBounds = bounds.removeFromTop (36);
+            layoutLabelAndInfo (stiffnessBounds, pickStiffnessLabel, pickStiffnessInfoButton);
+            pickStiffnessSlider.setBounds (stiffnessBounds);
+
+            auto textureBounds = bounds.removeFromTop (36);
+            layoutLabelAndInfo (textureBounds, pickTextureLabel, pickTextureInfoButton);
+            pickTextureSlider.setBounds (textureBounds);
+        }
+
         auto strokeBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (strokeBounds, pickStrokeLabel, pickStrokeInfoButton);
+        layoutLabelInfoDisclosure (strokeBounds, pickStrokeLabel, pickStrokeInfoButton, pickStrokeTweaksButton);
         pickStrokeBox.setBounds (strokeBounds.reduced (0, 4));
 
-        auto strumBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (strumBounds, strumSpeedLabel, strumSpeedInfoButton);
-        strumSpeedSlider.setBounds (strumBounds);
+        if (pickStrokeTweaksOpen)
+        {
+            auto strumBounds = bounds.removeFromTop (36);
+            layoutLabelAndInfo (strumBounds, strumSpeedLabel, strumSpeedInfoButton);
+            strumSpeedSlider.setBounds (strumBounds);
 
-        auto strumBalanceBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (strumBalanceBounds, strumBalanceLabel, strumBalanceInfoButton);
-        strumBalanceSlider.setBounds (strumBalanceBounds);
+            auto strumBalanceBounds = bounds.removeFromTop (36);
+            layoutLabelAndInfo (strumBalanceBounds, strumBalanceLabel, strumBalanceInfoButton);
+            strumBalanceSlider.setBounds (strumBalanceBounds);
+        }
 
         auto feelBounds = bounds.removeFromTop (54);
-        layoutLabelAndInfo (feelBounds, playerFeelLabel, playerFeelInfoButton);
+        layoutLabelInfoDisclosure (feelBounds, playerFeelLabel, playerFeelInfoButton, playerFeelTweaksButton);
         const auto feelSliderBounds = feelBounds.removeFromTop (34);
         playerFeelSlider.setBounds (feelSliderBounds);
 
@@ -1024,24 +1046,27 @@ void GuitarAgAudioProcessorEditor::resized()
         playerFeelProLabel.setBounds (feelMarkerX (0.5f), feelMarkerY, feelMarkerWidth, 18);
         playerFeelLooseLabel.setBounds (feelMarkerX (1.0f), feelMarkerY, feelMarkerWidth, 18);
 
-        auto recoveryBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (recoveryBounds, playerFeelRecoveryLabel, playerFeelRecoveryInfoButton);
-        playerFeelRecoverySlider.setBounds (recoveryBounds);
-
-        auto resetBounds = bounds.removeFromTop (34);
-        resetBounds.removeFromLeft (158);
-        playerFeelResetButton.setBounds (resetBounds.removeFromLeft (140).reduced (0, 2));
-        playerFeelResetInfoButton.setBounds (resetBounds.removeFromLeft (22).reduced (2, 6));
-
-        auto layoutMeter = [] (juce::Rectangle<int> row, juce::Label& label, juce::ProgressBar& meter)
+        if (playerFeelTweaksOpen)
         {
-            label.setBounds (row.removeFromLeft (158));
-            meter.setBounds (row.reduced (0, 3));
-        };
+            auto recoveryBounds = bounds.removeFromTop (36);
+            layoutLabelAndInfo (recoveryBounds, playerFeelRecoveryLabel, playerFeelRecoveryInfoButton);
+            playerFeelRecoverySlider.setBounds (recoveryBounds);
 
-        layoutMeter (bounds.removeFromTop (24), playerFeelCognitiveLabel, playerFeelCognitiveMeter);
-        layoutMeter (bounds.removeFromTop (24), playerFeelDexterityLabel, playerFeelDexterityMeter);
-        layoutMeter (bounds.removeFromTop (24), playerFeelEnduranceLabel, playerFeelEnduranceMeter);
+            auto resetBounds = bounds.removeFromTop (34);
+            resetBounds.removeFromLeft (158);
+            playerFeelResetButton.setBounds (resetBounds.removeFromLeft (140).reduced (0, 2));
+            playerFeelResetInfoButton.setBounds (resetBounds.removeFromLeft (22).reduced (2, 6));
+
+            auto layoutMeter = [] (juce::Rectangle<int> row, juce::Label& label, juce::ProgressBar& meter)
+            {
+                label.setBounds (row.removeFromLeft (158));
+                meter.setBounds (row.reduced (0, 3));
+            };
+
+            layoutMeter (bounds.removeFromTop (24), playerFeelCognitiveLabel, playerFeelCognitiveMeter);
+            layoutMeter (bounds.removeFromTop (24), playerFeelDexterityLabel, playerFeelDexterityMeter);
+            layoutMeter (bounds.removeFromTop (24), playerFeelEnduranceLabel, playerFeelEnduranceMeter);
+        }
 
         auto palmMuteBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (palmMuteBounds, palmMuteLabel, palmMuteInfoButton);
@@ -1268,41 +1293,21 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
     for (auto* component : { static_cast<juce::Component*> (&legatoArticulationLabel),
                              static_cast<juce::Component*> (&legatoArticulationInfoButton),
                              static_cast<juce::Component*> (&legatoArticulationSlider),
-                             static_cast<juce::Component*> (&pickStiffnessLabel),
-                             static_cast<juce::Component*> (&pickStiffnessInfoButton),
-                             static_cast<juce::Component*> (&pickStiffnessSlider),
-                             static_cast<juce::Component*> (&pickTextureLabel),
-                             static_cast<juce::Component*> (&pickTextureInfoButton),
-                             static_cast<juce::Component*> (&pickTextureSlider),
                              static_cast<juce::Component*> (&pickBiteLabel),
                              static_cast<juce::Component*> (&pickBiteInfoButton),
                              static_cast<juce::Component*> (&pickBiteSlider),
+                             static_cast<juce::Component*> (&pickTweaksButton),
                              static_cast<juce::Component*> (&pickStrokeLabel),
                              static_cast<juce::Component*> (&pickStrokeInfoButton),
                              static_cast<juce::Component*> (&pickStrokeBox),
-                             static_cast<juce::Component*> (&strumSpeedLabel),
-                             static_cast<juce::Component*> (&strumSpeedInfoButton),
-                             static_cast<juce::Component*> (&strumSpeedSlider),
-                             static_cast<juce::Component*> (&strumBalanceLabel),
-                             static_cast<juce::Component*> (&strumBalanceInfoButton),
-                             static_cast<juce::Component*> (&strumBalanceSlider),
+                             static_cast<juce::Component*> (&pickStrokeTweaksButton),
                              static_cast<juce::Component*> (&playerFeelLabel),
                              static_cast<juce::Component*> (&playerFeelInfoButton),
                              static_cast<juce::Component*> (&playerFeelSlider),
+                             static_cast<juce::Component*> (&playerFeelTweaksButton),
                              static_cast<juce::Component*> (&playerFeelBotLabel),
                              static_cast<juce::Component*> (&playerFeelProLabel),
                              static_cast<juce::Component*> (&playerFeelLooseLabel),
-                             static_cast<juce::Component*> (&playerFeelRecoveryLabel),
-                             static_cast<juce::Component*> (&playerFeelRecoveryInfoButton),
-                             static_cast<juce::Component*> (&playerFeelRecoverySlider),
-                             static_cast<juce::Component*> (&playerFeelResetButton),
-                             static_cast<juce::Component*> (&playerFeelResetInfoButton),
-                             static_cast<juce::Component*> (&playerFeelCognitiveLabel),
-                             static_cast<juce::Component*> (&playerFeelCognitiveMeter),
-                             static_cast<juce::Component*> (&playerFeelDexterityLabel),
-                             static_cast<juce::Component*> (&playerFeelDexterityMeter),
-                             static_cast<juce::Component*> (&playerFeelEnduranceLabel),
-                             static_cast<juce::Component*> (&playerFeelEnduranceMeter),
                              static_cast<juce::Component*> (&palmMuteLabel),
                              static_cast<juce::Component*> (&palmMuteInfoButton),
                              static_cast<juce::Component*> (&palmMuteSlider),
@@ -1313,6 +1318,38 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&harmonicThirdLabel),
                              static_cast<juce::Component*> (&harmonicHalfLabel) })
         component->setVisible (activePage == 6);
+
+    const auto showPickTweaks = activePage == 6 && pickTweaksOpen;
+    for (auto* component : { static_cast<juce::Component*> (&pickStiffnessLabel),
+                             static_cast<juce::Component*> (&pickStiffnessInfoButton),
+                             static_cast<juce::Component*> (&pickStiffnessSlider),
+                             static_cast<juce::Component*> (&pickTextureLabel),
+                             static_cast<juce::Component*> (&pickTextureInfoButton),
+                             static_cast<juce::Component*> (&pickTextureSlider) })
+        component->setVisible (showPickTweaks);
+
+    const auto showPickStrokeTweaks = activePage == 6 && pickStrokeTweaksOpen;
+    for (auto* component : { static_cast<juce::Component*> (&strumSpeedLabel),
+                             static_cast<juce::Component*> (&strumSpeedInfoButton),
+                             static_cast<juce::Component*> (&strumSpeedSlider),
+                             static_cast<juce::Component*> (&strumBalanceLabel),
+                             static_cast<juce::Component*> (&strumBalanceInfoButton),
+                             static_cast<juce::Component*> (&strumBalanceSlider) })
+        component->setVisible (showPickStrokeTweaks);
+
+    const auto showPlayerFeelTweaks = activePage == 6 && playerFeelTweaksOpen;
+    for (auto* component : { static_cast<juce::Component*> (&playerFeelRecoveryLabel),
+                             static_cast<juce::Component*> (&playerFeelRecoveryInfoButton),
+                             static_cast<juce::Component*> (&playerFeelRecoverySlider),
+                             static_cast<juce::Component*> (&playerFeelResetButton),
+                             static_cast<juce::Component*> (&playerFeelResetInfoButton),
+                             static_cast<juce::Component*> (&playerFeelCognitiveLabel),
+                             static_cast<juce::Component*> (&playerFeelCognitiveMeter),
+                             static_cast<juce::Component*> (&playerFeelDexterityLabel),
+                             static_cast<juce::Component*> (&playerFeelDexterityMeter),
+                             static_cast<juce::Component*> (&playerFeelEnduranceLabel),
+                             static_cast<juce::Component*> (&playerFeelEnduranceMeter) })
+        component->setVisible (showPlayerFeelTweaks);
 
     exportSettingsButton.setVisible (true);
     exportSettingsInfoButton.setVisible (true);
@@ -1327,6 +1364,9 @@ void GuitarAgAudioProcessorEditor::updateDisclosureButtons()
     slideTweaksButton.setButtonText (slideTweaksOpen ? "v" : ">");
     fingerNoiseTweaksButton.setButtonText (fingerNoiseTweaksOpen ? "v" : ">");
     feedbackTweaksButton.setButtonText (feedbackTweaksOpen ? "v" : ">");
+    pickTweaksButton.setButtonText (pickTweaksOpen ? "v" : ">");
+    pickStrokeTweaksButton.setButtonText (pickStrokeTweaksOpen ? "v" : ">");
+    playerFeelTweaksButton.setButtonText (playerFeelTweaksOpen ? "v" : ">");
 }
 
 void GuitarAgAudioProcessorEditor::timerCallback()

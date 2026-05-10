@@ -33,6 +33,12 @@ Add notes here when something sounds good, bad, unstable, too bright, too dull, 
 - Scaling down one stroke direction is more predictable than boosting the other because authored MIDI velocities may already be near 127.
 - A balanced center is the safest default for continuity, while a small positive `Strum Balance` can create the common stronger-downstroke feel by reducing generated upstroke velocities.
 
+## 2026-05-10 — Release-candidate articulation defaults
+
+- A light Auto Strum default is better for first audition than making users discover `Strum Speed` before block chords feel guitar-like.
+- `Player Feel` at 50% has become the practical "pro" default rather than an effect to opt into.
+- Grouping Articulation controls by parent action helps the page read as a playable instrument surface instead of a flat parameter list.
+
 ## DAW Compatibility Notes
 
 Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Live, Logic, or others.

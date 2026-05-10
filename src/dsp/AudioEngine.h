@@ -272,11 +272,11 @@ private:
     ElectricGuitarTone tone;
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> tailSustain { 1.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickStiffness { 0.5f };
-    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickTexture { 0.5f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickTexture { 0.25f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickBite { 0.5f };
-    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> strumSpeed { 0.0f };
-    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> strumBalance { 0.0f };
-    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> playerFeel { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> strumSpeed { 0.10f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> strumBalance { -0.13f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> playerFeel { 0.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> playerFeelRecoverySeconds { 2.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> palmMute { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> harmonicTouch { 0.0f };

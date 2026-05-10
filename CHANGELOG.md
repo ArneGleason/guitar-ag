@@ -120,6 +120,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Changed the model label to `StringVoice EG-080 StrumBalance`.
 - Added the `Strum Balance` host parameter and Articulation-page slider to reduce generated Auto Strum downstroke or upstroke velocities from a balanced center.
 - Added offline-renderer `--strum-balance` support for directional strum balance checks.
+- Changed the model label to `StringVoice EG-081 ArticGroups`.
+- Reorganized the Articulation page into parent/subordinate groups: `Pick Bite` owns `Pick Stiffness` and `Pick Texture`, `Pick Stroke` owns `Strum Speed` and `Strum Balance`, and `Player Feel` owns recovery/reset/meters.
+- Updated release-candidate defaults for new instances and offline renders: `Pick Texture` 25%, `Strum Speed` 10%, `Strum Balance` -13%, and `Player Feel` 50%.
 
 ### Fixed
 

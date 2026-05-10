@@ -6,13 +6,13 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Review the EG-080 `StrumBalance` implementation on top of the already-cleared EG-079 Auto Strum path.
-- Confirm `Strum Balance = 0` preserves EG-079 generated strum velocities.
-- Confirm positive `Strum Balance` reduces generated upstroke velocities only, and negative `Strum Balance` reduces generated downstroke velocities only.
-- Confirm the selected stroke direction is reduced, not the opposite direction boosted, so high incoming MIDI velocities cannot clip from this control.
-- Confirm `Strum Balance` only affects generated Auto Strum note-ons and does not alter single-note picking or authored staggered MIDI.
-- Confirm the Articulation page exposes `Strum Balance` directly after `Strum Speed` and that the label/info popup do not clip.
-- Confirm offline `--strum-balance` maps to the same behavior as the VST parameter.
+- Review the EG-081 `ArticGroups` release-candidate polish on top of the already-cleared EG-079 path and EG-080 `StrumBalance` delta.
+- Confirm `Strum Balance = 0` still preserves EG-079 generated strum velocities, and positive/negative values still reduce only the intended generated stroke direction.
+- Confirm the Articulation page groups `Pick Stiffness` and `Pick Texture` under `Pick Bite`.
+- Confirm the Articulation page groups `Strum Speed` and `Strum Balance` under `Pick Stroke`.
+- Confirm the Articulation page groups `Feel Recovery`, `Reset Feel`, and load meters under `Player Feel`.
+- Confirm the new default values are wired consistently in APVTS, `AudioEngine` fallbacks, and offline renderer defaults: `Pick Texture` 25%, `Strum Speed` 10%, `Strum Balance` -13%, and `Player Feel` 50%.
+- Confirm Export Settings remains in the header and was not moved or changed.
 
 Recently cleared:
 
@@ -25,7 +25,7 @@ Known limitations:
 - The preset model is planned but not implemented.
 - EG-071 uses one persisted last-direction value per voice, so overlapping up/down contact tails are direction-approximated rather than separately accumulated.
 - EG-073 is still one ordinary plastic plectrum model only; fingerpicking, fingernail attack, material families, and explicit pick-depth UI remain deferred.
-- EG-079/EG-080 groups exact same-sample block chords only. It does not collect near-simultaneous notes that arrive across adjacent samples or a 1 ms tolerance window.
+- EG-079/EG-080/EG-081 groups exact same-sample block chords only. It does not collect near-simultaneous notes that arrive across adjacent samples or a 1 ms tolerance window.
 - EG-075 can only delay picked note starts in real time. Early human timing requires a future lookahead-aware pass.
 - The pick-stroke audition MIDI uses original/common exercise idioms rather than copied repertoire; it is intended as a functional listening workout, not a reference performance.
 - EG-066 is still an approximation of lifted fretting pressure. Same-string speaking-length preservation remains future work.

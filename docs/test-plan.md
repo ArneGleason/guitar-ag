@@ -232,7 +232,7 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Compare the pick-stroke audition file against forced `Down` and forced `Up` to judge whether `Alternate` feels like right-hand travel rather than a mechanical toggle.
 - [ ] In the pick-stroke audition chord sections, strummed notes should feel like a held left-hand chord being re-articulated by the right hand, not like the fretting hand releases every note between strokes.
 - [ ] `Player Feel` at 0% sounds and renders like the current neutral picked path.
-- [ ] New plugin instances show `v0.2.6 / StringVoice EG-080 StrumBalance`.
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-081 ArticGroups`.
 - [ ] The `Player Feel` slider shows Bot, Pro, and Loose landmarks at 0%, 50%, and 100%.
 - [ ] Raising `Player Feel` adds picked-note timing/energy variation that grows during fast repetition, string skips, and awkward changes.
 - [ ] `Player Feel` around 50% lands near the accepted natural EG-075 100% feel.
@@ -247,8 +247,10 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Re-rendering the same MIDI with the same `Player Feel` settings remains deterministic.
 - [ ] `Pick Stiffness` and `Pick Texture` remain useful after the plastic-plectrum retune.
 - [ ] Re-rendering the same MIDI with the same `Pick Stroke` setting remains deterministic.
-- [ ] The Articulation page exposes `Strum Speed` after `Pick Stroke`.
-- [ ] The Articulation page exposes `Strum Balance` after `Strum Speed`.
+- [ ] The Articulation page shows `Pick Bite` as the primary pick-character row, with `Pick Stiffness` and `Pick Texture` grouped beneath it.
+- [ ] The Articulation page shows `Pick Stroke` as the primary right-hand direction row, with `Strum Speed` and `Strum Balance` grouped beneath it.
+- [ ] The Articulation page shows `Player Feel` as the primary feel row, with `Feel Recovery`, `Reset Feel`, and the three load meters grouped beneath it.
+- [ ] New plugin instances default to `Pick Texture` 25%, `Strum Speed` 10%, `Strum Balance` -13%, and `Player Feel` 50%.
 - [ ] `Strum Speed` at 0% leaves same-time block chords simultaneous.
 - [ ] Raising `Strum Speed` fans exact same-sample chord note-ons across assigned strings.
 - [ ] `Strum Balance` centered preserves EG-079 generated strum velocities.
