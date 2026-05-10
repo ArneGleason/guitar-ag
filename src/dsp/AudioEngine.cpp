@@ -53,7 +53,7 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     playerFeel.reset (sampleRate, 0.050);
     playerFeel.setCurrentAndTargetValue (0.0f);
     playerFeelRecoverySeconds.reset (sampleRate, 0.050);
-    playerFeelRecoverySeconds.setCurrentAndTargetValue (0.85f);
+    playerFeelRecoverySeconds.setCurrentAndTargetValue (2.0f);
     palmMute.reset (sampleRate, 0.020);
     palmMute.setCurrentAndTargetValue (0.0f);
     harmonicTouch.reset (sampleRate, 0.020);
@@ -220,7 +220,7 @@ void AudioEngine::setPlayerFeel (float newPlayerFeel) noexcept
 
 void AudioEngine::setPlayerFeelRecoverySeconds (float newPlayerFeelRecoverySeconds) noexcept
 {
-    playerFeelRecoverySeconds.setTargetValue (juce::jlimit (0.10f, 4.0f, newPlayerFeelRecoverySeconds));
+    playerFeelRecoverySeconds.setTargetValue (juce::jlimit (0.10f, 8.0f, newPlayerFeelRecoverySeconds));
 }
 
 void AudioEngine::resetPlayerFeel() noexcept
@@ -231,6 +231,7 @@ void AudioEngine::resetPlayerFeel() noexcept
     playerFeelLastNoteNumber = -1;
     playerFeelLastTravelSign = 0;
     playerFeelLastEventSample = -1;
+    playerFeelLastLoadDecaySample = -1;
     playerFeelEventCounter = 0;
     playerFeelCognitiveLoad = 0.0f;
     playerFeelDexterityLoad = 0.0f;
@@ -429,6 +430,11 @@ int AudioEngine::getActiveVoiceCount() const noexcept
     return count;
 }
 
+AudioEngine::PlayerFeelMeters AudioEngine::getPlayerFeelMeters() const noexcept
+{
+    return { playerFeelCognitiveLoad, playerFeelDexterityLoad, playerFeelEndurance };
+}
+
 int AudioEngine::getActiveFingerNoiseVoiceCount() const noexcept
 {
     auto count = 0;
@@ -456,6 +462,7 @@ void AudioEngine::render (juce::AudioBuffer<float>& audio, const juce::MidiBuffe
     }
 
     renderRange (audio, currentSample, totalSamples);
+    decayPlayerFeelLoads (timelineSample);
 }
 
 void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample, int endSample) noexcept
@@ -962,23 +969,24 @@ AudioEngine::PlayerFeelResult AudioEngine::processPlayerFeelNoteOn (const juce::
 
     if (amount > 0.0001f)
     {
-        const auto delayMs = amount
+        const auto feelScale = amount * 2.0f;
+        const auto delayMs = feelScale
                            * juce::jlimit (0.0f,
-                                           12.0f,
+                                           14.0f,
                                            0.25f
                                                + 6.20f * load
                                                + 2.80f * playerFeelEndurance
                                                + 1.35f * juce::jmax (0.0f, noiseA));
         result.delaySamples = juce::jlimit (0,
-                                            static_cast<int> (std::round (sampleRate * 0.012)),
+                                            static_cast<int> (std::round (sampleRate * 0.028)),
                                             static_cast<int> (std::round (static_cast<double> (delayMs)
                                                                           * sampleRate
                                                                           / 1000.0)));
 
-        const auto velocityScale = juce::jlimit (0.72f,
-                                                1.08f,
+        const auto velocityScale = juce::jlimit (0.55f,
+                                                1.12f,
                                                 1.0f
-                                                    + amount
+                                                    + feelScale
                                                         * (0.030f * noiseB
                                                            + 0.018f * noiseC
                                                            - 0.050f * playerFeelCognitiveLoad
@@ -1005,13 +1013,16 @@ AudioEngine::PlayerFeelResult AudioEngine::processPlayerFeelNoteOn (const juce::
 
 void AudioEngine::decayPlayerFeelLoads (int64_t sampleTime) noexcept
 {
-    if (playerFeelLastEventSample < 0)
+    if (playerFeelLastLoadDecaySample < 0)
+    {
+        playerFeelLastLoadDecaySample = sampleTime;
         return;
+    }
 
     const auto elapsedSeconds = juce::jmax (0.0f,
-                                           static_cast<float> (sampleTime - playerFeelLastEventSample)
+                                           static_cast<float> (sampleTime - playerFeelLastLoadDecaySample)
                                                / static_cast<float> (sampleRate));
-    const auto recoverySeconds = juce::jlimit (0.10f, 4.0f, playerFeelRecoverySeconds.getTargetValue());
+    const auto recoverySeconds = juce::jlimit (0.10f, 8.0f, playerFeelRecoverySeconds.getTargetValue());
     const auto cognitiveDecay = std::exp (-elapsedSeconds / juce::jmax (0.05f, recoverySeconds * 0.85f));
     const auto dexterityDecay = std::exp (-elapsedSeconds / juce::jmax (0.05f, recoverySeconds * 0.62f));
     const auto enduranceDecay = std::exp (-elapsedSeconds / juce::jmax (0.05f, recoverySeconds * 2.40f));
@@ -1019,6 +1030,7 @@ void AudioEngine::decayPlayerFeelLoads (int64_t sampleTime) noexcept
     playerFeelCognitiveLoad *= cognitiveDecay;
     playerFeelDexterityLoad *= dexterityDecay;
     playerFeelEndurance *= enduranceDecay;
+    playerFeelLastLoadDecaySample = sampleTime;
 }
 
 void AudioEngine::releasePlayerFeelNote (int noteNumber, int channel) noexcept

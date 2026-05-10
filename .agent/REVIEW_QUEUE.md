@@ -6,7 +6,19 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Review the EG-074 `EconomyPickStroke` implementation.
+- Review the EG-076 `PlayerFeelCalibration` implementation.
+- Confirm `Player Feel` is intentionally scaled so 50% approximates the previous EG-075 100% natural setting and 100% overshoots into sloppier timing/energy behavior.
+- Confirm `Feel Recovery` defaults to 2.0 seconds and clamps to the new 0.10 to 8.0 second range in APVTS, `AudioEngine`, and the offline renderer.
+- Confirm cognitive, dexterity, and endurance meter values are exported from `AudioEngine` to the processor through atomics and read by the editor timer without audio-thread allocation or UI calls.
+- Confirm meter decay remains deterministic and visibly clears during rests/easier passages.
+- Confirm the `Export Settings` popup returns valid JSON with current parameter values plus Player Feel meters, and that it is copyable in the UI.
+- Confirm the new Articulation-page meter/export rows do not obscure existing controls or break the disclosure/tabs layout.
+- Review the EG-075 `PlayerFeel` pass, now as the base for EG-076:
+  - confirm `Player Feel = 0` leaves the render path neutral;
+  - confirm load accumulation/recovery is deterministic and bounded;
+  - confirm `Feel Recovery` and `Reset Feel` clear cognitive/dexterity/endurance state as intended;
+  - confirm the new timing delay only applies to note-on events and does not desync delayed lookahead expression more than the documented first-pass limitation.
+- Historical context for the right-hand model: review the EG-074 `EconomyPickStroke` implementation if it has not already been reviewed.
 - Confirm the existing `pickStroke` APVTS parameter remains wired from processor to UI to `AudioEngine` and offline `--pick-stroke`.
 - Confirm `Pick Stroke = Alternate` now uses economy direction for cross-string picked movement:
   - low E toward high E / increasing string index resolves to downstroke;
@@ -19,12 +31,6 @@ Suggested focus:
 - Confirm the info note accurately describes the smarter `Alternate` interpretation without adding a new user-facing mode.
 - Review `plans/0076-economy-pick-stroke.md` for implementation/test coverage and physical-model framing.
 - Optionally use `tests/midi/guitar-ag-pick-stroke-audition.mid` to audition repeated picking, string crossings, string skips, chord strums, and riff-like phrases with `Pick Stroke = Alternate`.
-- Review the EG-075 `PlayerFeel` pass:
-  - confirm `Player Feel = 0` leaves the render path neutral;
-  - confirm load accumulation/recovery is deterministic and bounded;
-  - confirm `Feel Recovery` and `Reset Feel` clear cognitive/dexterity/endurance state as intended;
-  - confirm the new timing delay only applies to note-on events and does not desync delayed lookahead expression more than the documented first-pass limitation.
-
 Known limitations:
 
 - The preset model is planned but not implemented.

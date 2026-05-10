@@ -1841,3 +1841,20 @@ Added the first cause-based player-feel layer above picked note starts.
 This is not random DAW humanization. It is deterministic from musical context and render position, so repeated offline renders with the same MIDI and settings remain byte-identical.
 
 Limitation: the first pass can only safely delay note starts in real time. Early timing would require lookahead/latency compensation. The engine also still treats a re-picked held chord tone as a new note event; held-shape repick semantics remain a separate follow-up.
+
+## 2026-05-10 — EG-076 Player Feel Calibration
+
+Human DAW audition of EG-075 found the feel useful, but the accepted natural setting lived at the top of the slider. EG-076 retunes the control and adds visibility/export support:
+
+- `Player Feel` is scaled internally so 50% is near the previous EG-075 100% feel.
+- The top half of `Player Feel` intentionally overshoots into sloppier late timing and stronger velocity/energy variation.
+- `Feel Recovery` defaults to 2.0 seconds and can extend to 8.0 seconds for longer accumulated-load carryover.
+- The audio engine decays the visible load state at audio-block boundaries and exposes current cognitive load, dexterity load, and endurance as real-time-safe meter values.
+- The plugin UI polls those meters at 20 Hz and shows them on the Articulation page near the feel controls.
+- `Export Settings` emits a compact JSON snapshot of current APVTS parameter values plus the live Player Feel meters.
+
+Verification:
+
+- Build/install succeeded locally.
+- Offline renders with `Player Feel = 0`, `50%`, and `100%` produced distinct hashes.
+- Repeating the same `Player Feel = 100%` render produced byte-identical WAVs.

@@ -552,3 +552,9 @@ The first pick-stroke implementation treated alternate as a simple down/up flip.
 ## 2026-05-10 — Humanization needs a physical cause
 
 Random timing and velocity offsets can make MIDI less grid-perfect, but they do not create the sense of a person solving a musical task. A better first model is load-based: cognitive demand, dexterity demand, and endurance rise when the part is difficult and recover during easier passages or rests. Deterministic noise is still useful, but only as a texture scaled by those causes.
+
+## 2026-05-10 — Player Feel needs headroom and visibility
+
+Human DAW audition found EG-075 `Player Feel = 100%` musically natural rather than excessive, with recovery closer to 2 to 2.5 seconds. That means the first scale underused the control range. EG-076 makes the previous natural maximum land around 50%, keeps the top half available for sloppier playing, and adds visible cognitive/dexterity/endurance meters so the load model can be tuned by watching it breathe while listening.
+
+Audition settings should be easy to pass back through the Studio Pattern. A copyable JSON snapshot from the plugin is more reliable than describing slider positions by memory, especially as the UI grows.

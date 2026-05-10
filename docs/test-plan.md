@@ -232,9 +232,15 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Compare the pick-stroke audition file against forced `Down` and forced `Up` to judge whether `Alternate` feels like right-hand travel rather than a mechanical toggle.
 - [ ] In the pick-stroke audition chord sections, strummed notes should feel like a held left-hand chord being re-articulated by the right hand, not like the fretting hand releases every note between strokes.
 - [ ] `Player Feel` at 0% sounds and renders like the current neutral picked path.
-- [ ] Raising `Player Feel` adds subtle picked-note timing/energy variation that grows during fast repetition, string skips, and awkward changes.
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-076 PlayerFeelCalibration`.
+- [ ] Raising `Player Feel` adds picked-note timing/energy variation that grows during fast repetition, string skips, and awkward changes.
+- [ ] `Player Feel` around 50% lands near the accepted natural EG-075 100% feel.
+- [ ] `Player Feel` near 100% overshoots into visibly/audibly sloppier playing without breaking the phrase.
+- [ ] `Feel Recovery` defaults to 2.0 seconds and can be raised beyond 4.0 seconds, up to 8.0 seconds.
 - [ ] Shorter `Feel Recovery` clears the effect quickly after rests or easier passages; longer recovery lets the load carry forward.
 - [ ] `Reset Feel` immediately clears accumulated feel state for a new take.
+- [ ] Cognitive, Dexterity, and Endurance meters rise during demanding picking and clear during rests/easier passages.
+- [ ] `Export Settings` opens a copyable JSON blob containing current parameter values and Player Feel meter values.
 - [ ] Re-rendering the same MIDI with the same `Player Feel` settings remains deterministic.
 - [ ] `Pick Stiffness` and `Pick Texture` remain useful after the plastic-plectrum retune.
 - [ ] Re-rendering the same MIDI with the same `Pick Stroke` setting remains deterministic.

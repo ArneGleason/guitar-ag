@@ -4,7 +4,8 @@
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
-class GuitarAgAudioProcessorEditor final : public juce::AudioProcessorEditor
+class GuitarAgAudioProcessorEditor final : public juce::AudioProcessorEditor,
+                                           private juce::Timer
 {
 public:
     explicit GuitarAgAudioProcessorEditor (GuitarAgAudioProcessor& processor);
@@ -22,6 +23,7 @@ private:
     void configureDisclosureButton (juce::TextButton& button);
     void configureInfoButton (juce::TextButton& button, const juce::String& infoText);
     void showInfoPopover (juce::Component& source, const juce::String& infoText);
+    void showSettingsExportPopover (juce::Component& source);
     void layoutLabelAndInfo (juce::Rectangle<int>& row, juce::Label& label, juce::TextButton& infoButton) noexcept;
     void layoutLabelInfoDisclosure (juce::Rectangle<int>& row,
                                     juce::Label& label,
@@ -30,6 +32,7 @@ private:
     void setActivePage (int pageIndex);
     void updateSectionVisibility();
     void updateDisclosureButtons();
+    void timerCallback() override;
     [[nodiscard]] int getPreferredHeight() const noexcept;
 
     GuitarAgAudioProcessor& audioProcessor;
@@ -111,6 +114,9 @@ private:
     juce::Label pickStrokeLabel;
     juce::Label playerFeelLabel;
     juce::Label playerFeelRecoveryLabel;
+    juce::Label playerFeelCognitiveLabel;
+    juce::Label playerFeelDexterityLabel;
+    juce::Label playerFeelEnduranceLabel;
     juce::Label palmMuteLabel;
     juce::Label harmonicTouchLabel;
     juce::Label harmonicQuarterLabel;
@@ -152,6 +158,8 @@ private:
     juce::TextButton playerFeelRecoveryInfoButton;
     juce::TextButton playerFeelResetButton;
     juce::TextButton playerFeelResetInfoButton;
+    juce::TextButton exportSettingsButton;
+    juce::TextButton exportSettingsInfoButton;
     juce::TextButton palmMuteInfoButton;
     juce::TextButton harmonicTouchInfoButton;
     juce::ComboBox lookaheadBox;
@@ -161,6 +169,12 @@ private:
     juce::ToggleButton feedbackReturnDistortedButton;
     juce::ToggleButton mpeEnabledButton;
     juce::ToggleButton whammyEnabledButton;
+    double playerFeelCognitiveMeterValue = 0.0;
+    double playerFeelDexterityMeterValue = 0.0;
+    double playerFeelEnduranceMeterValue = 0.0;
+    juce::ProgressBar playerFeelCognitiveMeter { playerFeelCognitiveMeterValue };
+    juce::ProgressBar playerFeelDexterityMeter { playerFeelDexterityMeterValue };
+    juce::ProgressBar playerFeelEnduranceMeter { playerFeelEnduranceMeterValue };
     std::unique_ptr<SliderAttachment> sustainAttachment;
     std::unique_ptr<SliderAttachment> stringAgeAttachment;
     std::unique_ptr<SliderAttachment> bridgeIntonationAttachment;

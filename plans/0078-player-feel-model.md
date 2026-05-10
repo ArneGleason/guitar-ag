@@ -179,3 +179,19 @@ Verification:
 Remaining limitation:
 
 This first pass only delays note starts. Early timing requires a lookahead-aware model. The engine also does not yet inject a fresh right-hand pick event into an already-held fretted string without treating it as a new note start.
+
+## 2026-05-10 Calibration Result
+
+Implemented `StringVoice EG-076 PlayerFeelCalibration` after human DAW audition.
+
+- Recalibrated `Player Feel` so 50% is near the previous accepted EG-075 100% setting.
+- Left 100% available as an intentional overshoot range for sloppier, more loaded playing.
+- Changed `Feel Recovery` to default to 2.0 seconds and range from 0.10 to 8.0 seconds.
+- Added live cognitive-load, dexterity-load, and endurance meters to the Articulation page.
+- Added a copyable `Export Settings` JSON popup so audition parameter values and live meters can be pasted into Studio handoffs.
+
+Verification:
+
+- Build/install succeeded locally.
+- `Player Feel = 0`, `50%`, and `100%` pick-stroke audition renders produced distinct hashes.
+- Repeating `Player Feel = 100%` with the same MIDI/settings produced byte-identical WAVs.

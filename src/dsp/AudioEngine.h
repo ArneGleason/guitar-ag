@@ -38,6 +38,13 @@ public:
         }
     };
 
+    struct PlayerFeelMeters
+    {
+        float cognitiveLoad = 0.0f;
+        float dexterityLoad = 0.0f;
+        float endurance = 0.0f;
+    };
+
     void prepare (double sampleRate, int maximumBlockSize, int outputChannels);
     void reset();
     void setTailSustain (float newTailSustain) noexcept;
@@ -82,6 +89,7 @@ public:
 
     void render (juce::AudioBuffer<float>& audio, const juce::MidiBuffer& midi);
     void setPerformanceStats (PerformanceStats* stats) noexcept;
+    [[nodiscard]] PlayerFeelMeters getPlayerFeelMeters() const noexcept;
     [[nodiscard]] int getActiveVoiceCount() const noexcept;
     [[nodiscard]] int getActiveFingerNoiseVoiceCount() const noexcept;
 
@@ -229,7 +237,7 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickTexture { 0.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickBite { 0.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> playerFeel { 0.0f };
-    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> playerFeelRecoverySeconds { 0.85f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> playerFeelRecoverySeconds { 2.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> palmMute { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> harmonicTouch { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> stringAge { 0.0f };
@@ -278,6 +286,7 @@ private:
     int playerFeelLastNoteNumber = -1;
     int playerFeelLastTravelSign = 0;
     int64_t playerFeelLastEventSample = -1;
+    int64_t playerFeelLastLoadDecaySample = -1;
     uint32_t pickAttackCounter = 0;
     uint32_t playerFeelEventCounter = 0;
     int feedbackDominantBand = 0;

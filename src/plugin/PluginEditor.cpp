@@ -44,6 +44,45 @@ private:
     juce::TextEditor message;
 };
 
+class SettingsExportContent final : public juce::Component
+{
+public:
+    explicit SettingsExportContent (const juce::String& settingsJson)
+    {
+        message.setMultiLine (true);
+        message.setReadOnly (true);
+        message.setScrollbarsShown (true);
+        message.setCaretVisible (false);
+        message.setPopupMenuEnabled (true);
+        message.setText (settingsJson, false);
+        message.setColour (juce::TextEditor::backgroundColourId, juce::Colour (0xff202832));
+        message.setColour (juce::TextEditor::textColourId, juce::Colour (0xffe8edf2));
+        message.setColour (juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
+        message.setColour (juce::TextEditor::focusedOutlineColourId, juce::Colours::transparentBlack);
+        message.setFont (juce::FontOptions (13.0f));
+        addAndMakeVisible (message);
+
+        setSize (520, 360);
+    }
+
+    void paint (juce::Graphics& graphics) override
+    {
+        graphics.setColour (juce::Colour (0xff202832));
+        graphics.fillRoundedRectangle (getLocalBounds().toFloat(), 7.0f);
+        graphics.setColour (juce::Colour (0xff65717c));
+        graphics.drawRoundedRectangle (getLocalBounds().toFloat().reduced (0.5f), 7.0f, 1.0f);
+    }
+
+    void resized() override
+    {
+        message.setBounds (getLocalBounds().reduced (14, 12));
+        message.selectAll();
+    }
+
+private:
+    juce::TextEditor message;
+};
+
 } // namespace
 
 GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcessor& processor)
@@ -461,14 +500,15 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "Add deterministic player timing and energy feel to picked notes.\n\n"
                          "Technical: this is not random humanization. Cognitive load, dexterity load, and endurance build from fast picking, "
                          "string skips, direction changes, and fret jumps. Higher values add small late timing offsets and picked-note energy "
-                         "variation scaled by those loads. At 0%, the timing and velocity path is neutral.");
+                         "variation scaled by those loads. 50% is now near the original natural EG-075 maximum; the top half intentionally "
+                         "overshoots into sloppier playing. At 0%, the timing and velocity path is neutral.");
 
     configureLabel (playerFeelRecoveryLabel, "Feel Recovery");
     configureSlider (playerFeelRecoverySlider, juce::Colour (0xffa6e6b1));
     configureInfoButton (playerFeelRecoveryInfoButton,
                          "Set how quickly accumulated player load clears after easier playing or a rest.\n\n"
                          "Technical: shorter times recover quickly after a difficult passage. Longer times let cognitive, dexterity, and endurance "
-                         "load carry forward, so fast repeated picking and awkward changes keep influencing the next few notes.");
+                         "load carry forward, so fast repeated picking and awkward changes keep influencing the next few notes. Default is 2 seconds.");
 
     playerFeelResetButton.setButtonText ("Reset Feel");
     playerFeelResetButton.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff263240));
@@ -484,6 +524,43 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "Clear the accumulated player feel state immediately.\n\n"
                          "Technical: this resets cognitive load, dexterity load, endurance, and the feel-model string/fret memory. Use it like "
                          "starting a new take after the player has recovered.");
+
+    for (auto* meterLabel : { &playerFeelCognitiveLabel, &playerFeelDexterityLabel, &playerFeelEnduranceLabel })
+    {
+        meterLabel->setColour (juce::Label::textColourId, juce::Colour (0xffb7c4d0));
+        meterLabel->setJustificationType (juce::Justification::centredLeft);
+        addAndMakeVisible (*meterLabel);
+    }
+
+    playerFeelCognitiveLabel.setText ("Cognitive", juce::dontSendNotification);
+    playerFeelDexterityLabel.setText ("Dexterity", juce::dontSendNotification);
+    playerFeelEnduranceLabel.setText ("Endurance", juce::dontSendNotification);
+
+    for (auto* meter : { &playerFeelCognitiveMeter, &playerFeelDexterityMeter, &playerFeelEnduranceMeter })
+    {
+        meter->setColour (juce::ProgressBar::backgroundColourId, juce::Colour (0xff202832));
+        meter->setColour (juce::ProgressBar::foregroundColourId, juce::Colour (0xff9ad1ff));
+        meter->setPercentageDisplay (true);
+        addAndMakeVisible (*meter);
+    }
+
+    playerFeelDexterityMeter.setColour (juce::ProgressBar::foregroundColourId, juce::Colour (0xffffc56f));
+    playerFeelEnduranceMeter.setColour (juce::ProgressBar::foregroundColourId, juce::Colour (0xffa6e6b1));
+
+    exportSettingsButton.setButtonText ("Export Settings");
+    exportSettingsButton.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff263240));
+    exportSettingsButton.setColour (juce::TextButton::buttonOnColourId, juce::Colour (0xff39485a));
+    exportSettingsButton.setColour (juce::TextButton::textColourOffId, juce::Colour (0xffd6dee7));
+    exportSettingsButton.setColour (juce::TextButton::textColourOnId, juce::Colour (0xfff3f6f9));
+    exportSettingsButton.onClick = [this]
+    {
+        showSettingsExportPopover (exportSettingsButton);
+    };
+    addAndMakeVisible (exportSettingsButton);
+    configureInfoButton (exportSettingsInfoButton,
+                         "Open a copyable JSON snapshot of the current plugin settings.\n\n"
+                         "Technical: this exports the current APVTS parameter values plus the live Player Feel meters, so an audition context "
+                         "can be pasted back into a Studio handoff or preset discussion.");
 
     configureLabel (palmMuteLabel, "Palm Mute");
     configureSlider (palmMuteSlider, juce::Colour (0xfff28b82));
@@ -630,6 +707,7 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                                                                  harmonicTouchSlider);
 
     updateSectionVisibility();
+    startTimerHz (20);
 }
 
 void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
@@ -891,6 +969,21 @@ void GuitarAgAudioProcessorEditor::resized()
         playerFeelResetButton.setBounds (resetBounds.removeFromLeft (140).reduced (0, 2));
         playerFeelResetInfoButton.setBounds (resetBounds.removeFromLeft (22).reduced (2, 6));
 
+        auto layoutMeter = [] (juce::Rectangle<int> row, juce::Label& label, juce::ProgressBar& meter)
+        {
+            label.setBounds (row.removeFromLeft (158));
+            meter.setBounds (row.reduced (0, 3));
+        };
+
+        layoutMeter (bounds.removeFromTop (24), playerFeelCognitiveLabel, playerFeelCognitiveMeter);
+        layoutMeter (bounds.removeFromTop (24), playerFeelDexterityLabel, playerFeelDexterityMeter);
+        layoutMeter (bounds.removeFromTop (24), playerFeelEnduranceLabel, playerFeelEnduranceMeter);
+
+        auto exportBounds = bounds.removeFromTop (34);
+        exportBounds.removeFromLeft (158);
+        exportSettingsButton.setBounds (exportBounds.removeFromLeft (150).reduced (0, 2));
+        exportSettingsInfoButton.setBounds (exportBounds.removeFromLeft (22).reduced (2, 6));
+
         auto palmMuteBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (palmMuteBounds, palmMuteLabel, palmMuteInfoButton);
         palmMuteSlider.setBounds (palmMuteBounds);
@@ -957,6 +1050,12 @@ void GuitarAgAudioProcessorEditor::configureInfoButton (juce::TextButton& button
 void GuitarAgAudioProcessorEditor::showInfoPopover (juce::Component& source, const juce::String& infoText)
 {
     auto content = std::make_unique<InfoPopoverContent> (infoText);
+    juce::CallOutBox::launchAsynchronously (std::move (content), source.getScreenBounds(), this);
+}
+
+void GuitarAgAudioProcessorEditor::showSettingsExportPopover (juce::Component& source)
+{
+    auto content = std::make_unique<SettingsExportContent> (audioProcessor.exportSettingsJson());
     juce::CallOutBox::launchAsynchronously (std::move (content), source.getScreenBounds(), this);
 }
 
@@ -1130,6 +1229,14 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&playerFeelRecoverySlider),
                              static_cast<juce::Component*> (&playerFeelResetButton),
                              static_cast<juce::Component*> (&playerFeelResetInfoButton),
+                             static_cast<juce::Component*> (&playerFeelCognitiveLabel),
+                             static_cast<juce::Component*> (&playerFeelCognitiveMeter),
+                             static_cast<juce::Component*> (&playerFeelDexterityLabel),
+                             static_cast<juce::Component*> (&playerFeelDexterityMeter),
+                             static_cast<juce::Component*> (&playerFeelEnduranceLabel),
+                             static_cast<juce::Component*> (&playerFeelEnduranceMeter),
+                             static_cast<juce::Component*> (&exportSettingsButton),
+                             static_cast<juce::Component*> (&exportSettingsInfoButton),
                              static_cast<juce::Component*> (&palmMuteLabel),
                              static_cast<juce::Component*> (&palmMuteInfoButton),
                              static_cast<juce::Component*> (&palmMuteSlider),
@@ -1153,7 +1260,19 @@ void GuitarAgAudioProcessorEditor::updateDisclosureButtons()
     feedbackTweaksButton.setButtonText (feedbackTweaksOpen ? "v" : ">");
 }
 
+void GuitarAgAudioProcessorEditor::timerCallback()
+{
+    const auto meters = audioProcessor.getPlayerFeelMeters();
+    playerFeelCognitiveMeterValue = juce::jlimit (0.0, 1.0, static_cast<double> (meters.cognitiveLoad));
+    playerFeelDexterityMeterValue = juce::jlimit (0.0, 1.0, static_cast<double> (meters.dexterityLoad));
+    playerFeelEnduranceMeterValue = juce::jlimit (0.0, 1.0, static_cast<double> (meters.endurance));
+
+    playerFeelCognitiveMeter.repaint();
+    playerFeelDexterityMeter.repaint();
+    playerFeelEnduranceMeter.repaint();
+}
+
 int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
 {
-    return 620;
+    return 760;
 }

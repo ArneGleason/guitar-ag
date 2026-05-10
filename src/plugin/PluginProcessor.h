@@ -7,6 +7,13 @@
 class GuitarAgAudioProcessor final : public juce::AudioProcessor
 {
 public:
+    struct PlayerFeelMeterSnapshot
+    {
+        float cognitiveLoad = 0.0f;
+        float dexterityLoad = 0.0f;
+        float endurance = 0.0f;
+    };
+
     static constexpr auto tailSustainParameterId = "tailSustain";
     static constexpr auto pickStiffnessParameterId = "pickStiffness";
     static constexpr auto pickTextureParameterId = "pickTexture";
@@ -75,6 +82,8 @@ public:
 
     juce::AudioProcessorValueTreeState& getValueTreeState() noexcept { return parameters; }
     void requestPlayerFeelReset() noexcept;
+    [[nodiscard]] PlayerFeelMeterSnapshot getPlayerFeelMeters() const noexcept;
+    [[nodiscard]] juce::String exportSettingsJson() const;
 
 private:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
@@ -121,6 +130,9 @@ private:
     std::atomic<float>* pickupPositionParameter = nullptr;
     std::atomic<float>* pickupModelParameter = nullptr;
     std::atomic<bool> playerFeelResetRequested { false };
+    std::atomic<float> playerFeelCognitiveMeter { 0.0f };
+    std::atomic<float> playerFeelDexterityMeter { 0.0f };
+    std::atomic<float> playerFeelEnduranceMeter { 0.0f };
     double currentSampleRate = 44100.0;
     int currentLatencySamples = 0;
 

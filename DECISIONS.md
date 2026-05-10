@@ -649,3 +649,17 @@ Accepted
 
 Consequences:
 At 0%, the timing/velocity path stays neutral. At higher values, picked note-ons can be delayed slightly and their incoming velocity can be scaled by accumulated load. `Feel Recovery` controls how quickly the load clears, and `Reset Feel` gives the human an immediate "new take" recovery action. This first pass delays only; early timing will require a lookahead-aware follow-up.
+
+## 2026-05-10 — Make Player Feel midpoint natural and exportable
+
+Decision:
+Recalibrate `Player Feel` so the musically natural EG-075 maximum sits around the middle of the control, leave the top half for exaggerated/sloppier playing, default `Feel Recovery` to 2 seconds, and expose live load meters plus a copyable settings export.
+
+Reason:
+Human DAW audition found that EG-075 at 100% sounded natural, not excessive, and that recovery around 2.5 seconds felt closer to the intended player-load behavior. The plugin also needs a lightweight way to communicate exact audition settings back into Studio handoffs without guessing from screenshots or memory.
+
+Status:
+Accepted
+
+Consequences:
+`Player Feel` at 50% now approximates the previous natural high setting. `Player Feel` at 100% can get noticeably less precise. `Feel Recovery` ranges up to 8 seconds and defaults to 2 seconds. The UI shows cognitive, dexterity, and endurance meters, and `Export Settings` emits a JSON snapshot of current parameters plus those meters.

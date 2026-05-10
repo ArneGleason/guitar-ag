@@ -60,3 +60,4 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Added `tests/midi/guitar-ag-pick-stroke-audition.mid` and its generator to audition EG-074 with repeated picking, string crossings, string skips, strums, crosspicking, pedal riffs, and scale fragments.
 - Updated the pick-stroke audition strum MIDI to preserve held left-hand chord shapes until each string is re-articulated, and added a player-feel architecture plan around cognitive load, dexterity load, and endurance.
 - Implemented `StringVoice EG-075 PlayerFeel`, adding deterministic picked-note timing/energy variation from cognitive load, dexterity load, endurance, recovery time, and a manual reset action.
+- Implemented `StringVoice EG-076 PlayerFeelCalibration`, recalibrating `Player Feel` for natural midpoint plus sloppy overshoot, extending/defaulting `Feel Recovery`, adding live load meters, and adding a copyable settings JSON export for audition handoffs.

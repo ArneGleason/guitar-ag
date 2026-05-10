@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Implement first player feel slice",
-  "status": "EG-075 PlayerFeel implemented, built, installed, and ready for review/audition",
-  "updatedAt": "2026-05-10T10:54:57-04:00",
-  "lastHandoff": ".agent/handoffs/20260510-105457-codex-player-feel.md",
+  "lastTask": "Calibrate Player Feel and add audition export",
+  "status": "EG-076 PlayerFeelCalibration implemented, built, installed, and ready for review/audition",
+  "updatedAt": "2026-05-10T11:20:11-04:00",
+  "lastHandoff": ".agent/handoffs/20260510-112011-codex-player-feel-calibration.md",
   "branch": "main",
-  "commit": "EG-075 PlayerFeel implementation will be the latest pushed main commit after Codex commit",
+  "commit": "EG-076 PlayerFeelCalibration implementation will be the latest pushed main commit after Codex commit",
   "projectState": {
-    "summary": "EG-075 adds Player Feel, Feel Recovery, and Reset Feel. Picked note starts now receive deterministic late timing and velocity/energy variation from cognitive load, dexterity load, and endurance. Load decays by the recovery time and can be cleared immediately for a new take. Build/install and offline deterministic renders succeeded."
+    "summary": "EG-076 recalibrates Player Feel so 50% approximates the previous natural high setting and 100% overshoots into sloppier playing. Feel Recovery defaults to 2 seconds and ranges to 8 seconds. The Articulation page now shows cognitive/dexterity/endurance meters and can export a copyable JSON snapshot of current parameters plus meters. Build/install and offline deterministic renders succeeded."
   }
 }

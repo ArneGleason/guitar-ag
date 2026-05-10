@@ -102,7 +102,7 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
 
 The offline renderer uses the same `AudioEngine` as the VST3 processor, so it is useful for rapid DSP iteration. It does not test DAW/plugin-host behavior, plugin scanning, or UI behavior.
 
-Optional arguments include `--gain`, `--sustain`, `--pick-stiffness`, `--pick-texture`, `--palm-mute`, `--harmonic-touch`, `--string-age`, `--bridge-intonation`, `--aftertouch`, `--channel-pressure`, `--cc74`, `--mpe-mode`, `--mpe-bend-range`, `--mpe-pressure-amount`, `--mpe-cc74-amount`, `--pickup-position`, `--pickup-model`, `--legato-articulation`, `--amp-feedback`, `--feedback-return-distorted`, `--slide-squeak-up`, and `--slide-squeak-down`. `--slide-squeak` remains an alias for upward squeak. `--gain` can align the offline WAV level with a DAW export if the DAW project has track/output gain applied.
+Optional arguments include `--gain`, `--sustain`, `--pick-stiffness`, `--pick-texture`, `--pick-bite`, `--pick-stroke`, `--player-feel`, `--player-feel-recovery`, `--player-feel-reset-at`, `--palm-mute`, `--harmonic-touch`, `--string-age`, `--bridge-intonation`, `--aftertouch`, `--channel-pressure`, `--cc74`, `--mpe-mode`, `--mpe-bend-range`, `--mpe-pressure-amount`, `--mpe-cc74-amount`, `--pickup-position`, `--pickup-model`, `--legato-articulation`, `--amp-feedback`, `--feedback-return-distorted`, `--slide-squeak-up`, and `--slide-squeak-down`. `--slide-squeak` remains an alias for upward squeak. `--gain` can align the offline WAV level with a DAW export if the DAW project has track/output gain applied.
 
 The script copies:
 
@@ -163,11 +163,11 @@ Manual checks for the current VST3 build:
 - No sound is produced when no MIDI note is held.
 - MIDI note-on produces the modeled clean-DI guitar tone.
 - MIDI note-off releases the tone.
-- New plugin instances should open as `v0.2.6 / StringVoice EG-075 PlayerFeel`.
+- New plugin instances should open as `v0.2.6 / StringVoice EG-076 PlayerFeelCalibration`.
 - `Distorted Return` should be enabled by default on new instances.
 - High `Amp Feedback` should bloom after picked attacks rather than grabbing the start of the note immediately.
 - With MPE enabled in the DAW and plugin, per-note pitch bend, channel pressure, and CC74 should affect only the matching member-channel voice.
-- The editor identity line should show the current model label, for example `StringVoice EG-075 PlayerFeel`.
+- The editor identity line should show the current model label, for example `StringVoice EG-076 PlayerFeelCalibration`.
 
 ## Release Packaging
 

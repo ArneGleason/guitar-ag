@@ -97,6 +97,11 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Changed the model label to `StringVoice EG-075 PlayerFeel`.
 - Added `Player Feel`, `Feel Recovery`, and `Reset Feel` controls for deterministic picked-note timing/energy variation driven by cognitive load, dexterity load, and endurance.
 - Added offline-renderer `--player-feel`, `--player-feel-recovery`, and `--player-feel-reset-at` support.
+- Added live Player Feel meter readouts for cognitive load, dexterity load, and endurance.
+- Added an `Export Settings` UI action that opens a copyable JSON snapshot of current plugin parameters and Player Feel meters for audition handoffs.
+- Changed the model label to `StringVoice EG-076 PlayerFeelCalibration`.
+- Recalibrated `Player Feel` so 50% is near the previously accepted natural EG-075 maximum and 100% deliberately overshoots into sloppier playing.
+- Changed `Feel Recovery` to default to 2.0 seconds and extended its range to 8.0 seconds for longer accumulated-load auditioning.
 
 ### Fixed
 

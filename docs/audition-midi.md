@@ -180,7 +180,7 @@ Suggested plugin setup:
 - `Legato Articulation`: `0%`
 - `Pick Bite`: about 20% to 60%
 - `String Age`: to taste, often around 35% to 50%
-- Optional: `Player Feel` around 20% to 50%, with `Feel Recovery` around 0.6 to 1.2 seconds
+- Optional: `Player Feel` around 35% to 60% for natural feel, with `Feel Recovery` around 2.0 to 2.5 seconds. Use higher `Player Feel` or longer recovery when auditioning deliberately sloppier playing.
 
 Keep `Legato Articulation` at 0% for the first pass. The file is intended to evaluate picked right-hand behavior, so hammer-on/pull-off substitution would hide the thing being tested.
 
@@ -215,10 +215,12 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
   --legato-articulation 0 \
   --pick-bite 0.35 \
   --string-age 0.35 \
-  --player-feel 0.35 \
-  --player-feel-recovery 0.85 \
+  --player-feel 0.50 \
+  --player-feel-recovery 2.0 \
   --tail-seconds 2.0
 ```
+
+After EG-076, use the Articulation page's `Export Settings` button to copy a JSON snapshot of the current audition context when reporting useful defaults or suspicious behavior.
 
 ## Amp Feedback Audition
 

@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "BuildInfo.h"
 
 #include <cmath>
 
@@ -415,8 +416,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { playerFeelRecoveryParameterId, 1 },
         "Feel Recovery",
-        juce::NormalisableRange<float> { 0.10f, 4.0f, 0.01f, 0.62f },
-        0.85f,
+        juce::NormalisableRange<float> { 0.10f, 8.0f, 0.01f, 0.62f },
+        2.0f,
         juce::AudioParameterFloatAttributes()
             .withLabel ("s")
             .withStringFromValueFunction (secondsString)
@@ -475,7 +476,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setPickBite (pickBiteParameter != nullptr ? pickBiteParameter->load() : 0.5f);
     audioEngine.setPickStrokeMode (pickStrokeParameter != nullptr ? juce::roundToInt (pickStrokeParameter->load()) : 2);
     audioEngine.setPlayerFeel (playerFeelParameter != nullptr ? playerFeelParameter->load() : 0.0f);
-    audioEngine.setPlayerFeelRecoverySeconds (playerFeelRecoveryParameter != nullptr ? playerFeelRecoveryParameter->load() : 0.85f);
+    audioEngine.setPlayerFeelRecoverySeconds (playerFeelRecoveryParameter != nullptr ? playerFeelRecoveryParameter->load() : 2.0f);
 
     if (playerFeelResetRequested.exchange (false))
         audioEngine.resetPlayerFeel();
@@ -523,6 +524,11 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setPickupPosition (pickupPositionParameter != nullptr ? pickupPositionParameter->load() : 0.39f);
     audioEngine.setPickupModel (pickupModelParameter != nullptr ? juce::roundToInt (pickupModelParameter->load()) : 0);
     audioEngine.render (buffer, midiMessages);
+
+    const auto meters = audioEngine.getPlayerFeelMeters();
+    playerFeelCognitiveMeter.store (meters.cognitiveLoad, std::memory_order_relaxed);
+    playerFeelDexterityMeter.store (meters.dexterityLoad, std::memory_order_relaxed);
+    playerFeelEnduranceMeter.store (meters.endurance, std::memory_order_relaxed);
 }
 
 int GuitarAgAudioProcessor::getLookaheadSamples() const noexcept
@@ -540,6 +546,77 @@ juce::AudioProcessorEditor* GuitarAgAudioProcessor::createEditor()
 void GuitarAgAudioProcessor::requestPlayerFeelReset() noexcept
 {
     playerFeelResetRequested.store (true);
+}
+
+GuitarAgAudioProcessor::PlayerFeelMeterSnapshot GuitarAgAudioProcessor::getPlayerFeelMeters() const noexcept
+{
+    return { playerFeelCognitiveMeter.load (std::memory_order_relaxed),
+             playerFeelDexterityMeter.load (std::memory_order_relaxed),
+             playerFeelEnduranceMeter.load (std::memory_order_relaxed) };
+}
+
+juce::String GuitarAgAudioProcessor::exportSettingsJson() const
+{
+    auto* root = new juce::DynamicObject();
+    root->setProperty ("plugin", "Guitar AG");
+    root->setProperty ("version", JucePlugin_VersionString);
+    root->setProperty ("model", GUITAR_AG_MODEL_LABEL);
+
+    auto* params = new juce::DynamicObject();
+    const auto add = [params] (const char* id, const std::atomic<float>* parameter)
+    {
+        if (parameter != nullptr)
+            params->setProperty (id, parameter->load());
+    };
+
+    add (tailSustainParameterId, tailSustainParameter);
+    add (pickStiffnessParameterId, pickStiffnessParameter);
+    add (pickTextureParameterId, pickTextureParameter);
+    add (pickBiteParameterId, pickBiteParameter);
+    add (pickStrokeParameterId, pickStrokeParameter);
+    add (playerFeelParameterId, playerFeelParameter);
+    add (playerFeelRecoveryParameterId, playerFeelRecoveryParameter);
+    add (palmMuteParameterId, palmMuteParameter);
+    add (harmonicTouchParameterId, harmonicTouchParameter);
+    add (stringAgeParameterId, stringAgeParameter);
+    add (bridgeIntonationParameterId, bridgeIntonationParameter);
+    add (fretPressureParameterId, fretPressureParameter);
+    add (lookaheadParameterId, lookaheadParameter);
+    add (fingerNoiseParameterId, fingerNoiseParameter);
+    add (legatoArticulationParameterId, legatoArticulationParameter);
+    add (ampFeedbackParameterId, ampFeedbackParameter);
+    add (feedbackReturnDistortedParameterId, feedbackReturnDistortedParameter);
+    add (vibratoSpeedParameterId, vibratoSpeedParameter);
+    add (vibratoDepthParameterId, vibratoDepthParameter);
+    add (vibratoDelayParameterId, vibratoDelayParameter);
+    add (vibratoModWheelSpeedParameterId, vibratoModWheelSpeedParameter);
+    add (vibratoModWheelDepthParameterId, vibratoModWheelDepthParameter);
+    add (mpeEnabledParameterId, mpeEnabledParameter);
+    add (mpePitchBendRangeParameterId, mpePitchBendRangeParameter);
+    add (mpePressureAmountParameterId, mpePressureAmountParameter);
+    add (mpeTimbreAmountParameterId, mpeTimbreAmountParameter);
+    add (whammyEnabledParameterId, whammyEnabledParameter);
+    add (whammyUpRangeParameterId, whammyUpRangeParameter);
+    add (whammyDownRangeParameterId, whammyDownRangeParameter);
+    add (whammySpreadParameterId, whammySpreadParameter);
+    add (aftertouchBendParameterId, aftertouchBendParameter);
+    add (neckSlideParameterId, neckSlideParameter);
+    add (slideFretStepsParameterId, slideFretStepsParameter);
+    add (slideLiftParameterId, slideLiftParameter);
+    add (slideSqueakParameterId, slideSqueakParameter);
+    add (slideSqueakDownParameterId, slideSqueakDownParameter);
+    add (pickupPositionParameterId, pickupPositionParameter);
+    add (pickupModelParameterId, pickupModelParameter);
+
+    const auto meters = getPlayerFeelMeters();
+    auto* meterObject = new juce::DynamicObject();
+    meterObject->setProperty ("cognitiveLoad", meters.cognitiveLoad);
+    meterObject->setProperty ("dexterityLoad", meters.dexterityLoad);
+    meterObject->setProperty ("endurance", meters.endurance);
+
+    root->setProperty ("parameters", juce::var (params));
+    root->setProperty ("playerFeelMeters", juce::var (meterObject));
+    return juce::JSON::toString (juce::var (root), false);
 }
 
 bool GuitarAgAudioProcessor::hasEditor() const
