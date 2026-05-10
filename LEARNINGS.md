@@ -39,6 +39,12 @@ Add notes here when something sounds good, bad, unstable, too bright, too dull, 
 - `Player Feel` at 50% has become the practical "pro" default rather than an effect to opt into.
 - Grouping Articulation controls by parent action helps the page read as a playable instrument surface instead of a flat parameter list.
 
+## 2026-05-10 — Windows release build lambda captures
+
+- The v0.3.0 Windows VST3 build found an MSVC-only compile failure in editor layout lambdas that referenced local marker-width constants without capturing them.
+- Capture local layout constants explicitly in lambdas instead of relying on compiler-tolerated surrounding context.
+- The v0.3.0 Windows release asset was built with this small source-compatible fix applied before packaging.
+
 ## DAW Compatibility Notes
 
 Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Live, Logic, or others.

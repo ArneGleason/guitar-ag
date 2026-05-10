@@ -194,6 +194,27 @@ ditto -c -k --sequesterRsrc --keepParent \
 
 The GitHub release tag should match the CMake project version, for example `v0.3.0`.
 
+For a Windows VST3 release asset, configure with Visual Studio and the local JUCE checkout, then build the VST3 target:
+
+```powershell
+cmake -S . -B build -DJUCE_PATH=C:\code\JUCE -A x64
+cmake --build build --config Release --target GuitarAG_VST3
+```
+
+Package the bundle from:
+
+```text
+build\GuitarAG_artefacts\Release\VST3\Guitar AG.vst3
+```
+
+Recommended asset name:
+
+```text
+GuitarAG-v<version>-Windows-vst3.zip
+```
+
+Windows/MSVC is stricter than the macOS clang release build about lambda captures in editor layout code. Layout helpers that use local constants such as marker widths should capture those constants explicitly.
+
 ## Bitwig Notes
 
 On 2026-04-25, Bitwig showed two `Guitar AG` entries after replacing the VST3 bundle, and one appeared to load the older sine-test build while the other loaded the newer string build.

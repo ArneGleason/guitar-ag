@@ -857,7 +857,7 @@ void GuitarAgAudioProcessorEditor::resized()
         pickupMarkerTrackBounds.removeFromRight (78);
         const auto pickupMarkerY = pickupPositionBounds.getY() - 1;
         constexpr auto pickupMarkerWidth = 32;
-        const auto pickupMarkerX = [&pickupMarkerTrackBounds] (float position)
+        const auto pickupMarkerX = [&pickupMarkerTrackBounds, pickupMarkerWidth] (float position)
         {
             const auto normalized = (position - 0.055f) / (0.335f - 0.055f);
             return pickupMarkerTrackBounds.getX()
@@ -1035,7 +1035,7 @@ void GuitarAgAudioProcessorEditor::resized()
         feelMarkerTrackBounds.removeFromRight (78);
         const auto feelMarkerY = feelBounds.getY() - 1;
         constexpr auto feelMarkerWidth = 44;
-        const auto feelMarkerX = [&feelMarkerTrackBounds] (float normalized)
+        const auto feelMarkerX = [&feelMarkerTrackBounds, feelMarkerWidth] (float normalized)
         {
             return feelMarkerTrackBounds.getX()
                  + juce::roundToInt (normalized * static_cast<float> (feelMarkerTrackBounds.getWidth()))
@@ -1081,7 +1081,7 @@ void GuitarAgAudioProcessorEditor::resized()
         markerTrackBounds.removeFromRight (78);
         const auto markerY = harmonicTouchBounds.getY() - 1;
         constexpr auto markerWidth = 32;
-        const auto markerX = [&markerTrackBounds] (float normalized)
+        const auto markerX = [&markerTrackBounds, markerWidth] (float normalized)
         {
             return markerTrackBounds.getX()
                  + juce::roundToInt (normalized * static_cast<float> (markerTrackBounds.getWidth()))
