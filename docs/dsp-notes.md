@@ -1823,3 +1823,21 @@ Any values worth keeping.
 Follow-up:
 What to try next.
 ```
+
+## 2026-05-10 — EG-075 Player Feel
+
+Added the first cause-based player-feel layer above picked note starts.
+
+- `Player Feel` controls the amount of deterministic timing and energy variation.
+- `Feel Recovery` controls how quickly cognitive load, dexterity load, and endurance clear.
+- `Reset Feel` clears the accumulated load and the feel-model string/fret memory, like starting a new take.
+- The model uses a separate `FretboardMapper` to estimate the string/fret path at MIDI input time without disturbing the audio voice allocator.
+- Cognitive load rises with direction changes, string skips, fret jumps, and fast passages.
+- Dexterity load rises with fast same-string repetition, very fast picking, string travel, string skips, and awkward reversals.
+- Endurance rises more slowly from the cognitive/dexterity impulses and recovers more slowly than either immediate load.
+- The output is intentionally modest: picked note-ons may be delayed by a few milliseconds and note-on velocity may be scaled slightly.
+- At `Player Feel = 0%`, the path is neutral. The default offline render matched the explicit `--player-feel 0` render byte-for-byte.
+
+This is not random DAW humanization. It is deterministic from musical context and render position, so repeated offline renders with the same MIDI and settings remain byte-identical.
+
+Limitation: the first pass can only safely delay note starts in real time. Early timing would require lookahead/latency compensation. The engine also still treats a re-picked held chord tone as a new note event; held-shape repick semantics remain a separate follow-up.

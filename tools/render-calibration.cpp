@@ -24,7 +24,8 @@ void printUsage()
     std::cout << "Usage: GuitarAGOfflineRender --midi <input.mid> --output <output.wav> "
                  "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5] [--pick-bite 0.5] "
-                 "[--pick-stroke alternate] [--palm-mute 0.0] "
+                 "[--pick-stroke alternate] [--player-feel 0.0] [--player-feel-recovery 0.85] "
+                 "[--player-feel-reset-at seconds] [--palm-mute 0.0] "
                  "[--harmonic-touch 0.0] [--string-age 0.0] [--bridge-intonation 0.0] "
                  "[--fret-pressure 0.0] [--aftertouch-bend 2.0] [--neck-slide 0.0] [--neck-slide-at seconds] "
                  "[--slide-fret-steps 0.65] [--slide-lift 0.0] [--slide-squeak-up 0.2] [--slide-squeak-down 0.2] "
@@ -131,6 +132,9 @@ int main (int argc, char* argv[])
     auto pickTexture = 0.5f;
     auto pickBite = 0.5f;
     auto pickStrokeMode = 2;
+    auto playerFeel = 0.0f;
+    auto playerFeelRecovery = 0.85f;
+    auto playerFeelResetAtSeconds = -1.0;
     auto palmMute = 0.0f;
     auto harmonicTouch = 0.0f;
     auto stringAge = 0.0f;
@@ -223,6 +227,18 @@ int main (int argc, char* argv[])
                 pickStrokeMode = 2;
             else
                 pickStrokeMode = juce::jlimit (0, 2, value.getIntValue());
+        }
+        else if (argument == "--player-feel" && hasValue)
+        {
+            playerFeel = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--player-feel-recovery" && hasValue)
+        {
+            playerFeelRecovery = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--player-feel-reset-at" && hasValue)
+        {
+            playerFeelResetAtSeconds = juce::jmax (0.0, juce::String (argv[++i]).getDoubleValue());
         }
         else if (argument == "--palm-mute" && hasValue)
         {
@@ -457,6 +473,8 @@ int main (int argc, char* argv[])
     engine.setPickTexture (pickTexture);
     engine.setPickBite (pickBite);
     engine.setPickStrokeMode (pickStrokeMode);
+    engine.setPlayerFeel (playerFeel);
+    engine.setPlayerFeelRecoverySeconds (playerFeelRecovery);
     engine.setPalmMute (palmMute);
     engine.setHarmonicTouch (harmonicTouch);
     engine.setStringAge (stringAge);
@@ -503,6 +521,10 @@ int main (int argc, char* argv[])
                                          ? static_cast<int> (std::round (neckSlideAtSeconds * sampleRate))
                                          : -1;
     auto neckSlideAutomationApplied = neckSlideAutomationSample < 0;
+    const auto playerFeelResetSample = playerFeelResetAtSeconds >= 0.0
+                                     ? static_cast<int> (std::round (playerFeelResetAtSeconds * sampleRate))
+                                     : -1;
+    auto playerFeelResetApplied = playerFeelResetSample < 0;
 
     for (auto blockStart = 0; blockStart < totalSamples; blockStart += blockSize)
     {
@@ -514,6 +536,12 @@ int main (int argc, char* argv[])
         {
             engine.setNeckSlideSemitones (neckSlide);
             neckSlideAutomationApplied = true;
+        }
+
+        if (! playerFeelResetApplied && playerFeelResetSample < blockStart + samplesThisBlock)
+        {
+            engine.resetPlayerFeel();
+            playerFeelResetApplied = true;
         }
 
         while (eventIndex < events.size()

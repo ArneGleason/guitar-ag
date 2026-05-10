@@ -12,6 +12,8 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     pickTextureParameter = parameters.getRawParameterValue (pickTextureParameterId);
     pickBiteParameter = parameters.getRawParameterValue (pickBiteParameterId);
     pickStrokeParameter = parameters.getRawParameterValue (pickStrokeParameterId);
+    playerFeelParameter = parameters.getRawParameterValue (playerFeelParameterId);
+    playerFeelRecoveryParameter = parameters.getRawParameterValue (playerFeelRecoveryParameterId);
     palmMuteParameter = parameters.getRawParameterValue (palmMuteParameterId);
     harmonicTouchParameter = parameters.getRawParameterValue (harmonicTouchParameterId);
     stringAgeParameter = parameters.getRawParameterValue (stringAgeParameterId);
@@ -87,6 +89,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
     const auto msValue = [] (const juce::String& text)
     {
         return text.getFloatValue() / 1000.0f;
+    };
+    const auto secondsString = [] (float value, int)
+    {
+        return juce::String (value, 2) + " s";
+    };
+    const auto secondsValue = [] (const juce::String& text)
+    {
+        return text.getFloatValue();
     };
 
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
@@ -393,6 +403,26 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
         2));
 
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { playerFeelParameterId, 1 },
+        "Player Feel",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.0f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { playerFeelRecoveryParameterId, 1 },
+        "Feel Recovery",
+        juce::NormalisableRange<float> { 0.10f, 4.0f, 0.01f, 0.62f },
+        0.85f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("s")
+            .withStringFromValueFunction (secondsString)
+            .withValueFromStringFunction (secondsValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { palmMuteParameterId, 1 },
         "Palm Mute",
         juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
@@ -444,6 +474,12 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setPickTexture (pickTextureParameter != nullptr ? pickTextureParameter->load() : 0.5f);
     audioEngine.setPickBite (pickBiteParameter != nullptr ? pickBiteParameter->load() : 0.5f);
     audioEngine.setPickStrokeMode (pickStrokeParameter != nullptr ? juce::roundToInt (pickStrokeParameter->load()) : 2);
+    audioEngine.setPlayerFeel (playerFeelParameter != nullptr ? playerFeelParameter->load() : 0.0f);
+    audioEngine.setPlayerFeelRecoverySeconds (playerFeelRecoveryParameter != nullptr ? playerFeelRecoveryParameter->load() : 0.85f);
+
+    if (playerFeelResetRequested.exchange (false))
+        audioEngine.resetPlayerFeel();
+
     audioEngine.setPalmMute (palmMuteParameter != nullptr ? palmMuteParameter->load() : 0.0f);
     audioEngine.setHarmonicTouch (harmonicTouchParameter != nullptr ? harmonicTouchParameter->load() : 0.0f);
     audioEngine.setStringAge (stringAgeParameter != nullptr ? stringAgeParameter->load() : 0.0f);
@@ -499,6 +535,11 @@ int GuitarAgAudioProcessor::getLookaheadSamples() const noexcept
 juce::AudioProcessorEditor* GuitarAgAudioProcessor::createEditor()
 {
     return new GuitarAgAudioProcessorEditor (*this);
+}
+
+void GuitarAgAudioProcessor::requestPlayerFeelReset() noexcept
+{
+    playerFeelResetRequested.store (true);
 }
 
 bool GuitarAgAudioProcessor::hasEditor() const

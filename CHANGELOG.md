@@ -94,6 +94,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Added `plans/0077-pick-stroke-audition-midi.md` and documented the pick-stroke audition workflow in `docs/audition-midi.md` and `docs/test-plan.md`.
 - Updated the pick-stroke audition chord strums so fretted notes sustain until the same string is struck again, better matching a held left-hand shape with right-hand re-articulation.
 - Added `plans/0078-player-feel-model.md` to frame deterministic player interpretation around cognitive load, dexterity load, endurance, timing, and energy variation.
+- Changed the model label to `StringVoice EG-075 PlayerFeel`.
+- Added `Player Feel`, `Feel Recovery`, and `Reset Feel` controls for deterministic picked-note timing/energy variation driven by cognitive load, dexterity load, and endurance.
+- Added offline-renderer `--player-feel`, `--player-feel-recovery`, and `--player-feel-reset-at` support.
 
 ### Fixed
 

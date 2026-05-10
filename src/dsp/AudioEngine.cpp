@@ -50,6 +50,10 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     pickTexture.setCurrentAndTargetValue (0.5f);
     pickBite.reset (sampleRate, 0.035);
     pickBite.setCurrentAndTargetValue (0.5f);
+    playerFeel.reset (sampleRate, 0.050);
+    playerFeel.setCurrentAndTargetValue (0.0f);
+    playerFeelRecoverySeconds.reset (sampleRate, 0.050);
+    playerFeelRecoverySeconds.setCurrentAndTargetValue (0.85f);
     palmMute.reset (sampleRate, 0.020);
     palmMute.setCurrentAndTargetValue (0.0f);
     harmonicTouch.reset (sampleRate, 0.020);
@@ -115,6 +119,7 @@ void AudioEngine::reset()
 
     fretboard.reset();
     fingerNoiseFretboard.reset();
+    playerFeelFretboard.reset();
     tone.reset();
     clearScheduledMidiEvents();
 
@@ -133,6 +138,8 @@ void AudioEngine::reset()
     pickStiffness.setCurrentAndTargetValue (pickStiffness.getTargetValue());
     pickTexture.setCurrentAndTargetValue (pickTexture.getTargetValue());
     pickBite.setCurrentAndTargetValue (pickBite.getTargetValue());
+    playerFeel.setCurrentAndTargetValue (playerFeel.getTargetValue());
+    playerFeelRecoverySeconds.setCurrentAndTargetValue (playerFeelRecoverySeconds.getTargetValue());
     palmMute.setCurrentAndTargetValue (palmMute.getTargetValue());
     harmonicTouch.setCurrentAndTargetValue (harmonicTouch.getTargetValue());
     stringAge.setCurrentAndTargetValue (stringAge.getTargetValue());
@@ -166,6 +173,7 @@ void AudioEngine::reset()
     nextVoice = 0;
     nextFingerNoiseVoice = 0;
     lastPickedStringIndex = -1;
+    resetPlayerFeel();
     pickAttackCounter = 0;
     nextAlternatePickDown = true;
     lastPickStrokeDirection = PickStrokeDirection::Up;
@@ -203,6 +211,30 @@ void AudioEngine::setPickStrokeMode (int newPickStrokeMode) noexcept
         nextAlternatePickDown = true;
         lastPickStrokeDirection = PickStrokeDirection::Up;
     }
+}
+
+void AudioEngine::setPlayerFeel (float newPlayerFeel) noexcept
+{
+    playerFeel.setTargetValue (juce::jlimit (0.0f, 1.0f, newPlayerFeel));
+}
+
+void AudioEngine::setPlayerFeelRecoverySeconds (float newPlayerFeelRecoverySeconds) noexcept
+{
+    playerFeelRecoverySeconds.setTargetValue (juce::jlimit (0.10f, 4.0f, newPlayerFeelRecoverySeconds));
+}
+
+void AudioEngine::resetPlayerFeel() noexcept
+{
+    playerFeelFretboard.reset();
+    playerFeelLastStringIndex = -1;
+    playerFeelLastFret = -1;
+    playerFeelLastNoteNumber = -1;
+    playerFeelLastTravelSign = 0;
+    playerFeelLastEventSample = -1;
+    playerFeelEventCounter = 0;
+    playerFeelCognitiveLoad = 0.0f;
+    playerFeelDexterityLoad = 0.0f;
+    playerFeelEndurance = 0.0f;
 }
 
 void AudioEngine::setPalmMute (float newPalmMute) noexcept
@@ -467,6 +499,8 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         pickStiffness.getNextValue();
         pickTexture.getNextValue();
         pickBite.getNextValue();
+        playerFeel.getNextValue();
+        playerFeelRecoverySeconds.getNextValue();
         harmonicTouch.getNextValue();
         stringAge.getNextValue();
         bridgeIntonation.getNextValue();
@@ -812,21 +846,207 @@ void AudioEngine::updateFeedbackStringFocus (float amount, float loopFrequency, 
 
 void AudioEngine::handleIncomingMidiMessage (const juce::MidiMessage& message)
 {
-    if (lookaheadSamples <= 0)
+    if (message.isNoteOn())
+    {
+        const auto feelResult = processPlayerFeelNoteOn (message);
+        const auto totalDelaySamples = lookaheadSamples + feelResult.delaySamples;
+
+        if (lookaheadSamples > 0)
+            triggerFingerApproach (message.getNoteNumber(), message.getChannel(), message.getFloatVelocity());
+
+        if (totalDelaySamples > 0)
+            scheduleMidiMessage (feelResult.message, timelineSample + static_cast<int64_t> (totalDelaySamples));
+        else
+            handleMidiMessage (feelResult.message);
+
+        return;
+    }
+
+    if (message.isNoteOff())
+    {
+        releasePlayerFeelNote (message.getNoteNumber(), message.getChannel());
+
+        if (lookaheadSamples <= 0)
+        {
+            handleMidiMessage (message);
+            return;
+        }
+
+        triggerFingerRelease (message.getNoteNumber(), message.getChannel());
+    }
+    else if (lookaheadSamples <= 0)
     {
         handleMidiMessage (message);
         return;
     }
 
-    if (message.isNoteOn())
-        triggerFingerApproach (message.getNoteNumber(), message.getChannel(), message.getFloatVelocity());
-    else if (message.isNoteOff())
-        triggerFingerRelease (message.getNoteNumber(), message.getChannel());
-
     if (shouldDelayForLookahead (message))
         scheduleMidiMessage (message, timelineSample + static_cast<int64_t> (lookaheadSamples));
     else
         handleMidiMessage (message);
+}
+
+AudioEngine::PlayerFeelResult AudioEngine::processPlayerFeelNoteOn (const juce::MidiMessage& message) noexcept
+{
+    PlayerFeelResult result { message, 0 };
+    const auto noteNumber = message.getNoteNumber();
+    const auto channel = message.getChannel();
+    const auto amount = juce::jlimit (0.0f, 1.0f, playerFeel.getTargetValue());
+    const auto hadPrevious = playerFeelLastEventSample >= 0 && playerFeelLastStringIndex >= 0;
+    const auto intervalSeconds = hadPrevious
+                               ? juce::jmax (0.0f,
+                                             static_cast<float> (timelineSample - playerFeelLastEventSample)
+                                                 / static_cast<float> (sampleRate))
+                               : 0.50f;
+
+    decayPlayerFeelLoads (timelineSample);
+
+    const auto assignment = playerFeelFretboard.assignNote (noteNumber, channel);
+    const auto stringDistance = hadPrevious ? std::abs (assignment.stringIndex - playerFeelLastStringIndex) : 0;
+    const auto fretDistance = hadPrevious ? std::abs (assignment.fret - playerFeelLastFret) : 0;
+    const auto travelSign = hadPrevious ? getDirectionSign (assignment.stringIndex - playerFeelLastStringIndex) : 0;
+    const auto sameString = hadPrevious && assignment.stringIndex == playerFeelLastStringIndex;
+    const auto directionChange = travelSign != 0
+                              && playerFeelLastTravelSign != 0
+                              && travelSign != playerFeelLastTravelSign;
+    const auto economyFlow = travelSign != 0
+                          && travelSign == playerFeelLastTravelSign
+                          && stringDistance == 1;
+    const auto fast = hadPrevious
+                    ? juce::jlimit (0.0f, 1.0f, (0.190f - intervalSeconds) / 0.165f)
+                    : 0.0f;
+    const auto veryFast = hadPrevious
+                        ? juce::jlimit (0.0f, 1.0f, (0.095f - intervalSeconds) / 0.075f)
+                        : 0.0f;
+    const auto stringSkip = juce::jlimit (0.0f, 1.0f, static_cast<float> (juce::jmax (0, stringDistance - 1)) / 3.0f);
+    const auto fretJump = juce::jlimit (0.0f, 1.0f, static_cast<float> (fretDistance) / 9.0f);
+
+    auto cognitiveImpulse = 0.018f
+                          + 0.085f * fast
+                          + 0.130f * stringSkip
+                          + 0.105f * fretJump
+                          + (directionChange ? 0.115f : 0.0f);
+    auto dexterityImpulse = 0.022f
+                          + 0.190f * fast
+                          + 0.175f * veryFast
+                          + (sameString ? 0.150f * fast : 0.0f)
+                          + 0.115f * static_cast<float> (juce::jmin (stringDistance, 3)) / 3.0f
+                          + 0.130f * stringSkip
+                          + 0.050f * fretJump
+                          + (directionChange ? 0.080f : 0.0f);
+
+    if (economyFlow)
+    {
+        cognitiveImpulse *= 0.72f;
+        dexterityImpulse *= 0.82f;
+    }
+
+    playerFeelCognitiveLoad = juce::jlimit (0.0f, 1.0f, playerFeelCognitiveLoad + cognitiveImpulse);
+    playerFeelDexterityLoad = juce::jlimit (0.0f, 1.0f, playerFeelDexterityLoad + dexterityImpulse);
+    playerFeelEndurance = juce::jlimit (0.0f,
+                                        1.0f,
+                                        playerFeelEndurance
+                                            + 0.060f * cognitiveImpulse
+                                            + 0.115f * dexterityImpulse
+                                            + 0.018f * fast);
+
+    ++playerFeelEventCounter;
+    const auto noiseA = getPlayerFeelNoise (0x4f1bbcddu);
+    const auto noiseB = getPlayerFeelNoise (0x72a3d113u);
+    const auto noiseC = getPlayerFeelNoise (0x1b873593u);
+    const auto load = juce::jlimit (0.0f,
+                                    1.0f,
+                                    0.34f * playerFeelCognitiveLoad
+                                        + 0.46f * playerFeelDexterityLoad
+                                        + 0.20f * playerFeelEndurance);
+
+    if (amount > 0.0001f)
+    {
+        const auto delayMs = amount
+                           * juce::jlimit (0.0f,
+                                           12.0f,
+                                           0.25f
+                                               + 6.20f * load
+                                               + 2.80f * playerFeelEndurance
+                                               + 1.35f * juce::jmax (0.0f, noiseA));
+        result.delaySamples = juce::jlimit (0,
+                                            static_cast<int> (std::round (sampleRate * 0.012)),
+                                            static_cast<int> (std::round (static_cast<double> (delayMs)
+                                                                          * sampleRate
+                                                                          / 1000.0)));
+
+        const auto velocityScale = juce::jlimit (0.72f,
+                                                1.08f,
+                                                1.0f
+                                                    + amount
+                                                        * (0.030f * noiseB
+                                                           + 0.018f * noiseC
+                                                           - 0.050f * playerFeelCognitiveLoad
+                                                           - 0.070f * playerFeelDexterityLoad
+                                                           - 0.055f * playerFeelEndurance));
+        const auto adjustedVelocity = juce::jlimit (1,
+                                                    127,
+                                                    juce::roundToInt (message.getFloatVelocity()
+                                                                      * velocityScale
+                                                                      * 127.0f));
+        result.message = juce::MidiMessage::noteOn (channel,
+                                                    noteNumber,
+                                                    static_cast<juce::uint8> (adjustedVelocity));
+    }
+
+    playerFeelLastStringIndex = assignment.stringIndex;
+    playerFeelLastFret = assignment.fret;
+    playerFeelLastNoteNumber = noteNumber;
+    playerFeelLastTravelSign = travelSign != 0 ? travelSign : playerFeelLastTravelSign;
+    playerFeelLastEventSample = timelineSample + result.delaySamples;
+
+    return result;
+}
+
+void AudioEngine::decayPlayerFeelLoads (int64_t sampleTime) noexcept
+{
+    if (playerFeelLastEventSample < 0)
+        return;
+
+    const auto elapsedSeconds = juce::jmax (0.0f,
+                                           static_cast<float> (sampleTime - playerFeelLastEventSample)
+                                               / static_cast<float> (sampleRate));
+    const auto recoverySeconds = juce::jlimit (0.10f, 4.0f, playerFeelRecoverySeconds.getTargetValue());
+    const auto cognitiveDecay = std::exp (-elapsedSeconds / juce::jmax (0.05f, recoverySeconds * 0.85f));
+    const auto dexterityDecay = std::exp (-elapsedSeconds / juce::jmax (0.05f, recoverySeconds * 0.62f));
+    const auto enduranceDecay = std::exp (-elapsedSeconds / juce::jmax (0.05f, recoverySeconds * 2.40f));
+
+    playerFeelCognitiveLoad *= cognitiveDecay;
+    playerFeelDexterityLoad *= dexterityDecay;
+    playerFeelEndurance *= enduranceDecay;
+}
+
+void AudioEngine::releasePlayerFeelNote (int noteNumber, int channel) noexcept
+{
+    playerFeelFretboard.releaseNote (noteNumber, channel);
+}
+
+float AudioEngine::getPlayerFeelNoise (uint32_t salt) const noexcept
+{
+    auto seed = salt;
+    seed ^= static_cast<uint32_t> (timelineSample);
+    seed ^= static_cast<uint32_t> (timelineSample >> 32u) * 0x9e3779b9u;
+    seed ^= playerFeelEventCounter * 0x85ebca6bu;
+    seed ^= static_cast<uint32_t> (playerFeelLastNoteNumber + 128) * 0x27d4eb2du;
+    seed ^= static_cast<uint32_t> (playerFeelLastStringIndex + 16) * 0x3449a1u;
+    seed = mixPickAttackSeed (seed);
+    return (static_cast<float> (seed & 0x00ffffffu) / 8388607.5f) - 1.0f;
+}
+
+int AudioEngine::getDirectionSign (int value) noexcept
+{
+    if (value > 0)
+        return 1;
+
+    if (value < 0)
+        return -1;
+
+    return 0;
 }
 
 void AudioEngine::handleMidiMessage (const juce::MidiMessage& message)

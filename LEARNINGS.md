@@ -548,3 +548,7 @@ String age should influence picked attacks because the pick is exciting the same
 ## 2026-05-10 — Alternate picking is a right-hand path, not only a toggle
 
 The first pick-stroke implementation treated alternate as a simple down/up flip. Human audition clarified the player-interpretation layer: repeated notes on the same string should alternate, but cross-string motion should follow the efficient pick path. Since Guitar AG already has a fretboard string assignment, the right hand can use that physical string index to infer sweep direction for adjacent and skipped strings.
+
+## 2026-05-10 — Humanization needs a physical cause
+
+Random timing and velocity offsets can make MIDI less grid-perfect, but they do not create the sense of a person solving a musical task. A better first model is load-based: cognitive demand, dexterity demand, and endurance rise when the part is difficult and recover during easier passages or rests. Deterministic noise is still useful, but only as a texture scaled by those causes.

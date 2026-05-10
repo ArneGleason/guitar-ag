@@ -455,6 +455,36 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     pickStrokeBox.setColour (juce::ComboBox::arrowColourId, juce::Colour (0xffe8edf2));
     addAndMakeVisible (pickStrokeBox);
 
+    configureLabel (playerFeelLabel, "Player Feel");
+    configureSlider (playerFeelSlider, juce::Colour (0xff9ad1ff));
+    configureInfoButton (playerFeelInfoButton,
+                         "Add deterministic player timing and energy feel to picked notes.\n\n"
+                         "Technical: this is not random humanization. Cognitive load, dexterity load, and endurance build from fast picking, "
+                         "string skips, direction changes, and fret jumps. Higher values add small late timing offsets and picked-note energy "
+                         "variation scaled by those loads. At 0%, the timing and velocity path is neutral.");
+
+    configureLabel (playerFeelRecoveryLabel, "Feel Recovery");
+    configureSlider (playerFeelRecoverySlider, juce::Colour (0xffa6e6b1));
+    configureInfoButton (playerFeelRecoveryInfoButton,
+                         "Set how quickly accumulated player load clears after easier playing or a rest.\n\n"
+                         "Technical: shorter times recover quickly after a difficult passage. Longer times let cognitive, dexterity, and endurance "
+                         "load carry forward, so fast repeated picking and awkward changes keep influencing the next few notes.");
+
+    playerFeelResetButton.setButtonText ("Reset Feel");
+    playerFeelResetButton.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff263240));
+    playerFeelResetButton.setColour (juce::TextButton::buttonOnColourId, juce::Colour (0xff39485a));
+    playerFeelResetButton.setColour (juce::TextButton::textColourOffId, juce::Colour (0xffd6dee7));
+    playerFeelResetButton.setColour (juce::TextButton::textColourOnId, juce::Colour (0xfff3f6f9));
+    playerFeelResetButton.onClick = [this]
+    {
+        audioProcessor.requestPlayerFeelReset();
+    };
+    addAndMakeVisible (playerFeelResetButton);
+    configureInfoButton (playerFeelResetInfoButton,
+                         "Clear the accumulated player feel state immediately.\n\n"
+                         "Technical: this resets cognitive load, dexterity load, endurance, and the feel-model string/fret memory. Use it like "
+                         "starting a new take after the player has recovered.");
+
     configureLabel (palmMuteLabel, "Palm Mute");
     configureSlider (palmMuteSlider, juce::Colour (0xfff28b82));
     configureInfoButton (palmMuteInfoButton,
@@ -586,6 +616,12 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     pickStrokeAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
                                                                  GuitarAgAudioProcessor::pickStrokeParameterId,
                                                                  pickStrokeBox);
+    playerFeelAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                               GuitarAgAudioProcessor::playerFeelParameterId,
+                                                               playerFeelSlider);
+    playerFeelRecoveryAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                       GuitarAgAudioProcessor::playerFeelRecoveryParameterId,
+                                                                       playerFeelRecoverySlider);
     palmMuteAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                             GuitarAgAudioProcessor::palmMuteParameterId,
                                                             palmMuteSlider);
@@ -842,6 +878,19 @@ void GuitarAgAudioProcessorEditor::resized()
         layoutLabelAndInfo (strokeBounds, pickStrokeLabel, pickStrokeInfoButton);
         pickStrokeBox.setBounds (strokeBounds.reduced (0, 4));
 
+        auto feelBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (feelBounds, playerFeelLabel, playerFeelInfoButton);
+        playerFeelSlider.setBounds (feelBounds);
+
+        auto recoveryBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (recoveryBounds, playerFeelRecoveryLabel, playerFeelRecoveryInfoButton);
+        playerFeelRecoverySlider.setBounds (recoveryBounds);
+
+        auto resetBounds = bounds.removeFromTop (34);
+        resetBounds.removeFromLeft (158);
+        playerFeelResetButton.setBounds (resetBounds.removeFromLeft (140).reduced (0, 2));
+        playerFeelResetInfoButton.setBounds (resetBounds.removeFromLeft (22).reduced (2, 6));
+
         auto palmMuteBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (palmMuteBounds, palmMuteLabel, palmMuteInfoButton);
         palmMuteSlider.setBounds (palmMuteBounds);
@@ -1073,6 +1122,14 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&pickStrokeLabel),
                              static_cast<juce::Component*> (&pickStrokeInfoButton),
                              static_cast<juce::Component*> (&pickStrokeBox),
+                             static_cast<juce::Component*> (&playerFeelLabel),
+                             static_cast<juce::Component*> (&playerFeelInfoButton),
+                             static_cast<juce::Component*> (&playerFeelSlider),
+                             static_cast<juce::Component*> (&playerFeelRecoveryLabel),
+                             static_cast<juce::Component*> (&playerFeelRecoveryInfoButton),
+                             static_cast<juce::Component*> (&playerFeelRecoverySlider),
+                             static_cast<juce::Component*> (&playerFeelResetButton),
+                             static_cast<juce::Component*> (&playerFeelResetInfoButton),
                              static_cast<juce::Component*> (&palmMuteLabel),
                              static_cast<juce::Component*> (&palmMuteInfoButton),
                              static_cast<juce::Component*> (&palmMuteSlider),
@@ -1098,5 +1155,5 @@ void GuitarAgAudioProcessorEditor::updateDisclosureButtons()
 
 int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
 {
-    return 508;
+    return 620;
 }

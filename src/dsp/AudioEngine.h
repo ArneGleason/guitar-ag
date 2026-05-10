@@ -45,6 +45,9 @@ public:
     void setPickTexture (float newPickTexture) noexcept;
     void setPickBite (float newPickBite) noexcept;
     void setPickStrokeMode (int newPickStrokeMode) noexcept;
+    void setPlayerFeel (float newPlayerFeel) noexcept;
+    void setPlayerFeelRecoverySeconds (float newPlayerFeelRecoverySeconds) noexcept;
+    void resetPlayerFeel() noexcept;
     void setPalmMute (float newPalmMute) noexcept;
     void setHarmonicTouch (float newHarmonicTouch) noexcept;
     void setStringAge (float newStringAge) noexcept;
@@ -104,6 +107,7 @@ private:
     void triggerFingerApproach (int noteNumber, int channel, float velocity) noexcept;
     void triggerFingerRelease (int noteNumber, int channel) noexcept;
     struct LegatoSource;
+    struct PlayerFeelResult;
     [[nodiscard]] LegatoSource findLegatoSource (int noteNumber, int channel, float amount) const noexcept;
     void rememberArticulationNote (int noteNumber,
                                    int channel,
@@ -123,6 +127,11 @@ private:
                                                               int channel,
                                                               int sourceNoteNumber,
                                                               int64_t sampleTime) noexcept;
+    [[nodiscard]] PlayerFeelResult processPlayerFeelNoteOn (const juce::MidiMessage& message) noexcept;
+    void decayPlayerFeelLoads (int64_t sampleTime) noexcept;
+    void releasePlayerFeelNote (int noteNumber, int channel) noexcept;
+    [[nodiscard]] float getPlayerFeelNoise (uint32_t salt) const noexcept;
+    [[nodiscard]] static int getDirectionSign (int value) noexcept;
     void rememberFingerAssignment (int noteNumber, int channel, const FretboardAssignment& assignment) noexcept;
     FretboardAssignment findFingerAssignment (int noteNumber, int channel) const noexcept;
     void releaseFingerAssignment (int noteNumber, int channel) noexcept;
@@ -177,6 +186,12 @@ private:
         bool valid = false;
     };
 
+    struct PlayerFeelResult
+    {
+        juce::MidiMessage message;
+        int delaySamples = 0;
+    };
+
     struct FingerNoiseVoice
     {
         int samplesRemaining = 0;
@@ -207,11 +222,14 @@ private:
     std::array<float, feedbackResonatorCount> feedbackResonatorEnvelope {};
     FretboardMapper fretboard;
     FretboardMapper fingerNoiseFretboard;
+    FretboardMapper playerFeelFretboard;
     ElectricGuitarTone tone;
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> tailSustain { 1.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickStiffness { 0.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickTexture { 0.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickBite { 0.5f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> playerFeel { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> playerFeelRecoverySeconds { 0.85f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> palmMute { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> harmonicTouch { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> stringAge { 0.0f };
@@ -255,7 +273,13 @@ private:
     int nextVoice = 0;
     int nextFingerNoiseVoice = 0;
     int lastPickedStringIndex = -1;
+    int playerFeelLastStringIndex = -1;
+    int playerFeelLastFret = -1;
+    int playerFeelLastNoteNumber = -1;
+    int playerFeelLastTravelSign = 0;
+    int64_t playerFeelLastEventSample = -1;
     uint32_t pickAttackCounter = 0;
+    uint32_t playerFeelEventCounter = 0;
     int feedbackDominantBand = 0;
     int feedbackDominantString = -1;
     int feedbackFocusUpdateCountdown = 0;
@@ -274,6 +298,9 @@ private:
     bool whammyEnabled = true;
     bool feedbackReturnDistorted = true;
     bool nextAlternatePickDown = true;
+    float playerFeelCognitiveLoad = 0.0f;
+    float playerFeelDexterityLoad = 0.0f;
+    float playerFeelEndurance = 0.0f;
     PickStrokeDirection lastPickStrokeDirection = PickStrokeDirection::Up;
     std::array<float, 16> mpePressureByChannel {};
     std::array<float, 16> mpeTimbreByChannel {};

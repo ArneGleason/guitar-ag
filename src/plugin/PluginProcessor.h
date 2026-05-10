@@ -12,6 +12,8 @@ public:
     static constexpr auto pickTextureParameterId = "pickTexture";
     static constexpr auto pickBiteParameterId = "pickBite";
     static constexpr auto pickStrokeParameterId = "pickStroke";
+    static constexpr auto playerFeelParameterId = "playerFeel";
+    static constexpr auto playerFeelRecoveryParameterId = "playerFeelRecovery";
     static constexpr auto palmMuteParameterId = "palmMute";
     static constexpr auto harmonicTouchParameterId = "harmonicTouch";
     static constexpr auto stringAgeParameterId = "stringAge";
@@ -72,6 +74,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     juce::AudioProcessorValueTreeState& getValueTreeState() noexcept { return parameters; }
+    void requestPlayerFeelReset() noexcept;
 
 private:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
@@ -84,6 +87,8 @@ private:
     std::atomic<float>* pickTextureParameter = nullptr;
     std::atomic<float>* pickBiteParameter = nullptr;
     std::atomic<float>* pickStrokeParameter = nullptr;
+    std::atomic<float>* playerFeelParameter = nullptr;
+    std::atomic<float>* playerFeelRecoveryParameter = nullptr;
     std::atomic<float>* palmMuteParameter = nullptr;
     std::atomic<float>* harmonicTouchParameter = nullptr;
     std::atomic<float>* stringAgeParameter = nullptr;
@@ -115,6 +120,7 @@ private:
     std::atomic<float>* slideSqueakDownParameter = nullptr;
     std::atomic<float>* pickupPositionParameter = nullptr;
     std::atomic<float>* pickupModelParameter = nullptr;
+    std::atomic<bool> playerFeelResetRequested { false };
     double currentSampleRate = 44100.0;
     int currentLatencySamples = 0;
 

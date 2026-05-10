@@ -231,6 +231,11 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Drag `tests/midi/guitar-ag-pick-stroke-audition.mid` into a DAW and audition it with `Pick Stroke = Alternate`, `Legato Articulation = 0%`, and `Pick Bite` around 20% to 60%.
 - [ ] Compare the pick-stroke audition file against forced `Down` and forced `Up` to judge whether `Alternate` feels like right-hand travel rather than a mechanical toggle.
 - [ ] In the pick-stroke audition chord sections, strummed notes should feel like a held left-hand chord being re-articulated by the right hand, not like the fretting hand releases every note between strokes.
+- [ ] `Player Feel` at 0% sounds and renders like the current neutral picked path.
+- [ ] Raising `Player Feel` adds subtle picked-note timing/energy variation that grows during fast repetition, string skips, and awkward changes.
+- [ ] Shorter `Feel Recovery` clears the effect quickly after rests or easier passages; longer recovery lets the load carry forward.
+- [ ] `Reset Feel` immediately clears accumulated feel state for a new take.
+- [ ] Re-rendering the same MIDI with the same `Player Feel` settings remains deterministic.
 - [ ] `Pick Stiffness` and `Pick Texture` remain useful after the plastic-plectrum retune.
 - [ ] Re-rendering the same MIDI with the same `Pick Stroke` setting remains deterministic.
 

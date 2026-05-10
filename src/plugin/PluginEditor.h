@@ -71,6 +71,8 @@ private:
     juce::Slider pickTextureSlider;
     juce::Slider pickBiteSlider;
     juce::ComboBox pickStrokeBox;
+    juce::Slider playerFeelSlider;
+    juce::Slider playerFeelRecoverySlider;
     juce::Slider palmMuteSlider;
     juce::Slider harmonicTouchSlider;
     juce::Label sustainLabel;
@@ -107,6 +109,8 @@ private:
     juce::Label pickTextureLabel;
     juce::Label pickBiteLabel;
     juce::Label pickStrokeLabel;
+    juce::Label playerFeelLabel;
+    juce::Label playerFeelRecoveryLabel;
     juce::Label palmMuteLabel;
     juce::Label harmonicTouchLabel;
     juce::Label harmonicQuarterLabel;
@@ -144,6 +148,10 @@ private:
     juce::TextButton pickTextureInfoButton;
     juce::TextButton pickBiteInfoButton;
     juce::TextButton pickStrokeInfoButton;
+    juce::TextButton playerFeelInfoButton;
+    juce::TextButton playerFeelRecoveryInfoButton;
+    juce::TextButton playerFeelResetButton;
+    juce::TextButton playerFeelResetInfoButton;
     juce::TextButton palmMuteInfoButton;
     juce::TextButton harmonicTouchInfoButton;
     juce::ComboBox lookaheadBox;
@@ -187,6 +195,8 @@ private:
     std::unique_ptr<SliderAttachment> pickTextureAttachment;
     std::unique_ptr<SliderAttachment> pickBiteAttachment;
     std::unique_ptr<ComboBoxAttachment> pickStrokeAttachment;
+    std::unique_ptr<SliderAttachment> playerFeelAttachment;
+    std::unique_ptr<SliderAttachment> playerFeelRecoveryAttachment;
     std::unique_ptr<SliderAttachment> palmMuteAttachment;
     std::unique_ptr<SliderAttachment> harmonicTouchAttachment;
     int activePage = 0;

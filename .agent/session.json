@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Refine pick-stroke audition MIDI and plan player feel model",
-  "status": "Pick-stroke strum MIDI updated for held left-hand shapes; player-feel architecture plan drafted",
-  "updatedAt": "2026-05-10T10:26:19-04:00",
-  "lastHandoff": ".agent/handoffs/20260510-102619-codex-player-feel-plan.md",
+  "lastTask": "Implement first player feel slice",
+  "status": "EG-075 PlayerFeel implemented, built, installed, and ready for review/audition",
+  "updatedAt": "2026-05-10T10:54:57-04:00",
+  "lastHandoff": ".agent/handoffs/20260510-105457-codex-player-feel.md",
   "branch": "main",
-  "commit": "Pick-stroke strum refinement and player-feel plan will be the latest pushed main commit after Codex commit",
+  "commit": "EG-075 PlayerFeel implementation will be the latest pushed main commit after Codex commit",
   "projectState": {
-    "summary": "The pick-stroke audition MIDI now treats repeated chord strums more like a held fretting-hand shape with right-hand re-articulation: each string sustains until that string is struck again or the chord changes. A new player-feel plan frames future deterministic timing and velocity variation around cognitive load, dexterity load, and endurance. Next likely step is choosing the first implementation slice: right-hand feel timing/energy, or held-shape repick semantics inside the engine."
+    "summary": "EG-075 adds Player Feel, Feel Recovery, and Reset Feel. Picked note starts now receive deterministic late timing and velocity/energy variation from cognitive load, dexterity load, and endurance. Load decays by the recovery time and can be cleared immediately for a new take. Build/install and offline deterministic renders succeeded."
   }
 }

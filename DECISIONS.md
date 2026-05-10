@@ -635,3 +635,17 @@ Accepted
 
 Consequences:
 No new host parameter is needed. `Alternate` now remembers the last picked string and stroke direction. It still alternates on repeated same-string picked notes, but uses downstrokes for increasing string indices and upstrokes for decreasing string indices. Hammer-ons, pull-offs, and taps do not consume the right-hand stroke state.
+
+## 2026-05-10 — Make player feel deterministic and cause-based
+
+Decision:
+Add `Player Feel` as a deterministic performance-interpretation layer driven by cognitive load, dexterity load, and one endurance bucket instead of random DAW-style humanization.
+
+Reason:
+Human timing and velocity variation should come from a playable cause: fast repetition, string skips, direction changes, fret jumps, accumulated effort, and recovery. Random note offsets can make playback less robotic, but they do not teach the instrument anything about the player attempting a physical task.
+
+Status:
+Accepted
+
+Consequences:
+At 0%, the timing/velocity path stays neutral. At higher values, picked note-ons can be delayed slightly and their incoming velocity can be scaled by accumulated load. `Feel Recovery` controls how quickly the load clears, and `Reset Feel` gives the human an immediate "new take" recovery action. This first pass delays only; early timing will require a lookahead-aware follow-up.
