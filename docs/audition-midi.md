@@ -170,6 +170,51 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
   --tail-seconds 2.0
 ```
 
+## Pick Stroke Audition MIDI
+
+`tests/midi/guitar-ag-pick-stroke-audition.mid` focuses on the `Pick Stroke` and `Pick Bite` controls added across EG-072 through EG-074.
+
+Suggested plugin setup:
+
+- `Pick Stroke`: `Alternate`
+- `Legato Articulation`: `0%`
+- `Pick Bite`: about 20% to 60%
+- `String Age`: to taste, often around 35% to 50%
+
+Keep `Legato Articulation` at 0% for the first pass. The file is intended to evaluate picked right-hand behavior, so hammer-on/pull-off substitution would hide the thing being tested.
+
+At 112 BPM:
+
+- Bar 2: open-string low-to-high then high-to-low map.
+- Bar 4: same-string tremolo picking on low E and high E.
+- Bar 7: adjacent two-string crossings in both directions.
+- Bar 12: string-skipping economy-direction checks.
+- Bar 16: downstroke then upstroke open-position chord strums.
+- Bar 24: compact down/up rhythm-guitar strum groove.
+- Bar 29: rolling crosspicking/classical-style arpeggio exercises.
+- Bar 32: pedal-tone riff studies with string changes.
+- Bar 36: melodic scale fragments across strings.
+- Bar 39: mixed finale with strum, run, tremolo, and final chord.
+
+Regenerate it with:
+
+```bash
+scripts/create-pick-stroke-audition-midi.py
+```
+
+Offline A/B example:
+
+```bash
+build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
+  --midi tests/midi/guitar-ag-pick-stroke-audition.mid \
+  --output build/diagnostics/guitar-ag-pick-stroke-alternate.wav \
+  --pick-stroke alternate \
+  --legato-articulation 0 \
+  --pick-bite 0.35 \
+  --string-age 0.35 \
+  --tail-seconds 2.0
+```
+
 ## Amp Feedback Audition
 
 `Amp Feedback` is easiest to judge on longer held notes and then on the player-articulation file.

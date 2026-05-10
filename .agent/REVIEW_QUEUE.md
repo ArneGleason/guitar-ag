@@ -18,6 +18,7 @@ Suggested focus:
 - Confirm `reset()` and switching into `Alternate` reset the right-hand memory to a deterministic first downstroke.
 - Confirm the info note accurately describes the smarter `Alternate` interpretation without adding a new user-facing mode.
 - Review `plans/0076-economy-pick-stroke.md` for implementation/test coverage and physical-model framing.
+- Optionally use `tests/midi/guitar-ag-pick-stroke-audition.mid` to audition repeated picking, string crossings, string skips, chord strums, and riff-like phrases with `Pick Stroke = Alternate`.
 
 Known limitations:
 
@@ -25,6 +26,7 @@ Known limitations:
 - EG-071 uses one persisted last-direction value per voice, so overlapping up/down contact tails are direction-approximated rather than separately accumulated.
 - EG-073 is still one ordinary plastic plectrum model only; fingerpicking, fingernail attack, material families, and explicit pick-depth UI remain deferred.
 - EG-074 does not group near-simultaneous chord notes into a single strum gesture yet; it uses per-note string travel order as received from MIDI/fretboard assignment.
+- The pick-stroke audition MIDI uses original/common exercise idioms rather than copied repertoire; it is intended as a functional listening workout, not a reference performance.
 - EG-066 is still an approximation of lifted fretting pressure. Same-string speaking-length preservation remains future work.
 - DAW verification is still required for the lookahead/expression timing fix.
 - DAW listening is required for the new 4-sample pitch control-rate optimization.

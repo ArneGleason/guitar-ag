@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Make alternate picking economy-aware across strings",
-  "status": "EG-074 EconomyPickStroke implemented, built, installed, and ready for review",
-  "updatedAt": "2026-05-10T09:56:20-04:00",
-  "lastHandoff": ".agent/handoffs/20260510-095620-codex-economy-pick-stroke.md",
+  "lastTask": "Create pick-stroke audition MIDI",
+  "status": "Pick-stroke audition MIDI generated, documented, rendered, and ready for DAW audition",
+  "updatedAt": "2026-05-10T10:05:42-04:00",
+  "lastHandoff": ".agent/handoffs/20260510-100542-codex-pick-stroke-audition-midi.md",
   "branch": "main",
-  "commit": "EG-074 EconomyPickStroke implementation will be the latest pushed main commit after Codex commit",
+  "commit": "Pick-stroke audition MIDI asset will be the latest pushed main commit after Codex commit",
   "projectState": {
-    "summary": "EG-074 keeps the Pick Stroke UI unchanged while making Alternate right-hand aware: same-string picked notes alternate, low-to-high string travel uses downstrokes, high-to-low travel uses upstrokes, and non-picked gestures do not consume the pattern. Build/install succeeded locally. Next likely step is Antigravity review followed by human DAW audition of arpeggios, string skips, and repeated picked lines."
+    "summary": "The repo now includes a generated pick-stroke audition MIDI covering open-string direction maps, same-string tremolo picking, adjacent crossings, string skips, chord strums, back-and-forth strumming, rolling arpeggios, pedal riffs, scale fragments, and a mixed finale. The file extracted cleanly with 497 note events and rendered successfully with Alternate and forced Down stroke modes. Next likely step is human DAW audition with Pick Stroke Alternate and Legato Articulation at 0%."
   }
 }
