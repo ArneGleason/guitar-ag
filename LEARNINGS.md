@@ -27,6 +27,12 @@ Add notes here when something sounds good, bad, unstable, too bright, too dull, 
 - Near-simultaneous note jitter from hosts may still need a future tolerance window, but that choice should be explicit because it can trade live immediacy for interpretation accuracy.
 - Player Feel should see internally generated strum delays as the actual picked event times, otherwise same-sample block chords look like zero-time unrelated picking decisions.
 
+## 2026-05-10 — Strum direction energy balance
+
+- EG-079 Auto Strum landed well in DAW audition, but downstrokes and upstrokes need a simple directional energy balance.
+- Scaling down one stroke direction is more predictable than boosting the other because authored MIDI velocities may already be near 127.
+- A balanced center is the safest default for continuity, while a small positive `Strum Balance` can create the common stronger-downstroke feel by reducing generated upstroke velocities.
+
 ## DAW Compatibility Notes
 
 Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Live, Logic, or others.

@@ -24,7 +24,8 @@ void printUsage()
     std::cout << "Usage: GuitarAGOfflineRender --midi <input.mid> --output <output.wav> "
                  "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5] [--pick-bite 0.5] "
-                 "[--pick-stroke alternate] [--strum-speed 0.0] [--player-feel 0.0] [--player-feel-recovery 2.0] "
+                 "[--pick-stroke alternate] [--strum-speed 0.0] [--strum-balance 0.0] "
+                 "[--player-feel 0.0] [--player-feel-recovery 2.0] "
                  "[--player-feel-reset-at seconds] [--palm-mute 0.0] "
                  "[--harmonic-touch 0.0] [--string-age 0.0] [--bridge-intonation 0.0] "
                  "[--fret-pressure 0.0] [--aftertouch-bend 2.0] [--neck-slide 0.0] [--neck-slide-at seconds] "
@@ -133,6 +134,7 @@ int main (int argc, char* argv[])
     auto pickBite = 0.5f;
     auto pickStrokeMode = 2;
     auto strumSpeed = 0.0f;
+    auto strumBalance = 0.0f;
     auto playerFeel = 0.0f;
     auto playerFeelRecovery = 2.0f;
     auto playerFeelResetAtSeconds = -1.0;
@@ -232,6 +234,10 @@ int main (int argc, char* argv[])
         else if (argument == "--strum-speed" && hasValue)
         {
             strumSpeed = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--strum-balance" && hasValue)
+        {
+            strumBalance = juce::String (argv[++i]).getFloatValue();
         }
         else if (argument == "--player-feel" && hasValue)
         {
@@ -479,6 +485,7 @@ int main (int argc, char* argv[])
     engine.setPickBite (pickBite);
     engine.setPickStrokeMode (pickStrokeMode);
     engine.setStrumSpeed (strumSpeed);
+    engine.setStrumBalance (strumBalance);
     engine.setPlayerFeel (playerFeel);
     engine.setPlayerFeelRecoverySeconds (playerFeelRecovery);
     engine.setPalmMute (palmMute);

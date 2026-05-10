@@ -53,6 +53,7 @@ public:
     void setPickBite (float newPickBite) noexcept;
     void setPickStrokeMode (int newPickStrokeMode) noexcept;
     void setStrumSpeed (float newStrumSpeed) noexcept;
+    void setStrumBalance (float newStrumBalance) noexcept;
     void setPlayerFeel (float newPlayerFeel) noexcept;
     void setPlayerFeelRecoverySeconds (float newPlayerFeelRecoverySeconds) noexcept;
     void resetPlayerFeel() noexcept;
@@ -274,6 +275,7 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickTexture { 0.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickBite { 0.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> strumSpeed { 0.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> strumBalance { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> playerFeel { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> playerFeelRecoverySeconds { 2.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> palmMute { 0.0f };

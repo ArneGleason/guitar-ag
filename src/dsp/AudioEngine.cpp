@@ -54,6 +54,8 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     pickBite.setCurrentAndTargetValue (0.5f);
     strumSpeed.reset (sampleRate, 0.050);
     strumSpeed.setCurrentAndTargetValue (0.0f);
+    strumBalance.reset (sampleRate, 0.050);
+    strumBalance.setCurrentAndTargetValue (0.0f);
     playerFeel.reset (sampleRate, 0.050);
     playerFeel.setCurrentAndTargetValue (0.0f);
     playerFeelRecoverySeconds.reset (sampleRate, 0.050);
@@ -146,6 +148,7 @@ void AudioEngine::reset()
     pickTexture.setCurrentAndTargetValue (pickTexture.getTargetValue());
     pickBite.setCurrentAndTargetValue (pickBite.getTargetValue());
     strumSpeed.setCurrentAndTargetValue (strumSpeed.getTargetValue());
+    strumBalance.setCurrentAndTargetValue (strumBalance.getTargetValue());
     playerFeel.setCurrentAndTargetValue (playerFeel.getTargetValue());
     playerFeelRecoverySeconds.setCurrentAndTargetValue (playerFeelRecoverySeconds.getTargetValue());
     palmMute.setCurrentAndTargetValue (palmMute.getTargetValue());
@@ -224,6 +227,11 @@ void AudioEngine::setPickStrokeMode (int newPickStrokeMode) noexcept
 void AudioEngine::setStrumSpeed (float newStrumSpeed) noexcept
 {
     strumSpeed.setTargetValue (juce::jlimit (0.0f, 1.0f, newStrumSpeed));
+}
+
+void AudioEngine::setStrumBalance (float newStrumBalance) noexcept
+{
+    strumBalance.setTargetValue (juce::jlimit (-1.0f, 1.0f, newStrumBalance));
 }
 
 void AudioEngine::setPlayerFeel (float newPlayerFeel) noexcept
@@ -538,6 +546,7 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         pickTexture.getNextValue();
         pickBite.getNextValue();
         strumSpeed.getNextValue();
+        strumBalance.getNextValue();
         playerFeel.getNextValue();
         playerFeelRecoverySeconds.getNextValue();
         harmonicTouch.getNextValue();
@@ -1005,6 +1014,13 @@ bool AudioEngine::handleAutoStrumGroup (const IncomingMidiGroup& group)
     });
 
     const auto perStringSeconds = 0.100f * std::pow (strumAmount, 1.35f);
+    const auto balanceAmount = juce::jlimit (-1.0f, 1.0f, strumBalance.getTargetValue());
+    auto strokeVelocityScale = 1.0f;
+
+    if (strokeDirection == PickStrokeDirection::Up && balanceAmount > 0.0f)
+        strokeVelocityScale = 1.0f - 0.94f * balanceAmount;
+    else if (strokeDirection == PickStrokeDirection::Down && balanceAmount < 0.0f)
+        strokeVelocityScale = 1.0f - 0.94f * std::abs (balanceAmount);
 
     for (auto noteIndex = 0; noteIndex < noteCount; ++noteIndex)
     {
@@ -1016,7 +1032,21 @@ bool AudioEngine::handleAutoStrumGroup (const IncomingMidiGroup& group)
                                               static_cast<int> (std::round (static_cast<double> (stringDistance)
                                                                             * static_cast<double> (perStringSeconds)
                                                                             * sampleRate)));
-        handleIncomingNoteOn (note.message, delaySamples, note.assignment.stringIndex);
+        auto strumMessage = note.message;
+
+        if (strokeVelocityScale < 0.999f)
+        {
+            const auto scaledVelocity = juce::jlimit (1,
+                                                      127,
+                                                      juce::roundToInt (note.message.getFloatVelocity()
+                                                                        * strokeVelocityScale
+                                                                        * 127.0f));
+            strumMessage = juce::MidiMessage::noteOn (note.message.getChannel(),
+                                                      note.message.getNoteNumber(),
+                                                      static_cast<juce::uint8> (scaledVelocity));
+        }
+
+        handleIncomingNoteOn (strumMessage, delaySamples, note.assignment.stringIndex);
     }
 
     return true;

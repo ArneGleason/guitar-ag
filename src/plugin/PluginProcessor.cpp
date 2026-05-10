@@ -14,6 +14,7 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     pickBiteParameter = parameters.getRawParameterValue (pickBiteParameterId);
     pickStrokeParameter = parameters.getRawParameterValue (pickStrokeParameterId);
     strumSpeedParameter = parameters.getRawParameterValue (strumSpeedParameterId);
+    strumBalanceParameter = parameters.getRawParameterValue (strumBalanceParameterId);
     playerFeelParameter = parameters.getRawParameterValue (playerFeelParameterId);
     playerFeelRecoveryParameter = parameters.getRawParameterValue (playerFeelRecoveryParameterId);
     palmMuteParameter = parameters.getRawParameterValue (palmMuteParameterId);
@@ -99,6 +100,33 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
     const auto secondsValue = [] (const juce::String& text)
     {
         return text.getFloatValue();
+    };
+    const auto strumBalanceString = [] (float value, int)
+    {
+        const auto reduction = juce::roundToInt (std::abs (value) * 94.0f);
+
+        if (reduction <= 0)
+            return juce::String ("Balanced");
+
+        return juce::String (value > 0.0f ? "Up -" : "Down -") + juce::String (reduction) + "%";
+    };
+    const auto strumBalanceValue = [] (const juce::String& text)
+    {
+        const auto numericText = text.retainCharacters ("0123456789.-");
+
+        if (numericText.isEmpty())
+            return 0.0f;
+
+        auto value = numericText.getFloatValue();
+
+        if (text.containsIgnoreCase ("up"))
+            value = std::abs (value) / 94.0f;
+        else if (text.containsIgnoreCase ("down"))
+            value = -std::abs (value) / 94.0f;
+        else if (std::abs (value) > 1.0f)
+            value /= 100.0f;
+
+        return juce::jlimit (-1.0f, 1.0f, value);
     };
 
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
@@ -415,6 +443,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
             .withValueFromStringFunction (percentValue)));
 
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { strumBalanceParameterId, 1 },
+        "Strum Balance",
+        juce::NormalisableRange<float> { -1.0f, 1.0f, 0.001f, 1.0f },
+        0.0f,
+        juce::AudioParameterFloatAttributes()
+            .withStringFromValueFunction (strumBalanceString)
+            .withValueFromStringFunction (strumBalanceValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { playerFeelParameterId, 1 },
         "Player Feel",
         juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
@@ -487,6 +524,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setPickBite (pickBiteParameter != nullptr ? pickBiteParameter->load() : 0.5f);
     audioEngine.setPickStrokeMode (pickStrokeParameter != nullptr ? juce::roundToInt (pickStrokeParameter->load()) : 2);
     audioEngine.setStrumSpeed (strumSpeedParameter != nullptr ? strumSpeedParameter->load() : 0.0f);
+    audioEngine.setStrumBalance (strumBalanceParameter != nullptr ? strumBalanceParameter->load() : 0.0f);
     audioEngine.setPlayerFeel (playerFeelParameter != nullptr ? playerFeelParameter->load() : 0.0f);
     audioEngine.setPlayerFeelRecoverySeconds (playerFeelRecoveryParameter != nullptr ? playerFeelRecoveryParameter->load() : 2.0f);
 
@@ -587,6 +625,7 @@ juce::String GuitarAgAudioProcessor::exportSettingsJson() const
     add (pickBiteParameterId, pickBiteParameter);
     add (pickStrokeParameterId, pickStrokeParameter);
     add (strumSpeedParameterId, strumSpeedParameter);
+    add (strumBalanceParameterId, strumBalanceParameter);
     add (playerFeelParameterId, playerFeelParameter);
     add (playerFeelRecoveryParameterId, playerFeelRecoveryParameter);
     add (palmMuteParameterId, palmMuteParameter);

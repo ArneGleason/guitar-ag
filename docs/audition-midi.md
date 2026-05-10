@@ -226,12 +226,13 @@ Use the header `Export Settings` button to copy a JSON snapshot of the current a
 
 ## Auto Strum Audition MIDI
 
-`tests/midi/guitar-ag-auto-strum-audition.mid` focuses on the EG-079 `Strum Speed` interpreter.
+`tests/midi/guitar-ag-auto-strum-audition.mid` focuses on the EG-079/EG-080 Auto Strum controls.
 
 Suggested plugin setup:
 
 - `Pick Stroke`: start with `Alternate`, then compare forced `Down` and forced `Up`
 - `Strum Speed`: compare `0%`, about `40-70%`, and `100%`
+- `Strum Balance`: start centered, then compare positive values for softer upstrokes and negative values for softer downstrokes
 - `Player Feel`: around `Pro`/50% if you want the generated stroke to include natural timing and energy variation
 - `Legato Articulation`: `0%` for the first pass
 
@@ -257,12 +258,13 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
   --output build/diagnostics/guitar-ag-auto-strum-60.wav \
   --pick-stroke alternate \
   --strum-speed 0.60 \
+  --strum-balance 0.35 \
   --player-feel 0.50 \
   --player-feel-recovery 2.0 \
   --tail-seconds 3.0
 ```
 
-The first implementation only groups note-ons that share the exact same sample. If a host imports or emits chord notes a few samples apart, those notes will behave like normal authored timing until a future tolerance-window pass exists.
+`Strum Balance` is a reducer, not a booster. Positive values leave generated downstrokes at authored velocity and soften generated upstrokes; negative values do the reverse. The first implementation only groups note-ons that share the exact same sample. If a host imports or emits chord notes a few samples apart, those notes will behave like normal authored timing until a future tolerance-window pass exists.
 
 ## Amp Feedback Audition
 

@@ -705,3 +705,17 @@ Accepted
 
 Consequences:
 `Strum Speed = 0%` preserves current MIDI timing. Higher values fan simultaneous chord note-ons across predicted string assignments using the current `Pick Stroke` direction and schedule those note starts internally. The first pass does not reinterpret already-staggered strums, and it does not yet collect notes that arrive in adjacent samples or small host jitter windows.
+
+## 2026-05-10 — Balance strum direction by reducing one stroke direction
+
+Decision:
+Add `Strum Balance` as a bipolar Auto Strum control where center is balanced, positive values reduce upstroke velocity, and negative values reduce downstroke velocity.
+
+Reason:
+Human DAW audition found EG-079 Auto Strum musically convincing, but a normal strumming pattern needs adjustable down/up energy difference. Treating this as a reducer avoids unexpected clipping or failed accents when incoming velocities are already high. It also supports ghost-like upstrokes or downstrokes at the extremes without changing the authored MIDI velocity lane.
+
+Status:
+Accepted
+
+Consequences:
+The control affects generated Auto Strum note-on velocities before Player Feel variation is applied. It does not affect single-note picking or already-staggered authored strums. A center value preserves EG-079 behavior exactly.

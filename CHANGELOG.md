@@ -117,6 +117,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Wired Auto Strum into `Pick Stroke` direction, fretboard assignment, delayed note scheduling, and Player Feel timing/load accounting while leaving `Strum Speed = 0%` neutral.
 - Added offline-renderer `--strum-speed` support.
 - Added `scripts/create-auto-strum-audition-midi.py` and `tests/midi/guitar-ag-auto-strum-audition.mid` for block-chord Auto Strum auditioning.
+- Changed the model label to `StringVoice EG-080 StrumBalance`.
+- Added the `Strum Balance` host parameter and Articulation-page slider to reduce generated Auto Strum downstroke or upstroke velocities from a balanced center.
+- Added offline-renderer `--strum-balance` support for directional strum balance checks.
 
 ### Fixed
 

@@ -75,6 +75,7 @@ private:
     juce::Slider pickBiteSlider;
     juce::ComboBox pickStrokeBox;
     juce::Slider strumSpeedSlider;
+    juce::Slider strumBalanceSlider;
     juce::Slider playerFeelSlider;
     juce::Slider playerFeelRecoverySlider;
     juce::Slider palmMuteSlider;
@@ -114,6 +115,7 @@ private:
     juce::Label pickBiteLabel;
     juce::Label pickStrokeLabel;
     juce::Label strumSpeedLabel;
+    juce::Label strumBalanceLabel;
     juce::Label playerFeelLabel;
     juce::Label playerFeelBotLabel;
     juce::Label playerFeelProLabel;
@@ -160,6 +162,7 @@ private:
     juce::TextButton pickBiteInfoButton;
     juce::TextButton pickStrokeInfoButton;
     juce::TextButton strumSpeedInfoButton;
+    juce::TextButton strumBalanceInfoButton;
     juce::TextButton playerFeelInfoButton;
     juce::TextButton playerFeelRecoveryInfoButton;
     juce::TextButton playerFeelResetButton;
@@ -216,6 +219,7 @@ private:
     std::unique_ptr<SliderAttachment> pickBiteAttachment;
     std::unique_ptr<ComboBoxAttachment> pickStrokeAttachment;
     std::unique_ptr<SliderAttachment> strumSpeedAttachment;
+    std::unique_ptr<SliderAttachment> strumBalanceAttachment;
     std::unique_ptr<SliderAttachment> playerFeelAttachment;
     std::unique_ptr<SliderAttachment> playerFeelRecoveryAttachment;
     std::unique_ptr<SliderAttachment> palmMuteAttachment;

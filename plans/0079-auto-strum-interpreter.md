@@ -70,6 +70,19 @@ Deferred:
 
 - Near-time collection tolerance remains future work. This implementation does not gather notes that arrive in adjacent samples or within a 1 ms window, because that requires an explicit latency/lookahead policy.
 
+## 2026-05-10 Direction Balance Follow-Up
+
+Implemented `StringVoice EG-080 StrumBalance`.
+
+Human audition found the generated chord strokes musically convincing, but normal rhythm playing often needs a controllable down/up energy difference. EG-080 adds a host parameter named `Strum Balance`:
+
+- `0`: generated downstrokes and upstrokes keep the same authored velocity.
+- Positive values reduce generated upstroke velocity, supporting stronger-downstroke rhythm feels.
+- Negative values reduce generated downstroke velocity, supporting the opposite feel.
+- Extreme values reduce the selected stroke direction by about 94%, allowing near-ghost strokes without boosting or clipping the other direction.
+
+The balance is applied only inside generated Auto Strum note-ons before Player Feel timing/energy variation. Single-note picking and already-authored staggered strums are unchanged.
+
 ## Open Questions
 
 - Should Auto Strum remain one global amount, or eventually gain a mode/CC trigger for selective chord interpretation?

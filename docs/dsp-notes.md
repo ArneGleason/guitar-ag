@@ -1920,3 +1920,21 @@ Neutral behavior:
 Known limitation:
 
 This pass intentionally does not collect notes that arrive a few samples apart. Supporting DAW jitter/tolerance windows will require an explicit lookahead/collection design so live latency and host compensation remain understandable.
+
+## 2026-05-10 — EG-080 Strum Direction Balance
+
+Human DAW audition accepted the EG-079 Auto Strum sound and requested a simple way to make generated downstrokes and upstrokes differ in strength.
+
+EG-080 adds `Strum Balance`:
+
+- Center/0.0 is balanced and preserves EG-079 generated velocities.
+- Positive values reduce generated upstroke note velocities.
+- Negative values reduce generated downstroke note velocities.
+- The extreme ends reduce the selected stroke direction by about 94%, leaving near-ghosted strokes rather than absolute zero.
+
+Implementation details:
+
+- The balance is applied inside `AudioEngine::handleAutoStrumGroup` after the group stroke direction is resolved and before the note-on enters Player Feel.
+- The control only changes generated Auto Strum note-on velocities.
+- Single-note picking and already-staggered authored strums are unaffected.
+- Player Feel still applies deterministic timing/energy variation after the direction balance, so the generated stroke remains part of the same player-interpretation path.

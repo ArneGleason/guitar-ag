@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Add exact-block Auto Strum and Player Feel landmarks",
-  "status": "EG-079 AutoStrum implemented, built, installed, and ready for review/audition",
-  "updatedAt": "2026-05-10T12:23:10-04:00",
-  "lastHandoff": ".agent/handoffs/20260510-122310-codex-auto-strum.md",
+  "lastTask": "Add Auto Strum direction balance",
+  "status": "EG-080 StrumBalance implemented and in verification",
+  "updatedAt": "2026-05-10T12:56:55-04:00",
+  "lastHandoff": ".agent/handoffs/20260510-125655-codex-strum-balance.md",
   "branch": "main",
-  "commit": "Add exact-block auto strum (current main commit)",
+  "commit": "Add strum direction balance (current main commit)",
   "projectState": {
-    "summary": "EG-079 adds Bot/Pro/Loose Player Feel landmarks and a Strum Speed parameter that turns exact same-sample block chord note-ons into internally scheduled right-hand strums using fretboard assignment and Pick Stroke direction. Near-time collection tolerance remains deferred."
+    "summary": "EG-080 adds Strum Balance, a bipolar Auto Strum reducer that softens generated upstrokes or downstrokes from a balanced center without boosting velocities. Near-time collection tolerance remains deferred."
   }
 }

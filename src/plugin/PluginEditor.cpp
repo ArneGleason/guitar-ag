@@ -502,6 +502,14 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "assigned strings using the current Pick Stroke direction. 100% is about 100 ms per adjacent string, roughly "
                          "a half-second across all six strings. This first pass does not collect notes that arrive at slightly different samples.");
 
+    configureLabel (strumBalanceLabel, "Strum Balance");
+    configureSlider (strumBalanceSlider, juce::Colour (0xffa6e6b1));
+    configureInfoButton (strumBalanceInfoButton,
+                         "Balance generated downstroke and upstroke strength.\n\n"
+                         "Technical: the center is balanced. Moving right reduces Auto Strum upstroke note velocities, making downstrokes "
+                         "feel stronger. Moving left reduces downstroke velocities. At the extremes, the reduced direction is nearly ghosted. "
+                         "This affects generated Auto Strum note-ons, not single-note picking or authored staggered MIDI.");
+
     configureLabel (playerFeelLabel, "Player Feel");
     configureSlider (playerFeelSlider, juce::Colour (0xff9ad1ff));
     configureInfoButton (playerFeelInfoButton,
@@ -718,6 +726,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     strumSpeedAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::strumSpeedParameterId,
                                                                strumSpeedSlider);
+    strumBalanceAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                 GuitarAgAudioProcessor::strumBalanceParameterId,
+                                                                 strumBalanceSlider);
     playerFeelAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::playerFeelParameterId,
                                                                playerFeelSlider);
@@ -988,6 +999,10 @@ void GuitarAgAudioProcessorEditor::resized()
         auto strumBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (strumBounds, strumSpeedLabel, strumSpeedInfoButton);
         strumSpeedSlider.setBounds (strumBounds);
+
+        auto strumBalanceBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (strumBalanceBounds, strumBalanceLabel, strumBalanceInfoButton);
+        strumBalanceSlider.setBounds (strumBalanceBounds);
 
         auto feelBounds = bounds.removeFromTop (54);
         layoutLabelAndInfo (feelBounds, playerFeelLabel, playerFeelInfoButton);
@@ -1268,6 +1283,9 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&strumSpeedLabel),
                              static_cast<juce::Component*> (&strumSpeedInfoButton),
                              static_cast<juce::Component*> (&strumSpeedSlider),
+                             static_cast<juce::Component*> (&strumBalanceLabel),
+                             static_cast<juce::Component*> (&strumBalanceInfoButton),
+                             static_cast<juce::Component*> (&strumBalanceSlider),
                              static_cast<juce::Component*> (&playerFeelLabel),
                              static_cast<juce::Component*> (&playerFeelInfoButton),
                              static_cast<juce::Component*> (&playerFeelSlider),

@@ -6,14 +6,18 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Review the EG-079 `AutoStrum` implementation.
+- Review the EG-080 `StrumBalance` implementation, including the prior EG-079 `AutoStrum` path it builds on.
 - Confirm `Strum Speed = 0%` preserves the previous same-sample MIDI behavior.
 - Confirm exact same-sample block chords are detected only when at least two note-ons share the same sample and `Strum Speed` is above zero.
 - Confirm the predicted fretboard assignment is preserved through delayed note scheduling, so the scheduled note-on uses the same string that drove the strum order.
 - Confirm `Pick Stroke = Down`, `Up`, and `Alternate` drive block-chord order coherently, including repeated block chords in Alternate mode.
+- Confirm `Strum Balance = 0` preserves EG-079 generated strum velocities.
+- Confirm positive `Strum Balance` reduces generated upstroke velocities only, and negative `Strum Balance` reduces generated downstroke velocities only.
+- Confirm the selected stroke direction is reduced, not the opposite direction boosted, so high incoming MIDI velocities cannot clip from this control.
+- Confirm `Strum Balance` only affects generated Auto Strum note-ons and does not alter single-note picking or authored staggered MIDI.
 - Confirm `processPlayerFeelNoteOn` uses the generated strum delay as the effective event time, so generated strums do not look like zero-time unrelated picking events.
 - Confirm note-offs are handled before generated block-chord note-ons, and same-sample expression/controller events fall back to the normal dispatch path instead of being reordered into Auto Strum.
-- Confirm the Articulation page exposes `Strum Speed`, and `Player Feel` shows Bot/Pro/Loose landmarks without clipping.
+- Confirm the Articulation page exposes `Strum Speed` and `Strum Balance`, and `Player Feel` shows Bot/Pro/Loose landmarks without clipping.
 - Confirm `scripts/create-auto-strum-audition-midi.py` creates exact same-time block chord test material.
 - Historical EG-078 checks: confirm very short cross-string strum continuations reduce cognitive/dexterity load without disabling feel variation.
 - Confirm fast same-string picking and non-strum single-note runs still accumulate load normally.
@@ -51,7 +55,7 @@ Known limitations:
 - The preset model is planned but not implemented.
 - EG-071 uses one persisted last-direction value per voice, so overlapping up/down contact tails are direction-approximated rather than separately accumulated.
 - EG-073 is still one ordinary plastic plectrum model only; fingerpicking, fingernail attack, material families, and explicit pick-depth UI remain deferred.
-- EG-079 groups exact same-sample block chords only. It does not collect near-simultaneous notes that arrive across adjacent samples or a 1 ms tolerance window.
+- EG-079/EG-080 groups exact same-sample block chords only. It does not collect near-simultaneous notes that arrive across adjacent samples or a 1 ms tolerance window.
 - EG-075 can only delay picked note starts in real time. Early human timing requires a future lookahead-aware pass.
 - The pick-stroke audition MIDI uses original/common exercise idioms rather than copied repertoire; it is intended as a functional listening workout, not a reference performance.
 - EG-066 is still an approximation of lifted fretting pressure. Same-string speaking-length preservation remains future work.
