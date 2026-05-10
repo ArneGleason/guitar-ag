@@ -203,15 +203,16 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureInfoButton (slideFretStepsInfoButton,
                          "Make Neck Slide move like a fretted gliss instead of a smooth pitch bend.\n\n"
                          "Technical: the control uses a perceptual curve, so 10% already reaches the old 90% engagement point and the rest of "
-                         "the slider fine-tunes the audible fret-crossing zone. 0% leaves the slide lane smooth.");
+                         "the slider fine-tunes the audible fret-crossing zone. While Neck Slide is moving, this also feeds motion-coupled "
+                         "finger/string squeak; 0% leaves the slide lane smooth.");
 
     configureLabel (slideLiftLabel, "Slide Lift");
     configureSlider (slideLiftSlider, juce::Colour (0xffd5a36f));
     configureInfoButton (slideLiftInfoButton,
                          "Lift fretting pressure during Neck Slide motion.\n\n"
-                         "Technical: 0% keeps full fret pressure. Higher values fade the fret-step engagement, add light string scrape, and "
-                         "damp the modal sustain while the slide is moving. 50% reaches its lift over about 500 ms; 100% reaches full lift in "
-                         "about 50 ms. This does not wait for note-off.");
+                         "Technical: 0% keeps full fret pressure. Higher values fade the fret-step engagement, add speed-following string "
+                         "squeak/scrape, and damp the modal sustain while the slide is moving. 50% reaches its lift over about 500 ms; 100% "
+                         "reaches full lift in about 50 ms. This does not wait for note-off.");
 
     configureLabel (lookaheadLabel, "Lookahead");
     configureInfoButton (lookaheadInfoButton,
@@ -232,8 +233,8 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureInfoButton (fingerNoiseInfoButton,
                          "Add small fretting-hand approach and release noises around notes.\n\n"
                          "Technical: this layer uses short stick-slip squeak/body bursts tied to string and fret assignment. Wound strings lean "
-                         "toward stronger ridged friction; plain strings stay smoother. It is most useful with Lookahead enabled, because the "
-                         "approach noise can occur before the delayed note onset.");
+                         "toward stronger ridged friction; plain strings stay smoother. This controls note approach/release noises; slide "
+                         "squeak follows Neck Slide movement through Fret Steps and Slide Lift.");
 
     configureLabel (ampFeedbackLabel, "Amp Feedback");
     configureSlider (ampFeedbackSlider, juce::Colour (0xffe87070));

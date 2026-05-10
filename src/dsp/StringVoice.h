@@ -238,6 +238,9 @@ private:
     float slideFretBodyState = 0.0f;
     float slideFretImpulse = 0.0f;
     float slideFretImpulseDecay = 1.0f;
+    float slideFretMotionDrive = 0.0f;
+    float slideFretMotionDriveDecay = 1.0f;
+    float slideFretSpeed = 0.0f;
     int slideFretSlipCountdown = 0;
     float previousNeckSlideSemitones = 0.0f;
     float slideMotionActivity = 0.0f;

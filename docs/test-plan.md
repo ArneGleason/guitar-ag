@@ -116,6 +116,14 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Wound-string assignments have stronger ridged friction than plain-string assignments.
 - [ ] During `Neck Slide` movement with `Slide Lift` raised, the lifted scrape sounds like finger pressure easing against strings rather than a static noise wash.
 
+## EG-068 Motion-Coupled Slide Squeak Checks
+
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-068 SlideSqueakMotion`.
+- [ ] Fast `Neck Slide` motion produces louder/denser slide squeak than slow motion at the same `Fret Steps`/`Slide Lift` settings.
+- [ ] Holding `Neck Slide` static does not leave a continuous hiss layer.
+- [ ] The slide squeak changes pitch/color as the held note or chord moves, rather than staying at one fixed pitch.
+- [ ] `Finger Noise` approach/release events remain quieter and less broadband than EG-067.
+
 ## Pickup Checks
 
 - [ ] `Single Coil` remains narrow and bright.

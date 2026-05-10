@@ -1631,6 +1631,19 @@ Research references used for the model direction:
 - Groves and Kemp, “Applicability of the Capstan Equation to Guitar Strings” (2019): https://doi.org/10.24425/aoa.2019.129261.
 - Djellouli et al., “Squeaking at soft-rigid frictional interfaces” (2026): https://www.nature.com/articles/s41586-026-10132-3.
 
+## 2026-05-10 — EG-068 Motion-Coupled Slide Squeak
+
+Human spectrum/listening feedback on EG-067 showed that the finger/slide noise still sounded like a stable hiss floor with small ridges, and it did not change enough between fast and slow slides.
+
+EG-068 changes the slide path from an event-like scrape layer into a motion-coupled contact layer:
+
+- `StringVoice` now tracks `slideFretMotionDrive`, a short envelope raised by recent `Neck Slide` velocity.
+- Slide squeak pulse spacing becomes denser as slide speed increases and sparser as speed decreases.
+- The slide squeak carrier is retuned from the current modal/string frequency and recent slide speed instead of staying near the note-start value.
+- `slideFretScrapeDecay` is shorter so squeak/scrape falls away quickly when movement stops.
+- The random scrape component in slide noise is reduced and gated by motion so it supports the squeak instead of becoming a steady hiss.
+- The global `Finger Noise` approach/release layer keeps its existing trigger model but has less broadband scrape weighting.
+
 ## Suggested MVP Signal Flow
 
 ```text

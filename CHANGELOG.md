@@ -60,6 +60,10 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Revoiced `Finger Noise` from mostly broadband scrape/body noise toward short stick-slip squeak impulses with string/fret-dependent pitch and stronger wound-string texture.
 - Revoiced `Slide Lift`/fret-slide scrape toward filtered friction plus ridged squeak instead of mostly high-passed random noise.
 - Updated the `Finger Noise` info note and changed the model label to `StringVoice EG-067 FingerSqueak`.
+- Added `plans/0068-motion-coupled-slide-squeak.md` after human spectrum/listening feedback showed EG-067 still behaved like a fixed hiss layer.
+- Made slide squeak motion-coupled: pulse density, amplitude, decay, and carrier pitch now follow `Neck Slide` movement speed and current string pitch.
+- Reduced remaining broadband scrape weighting in the global `Finger Noise` approach/release layer.
+- Updated slide/finger-noise info notes and changed the model label to `StringVoice EG-068 SlideSqueakMotion`.
 
 ### Fixed
 

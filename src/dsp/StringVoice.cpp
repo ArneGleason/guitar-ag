@@ -91,7 +91,7 @@ void StringVoice::reset()
     slideFretContact = 0.0f;
     slideFretContactDecay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.018f)));
     slideFretScrape = 0.0f;
-    slideFretScrapeDecay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.055f)));
+    slideFretScrapeDecay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.024f)));
     slideFretContactPhase = 0.0f;
     slideFretContactPhaseStep = 0.0f;
     previousSlideFretNoise = 0.0f;
@@ -99,6 +99,9 @@ void StringVoice::reset()
     slideFretBodyState = 0.0f;
     slideFretImpulse = 0.0f;
     slideFretImpulseDecay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.0065f)));
+    slideFretMotionDrive = 0.0f;
+    slideFretMotionDriveDecay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.026f)));
+    slideFretSpeed = 0.0f;
     slideFretSlipCountdown = 0;
     previousNeckSlideSemitones = 0.0f;
     slideMotionActivity = 0.0f;
@@ -300,7 +303,7 @@ void StringVoice::start (int midiNoteNumber,
     slideFretContact = 0.0f;
     slideFretContactDecay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.018f)));
     slideFretScrape = 0.0f;
-    slideFretScrapeDecay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.055f)));
+    slideFretScrapeDecay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.024f)));
     slideFretContactPhase = 0.0f;
     slideFretContactPhaseStep = 0.0f;
     previousSlideFretNoise = 0.0f;
@@ -308,6 +311,9 @@ void StringVoice::start (int midiNoteNumber,
     slideFretBodyState = 0.0f;
     slideFretImpulse = 0.0f;
     slideFretImpulseDecay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.0065f)));
+    slideFretMotionDrive = 0.0f;
+    slideFretMotionDriveDecay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.026f)));
+    slideFretSpeed = 0.0f;
     slideFretSlipCountdown = 0;
     previousNeckSlideSemitones = 0.0f;
     slideMotionActivity = 0.0f;
@@ -1137,29 +1143,33 @@ float StringVoice::renderContactLayer() noexcept
         pullOffSnap *= pullOffSnapDecay;
     }
 
-    if (slideFretContact > 0.000001f || slideFretScrape > 0.000001f)
+    if (slideFretContact > 0.000001f || slideFretScrape > 0.000001f || slideFretMotionDrive > 0.000001f)
     {
         constexpr auto twoPi = 6.28318530717958647692f;
+        const auto motionDrive = juce::jlimit (0.0f, 1.0f, slideFretMotionDrive);
+        const auto speedDrive = juce::jlimit (0.0f, 1.0f, slideFretSpeed);
         const auto rawSlide = nextNoiseSample();
         const auto slideFriction = rawSlide - previousSlideFretNoise;
         previousSlideFretNoise += (0.14f + 0.10f * woundAmount) * (rawSlide - previousSlideFretNoise);
         slideFretScrapeState += (0.12f + 0.11f * woundAmount) * (slideFriction - slideFretScrapeState);
         slideFretBodyState += (0.030f + 0.018f * woundAmount) * (slideFretScrapeState - slideFretBodyState);
 
-        if (slideFretScrape > 0.000001f && slideFretSlipCountdown <= 0)
+        if (motionDrive > 0.000001f && slideFretSlipCountdown <= 0)
         {
-            const auto intervalSeconds = (0.00042f + 0.00105f * (1.0f - woundAmount))
+            const auto intervalSeconds = (0.00024f + 0.00190f * (1.0f - speedDrive))
+                                       * (1.0f - 0.42f * woundAmount)
                                        * (0.72f + 0.64f * (0.5f + 0.5f * nextNoiseSample()));
             slideFretSlipCountdown = juce::jmax (1, static_cast<int> (sampleRate * intervalSeconds));
             slideFretImpulse = juce::jlimit (0.0f,
-                                             0.075f,
+                                             1.30f,
                                              slideFretImpulse
-                                                 + slideFretScrape
-                                                      * (0.52f + 0.78f * woundAmount)
-                                                      * (0.55f + 0.45f * std::abs (nextNoiseSample())));
+                                                 + motionDrive
+                                                      * (0.26f + 0.48f * woundAmount)
+                                                      * (0.50f + 0.50f * std::abs (nextNoiseSample())));
         }
 
-        slideFretContactPhase += slideFretContactPhaseStep * (1.0f + 0.08f * rawSlide);
+        slideFretContactPhase += slideFretContactPhaseStep
+                                * (1.0f + 0.018f * rawSlide + 0.035f * speedDrive * slideFretScrapeState);
 
         if (slideFretContactPhase > twoPi)
             slideFretContactPhase -= twoPi;
@@ -1170,9 +1180,10 @@ float StringVoice::renderContactLayer() noexcept
         const auto scrapeRidge = fastContactSin (slideFretContactPhase * (0.58f + 0.18f * woundAmount) + 0.55f * rawSlide)
                                + (0.22f + 0.32f * woundAmount)
                                      * fastContactSin (slideFretContactPhase * (1.26f + 0.48f * woundAmount) + 0.31f);
-        const auto fretScrape = slideFretImpulse * scrapeRidge * (0.58f + 0.54f * woundAmount)
-                              + slideFretScrapeState * (0.22f + 0.16f * woundAmount)
-                              + slideFretBodyState * (0.18f + 0.18f * woundAmount);
+        const auto fretScrape = motionDrive
+                              * (slideFretImpulse * scrapeRidge * (1.10f + 0.72f * woundAmount)
+                                  + slideFretScrapeState * (0.045f + 0.055f * woundAmount)
+                                  + slideFretBodyState * (0.070f + 0.080f * woundAmount));
 
         contactOutput += softClip (slideFretContact * (0.66f * fretTick
                                                        + 0.24f * slideFretScrapeState
@@ -1181,6 +1192,8 @@ float StringVoice::renderContactLayer() noexcept
         slideFretContact *= slideFretContactDecay;
         slideFretScrape *= slideFretScrapeDecay;
         slideFretImpulse *= slideFretImpulseDecay;
+        slideFretMotionDrive *= slideFretMotionDriveDecay;
+        slideFretSpeed *= slideFretMotionDriveDecay;
         --slideFretSlipCountdown;
 
         if (slideFretContact < 0.000001f)
@@ -1191,6 +1204,12 @@ float StringVoice::renderContactLayer() noexcept
 
         if (slideFretImpulse < 0.000001f)
             slideFretImpulse = 0.0f;
+
+        if (slideFretMotionDrive < 0.000001f)
+            slideFretMotionDrive = 0.0f;
+
+        if (slideFretSpeed < 0.000001f)
+            slideFretSpeed = 0.0f;
     }
 
     return contactOutput;
@@ -1509,6 +1528,10 @@ void StringVoice::updateSlideFretContact (float neckSlideSemitones, float slideF
     }
 
     const auto slideDelta = clampedSlide - previousNeckSlideSemitones;
+    const auto slideSpeedSemitonesPerSecond = std::abs (slideDelta)
+                                            * static_cast<float> (sampleRate)
+                                            / static_cast<float> (pitchControlUpdateInterval);
+    const auto speedScale = juce::jlimit (0.0f, 1.0f, slideSpeedSemitonesPerSecond / 36.0f);
     const auto crossedFrets = currentFret >= previousSlideFret
                              ? currentFret - previousSlideFret
                              : previousSlideFret - currentFret;
@@ -1539,25 +1562,54 @@ void StringVoice::updateSlideFretContact (float neckSlideSemitones, float slideF
 
     const auto frettedAmount = getEffectiveSlideFretSteps (slideFretSteps) * (1.0f - slideLiftEnvelope);
 
+    const auto physicalSlideContact = juce::jlimit (0.0f,
+                                                    1.0f,
+                                                    frettedAmount + slideLiftEnvelope * (0.25f + 0.55f * liftAmount));
+    const auto motionDrive = speedScale * physicalSlideContact;
+
+    if (motionDrive > 0.0001f)
+    {
+        constexpr auto twoPi = 6.28318530717958647692f;
+        const auto currentFrequency = activeModalCount > 0 && modalFrequency[0] > 0.0f
+                                    ? modalFrequency[0] * cachedPitchRatio
+                                    : static_cast<float> (juce::MidiMessage::getMidiNoteInHertz (noteNumber));
+        const auto squeakFrequency = currentFrequency
+                                   * (16.0f + 8.0f * woundAmount)
+                                   * (0.82f + 0.42f * speedScale)
+                                   + 260.0f * speedScale;
+        slideFretContactPhaseStep = twoPi
+                                  * juce::jlimit (520.0f,
+                                                   static_cast<float> (sampleRate * 0.36),
+                                                   squeakFrequency)
+                                  / static_cast<float> (sampleRate);
+        slideFretMotionDrive = juce::jmax (slideFretMotionDrive, motionDrive);
+        slideFretSpeed = juce::jmax (slideFretSpeed, speedScale);
+
+        const auto continuousScrape = motionDrive * (0.00009f + 0.00028f * woundAmount);
+        slideFretScrape = juce::jlimit (0.0f, 0.060f, slideFretScrape + continuousScrape);
+        slideFretImpulse = juce::jlimit (0.0f,
+                                         1.30f,
+                                         slideFretImpulse + continuousScrape * (16.0f + 22.0f * woundAmount));
+    }
+
     if (frettedAmount > 0.0001f && crossedFrets > 0 && std::abs (slideDelta) > 0.00001f)
     {
         const auto crossingScale = static_cast<float> (juce::jmin (crossedFrets, 4));
-        const auto speedScale = juce::jlimit (0.35f, 1.0f, std::abs (slideDelta) * 220.0f);
+        const auto crossingSpeedScale = juce::jlimit (0.35f, 1.0f, speedScale);
         const auto directionScale = slideDelta >= 0.0f ? 1.0f : 0.86f;
-        const auto tickAmount = frettedAmount * crossingScale * speedScale * directionScale * (0.0080f + 0.0060f * woundAmount);
+        const auto tickAmount = frettedAmount * crossingScale * crossingSpeedScale * directionScale * (0.0080f + 0.0060f * woundAmount);
         const auto scrapeAmount = frettedAmount * crossingScale * (0.0025f + 0.0045f * woundAmount);
 
         slideFretContact = juce::jlimit (0.0f, 0.090f, slideFretContact + tickAmount);
         slideFretScrape = juce::jlimit (0.0f, 0.060f, slideFretScrape + scrapeAmount);
-        slideFretImpulse = juce::jlimit (0.0f, 0.060f, slideFretImpulse + scrapeAmount * (1.7f + 2.4f * woundAmount));
+        slideFretImpulse = juce::jlimit (0.0f, 1.30f, slideFretImpulse + scrapeAmount * (10.0f + 13.0f * woundAmount));
     }
 
     if (slideLiftEnvelope > 0.0001f && std::abs (slideDelta) > 0.00001f)
     {
-        const auto speedScale = juce::jlimit (0.0f, 1.0f, std::abs (slideDelta) * 180.0f);
         const auto liftedScrape = slideLiftEnvelope * speedScale * (0.0016f + 0.0038f * woundAmount);
         slideFretScrape = juce::jlimit (0.0f, 0.060f, slideFretScrape + liftedScrape);
-        slideFretImpulse = juce::jlimit (0.0f, 0.060f, slideFretImpulse + liftedScrape * (1.2f + 2.0f * woundAmount));
+        slideFretImpulse = juce::jlimit (0.0f, 1.30f, slideFretImpulse + liftedScrape * (8.0f + 10.0f * woundAmount));
     }
 
     previousNeckSlideSemitones = clampedSlide;

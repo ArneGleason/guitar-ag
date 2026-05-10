@@ -523,3 +523,17 @@ Accepted
 
 Consequences:
 `Finger Noise` remains the existing 0% to 100% control, but internally it now uses string/fret-dependent squeak carriers, impulse spacing, and wound-string weighting. Slide-lift scrape uses the same contact-noise direction. This is still a compact approximation; future work could add explicit string-gauge or sliding-speed spectral calibration from recorded references.
+
+## 2026-05-10 — Drive slide squeak from slide motion
+
+Decision:
+Slide squeak must be driven by `Neck Slide` movement speed and current string pitch rather than by a mostly fixed scrape/noise carrier.
+
+Reason:
+Human spectrum/listening feedback on EG-067 showed a consistent hiss-like layer with only small ridges, regardless of whether the slide moved quickly or slowly. A real finger/string squeak is a contact event caused by relative motion; it should intensify with speed, soften as speed drops, and stop when the finger stops sliding.
+
+Status:
+Accepted
+
+Consequences:
+`StringVoice` now keeps a short slide-motion drive envelope. Slide squeak pulse spacing, amplitude, and carrier frequency follow recent `Neck Slide` delta and current string frequency. The random scrape component remains only as a supporting texture and decays quickly after movement stops.

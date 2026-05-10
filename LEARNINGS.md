@@ -512,3 +512,7 @@ Human Bitwig audition of EG-065 showed that note-off-driven slide tails are a we
 ## 2026-05-09 — Finger noise needs pulse and surface structure
 
 Finger/string movement stops sounding guitar-like when it is mostly filtered random noise. A better first approximation is intermittent friction pulses exciting a small resonant squeak, with wound strings getting stronger ridged texture and plain strings staying smoother. The broad scrape component should support the squeak, not dominate it.
+
+## 2026-05-10 — Slide squeak must follow motion
+
+A fixed-pitch squeak carrier under a random scrape floor still reads as hiss in a spectrum and by ear. Slide noise needs an explicit movement envelope: faster `Neck Slide` changes should raise pulse density and amplitude, while stopped movement should decay quickly toward silence.

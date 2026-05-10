@@ -1274,9 +1274,9 @@ float AudioEngine::renderFingerNoiseSample() noexcept
                          + 0.12f * voice.woundAmount * std::sin (voice.phase * 3.73f);
         const auto squeak = voice.stickImpulse * ridge;
         const auto filteredScrape = voice.scrapeState - 0.34f * voice.bodyState;
-        const auto scrape = squeak * (0.52f + 0.50f * voice.woundAmount)
-                          + filteredScrape * (0.12f + 0.18f * voice.woundAmount)
-                          + voice.bodyState * (0.18f + 0.24f * voice.woundAmount);
+        const auto scrape = squeak * (0.78f + 0.66f * voice.woundAmount)
+                          + filteredScrape * (0.045f + 0.070f * voice.woundAmount)
+                          + voice.bodyState * (0.090f + 0.120f * voice.woundAmount);
 
         output += scrape * voice.amplitude;
         voice.amplitude *= voice.decay;
