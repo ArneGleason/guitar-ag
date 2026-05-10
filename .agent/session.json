@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Create pick-stroke audition MIDI",
-  "status": "Pick-stroke audition MIDI generated, documented, rendered, and ready for DAW audition",
-  "updatedAt": "2026-05-10T10:05:42-04:00",
-  "lastHandoff": ".agent/handoffs/20260510-100542-codex-pick-stroke-audition-midi.md",
+  "lastTask": "Refine pick-stroke audition MIDI and plan player feel model",
+  "status": "Pick-stroke strum MIDI updated for held left-hand shapes; player-feel architecture plan drafted",
+  "updatedAt": "2026-05-10T10:26:19-04:00",
+  "lastHandoff": ".agent/handoffs/20260510-102619-codex-player-feel-plan.md",
   "branch": "main",
-  "commit": "Pick-stroke audition MIDI asset will be the latest pushed main commit after Codex commit",
+  "commit": "Pick-stroke strum refinement and player-feel plan will be the latest pushed main commit after Codex commit",
   "projectState": {
-    "summary": "The repo now includes a generated pick-stroke audition MIDI covering open-string direction maps, same-string tremolo picking, adjacent crossings, string skips, chord strums, back-and-forth strumming, rolling arpeggios, pedal riffs, scale fragments, and a mixed finale. The file extracted cleanly with 497 note events and rendered successfully with Alternate and forced Down stroke modes. Next likely step is human DAW audition with Pick Stroke Alternate and Legato Articulation at 0%."
+    "summary": "The pick-stroke audition MIDI now treats repeated chord strums more like a held fretting-hand shape with right-hand re-articulation: each string sustains until that string is struck again or the chord changes. A new player-feel plan frames future deterministic timing and velocity variation around cognitive load, dexterity load, and endurance. Next likely step is choosing the first implementation slice: right-hand feel timing/energy, or held-shape repick semantics inside the engine."
   }
 }

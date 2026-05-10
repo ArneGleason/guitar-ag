@@ -202,6 +202,8 @@ Regenerate it with:
 scripts/create-pick-stroke-audition-midi.py
 ```
 
+The chord-strum sections sustain each fretted string until that string is struck again or the chord changes. This keeps the MIDI closer to a held left-hand chord shape with right-hand re-articulation instead of short left-hand note gates on every stroke.
+
 Offline A/B example:
 
 ```bash

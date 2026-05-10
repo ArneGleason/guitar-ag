@@ -92,6 +92,8 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Updated the `Pick Stroke` info note and added `plans/0076-economy-pick-stroke.md` for the right-hand motion model.
 - Added `scripts/create-pick-stroke-audition-midi.py` and `tests/midi/guitar-ag-pick-stroke-audition.mid` for DAW auditioning repeated picking, string crossings, string skips, strums, crosspicking, pedal riffs, and scale fragments.
 - Added `plans/0077-pick-stroke-audition-midi.md` and documented the pick-stroke audition workflow in `docs/audition-midi.md` and `docs/test-plan.md`.
+- Updated the pick-stroke audition chord strums so fretted notes sustain until the same string is struck again, better matching a held left-hand shape with right-hand re-articulation.
+- Added `plans/0078-player-feel-model.md` to frame deterministic player interpretation around cognitive load, dexterity load, endurance, timing, and energy variation.
 
 ### Fixed
 

@@ -146,6 +146,36 @@ def add_strum(
         track.note(start + index * strum_ticks, note, duration, velocity)
 
 
+def add_sustained_strum_sequence(
+    track: Track,
+    strokes: list[tuple[int, list[int], str, int]],
+    final_release_tick: int,
+    strum_ticks: int = 18,
+) -> None:
+    """Add strums where the fretting hand holds each string until it is struck again."""
+
+    events_by_string_slot: dict[int, list[tuple[int, int, int]]] = {}
+
+    for stroke_start, notes_low_to_high, direction, velocity in strokes:
+        slots = list(range(len(notes_low_to_high)))
+
+        if direction == "up":
+            slots = list(reversed(slots))
+
+        for event_index, slot in enumerate(slots):
+            note_start = stroke_start + event_index * strum_ticks
+            note = notes_low_to_high[slot]
+            events_by_string_slot.setdefault(slot, []).append((note_start, note, velocity))
+
+    for string_events in events_by_string_slot.values():
+        string_events.sort(key=lambda item: item[0])
+
+        for index, (note_start, note, velocity) in enumerate(string_events):
+            next_start = string_events[index + 1][0] if index + 1 < len(string_events) else final_release_tick
+            note_end = max(note_start + 1, next_start - 1)
+            track.note(note_start, note, note_end - note_start, velocity)
+
+
 def add_open_string_map(track: Track, start: int) -> int:
     tick = start
     track.marker(tick, "1 Open-string map: low-to-high then high-to-low")
@@ -226,8 +256,13 @@ def add_down_up_chords(track: Track, start: int) -> int:
 
     for name, notes in chords:
         track.text(tick, f"{name}: down then up")
-        add_strum(track, tick, notes, int(BEAT * 1.15), 88, "down", strum_ticks=20)
-        add_strum(track, tick + int(BEAT * 1.65), notes, int(BEAT * 1.05), 82, "up", strum_ticks=20)
+        add_sustained_strum_sequence(track,
+                                     [
+                                         (tick, notes, "down", 88),
+                                         (tick + int(BEAT * 1.65), notes, "up", 82),
+                                     ],
+                                     tick + BAR * 2 - int(BEAT * 0.25),
+                                     strum_ticks=20)
         tick += BAR * 2
 
     return next_bar(tick)
@@ -247,17 +282,14 @@ def add_strum_groove(track: Track, start: int) -> int:
 
     for bar_index in range(4):
         notes = progression[bar_index % len(progression)]
+        strokes: list[tuple[int, list[int], str, int]] = []
 
         for stroke_index in range(8):
             direction = "down" if stroke_index % 2 == 0 else "up"
             velocity = 92 if direction == "down" else 78
-            add_strum(track,
-                      tick + stroke_index * int(BEAT * 0.50),
-                      notes,
-                      int(BEAT * 0.34),
-                      velocity,
-                      direction,
-                      strum_ticks=12)
+            strokes.append((tick + stroke_index * int(BEAT * 0.50), notes, direction, velocity))
+
+        add_sustained_strum_sequence(track, strokes, tick + BAR - int(BEAT * 0.10), strum_ticks=12)
 
         tick += BAR
 

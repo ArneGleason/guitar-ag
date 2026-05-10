@@ -230,6 +230,7 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] `Pick Stroke = Alternate` does not turn hammer-ons, pull-offs, or taps into alternating picked attacks.
 - [ ] Drag `tests/midi/guitar-ag-pick-stroke-audition.mid` into a DAW and audition it with `Pick Stroke = Alternate`, `Legato Articulation = 0%`, and `Pick Bite` around 20% to 60%.
 - [ ] Compare the pick-stroke audition file against forced `Down` and forced `Up` to judge whether `Alternate` feels like right-hand travel rather than a mechanical toggle.
+- [ ] In the pick-stroke audition chord sections, strummed notes should feel like a held left-hand chord being re-articulated by the right hand, not like the fretting hand releases every note between strokes.
 - [ ] `Pick Stiffness` and `Pick Texture` remain useful after the plastic-plectrum retune.
 - [ ] Re-rendering the same MIDI with the same `Pick Stroke` setting remains deterministic.
 
