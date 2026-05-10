@@ -215,10 +215,14 @@ This document defines the basic manual and technical checks needed as the projec
 
 ## Pick Stroke Plectrum Checks
 
-- [ ] New plugin instances show `v0.2.6 / StringVoice EG-072 PickStrokePlectrum`.
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-073 PlasticPickBite`.
 - [ ] The Articulation page exposes `Pick Stroke` with `Down`, `Up`, and `Alternate`.
+- [ ] The Articulation page exposes `Pick Bite` as a 0% to 100% control.
 - [ ] `Alternate` is the default on new plugin instances.
 - [ ] Repeated single-note lines at the default pick settings sound less like a tonal digital/FM attack than EG-071.
+- [ ] Lowering `Pick Bite` reduces the pick-contact imprint without muting the main string note.
+- [ ] Raising `Pick Bite` makes the edge/contact attack more pronounced without turning the normal midpoint into a brittle/glassy pick.
+- [ ] Raising `String Age` dulls the pick-contact brightness as well as the sustained string body.
 - [ ] `Pick Stroke = Down` and `Pick Stroke = Up` produce audible but bounded differences in the attack and string response.
 - [ ] `Pick Stroke = Alternate` alternates picked note starts but does not turn hammer-ons, pull-offs, or taps into alternating picked attacks.
 - [ ] `Pick Stiffness` and `Pick Texture` remain useful after the plastic-plectrum retune.

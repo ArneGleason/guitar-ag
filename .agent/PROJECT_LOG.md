@@ -55,3 +55,4 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Added `plans/0072-preset-model.md` to define the stock/user preset architecture before implementing preset browser/export UI.
 - Added `plans/0073-pick-attack-research.md` after human DAW feedback that strummed chords sound convincing but isolated single-note pick attacks still sound synthetic.
 - Implemented `StringVoice EG-072 PickStrokePlectrum`, adding `Pick Stroke` Down/Up/Alternate modes, deterministic per-attack variation, and a less tonal normal plastic-pick attack.
+- Implemented `StringVoice EG-073 PlasticPickBite`, adding `Pick Bite`, widening deterministic pick angle/depth variation, and coupling `String Age` more strongly into the pick-contact imprint.

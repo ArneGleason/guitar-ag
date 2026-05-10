@@ -81,6 +81,12 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Changed the model label to `StringVoice EG-072 PickStrokePlectrum`.
 - Revoiced the default picked attack toward a normal plastic plectrum by reducing exposed tonal contact ring/chirp energy, shortening the pick transient, and letting stroke direction shape release polarization.
 - Made per-attack variation deterministic by seeding picked voices from note/channel/string/fret, render timeline, stroke direction, gesture, and a resettable attack counter.
+- Added the `Pick Bite` host parameter and Articulation-page slider to control how strongly pick contact imprints on the string attack.
+- Added offline-renderer `--pick-bite` support.
+- Changed the model label to `StringVoice EG-073 PlasticPickBite`.
+- Rebalanced the normal pick-contact model away from brittle/glassy coherent ring by lowering default rough-contact onset, broadening the compliant pick contact, and increasing deterministic pick angle/depth variation.
+- Coupled `String Age` more directly into picked attacks by damping contact ring/chirp brightness and lowering the contact-scratch high-pass coefficient as strings age.
+- Added `plans/0075-plastic-pick-bite.md` to document the physical pick-contact mental model and verification notes.
 
 ### Fixed
 

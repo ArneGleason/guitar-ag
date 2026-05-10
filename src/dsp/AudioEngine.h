@@ -43,6 +43,7 @@ public:
     void setTailSustain (float newTailSustain) noexcept;
     void setPickStiffness (float newPickStiffness) noexcept;
     void setPickTexture (float newPickTexture) noexcept;
+    void setPickBite (float newPickBite) noexcept;
     void setPickStrokeMode (int newPickStrokeMode) noexcept;
     void setPalmMute (float newPalmMute) noexcept;
     void setHarmonicTouch (float newHarmonicTouch) noexcept;
@@ -209,6 +210,7 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> tailSustain { 1.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickStiffness { 0.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickTexture { 0.5f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickBite { 0.5f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> palmMute { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> harmonicTouch { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> stringAge { 0.0f };

@@ -538,3 +538,9 @@ As the instrument gains expressive controls, a flat Performance page hides impor
 ## 2026-05-10 — Pick attack variation must be deterministic but not cloned
 
 Repeated same-note attacks need small contact/release differences, but offline rendering and reviewer checks still need repeatability. Seeding the voice from note, channel, assigned string/fret, render sample time, stroke direction, gesture, and a resettable attack counter gives varied attacks inside a phrase while rendering the same MIDI and parameters byte-identically.
+
+## 2026-05-10 — The pickup hears string motion, not a pick-noise bus
+
+When an attack sounds like a brittle object, the tempting fix is a "pick noise volume" slider, but the physical model should first ask which string motions caused that sound. EG-073 treats the control as `Pick Bite`: how much edge contact, scrape, coherent contact ring, and chirp are imprinted into the string at release. This keeps the mental model aligned with the pickup capturing string motion rather than mixing an independent foley layer.
+
+String age should influence picked attacks because the pick is exciting the same physical string. It should not simply lower every attack component; aged strings can have more surface friction, but the high-Q bright contact ring and chirp should dull faster than the body of the note.

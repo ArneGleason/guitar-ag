@@ -163,11 +163,11 @@ Manual checks for the current VST3 build:
 - No sound is produced when no MIDI note is held.
 - MIDI note-on produces the modeled clean-DI guitar tone.
 - MIDI note-off releases the tone.
-- New plugin instances should open as `v0.2.6 / StringVoice EG-072 PickStrokePlectrum`.
+- New plugin instances should open as `v0.2.6 / StringVoice EG-073 PlasticPickBite`.
 - `Distorted Return` should be enabled by default on new instances.
 - High `Amp Feedback` should bloom after picked attacks rather than grabbing the start of the note immediately.
 - With MPE enabled in the DAW and plugin, per-note pitch bend, channel pressure, and CC74 should affect only the matching member-channel voice.
-- The editor identity line should show the current model label, for example `StringVoice EG-072 PickStrokePlectrum`.
+- The editor identity line should show the current model label, for example `StringVoice EG-073 PlasticPickBite`.
 
 ## Release Packaging
 

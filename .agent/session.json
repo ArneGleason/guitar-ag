@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Implement first-pass normal plastic plectrum and pick stroke modes",
-  "status": "EG-072 PickStrokePlectrum implemented, built, installed, and ready for review",
-  "updatedAt": "2026-05-10T09:13:36-04:00",
-  "lastHandoff": ".agent/handoffs/20260510-091336-codex-pick-stroke-plectrum.md",
+  "lastTask": "Retune plastic pick bite and string-age coupling",
+  "status": "EG-073 PlasticPickBite implemented, built, installed, and ready for review",
+  "updatedAt": "2026-05-10T09:36:03-04:00",
+  "lastHandoff": ".agent/handoffs/20260510-093603-codex-plastic-pick-bite.md",
   "branch": "main",
-  "commit": "EG-072 PickStrokePlectrum implementation will be the latest pushed main commit after Codex commit",
+  "commit": "EG-073 PlasticPickBite implementation will be the latest pushed main commit after Codex commit",
   "projectState": {
-    "summary": "EG-072 adds Pick Stroke Down/Up/Alternate, deterministic per-attack variation, and a less tonal normal plastic-pick attack. Build/install succeeded locally. Next likely step is Antigravity review followed by human DAW audition of isolated picked lines."
+    "summary": "EG-073 adds Pick Bite, makes the normal plastic-pick contact less brittle/glassy, widens deterministic angle/depth variation, and couples String Age into pick-contact brightness. Build/install succeeded locally. Next likely step is Antigravity review followed by human DAW audition of isolated picked lines."
   }
 }

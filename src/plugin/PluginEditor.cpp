@@ -432,6 +432,14 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "Technical: 0% is close to a smooth frictionless release. Around 50% is a normal plastic-pick snap. The top range adds "
                          "rougher, coin-like contact texture to the excitation.");
 
+    configureLabel (pickBiteLabel, "Pick Bite");
+    configureSlider (pickBiteSlider, juce::Colour (0xffffa36f));
+    configureInfoButton (pickBiteInfoButton,
+                         "Set how strongly the pick contact imprints itself on the string attack.\n\n"
+                         "Technical: this is not a separate click volume. Lower values keep the pick mostly as a string displacement/release. "
+                         "Higher values make the edge contact, short scrape, and attack chirp more pronounced. String Age darkens this imprint "
+                         "along with the string's upper partial response.");
+
     configureLabel (pickStrokeLabel, "Pick Stroke");
     configureInfoButton (pickStrokeInfoButton,
                          "Choose the picking direction used for newly picked notes.\n\n"
@@ -572,6 +580,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     pickTextureAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::pickTextureParameterId,
                                                                pickTextureSlider);
+    pickBiteAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                             GuitarAgAudioProcessor::pickBiteParameterId,
+                                                             pickBiteSlider);
     pickStrokeAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
                                                                  GuitarAgAudioProcessor::pickStrokeParameterId,
                                                                  pickStrokeBox);
@@ -823,6 +834,10 @@ void GuitarAgAudioProcessorEditor::resized()
         layoutLabelAndInfo (textureBounds, pickTextureLabel, pickTextureInfoButton);
         pickTextureSlider.setBounds (textureBounds);
 
+        auto biteBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (biteBounds, pickBiteLabel, pickBiteInfoButton);
+        pickBiteSlider.setBounds (biteBounds);
+
         auto strokeBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (strokeBounds, pickStrokeLabel, pickStrokeInfoButton);
         pickStrokeBox.setBounds (strokeBounds.reduced (0, 4));
@@ -1052,6 +1067,9 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&pickTextureLabel),
                              static_cast<juce::Component*> (&pickTextureInfoButton),
                              static_cast<juce::Component*> (&pickTextureSlider),
+                             static_cast<juce::Component*> (&pickBiteLabel),
+                             static_cast<juce::Component*> (&pickBiteInfoButton),
+                             static_cast<juce::Component*> (&pickBiteSlider),
                              static_cast<juce::Component*> (&pickStrokeLabel),
                              static_cast<juce::Component*> (&pickStrokeInfoButton),
                              static_cast<juce::Component*> (&pickStrokeBox),

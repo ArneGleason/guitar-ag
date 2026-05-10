@@ -23,7 +23,8 @@ void printUsage()
 {
     std::cout << "Usage: GuitarAGOfflineRender --midi <input.mid> --output <output.wav> "
                  "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
-                 "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5] [--pick-stroke alternate] [--palm-mute 0.0] "
+                 "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5] [--pick-bite 0.5] "
+                 "[--pick-stroke alternate] [--palm-mute 0.0] "
                  "[--harmonic-touch 0.0] [--string-age 0.0] [--bridge-intonation 0.0] "
                  "[--fret-pressure 0.0] [--aftertouch-bend 2.0] [--neck-slide 0.0] [--neck-slide-at seconds] "
                  "[--slide-fret-steps 0.65] [--slide-lift 0.0] [--slide-squeak-up 0.2] [--slide-squeak-down 0.2] "
@@ -128,6 +129,7 @@ int main (int argc, char* argv[])
     auto sustain = 1.0f;
     auto pickStiffness = 0.5f;
     auto pickTexture = 0.5f;
+    auto pickBite = 0.5f;
     auto pickStrokeMode = 2;
     auto palmMute = 0.0f;
     auto harmonicTouch = 0.0f;
@@ -204,6 +206,10 @@ int main (int argc, char* argv[])
         else if (argument == "--pick-texture" && hasValue)
         {
             pickTexture = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--pick-bite" && hasValue)
+        {
+            pickBite = juce::String (argv[++i]).getFloatValue();
         }
         else if (argument == "--pick-stroke" && hasValue)
         {
@@ -449,6 +455,7 @@ int main (int argc, char* argv[])
     engine.setTailSustain (sustain);
     engine.setPickStiffness (pickStiffness);
     engine.setPickTexture (pickTexture);
+    engine.setPickBite (pickBite);
     engine.setPickStrokeMode (pickStrokeMode);
     engine.setPalmMute (palmMute);
     engine.setHarmonicTouch (harmonicTouch);

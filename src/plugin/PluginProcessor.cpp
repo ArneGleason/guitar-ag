@@ -10,6 +10,7 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     tailSustainParameter = parameters.getRawParameterValue (tailSustainParameterId);
     pickStiffnessParameter = parameters.getRawParameterValue (pickStiffnessParameterId);
     pickTextureParameter = parameters.getRawParameterValue (pickTextureParameterId);
+    pickBiteParameter = parameters.getRawParameterValue (pickBiteParameterId);
     pickStrokeParameter = parameters.getRawParameterValue (pickStrokeParameterId);
     palmMuteParameter = parameters.getRawParameterValue (palmMuteParameterId);
     harmonicTouchParameter = parameters.getRawParameterValue (harmonicTouchParameterId);
@@ -375,6 +376,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
             .withStringFromValueFunction (percentString)
             .withValueFromStringFunction (percentValue)));
 
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { pickBiteParameterId, 1 },
+        "Pick Bite",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.5f,
+        juce::AudioParameterFloatAttributes()
+            .withLabel ("%")
+            .withStringFromValueFunction (percentString)
+            .withValueFromStringFunction (percentValue)));
+
     layout.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { pickStrokeParameterId, 1 },
         "Pick Stroke",
@@ -431,6 +442,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setTailSustain (tailSustainParameter != nullptr ? tailSustainParameter->load() : 1.0f);
     audioEngine.setPickStiffness (pickStiffnessParameter != nullptr ? pickStiffnessParameter->load() : 0.5f);
     audioEngine.setPickTexture (pickTextureParameter != nullptr ? pickTextureParameter->load() : 0.5f);
+    audioEngine.setPickBite (pickBiteParameter != nullptr ? pickBiteParameter->load() : 0.5f);
     audioEngine.setPickStrokeMode (pickStrokeParameter != nullptr ? juce::roundToInt (pickStrokeParameter->load()) : 2);
     audioEngine.setPalmMute (palmMuteParameter != nullptr ? palmMuteParameter->load() : 0.0f);
     audioEngine.setHarmonicTouch (harmonicTouchParameter != nullptr ? harmonicTouchParameter->load() : 0.0f);

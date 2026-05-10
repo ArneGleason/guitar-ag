@@ -607,3 +607,17 @@ Accepted
 
 Consequences:
 `Pick Stiffness` and `Pick Texture` remain the main continuous pick-character controls. `Pick Stroke` defaults to `Alternate` and only advances on picked note starts, leaving hammer-ons, pull-offs, and taps out of the alternating count. The implementation still intentionally avoids fingerpicking/nail models until the normal plectrum baseline is musically solid.
+
+## 2026-05-10 — Treat pick controls as interaction variables, not sample-layer volume
+
+Decision:
+Add `Pick Bite` as the strength of the pick/string contact imprint rather than as a separate pick-noise volume control.
+
+Reason:
+In this physical model, the pickup does not hear an independent pick-click track. It hears the string motion caused by the pick displacing, scraping, and releasing the string, then filtered by speaking length, pickup position, and string damping. A user-facing control still needs to balance the audible attack, but the implementation should scale physically interpretable contact terms: edge imprint, scrape, short contact ring, and attack chirp.
+
+Status:
+Accepted
+
+Consequences:
+`Pick Bite` leaves the main string displacement/release intact at low values and changes the contact imprint layered into the attack. `String Age` now damps the bright pick-contact fingerprint more explicitly because an older string should not present the same clean high-Q contact response as a brand-new string. This pattern should guide future player-interpretation controls: map UI to plausible player/string interactions first, then only use "amount" controls where the physical interaction really needs a balance.

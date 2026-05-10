@@ -37,6 +37,7 @@ public:
                 const FretboardAssignment& assignment,
                 float pickStiffness,
                 float pickTexture,
+                float pickBite,
                 float harmonicTouch,
                 float stringAge,
                 float bridgeIntonation,
@@ -207,6 +208,7 @@ private:
     float pickContactRingDecay = 0.0f;
     float pickContactPhase = 0.0f;
     float pickContactPhaseStep = 0.0f;
+    float pickContactScratchHighpass = 0.84f;
     float pickGrindAmount = 0.0f;
     float pickGrindDecay = 0.0f;
     float pickGrindPhase = 0.0f;

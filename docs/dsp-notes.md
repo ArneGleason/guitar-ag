@@ -1687,6 +1687,30 @@ Human audition after EG-071 found that staggered chords feel much more convincin
 - The default plastic-pick region has less exposed tonal contact ring and shorter chirp/transient decay. High `Pick Texture` still reaches rougher/coin-like contact regimes, but the ordinary midpoint is protected from sounding like a synthetic oscillator attack.
 - `GuitarAGOfflineRender` accepts `--pick-stroke down|up|alternate`.
 
+## 2026-05-10 — EG-073 Plastic Pick Bite
+
+Human DAW audition found EG-072 useful but still too much like a substantial brittle/glassy pick on isolated notes. EG-073 keeps the same single-plastic-plectrum scope and changes the physical interpretation:
+
+- Added `Pick Bite` as a 0% to 100% parameter. It is the strength of the pick/string contact imprint, not a separate pick-click volume.
+- Low `Pick Bite` leaves the attack closer to pure string displacement/release. Higher values emphasize edge contact, short scrape, contact ring, chirp modes, and high-texture regimes.
+- The default contact model is less rigid:
+  - rough `highTexture` behavior starts later in the `Pick Texture` range;
+  - local pick contact is broader/complier at normal settings;
+  - contact ring level, decay, and carrier frequency are reduced;
+  - chirp modes are lower, shorter, and more age-damped.
+- Deterministic attack variation now includes extra pick-depth and pick-angle scatter, affecting pluck offset, contact strength, contact carrier, and attack-mode gain.
+- `String Age` now darkens the pick-contact fingerprint more explicitly:
+  - it lowers coherent contact ring/chirp brightness;
+  - it shortens bright contact decay;
+  - it lowers the contact-scratch high-pass coefficient so older-string pick scrape is less brand-new and glassy.
+- `GuitarAGOfflineRender` accepts `--pick-bite`.
+
+Physical framing for future player interpretation:
+
+- The pickup hears string motion, not an independent pick-noise bus.
+- Controls should map to player/string interactions where possible: pick compliance, stroke direction, contact bite, fretting pressure, slide motion, and timing.
+- When a practical amount slider is needed, it should scale the modeled interaction terms rather than bypass the physical signal path.
+
 ## Suggested MVP Signal Flow
 
 ```text

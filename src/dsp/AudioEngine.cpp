@@ -48,6 +48,8 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     pickStiffness.setCurrentAndTargetValue (0.5f);
     pickTexture.reset (sampleRate, 0.035);
     pickTexture.setCurrentAndTargetValue (0.5f);
+    pickBite.reset (sampleRate, 0.035);
+    pickBite.setCurrentAndTargetValue (0.5f);
     palmMute.reset (sampleRate, 0.020);
     palmMute.setCurrentAndTargetValue (0.0f);
     harmonicTouch.reset (sampleRate, 0.020);
@@ -130,6 +132,7 @@ void AudioEngine::reset()
     tailSustain.setCurrentAndTargetValue (tailSustain.getTargetValue());
     pickStiffness.setCurrentAndTargetValue (pickStiffness.getTargetValue());
     pickTexture.setCurrentAndTargetValue (pickTexture.getTargetValue());
+    pickBite.setCurrentAndTargetValue (pickBite.getTargetValue());
     palmMute.setCurrentAndTargetValue (palmMute.getTargetValue());
     harmonicTouch.setCurrentAndTargetValue (harmonicTouch.getTargetValue());
     stringAge.setCurrentAndTargetValue (stringAge.getTargetValue());
@@ -179,6 +182,11 @@ void AudioEngine::setPickStiffness (float newPickStiffness) noexcept
 void AudioEngine::setPickTexture (float newPickTexture) noexcept
 {
     pickTexture.setTargetValue (juce::jlimit (0.0f, 1.0f, newPickTexture));
+}
+
+void AudioEngine::setPickBite (float newPickBite) noexcept
+{
+    pickBite.setTargetValue (juce::jlimit (0.0f, 1.0f, newPickBite));
 }
 
 void AudioEngine::setPickStrokeMode (int newPickStrokeMode) noexcept
@@ -452,6 +460,7 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         const auto slideSqueakDownAmount = slideSqueakDown.getNextValue();
         pickStiffness.getNextValue();
         pickTexture.getNextValue();
+        pickBite.getNextValue();
         harmonicTouch.getNextValue();
         stringAge.getNextValue();
         bridgeIntonation.getNextValue();
@@ -927,6 +936,7 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
 
     const auto notePickStiffness = pickStiffness.getTargetValue();
     const auto notePickTexture = pickTexture.getTargetValue();
+    const auto notePickBite = pickBite.getTargetValue();
     const auto noteHarmonicTouch = harmonicTouch.getTargetValue();
     const auto noteStringAge = stringAge.getTargetValue();
     const auto noteBridgeIntonation = bridgeIntonation.getTargetValue();
@@ -950,6 +960,7 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
                  assignment,
                  notePickStiffness,
                  notePickTexture,
+                 notePickBite,
                  noteHarmonicTouch,
                  noteStringAge,
                  noteBridgeIntonation,
