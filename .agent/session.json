@@ -23,14 +23,14 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Prepare and publish v0.3.0 release",
-  "status": "v0.3.0 is published on GitHub with the macOS VST3 release asset.",
-  "updatedAt": "2026-05-10T14:22:27-04:00",
+  "lastTask": "Add noncommercial project license",
+  "status": "Adding PolyForm Noncommercial 1.0.0 license, required notices, commercial-use guidance, and contribution notes after v0.3.0 release.",
+  "updatedAt": "2026-05-10T14:35:00-04:00",
   "lastHandoff": ".agent/handoffs/20260510-174500-antigravity-eg081-artic-groups.md",
   "branch": "main",
   "commit": "69269db",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.0",
   "projectState": {
-    "summary": "EG-081 reorganized Articulation controls into parent/subordinate groups and changed new-instance defaults to Pick Texture 25%, Strum Speed 10%, Strum Balance -13%, and Player Feel 50%. Antigravity verified the pass, the human Bitwig audition accepted it, and v0.3.0 was published as the slide/strum/player-feel release."
+    "summary": "v0.3.0 was published as the slide/strum/player-feel release. The repository is now being marked as source-available for noncommercial use under PolyForm Noncommercial 1.0.0, with required attribution notices and separate notes for commercial permission and contributions."
   }
 }

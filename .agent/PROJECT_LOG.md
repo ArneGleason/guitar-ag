@@ -71,3 +71,4 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Human Bitwig audition accepted the EG-081 release-candidate build.
 - Began the formal `v0.3.0` release pass: version bump, README refresh, user-facing release notes, macOS VST3 packaging, and GitHub release publication.
 - Published `v0.3.0` on GitHub as `Guitar AG v0.3.0 - Slide, Strum, and Player Feel` with `GuitarAG-v0.3.0-macOS-vst3.zip`.
+- Added PolyForm Noncommercial 1.0.0 licensing with required notices, commercial-use guidance, and contribution notes.

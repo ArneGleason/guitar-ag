@@ -311,4 +311,10 @@ The current aim is simpler and more fun: a compact modeled electric guitar instr
 
 ## License
 
-No explicit license has been added yet. Treat the code as private/all-rights-reserved until a license file is added.
+Guitar AG's own source code is released for **noncommercial** use under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+In practical terms: you may study it, build it, modify it, share it, fork it, and contribute changes back for noncommercial purposes, provided the license and required notices stay with the software. Commercial use, paid redistribution, commercial plugin bundles, and commercial modified builds require separate permission from the repository owner.
+
+Because the license restricts commercial use, this is best described as **source-available noncommercial software**, not OSI-approved open source.
+
+See [NOTICE](NOTICE) for required attribution notices, [COMMERCIAL.md](COMMERCIAL.md) for commercial-use guidance, and [CONTRIBUTING.md](CONTRIBUTING.md) for contribution notes. External dependencies such as JUCE remain under their own licenses.

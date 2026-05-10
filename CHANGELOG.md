@@ -6,7 +6,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ## Unreleased
 
-- No unreleased changes yet.
+### Added
+
+- Added the PolyForm Noncommercial License 1.0.0, required notices, commercial-use guidance, and contribution notes.
 
 ## v0.3.0 - 2026-05-10
 
