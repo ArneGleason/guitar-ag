@@ -521,6 +521,12 @@ The perceptual balance of slide squeak can differ by direction. Upward throws an
 
 For presets, host state recall and in-plugin preset browsing are related but not the same thing. The current JUCE/APVTS state chunk is enough for DAW sessions; a useful Guitar AG preset system should add named files around that parameter state so stock and user sounds can be curated without changing DSP code.
 
+## 2026-05-10 — Single-note pick attack still exposes synthetic contact
+
+Chord/strum examples can sound convincing because staggered note starts and different note/string seeds smear the attack into a plausible gesture. Single-note lines expose the current contact model more nakedly: the attack can sound like a tonal digital chirp rather than a plectrum contacting and releasing a string.
+
+The current note-start random seed uses only MIDI note and channel, so repeated same-note attacks can reuse the same transient fingerprint. A better pick pass should include deterministic per-attack variation, pick direction, and a more physical contact/release envelope before adding many pick material choices.
+
 ## 2026-05-10 — Slide noise and note finger noise need separate balances
 
 The motion-coupled slide squeak is now musically useful, but the older note approach/release `Finger Noise` layer is still not at the same realism level. Keeping them on separate controls lets slide gestures be balanced immediately without overcommitting to the older noise model.

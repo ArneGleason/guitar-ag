@@ -74,6 +74,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Added offline-renderer `--slide-squeak-up` and `--slide-squeak-down` support while preserving `--slide-squeak` as the legacy/upward alias.
 - Added `plans/0072-preset-model.md` to define the recommended stock/user preset architecture before implementing preset UI.
 - Changed the model label to `StringVoice EG-071 SlideSqueakDirection`.
+- Added `plans/0073-pick-attack-research.md` to diagnose the synthetic single-note pick attack and outline a direction-aware plectrum improvement pass.
 
 ### Fixed
 

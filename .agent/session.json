@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Split slide squeak balance by movement direction",
-  "status": "EG-071 implementation awaiting review",
-  "updatedAt": "2026-05-10T08:30:10-04:00",
+  "lastTask": "Research synthetic single-note pick attack",
+  "status": "pick-attack research documented",
+  "updatedAt": "2026-05-10T08:53:43-04:00",
   "lastHandoff": ".agent/handoffs/20260510-083010-codex-slide-squeak-direction.md",
   "branch": "main",
   "commit": "EG-071 SlideSqueakDirection implementation will be the latest pushed main commit after Codex commit",
   "projectState": {
-    "summary": "EG-071 splits slide squeak amount into upward and downward controls under the Neck Slide disclosure, preserving the old slideSqueak parameter ID for upward compatibility. Preset architecture is planned separately in plans/0072-preset-model.md."
+    "summary": "EG-071 is pushed and installed. Human audition accepted up/down slide squeak controls. Pick-attack research is documented in plans/0073-pick-attack-research.md; next likely implementation is an EG-072 plectrum/stroke pass."
   }
 }

@@ -53,3 +53,4 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Implemented `StringVoice EG-070 PerformanceUi`, capping `Slide Squeak` at 100%, defaulting it to 20%, and grouping Performance controls under disclosure rows.
 - Implemented `StringVoice EG-071 SlideSqueakDirection`, splitting slide squeak balance into upward and downward controls under the `Neck Slide` disclosure.
 - Added `plans/0072-preset-model.md` to define the stock/user preset architecture before implementing preset browser/export UI.
+- Added `plans/0073-pick-attack-research.md` after human DAW feedback that strummed chords sound convincing but isolated single-note pick attacks still sound synthetic.

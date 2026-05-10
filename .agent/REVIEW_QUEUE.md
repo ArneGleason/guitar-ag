@@ -11,11 +11,13 @@ Suggested focus:
 - Confirm `StringVoice::slideFretDirection` only affects slide contact squeak/scrape amount selection and does not alter pitch, MPE, whammy, `Fret Steps`, or `Slide Lift`.
 - Confirm the Performance page shows `Squeak Up` and `Squeak Down` under `Neck Slide` with complete info notes.
 - Review `plans/0072-preset-model.md` for architecture sanity, treating it as planning-only.
+- Review `plans/0073-pick-attack-research.md` for pick-attack diagnosis and the proposed `Pick Stroke` / plectrum-model direction, treating it as planning-only.
 
 Known limitations:
 
 - EG-071 uses one persisted last-direction value per voice, so overlapping up/down contact tails are direction-approximated rather than separately accumulated.
 - The preset model is planned but not implemented.
+- The pick-attack research is planned but not implemented. Current single-note picked attacks may still sound synthetic until an EG-072-style plectrum pass is done.
 - EG-066 is still an approximation of lifted fretting pressure. Same-string speaking-length preservation remains future work.
 - DAW verification is still required for the lookahead/expression timing fix.
 - DAW listening is required for the new 4-sample pitch control-rate optimization.
