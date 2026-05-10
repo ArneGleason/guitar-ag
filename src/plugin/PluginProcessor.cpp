@@ -179,8 +179,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { slideSqueakParameterId, 1 },
         "Slide Squeak",
-        juce::NormalisableRange<float> { 0.0f, 2.0f, 0.001f, 1.0f },
-        1.0f,
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f, 1.0f },
+        0.20f,
         juce::AudioParameterFloatAttributes()
             .withLabel ("%")
             .withStringFromValueFunction (percentString)
@@ -422,7 +422,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     audioEngine.setNeckSlideSemitones (neckSlideParameter != nullptr ? neckSlideParameter->load() : 0.0f);
     audioEngine.setSlideFretSteps (slideFretStepsParameter != nullptr ? slideFretStepsParameter->load() : 0.65f);
     audioEngine.setSlideLift (slideLiftParameter != nullptr ? slideLiftParameter->load() : 0.0f);
-    audioEngine.setSlideSqueak (slideSqueakParameter != nullptr ? slideSqueakParameter->load() : 1.0f);
+    audioEngine.setSlideSqueak (slideSqueakParameter != nullptr ? slideSqueakParameter->load() : 0.20f);
     const auto newLatencySamples = getLookaheadSamples();
 
     if (newLatencySamples != currentLatencySamples)

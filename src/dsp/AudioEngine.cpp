@@ -67,7 +67,7 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     slideLift.reset (sampleRate, 0.030);
     slideLift.setCurrentAndTargetValue (0.0f);
     slideSqueak.reset (sampleRate, 0.030);
-    slideSqueak.setCurrentAndTargetValue (1.0f);
+    slideSqueak.setCurrentAndTargetValue (0.20f);
     legatoArticulation.reset (sampleRate, 0.035);
     legatoArticulation.setCurrentAndTargetValue (0.0f);
     ampFeedback.reset (sampleRate, 0.080);
@@ -234,7 +234,7 @@ void AudioEngine::setSlideLift (float newSlideLift) noexcept
 
 void AudioEngine::setSlideSqueak (float newSlideSqueak) noexcept
 {
-    slideSqueak.setTargetValue (juce::jlimit (0.0f, 2.0f, newSlideSqueak));
+    slideSqueak.setTargetValue (juce::jlimit (0.0f, 1.0f, newSlideSqueak));
 }
 
 void AudioEngine::setLegatoArticulation (float newLegatoArticulation) noexcept

@@ -551,3 +551,17 @@ Accepted
 
 Consequences:
 `Slide Squeak` defaults to 100%, preserving the EG-068 balance. It ranges from 0% to 200%, scaling only slide contact squeak/scrape output. `Finger Noise` remains available for approach/release noises and can be revisited separately.
+
+## 2026-05-10 — Group Performance controls by primary gesture
+
+Decision:
+Reorganize the Performance page so primary gesture controls stay visible while related character/timing controls live under small disclosure rows.
+
+Reason:
+The Performance page had enough controls that `Amp Feedback` return-character controls were pushed out of reach. Human feedback also made the control taxonomy clearer: `Neck Slide` is the primary gesture, while `Fret Steps`, `Slide Lift`, and `Slide Squeak` shape that gesture; `Lookahead` is a timing detail for `Finger Noise`; `Return Clip` is a character detail for `Amp Feedback`.
+
+Status:
+Accepted
+
+Consequences:
+The page now has a two-level structure without changing the existing top-level tabs. Secondary sliders remain column-aligned with primary sliders, but their labels are visually quieter. `Slide Squeak` is capped at 100% with a 20% default based on human audition.

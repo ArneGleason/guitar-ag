@@ -132,6 +132,16 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] `Slide Squeak` at 100% matches the EG-068 balance.
 - [ ] `Slide Squeak` above 100% boosts slide finger noise without changing the older `Finger Noise` approach/release layer.
 
+## EG-070 Performance UI Checks
+
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-070 PerformanceUi`.
+- [ ] `Slide Squeak` is a 0% to 100% slider and defaults to 20%.
+- [ ] The Performance page shows primary rows for `Fret Pressure`, `Aftertouch Bend`, `Neck Slide`, `Finger Noise`, and `Amp Feedback`.
+- [ ] The `Neck Slide` disclosure reveals `Fret Steps`, `Slide Lift`, and `Slide Squeak`.
+- [ ] The `Finger Noise` disclosure reveals `Lookahead`.
+- [ ] The `Amp Feedback` disclosure reveals `Return Clip`.
+- [ ] Secondary rows keep the same slider alignment and do not push `Amp Feedback` out of reach.
+
 ## Pickup Checks
 
 - [ ] `Single Coil` remains narrow and bright.

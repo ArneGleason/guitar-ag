@@ -520,3 +520,7 @@ A fixed-pitch squeak carrier under a random scrape floor still reads as hiss in 
 ## 2026-05-10 — Slide noise and note finger noise need separate balances
 
 The motion-coupled slide squeak is now musically useful, but the older note approach/release `Finger Noise` layer is still not at the same realism level. Keeping them on separate controls lets slide gestures be balanced immediately without overcommitting to the older noise model.
+
+## 2026-05-10 — Performance controls need primary/character hierarchy
+
+As the instrument gains expressive controls, a flat Performance page hides important controls by making every tweak look equally primary. The usable taxonomy is gesture first, then character: keep the thing a player automates most visible, and tuck shaping details beneath it without moving the slider column.

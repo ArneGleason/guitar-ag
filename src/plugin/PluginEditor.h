@@ -19,11 +19,17 @@ private:
     using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
     void configureSectionButton (juce::TextButton& button, const juce::String& title);
+    void configureDisclosureButton (juce::TextButton& button);
     void configureInfoButton (juce::TextButton& button, const juce::String& infoText);
     void showInfoPopover (juce::Component& source, const juce::String& infoText);
     void layoutLabelAndInfo (juce::Rectangle<int>& row, juce::Label& label, juce::TextButton& infoButton) noexcept;
+    void layoutLabelInfoDisclosure (juce::Rectangle<int>& row,
+                                    juce::Label& label,
+                                    juce::TextButton& infoButton,
+                                    juce::TextButton& disclosureButton) noexcept;
     void setActivePage (int pageIndex);
     void updateSectionVisibility();
+    void updateDisclosureButtons();
     [[nodiscard]] int getPreferredHeight() const noexcept;
 
     GuitarAgAudioProcessor& audioProcessor;
@@ -35,6 +41,9 @@ private:
     juce::TextButton mpeSectionButton;
     juce::TextButton whammySectionButton;
     juce::TextButton articulationSectionButton;
+    juce::TextButton slideTweaksButton;
+    juce::TextButton fingerNoiseTweaksButton;
+    juce::TextButton feedbackTweaksButton;
     juce::Slider sustainSlider;
     juce::Slider stringAgeSlider;
     juce::Slider bridgeIntonationSlider;
@@ -169,6 +178,9 @@ private:
     std::unique_ptr<SliderAttachment> palmMuteAttachment;
     std::unique_ptr<SliderAttachment> harmonicTouchAttachment;
     int activePage = 0;
+    bool slideTweaksOpen = true;
+    bool fingerNoiseTweaksOpen = false;
+    bool feedbackTweaksOpen = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAgAudioProcessorEditor)
 };

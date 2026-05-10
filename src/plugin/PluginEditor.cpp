@@ -81,6 +81,15 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureSectionButton (mpeSectionButton, "MPE");
     configureSectionButton (whammySectionButton, "Whammy");
     configureSectionButton (articulationSectionButton, "Artic");
+    configureDisclosureButton (slideTweaksButton);
+    configureDisclosureButton (fingerNoiseTweaksButton);
+    configureDisclosureButton (feedbackTweaksButton);
+    slideTweaksButton.setTooltip ("Show slide character controls.");
+    fingerNoiseTweaksButton.setTooltip ("Show finger-noise timing controls.");
+    feedbackTweaksButton.setTooltip ("Show feedback character controls.");
+    configureDisclosureButton (slideTweaksButton);
+    configureDisclosureButton (fingerNoiseTweaksButton);
+    configureDisclosureButton (feedbackTweaksButton);
 
     setupSectionButton.onClick = [this]
     {
@@ -115,6 +124,42 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     articulationSectionButton.onClick = [this]
     {
         setActivePage (6);
+    };
+
+    slideTweaksButton.onClick = [this]
+    {
+        slideTweaksOpen = ! slideTweaksOpen;
+        updateSectionVisibility();
+    };
+
+    fingerNoiseTweaksButton.onClick = [this]
+    {
+        fingerNoiseTweaksOpen = ! fingerNoiseTweaksOpen;
+        updateSectionVisibility();
+    };
+
+    feedbackTweaksButton.onClick = [this]
+    {
+        feedbackTweaksOpen = ! feedbackTweaksOpen;
+        updateSectionVisibility();
+    };
+
+    slideTweaksButton.onClick = [this]
+    {
+        slideTweaksOpen = ! slideTweaksOpen;
+        updateSectionVisibility();
+    };
+
+    fingerNoiseTweaksButton.onClick = [this]
+    {
+        fingerNoiseTweaksOpen = ! fingerNoiseTweaksOpen;
+        updateSectionVisibility();
+    };
+
+    feedbackTweaksButton.onClick = [this]
+    {
+        feedbackTweaksOpen = ! feedbackTweaksOpen;
+        updateSectionVisibility();
     };
 
     configureLabel (sustainLabel, "Sustain");
@@ -219,7 +264,7 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureInfoButton (slideSqueakInfoButton,
                          "Set the volume of the finger/string noise created by Neck Slide motion.\n\n"
                          "Technical: this scales only the slide contact squeak/scrape layer. It does not change slide pitch, Fret Steps, "
-                         "Slide Lift damping, or the older note approach/release Finger Noise layer. 100% is the EG-068 balance.");
+                         "Slide Lift damping, or the older note approach/release Finger Noise layer. 100% is the maximum EG-068 balance.");
 
     configureLabel (lookaheadLabel, "Lookahead");
     configureInfoButton (lookaheadInfoButton,
@@ -261,6 +306,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "Choose whether the feedback return comes back clean or clipped.\n\n"
                          "Technical: On is the default because the clipped return gives the resonator bank a more amp-like source and reduces "
                          "early harmonic chirp. Off uses a cleaner DI-like return that listens to the shaped output.");
+
+    for (auto* label : { &slideFretStepsLabel, &slideLiftLabel, &slideSqueakLabel, &lookaheadLabel, &feedbackReturnLabel })
+        label->setColour (juce::Label::textColourId, juce::Colour (0xffa9b7c3));
 
     configureLabel (vibratoSpeedLabel, "Speed");
     configureSlider (vibratoSpeedSlider, juce::Colour (0xff82cfff));
@@ -617,45 +665,56 @@ void GuitarAgAudioProcessorEditor::resized()
 
     if (activePage == 2)
     {
-        auto pressureBounds = bounds.removeFromTop (36);
+        constexpr auto rowHeight = 32;
+
+        auto pressureBounds = bounds.removeFromTop (rowHeight);
         layoutLabelAndInfo (pressureBounds, fretPressureLabel, fretPressureInfoButton);
         fretPressureSlider.setBounds (pressureBounds);
 
-        auto aftertouchBounds = bounds.removeFromTop (36);
+        auto aftertouchBounds = bounds.removeFromTop (rowHeight);
         layoutLabelAndInfo (aftertouchBounds, aftertouchBendLabel, aftertouchBendInfoButton);
         aftertouchBendSlider.setBounds (aftertouchBounds);
 
-        auto neckSlideBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (neckSlideBounds, neckSlideLabel, neckSlideInfoButton);
+        auto neckSlideBounds = bounds.removeFromTop (rowHeight);
+        layoutLabelInfoDisclosure (neckSlideBounds, neckSlideLabel, neckSlideInfoButton, slideTweaksButton);
         neckSlideSlider.setBounds (neckSlideBounds);
 
-        auto slideFretStepsBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (slideFretStepsBounds, slideFretStepsLabel, slideFretStepsInfoButton);
-        slideFretStepsSlider.setBounds (slideFretStepsBounds);
+        if (slideTweaksOpen)
+        {
+            auto slideFretStepsBounds = bounds.removeFromTop (rowHeight);
+            layoutLabelAndInfo (slideFretStepsBounds, slideFretStepsLabel, slideFretStepsInfoButton);
+            slideFretStepsSlider.setBounds (slideFretStepsBounds);
 
-        auto slideLiftBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (slideLiftBounds, slideLiftLabel, slideLiftInfoButton);
-        slideLiftSlider.setBounds (slideLiftBounds);
+            auto slideLiftBounds = bounds.removeFromTop (rowHeight);
+            layoutLabelAndInfo (slideLiftBounds, slideLiftLabel, slideLiftInfoButton);
+            slideLiftSlider.setBounds (slideLiftBounds);
 
-        auto slideSqueakBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (slideSqueakBounds, slideSqueakLabel, slideSqueakInfoButton);
-        slideSqueakSlider.setBounds (slideSqueakBounds);
+            auto slideSqueakBounds = bounds.removeFromTop (rowHeight);
+            layoutLabelAndInfo (slideSqueakBounds, slideSqueakLabel, slideSqueakInfoButton);
+            slideSqueakSlider.setBounds (slideSqueakBounds);
+        }
 
-        auto lookaheadBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (lookaheadBounds, lookaheadLabel, lookaheadInfoButton);
-        lookaheadBox.setBounds (lookaheadBounds.reduced (0, 4));
-
-        auto fingerNoiseBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (fingerNoiseBounds, fingerNoiseLabel, fingerNoiseInfoButton);
+        auto fingerNoiseBounds = bounds.removeFromTop (rowHeight);
+        layoutLabelInfoDisclosure (fingerNoiseBounds, fingerNoiseLabel, fingerNoiseInfoButton, fingerNoiseTweaksButton);
         fingerNoiseSlider.setBounds (fingerNoiseBounds);
 
-        auto feedbackBounds = bounds.removeFromTop (36);
-        layoutLabelAndInfo (feedbackBounds, ampFeedbackLabel, ampFeedbackInfoButton);
+        if (fingerNoiseTweaksOpen)
+        {
+            auto lookaheadBounds = bounds.removeFromTop (rowHeight);
+            layoutLabelAndInfo (lookaheadBounds, lookaheadLabel, lookaheadInfoButton);
+            lookaheadBox.setBounds (lookaheadBounds.reduced (0, 4));
+        }
+
+        auto feedbackBounds = bounds.removeFromTop (rowHeight);
+        layoutLabelInfoDisclosure (feedbackBounds, ampFeedbackLabel, ampFeedbackInfoButton, feedbackTweaksButton);
         ampFeedbackSlider.setBounds (feedbackBounds);
 
-        auto feedbackReturnBounds = bounds.removeFromTop (34);
-        layoutLabelAndInfo (feedbackReturnBounds, feedbackReturnLabel, feedbackReturnInfoButton);
-        feedbackReturnDistortedButton.setBounds (feedbackReturnBounds.removeFromLeft (190));
+        if (feedbackTweaksOpen)
+        {
+            auto feedbackReturnBounds = bounds.removeFromTop (rowHeight);
+            layoutLabelAndInfo (feedbackReturnBounds, feedbackReturnLabel, feedbackReturnInfoButton);
+            feedbackReturnDistortedButton.setBounds (feedbackReturnBounds.removeFromLeft (190));
+        }
     }
 
     if (activePage == 3)
@@ -770,6 +829,16 @@ void GuitarAgAudioProcessorEditor::configureSectionButton (juce::TextButton& but
     addAndMakeVisible (button);
 }
 
+void GuitarAgAudioProcessorEditor::configureDisclosureButton (juce::TextButton& button)
+{
+    button.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff1d2630));
+    button.setColour (juce::TextButton::buttonOnColourId, juce::Colour (0xff2f3d4b));
+    button.setColour (juce::TextButton::textColourOffId, juce::Colour (0xffb7c4d0));
+    button.setColour (juce::TextButton::textColourOnId, juce::Colour (0xffe8edf2));
+    button.setTriggeredOnMouseDown (false);
+    addAndMakeVisible (button);
+}
+
 void GuitarAgAudioProcessorEditor::configureInfoButton (juce::TextButton& button, const juce::String& infoText)
 {
     button.setButtonText ("i");
@@ -800,6 +869,17 @@ void GuitarAgAudioProcessorEditor::layoutLabelAndInfo (juce::Rectangle<int>& row
     infoButton.setBounds (labelArea.removeFromLeft (22).reduced (2, 7));
 }
 
+void GuitarAgAudioProcessorEditor::layoutLabelInfoDisclosure (juce::Rectangle<int>& row,
+                                                              juce::Label& label,
+                                                              juce::TextButton& infoButton,
+                                                              juce::TextButton& disclosureButton) noexcept
+{
+    auto labelArea = row.removeFromLeft (158);
+    label.setBounds (labelArea.removeFromLeft (104));
+    infoButton.setBounds (labelArea.removeFromLeft (22).reduced (2, 7));
+    disclosureButton.setBounds (labelArea.removeFromLeft (22).reduced (2, 7));
+}
+
 void GuitarAgAudioProcessorEditor::setActivePage (int pageIndex)
 {
     activePage = juce::jlimit (0, 6, pageIndex);
@@ -808,6 +888,8 @@ void GuitarAgAudioProcessorEditor::setActivePage (int pageIndex)
 
 void GuitarAgAudioProcessorEditor::updateSectionVisibility()
 {
+    updateDisclosureButtons();
+
     setupSectionButton.setToggleState (activePage == 0, juce::dontSendNotification);
     pickupSectionButton.setToggleState (activePage == 1, juce::dontSendNotification);
     performanceSectionButton.setToggleState (activePage == 2, juce::dontSendNotification);
@@ -847,8 +929,20 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&aftertouchBendSlider),
                              static_cast<juce::Component*> (&neckSlideLabel),
                              static_cast<juce::Component*> (&neckSlideInfoButton),
+                             static_cast<juce::Component*> (&slideTweaksButton),
                              static_cast<juce::Component*> (&neckSlideSlider),
-                             static_cast<juce::Component*> (&slideFretStepsLabel),
+                             static_cast<juce::Component*> (&fingerNoiseLabel),
+                             static_cast<juce::Component*> (&fingerNoiseInfoButton),
+                             static_cast<juce::Component*> (&fingerNoiseTweaksButton),
+                             static_cast<juce::Component*> (&fingerNoiseSlider),
+                             static_cast<juce::Component*> (&ampFeedbackLabel),
+                             static_cast<juce::Component*> (&ampFeedbackInfoButton),
+                             static_cast<juce::Component*> (&feedbackTweaksButton),
+                             static_cast<juce::Component*> (&ampFeedbackSlider) })
+        component->setVisible (activePage == 2);
+
+    const auto showSlideTweaks = activePage == 2 && slideTweaksOpen;
+    for (auto* component : { static_cast<juce::Component*> (&slideFretStepsLabel),
                              static_cast<juce::Component*> (&slideFretStepsInfoButton),
                              static_cast<juce::Component*> (&slideFretStepsSlider),
                              static_cast<juce::Component*> (&slideLiftLabel),
@@ -856,20 +950,20 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&slideLiftSlider),
                              static_cast<juce::Component*> (&slideSqueakLabel),
                              static_cast<juce::Component*> (&slideSqueakInfoButton),
-                             static_cast<juce::Component*> (&slideSqueakSlider),
-                             static_cast<juce::Component*> (&lookaheadLabel),
+                             static_cast<juce::Component*> (&slideSqueakSlider) })
+        component->setVisible (showSlideTweaks);
+
+    const auto showFingerNoiseTweaks = activePage == 2 && fingerNoiseTweaksOpen;
+    for (auto* component : { static_cast<juce::Component*> (&lookaheadLabel),
                              static_cast<juce::Component*> (&lookaheadInfoButton),
-                             static_cast<juce::Component*> (&lookaheadBox),
-                             static_cast<juce::Component*> (&fingerNoiseLabel),
-                             static_cast<juce::Component*> (&fingerNoiseInfoButton),
-                             static_cast<juce::Component*> (&fingerNoiseSlider),
-                             static_cast<juce::Component*> (&ampFeedbackLabel),
-                             static_cast<juce::Component*> (&ampFeedbackInfoButton),
-                             static_cast<juce::Component*> (&ampFeedbackSlider),
-                             static_cast<juce::Component*> (&feedbackReturnLabel),
+                             static_cast<juce::Component*> (&lookaheadBox) })
+        component->setVisible (showFingerNoiseTweaks);
+
+    const auto showFeedbackTweaks = activePage == 2 && feedbackTweaksOpen;
+    for (auto* component : { static_cast<juce::Component*> (&feedbackReturnLabel),
                              static_cast<juce::Component*> (&feedbackReturnInfoButton),
                              static_cast<juce::Component*> (&feedbackReturnDistortedButton) })
-        component->setVisible (activePage == 2);
+        component->setVisible (showFeedbackTweaks);
 
     for (auto* component : { static_cast<juce::Component*> (&vibratoSpeedLabel),
                              static_cast<juce::Component*> (&vibratoSpeedInfoButton),
@@ -933,6 +1027,13 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
     setSize (560, getPreferredHeight());
     resized();
     repaint();
+}
+
+void GuitarAgAudioProcessorEditor::updateDisclosureButtons()
+{
+    slideTweaksButton.setButtonText (slideTweaksOpen ? "v" : ">");
+    fingerNoiseTweaksButton.setButtonText (fingerNoiseTweaksOpen ? "v" : ">");
+    feedbackTweaksButton.setButtonText (feedbackTweaksOpen ? "v" : ">");
 }
 
 int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept

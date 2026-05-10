@@ -209,7 +209,7 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> neckSlideSemitones { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> slideFretSteps { 0.65f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> slideLift { 0.0f };
-    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> slideSqueak { 1.0f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> slideSqueak { 0.20f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> legatoArticulation { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> ampFeedback { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> vibratoSpeed { 5.5f };

@@ -67,6 +67,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Added a `Slide Squeak` performance parameter, grouped with the slide controls, to balance motion-coupled slide finger noise independently from the older `Finger Noise` approach/release layer.
 - Added offline-renderer `--slide-squeak` support for slide-noise balance checks.
 - Changed the model label to `StringVoice EG-069 SlideSqueakControl`.
+- Capped `Slide Squeak` at 100% and changed its default to 20% after human DAW audition found that balance more useful.
+- Reorganized the Performance page around primary controls with disclosure rows for slide, finger-noise, and feedback character tweaks.
+- Changed the model label to `StringVoice EG-070 PerformanceUi`.
 
 ### Fixed
 

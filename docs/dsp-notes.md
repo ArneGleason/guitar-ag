@@ -1654,6 +1654,16 @@ EG-069 adds a separate balance control for the motion-coupled slide squeak:
 - It does not change `Neck Slide` pitch, `Fret Steps`, `Slide Lift` damping, or the global `Finger Noise` approach/release layer.
 - `GuitarAGOfflineRender` accepts `--slide-squeak` for calibration renders.
 
+## 2026-05-10 — EG-070 Performance UI Groups
+
+Human audition found the useful `Slide Squeak` range around 20%, and the Performance page was becoming too dense. EG-070 keeps the existing top-level tabs but adds a second hierarchy on the Performance page:
+
+- `Neck Slide` owns `Fret Steps`, `Slide Lift`, and `Slide Squeak`.
+- `Finger Noise` owns `Lookahead`.
+- `Amp Feedback` owns `Return Clip`.
+- Secondary rows keep the same slider alignment but use quieter labels.
+- `Slide Squeak` is now a 0% to 100% control and defaults to 20%.
+
 ## Suggested MVP Signal Flow
 
 ```text

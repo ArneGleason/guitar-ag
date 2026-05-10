@@ -1026,7 +1026,7 @@ float StringVoice::renderPickTransient() noexcept
 float StringVoice::renderContactLayer (float slideSqueak) noexcept
 {
     auto contactOutput = 0.0f;
-    const auto slideNoiseAmount = juce::jlimit (0.0f, 2.0f, slideSqueak);
+    const auto slideNoiseAmount = juce::jlimit (0.0f, 1.0f, slideSqueak);
 
     if (pickContactSamplesRemaining > 0)
     {
