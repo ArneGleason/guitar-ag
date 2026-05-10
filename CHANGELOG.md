@@ -46,6 +46,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Added fret-stepped slide pitch shaping and small fret-crossing contact ticks/scrape controlled by `Fret Steps`.
 - Changed the model label to `StringVoice EG-064 FretStepCurve`.
 - Remapped `Fret Steps` so 10% reaches the former 90% engagement point, spreading the audible fret-engagement range across the rest of the control.
+- Documented human DAW/VST3 acceptance that the EG-064 `Fret Steps` remap makes the useful engagement range available across the slider.
 
 ### Fixed
 

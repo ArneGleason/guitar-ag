@@ -15,6 +15,11 @@ Use this file as the running memory for the project. Add concise notes when test
 
 Add notes here when something sounds good, bad, unstable, too bright, too dull, too synthetic, too clicky, or too CPU-heavy.
 
+## 2026-05-09 — Fret Steps control feel
+
+- EG-063 proved that fret engagement during `Neck Slide` is musically useful, but the audible effect was concentrated near the top of the `Fret Steps` slider.
+- EG-064's remap makes the useful fret-engagement range available across the slider breadth and is accepted as the better control feel.
+
 ## DAW Compatibility Notes
 
 Add notes here for behavior in specific hosts such as Bitwig, Reaper, Ableton Live, Logic, or others.
