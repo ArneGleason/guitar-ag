@@ -165,8 +165,10 @@ void AudioEngine::reset()
     timelineSample = 0;
     nextVoice = 0;
     nextFingerNoiseVoice = 0;
+    lastPickedStringIndex = -1;
     pickAttackCounter = 0;
     nextAlternatePickDown = true;
+    lastPickStrokeDirection = PickStrokeDirection::Up;
 }
 
 void AudioEngine::setTailSustain (float newTailSustain) noexcept
@@ -196,7 +198,11 @@ void AudioEngine::setPickStrokeMode (int newPickStrokeMode) noexcept
     pickStrokeMode = static_cast<PickStrokeMode> (clampedMode);
 
     if (oldMode != pickStrokeMode && pickStrokeMode == PickStrokeMode::Alternate)
+    {
+        lastPickedStringIndex = -1;
         nextAlternatePickDown = true;
+        lastPickStrokeDirection = PickStrokeDirection::Up;
+    }
 }
 
 void AudioEngine::setPalmMute (float newPalmMute) noexcept
@@ -943,7 +949,7 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
     const auto noteFretPressure = fretPressure.getTargetValue();
     const auto notePickupPosition = pickupPosition.getTargetValue();
     const auto notePickupModel = pickupModel;
-    const auto pickStrokeDirection = resolvePickStrokeDirection (gesture);
+    const auto pickStrokeDirection = resolvePickStrokeDirection (gesture, assignment);
     const auto pickAttackSeed = makePickAttackSeed (noteNumber, channel, assignment, gesture, pickStrokeDirection);
 
     auto& voice = selectVoiceForAssignment (assignment);
@@ -977,19 +983,43 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
     rememberArticulationNote (noteNumber, channel, assignment, gesture);
 }
 
-PickStrokeDirection AudioEngine::resolvePickStrokeDirection (PlayerGesture gesture) noexcept
+PickStrokeDirection AudioEngine::resolvePickStrokeDirection (PlayerGesture gesture,
+                                                             const FretboardAssignment& assignment) noexcept
 {
     if (gesture != PlayerGesture::Picked)
         return PickStrokeDirection::Down;
 
     if (pickStrokeMode == PickStrokeMode::Down)
+    {
+        lastPickedStringIndex = assignment.stringIndex;
+        lastPickStrokeDirection = PickStrokeDirection::Down;
         return PickStrokeDirection::Down;
+    }
 
     if (pickStrokeMode == PickStrokeMode::Up)
+    {
+        lastPickedStringIndex = assignment.stringIndex;
+        lastPickStrokeDirection = PickStrokeDirection::Up;
         return PickStrokeDirection::Up;
+    }
 
-    const auto strokeDirection = nextAlternatePickDown ? PickStrokeDirection::Down : PickStrokeDirection::Up;
-    nextAlternatePickDown = ! nextAlternatePickDown;
+    auto strokeDirection = nextAlternatePickDown ? PickStrokeDirection::Down : PickStrokeDirection::Up;
+
+    if (lastPickedStringIndex >= 0)
+    {
+        if (assignment.stringIndex > lastPickedStringIndex)
+            strokeDirection = PickStrokeDirection::Down;
+        else if (assignment.stringIndex < lastPickedStringIndex)
+            strokeDirection = PickStrokeDirection::Up;
+        else
+            strokeDirection = lastPickStrokeDirection == PickStrokeDirection::Down
+                            ? PickStrokeDirection::Up
+                            : PickStrokeDirection::Down;
+    }
+
+    lastPickedStringIndex = assignment.stringIndex;
+    lastPickStrokeDirection = strokeDirection;
+    nextAlternatePickDown = strokeDirection == PickStrokeDirection::Up;
     return strokeDirection;
 }
 

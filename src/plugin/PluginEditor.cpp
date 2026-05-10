@@ -443,9 +443,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureLabel (pickStrokeLabel, "Pick Stroke");
     configureInfoButton (pickStrokeInfoButton,
                          "Choose the picking direction used for newly picked notes.\n\n"
-                         "Technical: Down and Up force one stroke direction. Alternate flips direction for each picked note only, leaving "
-                         "hammer-ons, pull-offs, and taps out of the alternating count. Each attack also receives deterministic variation so "
-                         "repeated renders stay identical while repeated notes avoid a cloned pick transient.");
+                         "Technical: Down and Up force one stroke direction. Alternate flips on repeated same-string picked notes, but uses "
+                         "an economy stroke when moving across strings: low-to-high string movement uses downstrokes, high-to-low movement uses "
+                         "upstrokes, including string skips. Hammer-ons, pull-offs, and taps do not consume the picking pattern.");
     pickStrokeBox.addItem ("Down", 1);
     pickStrokeBox.addItem ("Up", 2);
     pickStrokeBox.addItem ("Alternate", 3);

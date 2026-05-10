@@ -87,6 +87,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Rebalanced the normal pick-contact model away from brittle/glassy coherent ring by lowering default rough-contact onset, broadening the compliant pick contact, and increasing deterministic pick angle/depth variation.
 - Coupled `String Age` more directly into picked attacks by damping contact ring/chirp brightness and lowering the contact-scratch high-pass coefficient as strings age.
 - Added `plans/0075-plastic-pick-bite.md` to document the physical pick-contact mental model and verification notes.
+- Changed the model label to `StringVoice EG-074 EconomyPickStroke`.
+- Updated `Pick Stroke = Alternate` so repeated same-string picked notes alternate, while cross-string picked notes use economy direction based on string travel: low-to-high string movement uses downstrokes and high-to-low movement uses upstrokes.
+- Updated the `Pick Stroke` info note and added `plans/0076-economy-pick-stroke.md` for the right-hand motion model.
 
 ### Fixed
 

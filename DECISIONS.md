@@ -621,3 +621,17 @@ Accepted
 
 Consequences:
 `Pick Bite` leaves the main string displacement/release intact at low values and changes the contact imprint layered into the attack. `String Age` now damps the bright pick-contact fingerprint more explicitly because an older string should not present the same clean high-Q contact response as a brand-new string. This pattern should guide future player-interpretation controls: map UI to plausible player/string interactions first, then only use "amount" controls where the physical interaction really needs a balance.
+
+## 2026-05-10 — Make Alternate picking economy-aware across strings
+
+Decision:
+Keep the user-facing `Pick Stroke = Alternate` mode, but interpret it as right-hand-aware alternate picking: same-string picked notes flip direction, while cross-string picked notes use the direction implied by movement across the string set.
+
+Reason:
+A guitarist does not blindly alternate every note when a phrase is already moving the pick through adjacent or skipped strings. Moving from low E toward high E naturally continues as a downstroke sweep; moving from high E back toward low E naturally continues as an upstroke sweep. The simpler toggle model helped repeated notes but did not model chord strokes, string skipping, or efficient cross-string motion.
+
+Status:
+Accepted
+
+Consequences:
+No new host parameter is needed. `Alternate` now remembers the last picked string and stroke direction. It still alternates on repeated same-string picked notes, but uses downstrokes for increasing string indices and upstrokes for decreasing string indices. Hammer-ons, pull-offs, and taps do not consume the right-hand stroke state.

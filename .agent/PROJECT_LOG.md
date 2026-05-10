@@ -56,3 +56,4 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Added `plans/0073-pick-attack-research.md` after human DAW feedback that strummed chords sound convincing but isolated single-note pick attacks still sound synthetic.
 - Implemented `StringVoice EG-072 PickStrokePlectrum`, adding `Pick Stroke` Down/Up/Alternate modes, deterministic per-attack variation, and a less tonal normal plastic-pick attack.
 - Implemented `StringVoice EG-073 PlasticPickBite`, adding `Pick Bite`, widening deterministic pick angle/depth variation, and coupling `String Age` more strongly into the pick-contact imprint.
+- Implemented `StringVoice EG-074 EconomyPickStroke`, making `Pick Stroke = Alternate` alternate on repeated same-string picked notes while using downstroke travel from low strings to high strings and upstroke travel from high strings to low strings.

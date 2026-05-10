@@ -1711,6 +1711,27 @@ Physical framing for future player interpretation:
 - Controls should map to player/string interactions where possible: pick compliance, stroke direction, contact bite, fretting pressure, slide motion, and timing.
 - When a practical amount slider is needed, it should scale the modeled interaction terms rather than bypass the physical signal path.
 
+## 2026-05-10 — EG-074 Economy Pick Stroke
+
+Human audition found that simple down/up toggling was useful for repeated single-string notes, but not for chord strokes or string-to-string movement. EG-074 keeps the `Pick Stroke` choices unchanged and makes the existing `Alternate` mode right-hand-aware:
+
+- `Down` and `Up` still force a single stroke direction.
+- `Alternate` now remembers the last picked string and last picked stroke.
+- If the next picked note is on the same assigned string, `Alternate` flips direction.
+- If the next picked note moves from a lower string index to a higher string index, `Alternate` uses a downstroke.
+- If the next picked note moves from a higher string index to a lower string index, `Alternate` uses an upstroke.
+- This applies to adjacent strings and string skips.
+- Hammer-ons, pull-offs, and right-hand taps do not consume or advance the pick-stroke state.
+
+Current string-index convention:
+
+- `0` is low E.
+- `5` is high E.
+- Increasing index means low-to-high physical string travel, modeled as a downstroke.
+- Decreasing index means high-to-low physical string travel, modeled as an upstroke.
+
+This is the first small right-hand player-interpretation model on top of the fretboard heuristic.
+
 ## Suggested MVP Signal Flow
 
 ```text

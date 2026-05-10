@@ -215,7 +215,7 @@ This document defines the basic manual and technical checks needed as the projec
 
 ## Pick Stroke Plectrum Checks
 
-- [ ] New plugin instances show `v0.2.6 / StringVoice EG-073 PlasticPickBite`.
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-074 EconomyPickStroke`.
 - [ ] The Articulation page exposes `Pick Stroke` with `Down`, `Up`, and `Alternate`.
 - [ ] The Articulation page exposes `Pick Bite` as a 0% to 100% control.
 - [ ] `Alternate` is the default on new plugin instances.
@@ -224,7 +224,10 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Raising `Pick Bite` makes the edge/contact attack more pronounced without turning the normal midpoint into a brittle/glassy pick.
 - [ ] Raising `String Age` dulls the pick-contact brightness as well as the sustained string body.
 - [ ] `Pick Stroke = Down` and `Pick Stroke = Up` produce audible but bounded differences in the attack and string response.
-- [ ] `Pick Stroke = Alternate` alternates picked note starts but does not turn hammer-ons, pull-offs, or taps into alternating picked attacks.
+- [ ] `Pick Stroke = Alternate` alternates repeated same-string picked notes.
+- [ ] `Pick Stroke = Alternate` uses downstrokes when a picked phrase moves from low E toward high E, including string skips.
+- [ ] `Pick Stroke = Alternate` uses upstrokes when a picked phrase moves from high E toward low E, including string skips.
+- [ ] `Pick Stroke = Alternate` does not turn hammer-ons, pull-offs, or taps into alternating picked attacks.
 - [ ] `Pick Stiffness` and `Pick Texture` remain useful after the plastic-plectrum retune.
 - [ ] Re-rendering the same MIDI with the same `Pick Stroke` setting remains deterministic.
 

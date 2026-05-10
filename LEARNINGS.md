@@ -544,3 +544,7 @@ Repeated same-note attacks need small contact/release differences, but offline r
 When an attack sounds like a brittle object, the tempting fix is a "pick noise volume" slider, but the physical model should first ask which string motions caused that sound. EG-073 treats the control as `Pick Bite`: how much edge contact, scrape, coherent contact ring, and chirp are imprinted into the string at release. This keeps the mental model aligned with the pickup capturing string motion rather than mixing an independent foley layer.
 
 String age should influence picked attacks because the pick is exciting the same physical string. It should not simply lower every attack component; aged strings can have more surface friction, but the high-Q bright contact ring and chirp should dull faster than the body of the note.
+
+## 2026-05-10 — Alternate picking is a right-hand path, not only a toggle
+
+The first pick-stroke implementation treated alternate as a simple down/up flip. Human audition clarified the player-interpretation layer: repeated notes on the same string should alternate, but cross-string motion should follow the efficient pick path. Since Guitar AG already has a fretboard string assignment, the right hand can use that physical string index to infer sweep direction for adjacent and skipped strings.

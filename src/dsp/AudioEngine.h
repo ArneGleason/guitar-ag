@@ -111,7 +111,8 @@ private:
                                    PlayerGesture gesture) noexcept;
     void releaseArticulationNote (int noteNumber, int channel) noexcept;
     void releaseLegatoSource (const LegatoSource& source) noexcept;
-    [[nodiscard]] PickStrokeDirection resolvePickStrokeDirection (PlayerGesture gesture) noexcept;
+    [[nodiscard]] PickStrokeDirection resolvePickStrokeDirection (PlayerGesture gesture,
+                                                                  const FretboardAssignment& assignment) noexcept;
     [[nodiscard]] uint32_t makePickAttackSeed (int noteNumber,
                                                int channel,
                                                const FretboardAssignment& assignment,
@@ -253,6 +254,7 @@ private:
     PickStrokeMode pickStrokeMode = PickStrokeMode::Alternate;
     int nextVoice = 0;
     int nextFingerNoiseVoice = 0;
+    int lastPickedStringIndex = -1;
     uint32_t pickAttackCounter = 0;
     int feedbackDominantBand = 0;
     int feedbackDominantString = -1;
@@ -272,6 +274,7 @@ private:
     bool whammyEnabled = true;
     bool feedbackReturnDistorted = true;
     bool nextAlternatePickDown = true;
+    PickStrokeDirection lastPickStrokeDirection = PickStrokeDirection::Up;
     std::array<float, 16> mpePressureByChannel {};
     std::array<float, 16> mpeTimbreByChannel {};
 };
