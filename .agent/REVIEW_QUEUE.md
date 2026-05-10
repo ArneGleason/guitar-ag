@@ -6,49 +6,19 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Review the EG-080 `StrumBalance` implementation, including the prior EG-079 `AutoStrum` path it builds on.
-- Confirm `Strum Speed = 0%` preserves the previous same-sample MIDI behavior.
-- Confirm exact same-sample block chords are detected only when at least two note-ons share the same sample and `Strum Speed` is above zero.
-- Confirm the predicted fretboard assignment is preserved through delayed note scheduling, so the scheduled note-on uses the same string that drove the strum order.
-- Confirm `Pick Stroke = Down`, `Up`, and `Alternate` drive block-chord order coherently, including repeated block chords in Alternate mode.
+- Review the EG-080 `StrumBalance` implementation on top of the already-cleared EG-079 Auto Strum path.
 - Confirm `Strum Balance = 0` preserves EG-079 generated strum velocities.
 - Confirm positive `Strum Balance` reduces generated upstroke velocities only, and negative `Strum Balance` reduces generated downstroke velocities only.
 - Confirm the selected stroke direction is reduced, not the opposite direction boosted, so high incoming MIDI velocities cannot clip from this control.
 - Confirm `Strum Balance` only affects generated Auto Strum note-ons and does not alter single-note picking or authored staggered MIDI.
-- Confirm `processPlayerFeelNoteOn` uses the generated strum delay as the effective event time, so generated strums do not look like zero-time unrelated picking events.
-- Confirm note-offs are handled before generated block-chord note-ons, and same-sample expression/controller events fall back to the normal dispatch path instead of being reordered into Auto Strum.
-- Confirm the Articulation page exposes `Strum Speed` and `Strum Balance`, and `Player Feel` shows Bot/Pro/Loose landmarks without clipping.
-- Confirm `scripts/create-auto-strum-audition-midi.py` creates exact same-time block chord test material.
-- Historical EG-078 checks: confirm very short cross-string strum continuations reduce cognitive/dexterity load without disabling feel variation.
-- Confirm fast same-string picking and non-strum single-note runs still accumulate load normally.
-- Confirm the EG-078 strum-continuation window remains deterministic and bounded.
-- Confirm `Player Feel` still has a natural middle range while 100% has a meaningfully wider sloppy timing/energy range than EG-076.
-- Confirm the high-end timing delay cap and widened velocity/energy scale are bounded and deterministic.
-- Confirm cognitive/dexterity/endurance impulses are reduced enough that meters do not saturate too quickly.
-- Confirm `Feel Recovery` defaults to 2.0 seconds and clamps to the new 0.10 to 8.0 second range in APVTS, `AudioEngine`, and the offline renderer.
-- Confirm cognitive, dexterity, and endurance meter values are exported from `AudioEngine` to the processor through atomics and read by the editor timer without audio-thread allocation or UI calls.
-- Confirm meter decay remains deterministic and visibly clears during rests/easier passages.
-- Confirm the `Export Settings` popup returns valid JSON with current parameter values plus Player Feel meters, and that it is copyable in the UI.
-- Confirm `Export Settings` is globally available in the header, has enough vertical breathing room, and no longer consumes Articulation-page row space.
-- Review the EG-075/EG-076/EG-077 `PlayerFeel` path as the base for EG-078:
-  - confirm `Player Feel = 0` leaves the render path neutral;
-  - confirm load accumulation/recovery is deterministic and bounded;
-  - confirm `Feel Recovery` and `Reset Feel` clear cognitive/dexterity/endurance state as intended;
-  - confirm the new timing delay only applies to note-on events and does not desync delayed lookahead expression more than the documented first-pass limitation.
-- Historical context for the right-hand model: review the EG-074 `EconomyPickStroke` implementation if it has not already been reviewed.
-- Confirm the existing `pickStroke` APVTS parameter remains wired from processor to UI to `AudioEngine` and offline `--pick-stroke`.
-- Confirm `Pick Stroke = Alternate` now uses economy direction for cross-string picked movement:
-  - low E toward high E / increasing string index resolves to downstroke;
-  - high E toward low E / decreasing string index resolves to upstroke;
-  - string skips follow the same rule.
-- Confirm repeated same-string picked notes still alternate against the previous picked stroke.
-- Confirm hammer-ons, pull-offs, and taps do not consume or update pick-stroke memory.
-- Confirm forced `Down` and `Up` modes remain exact forced directions.
-- Confirm `reset()` and switching into `Alternate` reset the right-hand memory to a deterministic first downstroke.
-- Confirm the info note accurately describes the smarter `Alternate` interpretation without adding a new user-facing mode.
-- Review `plans/0076-economy-pick-stroke.md` for implementation/test coverage and physical-model framing.
-- Optionally use `tests/midi/guitar-ag-pick-stroke-audition.mid` to audition repeated picking, string crossings, string skips, chord strums, and riff-like phrases with `Pick Stroke = Alternate`.
-- Review `plans/0079-auto-strum-interpreter.md` for the accepted exact-block implementation and future tolerance-window direction.
+- Confirm the Articulation page exposes `Strum Balance` directly after `Strum Speed` and that the label/info popup do not clip.
+- Confirm offline `--strum-balance` maps to the same behavior as the VST parameter.
+
+Recently cleared:
+
+- Antigravity broad review at `2026-05-10T16:55:00-04:00` cleared EG-066 through EG-079 at commit `585049a` with no required fixes.
+- The review specifically passed audio-thread safety, scheduling correctness, deterministic Player Feel rendering, parameter wiring, offline flag coverage, UI grouping, changelog/decision/learning hygiene, and plan focus.
+- Reviewer cadence recommendation: ask for a reviewer handoff every third major feature or whenever DSP core math changes fundamentally.
 
 Known limitations:
 

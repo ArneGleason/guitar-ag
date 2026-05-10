@@ -65,3 +65,4 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Implemented `StringVoice EG-078 StrumAwareFeel`, reducing Player Feel load for very short cross-string strum continuations and adding the Auto Strum interpreter plan.
 - Implemented `StringVoice EG-079 AutoStrum`, adding Bot/Pro/Loose Player Feel landmarks, `Strum Speed`, exact same-sample block-chord strum scheduling, offline `--strum-speed`, and an Auto Strum audition MIDI.
 - Implemented `StringVoice EG-080 StrumBalance`, adding a bipolar Auto Strum direction-balance control that reduces generated upstroke or downstroke velocity from a neutral center.
+- Antigravity completed a broad retrospective review through commit `585049a` and cleared EG-066 through EG-079 with no required fixes; EG-080 remains the current unreviewed follow-up.
