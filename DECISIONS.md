@@ -509,3 +509,17 @@ Accepted
 
 Consequences:
 `Slide Lift` is a 0% to 100% automatable performance slider. At 0%, slides keep full fretted pressure. Higher values fade fret-step engagement, add light lifted string scrape, and damp modal sustain while `Neck Slide` is moving. The lift envelope is motion-driven rather than note-off-driven: 50% reaches its lift over about 500 ms and 100% reaches full lift over about 50 ms.
+
+## 2026-05-09 — Revoice finger noise as stick-slip squeak
+
+Decision:
+Model fretting-hand approach/release noises and slide-lift scrape as filtered friction plus short stick-slip squeak impulses, not as a mostly broadband noise layer.
+
+Reason:
+Human DAW audition showed the previous noise layer read like white or pink hiss rather than finger-on-string squeak. Friction research points toward intermittent acoustic bursts during slip, and guitar-string friction measurements support differentiating wound and unwound string behavior.
+
+Status:
+Accepted
+
+Consequences:
+`Finger Noise` remains the existing 0% to 100% control, but internally it now uses string/fret-dependent squeak carriers, impulse spacing, and wound-string weighting. Slide-lift scrape uses the same contact-noise direction. This is still a compact approximation; future work could add explicit string-gauge or sliding-speed spectral calibration from recorded references.

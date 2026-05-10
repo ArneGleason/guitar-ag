@@ -234,6 +234,11 @@ private:
     float slideFretContactPhase = 0.0f;
     float slideFretContactPhaseStep = 0.0f;
     float previousSlideFretNoise = 0.0f;
+    float slideFretScrapeState = 0.0f;
+    float slideFretBodyState = 0.0f;
+    float slideFretImpulse = 0.0f;
+    float slideFretImpulseDecay = 1.0f;
+    int slideFretSlipCountdown = 0;
     float previousNeckSlideSemitones = 0.0f;
     float slideMotionActivity = 0.0f;
     float slideMotionActivityDecay = 0.0f;

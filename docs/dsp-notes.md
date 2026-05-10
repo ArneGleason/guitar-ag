@@ -1615,6 +1615,22 @@ Scope limit:
 
 - `Slide Lift` models pressure easing and damping during global `Neck Slide`. It does not yet retune the string to an open string or update same-string speaking length.
 
+## 2026-05-09 — EG-067 Finger Squeak
+
+Human DAW listening found that the EG-066 slide-lift control was musically useful, but the existing finger/string noise read too much like white or pink hiss. EG-067 revoices the contact noise layers around friction squeak:
+
+- `AudioEngine::FingerNoiseVoice` now has filtered scrape state plus short stick-slip impulse state.
+- Global `Finger Noise` approach/release events excite a string/fret-dependent squeak carrier instead of relying primarily on high-passed random noise.
+- Wound strings receive stronger, more frequent ridged friction pulses. Plain strings keep a smoother, quieter scrape profile.
+- `StringVoice::renderContactLayer` uses the same filtered-friction/ridge-squeak direction for `Slide Lift` and fret-slide scrape.
+- The broad random scrape component remains, but at a lower weighting so it supports contact texture rather than dominating the sound.
+
+Research references used for the model direction:
+
+- Babici, Tudor, and Romeu, “Stick-Slip Phenomena and Acoustic Emission in the Hertzian Linear Contact” (2022): https://doi.org/10.3390/app12199527.
+- Groves and Kemp, “Applicability of the Capstan Equation to Guitar Strings” (2019): https://doi.org/10.24425/aoa.2019.129261.
+- Djellouli et al., “Squeaking at soft-rigid frictional interfaces” (2026): https://www.nature.com/articles/s41586-026-10132-3.
+
 ## Suggested MVP Signal Flow
 
 ```text

@@ -231,8 +231,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     configureSlider (fingerNoiseSlider, juce::Colour (0xffd5a36f));
     configureInfoButton (fingerNoiseInfoButton,
                          "Add small fretting-hand approach and release noises around notes.\n\n"
-                         "Technical: this layer uses short synthetic scrape/body bursts tied to string and fret assignment. It is most useful with "
-                         "Lookahead enabled, because the approach noise can occur before the delayed note onset.");
+                         "Technical: this layer uses short stick-slip squeak/body bursts tied to string and fret assignment. Wound strings lean "
+                         "toward stronger ridged friction; plain strings stay smoother. It is most useful with Lookahead enabled, because the "
+                         "approach noise can occur before the delayed note onset.");
 
     configureLabel (ampFeedbackLabel, "Amp Feedback");
     configureSlider (ampFeedbackSlider, juce::Colour (0xffe87070));

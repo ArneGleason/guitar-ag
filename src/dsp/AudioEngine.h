@@ -172,9 +172,14 @@ private:
         float decay = 1.0f;
         float previousNoise = 0.0f;
         float bodyState = 0.0f;
+        float scrapeState = 0.0f;
+        float stickImpulse = 0.0f;
+        float stickImpulseDecay = 1.0f;
+        float squeakAmount = 0.0f;
         float phase = 0.0f;
         float phaseStep = 0.0f;
         float woundAmount = 0.0f;
+        int stickCountdown = 0;
         uint32_t randomState = 0x0badf00du;
     };
 

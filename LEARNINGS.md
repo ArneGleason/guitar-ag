@@ -508,3 +508,7 @@ Some DAWs label the MPE Y dimension as Slide, but Guitar AG currently maps CC74/
 ## 2026-05-09 — Slide release should not depend on note-off
 
 Human Bitwig audition of EG-065 showed that note-off-driven slide tails are a weak fit for DAW loop playback and do not model the physical gesture well. Sliding off should be an explicit pressure-lift envelope during slide motion, not an inferred release color at the note boundary.
+
+## 2026-05-09 — Finger noise needs pulse and surface structure
+
+Finger/string movement stops sounding guitar-like when it is mostly filtered random noise. A better first approximation is intermittent friction pulses exciting a small resonant squeak, with wound strings getting stronger ridged texture and plain strings staying smoother. The broad scrape component should support the squeak, not dominate it.

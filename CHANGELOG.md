@@ -56,6 +56,10 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Replaced the `Slide Tail` choice with a continuous `Slide Lift` parameter that reduces fretted pressure during actual `Neck Slide` motion instead of waiting for note-off.
 - Added offline-renderer `--slide-lift` support and removed `--slide-tail`.
 - Changed the model label to `StringVoice EG-066 SlideLift`.
+- Added `plans/0067-finger-squeak.md` to capture the finger/string squeak revoice research and verification targets.
+- Revoiced `Finger Noise` from mostly broadband scrape/body noise toward short stick-slip squeak impulses with string/fret-dependent pitch and stronger wound-string texture.
+- Revoiced `Slide Lift`/fret-slide scrape toward filtered friction plus ridged squeak instead of mostly high-passed random noise.
+- Updated the `Finger Noise` info note and changed the model label to `StringVoice EG-067 FingerSqueak`.
 
 ### Fixed
 

@@ -108,6 +108,14 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Bitwig loop playback does not produce the EG-065 loop-boundary CPU spike.
 - [ ] Offline smoke: render a short note with `--neck-slide 5.3 --neck-slide-at 0.001 --slide-fret-steps 0.25 --slide-lift 0/1`; the lifted render should differ from the neutral render.
 
+## EG-067 Finger Squeak Checks
+
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-067 FingerSqueak`.
+- [ ] With `Finger Noise` at 0%, note playback remains effectively unchanged.
+- [ ] With `Lookahead` enabled and `Finger Noise` raised, approach and release noises read as short finger/string squeaks rather than broadband hiss.
+- [ ] Wound-string assignments have stronger ridged friction than plain-string assignments.
+- [ ] During `Neck Slide` movement with `Slide Lift` raised, the lifted scrape sounds like finger pressure easing against strings rather than a static noise wash.
+
 ## Pickup Checks
 
 - [ ] `Single Coil` remains narrow and bright.

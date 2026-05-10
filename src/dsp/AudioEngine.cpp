@@ -1200,26 +1200,36 @@ void AudioEngine::startFingerNoise (const FretboardAssignment& assignment, float
 
     const auto clampedIntensity = juce::jlimit (0.0f, 2.0f, intensity);
     const auto woundAmount = juce::jlimit (0.0f, 1.0f, assignment.woundAmount);
-    const auto durationSeconds = releaseNoise ? 0.030f + 0.050f * woundAmount
-                                              : 0.040f + 0.070f * woundAmount;
+    const auto stringPosition = static_cast<float> (juce::jlimit (0, 5, assignment.stringIndex)) / 5.0f;
+    const auto durationSeconds = releaseNoise ? 0.034f + 0.052f * woundAmount
+                                              : 0.046f + 0.080f * woundAmount;
     const auto decaySeconds = releaseNoise ? durationSeconds * 0.55f : durationSeconds * 0.72f;
+    const auto stickDecaySeconds = 0.0035f + 0.0045f * woundAmount;
     constexpr auto twoPi = 6.28318530717958647692f;
-    const auto baseFrequency = 900.0f
-                             + 120.0f * static_cast<float> (assignment.fret)
+    const auto baseFrequency = 720.0f
+                             + 95.0f * static_cast<float> (assignment.fret)
+                             + 260.0f * stringPosition
                              + 520.0f * woundAmount
-                             + (releaseNoise ? 260.0f : 0.0f);
+                             - 180.0f * (1.0f - stringPosition) * woundAmount
+                             + (releaseNoise ? 180.0f : 0.0f);
 
     voice.samplesRemaining = juce::jmax (1, static_cast<int> (sampleRate * durationSeconds));
-    voice.amplitude = clampedIntensity * (releaseNoise ? 0.024f : 0.032f);
+    voice.amplitude = clampedIntensity * (releaseNoise ? 0.021f : 0.029f) * (0.76f + 0.36f * woundAmount);
     voice.decay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * decaySeconds)));
     voice.previousNoise = 0.0f;
     voice.bodyState = 0.0f;
+    voice.scrapeState = 0.0f;
+    voice.stickImpulse = (releaseNoise ? 0.10f : 0.18f) * (0.35f + 0.65f * woundAmount);
+    voice.stickImpulseDecay = std::pow (0.001f,
+                                        1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * stickDecaySeconds)));
+    voice.squeakAmount = (0.28f + 0.72f * woundAmount) * (releaseNoise ? 0.86f : 1.0f);
     voice.phase = 0.31f * static_cast<float> ((assignment.fret + 1) * (assignment.stringIndex + 3));
     voice.phaseStep = twoPi * juce::jlimit (180.0f,
                                             static_cast<float> (sampleRate * 0.38),
                                             baseFrequency)
                     / static_cast<float> (sampleRate);
     voice.woundAmount = woundAmount;
+    voice.stickCountdown = 0;
     voice.randomState = static_cast<uint32_t> ((assignment.fret + 11) * 1103515245u
                                                + (assignment.stringIndex + 3) * 12345u
                                                + (releaseNoise ? 0x9e3779b9u : 0x85ebca6bu));
@@ -1236,23 +1246,42 @@ float AudioEngine::renderFingerNoiseSample() noexcept
             continue;
 
         const auto rawNoise = nextFingerNoiseRandom (voice.randomState);
-        const auto scratch = rawNoise - voice.previousNoise * 0.74f;
-        voice.previousNoise = rawNoise;
-        voice.bodyState += (0.050f + 0.035f * voice.woundAmount) * (scratch - voice.bodyState);
-        voice.phase += voice.phaseStep * (1.0f + 0.025f * rawNoise);
+        const auto frictionDelta = rawNoise - voice.previousNoise;
+        voice.previousNoise += (0.12f + 0.08f * voice.woundAmount) * (rawNoise - voice.previousNoise);
+        voice.scrapeState += (0.10f + 0.08f * voice.woundAmount) * (frictionDelta - voice.scrapeState);
+        voice.bodyState += (0.020f + 0.014f * voice.woundAmount) * (voice.scrapeState - voice.bodyState);
+
+        if (voice.stickCountdown <= 0)
+        {
+            const auto intervalNoise = 0.5f + 0.5f * nextFingerNoiseRandom (voice.randomState);
+            const auto intervalSeconds = (0.00055f + 0.00230f * (1.0f - voice.woundAmount))
+                                       * (0.70f + 0.80f * intervalNoise);
+            voice.stickCountdown = juce::jmax (1, static_cast<int> (sampleRate * intervalSeconds));
+            voice.stickImpulse = juce::jlimit (0.0f,
+                                               1.85f,
+                                               voice.stickImpulse
+                                                   + voice.squeakAmount
+                                                        * (0.20f + 0.80f * std::abs (nextFingerNoiseRandom (voice.randomState))));
+        }
+
+        voice.phase += voice.phaseStep * (1.0f + 0.018f * voice.scrapeState + 0.010f * rawNoise);
 
         if (voice.phase > twoPi)
             voice.phase -= twoPi;
 
         const auto ridge = std::sin (voice.phase)
-                         + 0.28f * std::sin (voice.phase * (2.0f + 1.4f * voice.woundAmount));
-        const auto bright = scratch - voice.bodyState * 0.35f;
-        const auto scrape = bright * (0.38f + 0.20f * voice.woundAmount)
-                          + ridge * (0.22f + 0.52f * voice.woundAmount)
-                          + voice.bodyState * 0.42f;
+                         + (0.18f + 0.28f * voice.woundAmount) * std::sin (voice.phase * (2.11f + 0.62f * voice.woundAmount))
+                         + 0.12f * voice.woundAmount * std::sin (voice.phase * 3.73f);
+        const auto squeak = voice.stickImpulse * ridge;
+        const auto filteredScrape = voice.scrapeState - 0.34f * voice.bodyState;
+        const auto scrape = squeak * (0.52f + 0.50f * voice.woundAmount)
+                          + filteredScrape * (0.12f + 0.18f * voice.woundAmount)
+                          + voice.bodyState * (0.18f + 0.24f * voice.woundAmount);
 
         output += scrape * voice.amplitude;
         voice.amplitude *= voice.decay;
+        voice.stickImpulse *= voice.stickImpulseDecay;
+        --voice.stickCountdown;
         --voice.samplesRemaining;
     }
 
