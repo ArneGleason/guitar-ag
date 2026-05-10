@@ -564,3 +564,7 @@ Audition settings should be easy to pass back through the Studio Pattern. A copy
 EG-076 proved the cognitive/dexterity/endurance gauges are useful, but meters that hit 100% too quickly stop teaching the human what the model is doing. For EG-077, the load impulses are intentionally smaller while the `Player Feel` top half gets a larger timing/energy scale. That separates "how hard is the passage" from "how much should we exaggerate the player's imprecision."
 
 The first exported audition setting worth keeping is stored at `docs/audition-settings/20260510-eg076-pick-tone-reference.json`. It has high `String Age`, high `Pick Bite`, bridge-side `Pickup Position`, `Pickup Model = Humbucker`, and moderate `Player Feel`; use it as a reference context for future tone/preset discussion, not as a default.
+
+## 2026-05-10 — Strums are one gesture, not many decisions
+
+Already-staggered MIDI strums can fool a note-by-note feel model: each string arrival looks like another fast event, so cognitive and dexterity meters climb even though the player may simply be sweeping through a held chord shape. A better mental model separates left hand and right hand: the left hand holds or changes shape, while the right hand performs a stroke across strings. EG-078 starts with load reduction for short cross-string strum continuations; a future Auto Strum layer should generate the inter-string timing itself from simultaneous chord input.

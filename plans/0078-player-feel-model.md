@@ -206,3 +206,13 @@ Implemented `StringVoice EG-077 PlayerFeelSlop` after human audition of EG-076.
 - Raised the high-end timing-delay cap to about 75 ms.
 - Moved `Export Settings` into the global header.
 - Stored the human-provided EG-076 reference snapshot at `docs/audition-settings/20260510-eg076-pick-tone-reference.json`.
+
+## 2026-05-10 Strum-Aware Load Result
+
+Implemented `StringVoice EG-078 StrumAwareFeel`.
+
+- Very short cross-string note-on clusters are treated as continuing strum strokes for Player Feel load accounting.
+- Continuing strum notes add much less cognitive load.
+- Continuing strum notes add reduced dexterity load.
+- The change is intentionally heuristic and does not yet schedule strums from simultaneous block-chord MIDI.
+- Future Auto Strum scheduling is split into `plans/0079-auto-strum-interpreter.md`.

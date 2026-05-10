@@ -6,7 +6,10 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Review the EG-077 `PlayerFeelSlop` implementation.
+- Review the EG-078 `StrumAwareFeel` implementation.
+- Confirm very short cross-string strum continuations reduce cognitive/dexterity load without disabling feel variation.
+- Confirm fast same-string picking and non-strum single-note runs still accumulate load normally.
+- Confirm the strum-continuation window is deterministic and bounded.
 - Confirm `Player Feel` still has a natural middle range while 100% has a meaningfully wider sloppy timing/energy range than EG-076.
 - Confirm the high-end timing delay cap and widened velocity/energy scale are bounded and deterministic.
 - Confirm cognitive/dexterity/endurance impulses are reduced enough that meters do not saturate too quickly.
@@ -14,8 +17,8 @@ Suggested focus:
 - Confirm cognitive, dexterity, and endurance meter values are exported from `AudioEngine` to the processor through atomics and read by the editor timer without audio-thread allocation or UI calls.
 - Confirm meter decay remains deterministic and visibly clears during rests/easier passages.
 - Confirm the `Export Settings` popup returns valid JSON with current parameter values plus Player Feel meters, and that it is copyable in the UI.
-- Confirm `Export Settings` is globally available in the header and no longer consumes Articulation-page row space.
-- Review the EG-075/EG-076 `PlayerFeel` path as the base for EG-077:
+- Confirm `Export Settings` is globally available in the header, has enough vertical breathing room, and no longer consumes Articulation-page row space.
+- Review the EG-075/EG-076/EG-077 `PlayerFeel` path as the base for EG-078:
   - confirm `Player Feel = 0` leaves the render path neutral;
   - confirm load accumulation/recovery is deterministic and bounded;
   - confirm `Feel Recovery` and `Reset Feel` clear cognitive/dexterity/endurance state as intended;
@@ -33,6 +36,7 @@ Suggested focus:
 - Confirm the info note accurately describes the smarter `Alternate` interpretation without adding a new user-facing mode.
 - Review `plans/0076-economy-pick-stroke.md` for implementation/test coverage and physical-model framing.
 - Optionally use `tests/midi/guitar-ag-pick-stroke-audition.mid` to audition repeated picking, string crossings, string skips, chord strums, and riff-like phrases with `Pick Stroke = Alternate`.
+- Review `plans/0079-auto-strum-interpreter.md` for the proposed future Auto Strum direction.
 
 Known limitations:
 

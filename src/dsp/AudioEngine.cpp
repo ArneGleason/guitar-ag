@@ -919,6 +919,11 @@ AudioEngine::PlayerFeelResult AudioEngine::processPlayerFeelNoteOn (const juce::
     const auto economyFlow = travelSign != 0
                           && travelSign == playerFeelLastTravelSign
                           && stringDistance == 1;
+    const auto strumContinuation = hadPrevious
+                                && ! sameString
+                                && travelSign != 0
+                                && stringDistance <= 2
+                                && intervalSeconds <= 0.070f;
     const auto fast = hadPrevious
                     ? juce::jlimit (0.0f, 1.0f, (0.190f - intervalSeconds) / 0.165f)
                     : 0.0f;
@@ -946,6 +951,12 @@ AudioEngine::PlayerFeelResult AudioEngine::processPlayerFeelNoteOn (const juce::
     {
         cognitiveImpulse *= 0.72f;
         dexterityImpulse *= 0.82f;
+    }
+
+    if (strumContinuation)
+    {
+        cognitiveImpulse *= 0.30f;
+        dexterityImpulse *= 0.42f;
     }
 
     playerFeelCognitiveLoad = juce::jlimit (0.0f, 1.0f, playerFeelCognitiveLoad + cognitiveImpulse);

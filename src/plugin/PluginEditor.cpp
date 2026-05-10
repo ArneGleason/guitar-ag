@@ -713,15 +713,17 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
 void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
 {
     juce::ignoreUnused (audioProcessor);
+    constexpr auto headerHeight = 108;
 
     graphics.fillAll (juce::Colour (0xff12171d));
 
     graphics.setColour (juce::Colour (0xff1b232d));
-    graphics.fillRect (getLocalBounds().removeFromTop (90));
+    graphics.fillRect (getLocalBounds().removeFromTop (headerHeight));
     graphics.setColour (juce::Colour (0xff283340));
-    graphics.drawHorizontalLine (89, 24.0f, static_cast<float> (getWidth() - 24));
+    graphics.drawHorizontalLine (headerHeight - 1, 24.0f, static_cast<float> (getWidth() - 24));
 
     auto bounds = getLocalBounds().reduced (24);
+    bounds.removeFromRight (168);
     graphics.setColour (juce::Colour (0xffe8edf2));
     graphics.setFont (juce::FontOptions (25.0f, juce::Font::bold));
     graphics.drawFittedText ("Guitar AG", bounds.removeFromTop (40), juce::Justification::centredLeft, 1);
@@ -753,9 +755,9 @@ void GuitarAgAudioProcessorEditor::resized()
     auto bounds = getLocalBounds().reduced (24);
     const auto titleBounds = bounds.removeFromTop (40);
     projectInfoButton.setBounds (titleBounds.getX() + 116, titleBounds.getY() + 8, 22, 22);
-    exportSettingsButton.setBounds (getWidth() - 172, 60, 112, 24);
-    exportSettingsInfoButton.setBounds (getWidth() - 56, 60, 22, 22);
-    bounds.removeFromTop (38);
+    exportSettingsButton.setBounds (getWidth() - 172, 72, 112, 24);
+    exportSettingsInfoButton.setBounds (getWidth() - 56, 72, 22, 22);
+    bounds.removeFromTop (54);
 
     auto tabBounds = bounds.removeFromTop (32);
     auto distributeTab = [&tabBounds] (juce::Button& button, int remaining)
@@ -1272,5 +1274,5 @@ void GuitarAgAudioProcessorEditor::timerCallback()
 
 int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
 {
-    return 760;
+    return 776;
 }

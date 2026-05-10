@@ -107,6 +107,10 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Reduced Player Feel load impulse rates so cognitive/dexterity/endurance meters do not saturate as quickly.
 - Expanded the top half of `Player Feel` with a wider nonlinear timing and velocity/energy variation range for intentionally sloppier playing at 100%.
 - Moved `Export Settings` from the Articulation page to the global header.
+- Added `plans/0079-auto-strum-interpreter.md` to outline the future Auto Strum interpreter.
+- Changed the model label to `StringVoice EG-078 StrumAwareFeel`.
+- Made Player Feel strum-aware: very short cross-string note clusters now count as a continuing right-hand stroke with reduced cognitive and dexterity load.
+- Increased header vertical spacing so the global `Export Settings` button no longer crowds the heading text.
 
 ### Fixed
 

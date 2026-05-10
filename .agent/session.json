@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Recalibrate Player Feel slop and move settings export",
-  "status": "EG-077 PlayerFeelSlop implemented, built, installed, and ready for review/audition",
-  "updatedAt": "2026-05-10T11:39:25-04:00",
-  "lastHandoff": ".agent/handoffs/20260510-113925-codex-player-feel-slop.md",
+  "lastTask": "Make Player Feel strum-aware",
+  "status": "EG-078 StrumAwareFeel implemented, built, installed, and ready for review/audition",
+  "updatedAt": "2026-05-10T11:56:58-04:00",
+  "lastHandoff": ".agent/handoffs/20260510-115658-codex-strum-aware-feel.md",
   "branch": "main",
-  "commit": "EG-077 PlayerFeelSlop implementation will be the latest pushed main commit after Codex commit",
+  "commit": "EG-078 StrumAwareFeel implementation will be the latest pushed main commit after Codex commit",
   "projectState": {
-    "summary": "EG-077 reduces player-feel load impulses so cognitive/dexterity/endurance meters saturate less quickly, widens the top-half Player Feel timing and velocity/energy range so 100% can sound genuinely sloppy, moves Export Settings into the global header, and stores the human-provided EG-076 tone/feel snapshot as an audition reference."
+    "summary": "EG-078 treats very short cross-string note clusters as continuing strum strokes for Player Feel load accounting, reducing misleading cognitive/dexterity buildup on already-staggered chord MIDI. It also adds an Auto Strum interpreter plan and gives the header Export Settings control more vertical room."
   }
 }

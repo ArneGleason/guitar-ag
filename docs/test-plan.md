@@ -232,7 +232,7 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Compare the pick-stroke audition file against forced `Down` and forced `Up` to judge whether `Alternate` feels like right-hand travel rather than a mechanical toggle.
 - [ ] In the pick-stroke audition chord sections, strummed notes should feel like a held left-hand chord being re-articulated by the right hand, not like the fretting hand releases every note between strokes.
 - [ ] `Player Feel` at 0% sounds and renders like the current neutral picked path.
-- [ ] New plugin instances show `v0.2.6 / StringVoice EG-077 PlayerFeelSlop`.
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-078 StrumAwareFeel`.
 - [ ] Raising `Player Feel` adds picked-note timing/energy variation that grows during fast repetition, string skips, and awkward changes.
 - [ ] `Player Feel` around 50% lands near the accepted natural EG-075 100% feel.
 - [ ] `Player Feel` near 100% overshoots into visibly/audibly sloppier playing without breaking the phrase, with timing variation clearly larger than 50%.
@@ -240,7 +240,9 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Shorter `Feel Recovery` clears the effect quickly after rests or easier passages; longer recovery lets the load carry forward.
 - [ ] `Reset Feel` immediately clears accumulated feel state for a new take.
 - [ ] Cognitive, Dexterity, and Endurance meters rise during demanding picking without immediately pinning to 100%, then clear during rests/easier passages.
+- [ ] Staggered chord strums raise Player Feel meters less aggressively than fast single-note runs at a similar note density.
 - [ ] Header `Export Settings` opens a copyable JSON blob containing current parameter values and Player Feel meter values.
+- [ ] Header `Export Settings` has enough vertical space and does not overlap the title/subtitle/header text.
 - [ ] Re-rendering the same MIDI with the same `Player Feel` settings remains deterministic.
 - [ ] `Pick Stiffness` and `Pick Texture` remain useful after the plastic-plectrum retune.
 - [ ] Re-rendering the same MIDI with the same `Pick Stroke` setting remains deterministic.

@@ -205,6 +205,8 @@ scripts/create-pick-stroke-audition-midi.py
 
 The chord-strum sections sustain each fretted string until that string is struck again or the chord changes. This keeps the MIDI closer to a held left-hand chord shape with right-hand re-articulation instead of short left-hand note gates on every stroke.
 
+EG-078 makes Player Feel less aggressive on these already-staggered strums by treating quick cross-string note clusters as a continuing right-hand stroke. A future Auto Strum interpreter should let this audition file include simultaneous block chords and let the plugin generate the inter-string stroke timing itself.
+
 Offline A/B example:
 
 ```bash

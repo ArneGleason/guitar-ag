@@ -1876,3 +1876,20 @@ EG-077 changes the player-feel transfer function without adding new parameters:
 - `Export Settings` moved to the global header because it describes the whole plugin state, not only articulation.
 
 The model remains deterministic: it still uses musical context and stable render position, not arbitrary per-render randomness.
+
+## 2026-05-10 — EG-078 Strum-Aware Player Feel
+
+Human audition after EG-077 clarified that chord strums should not accumulate player load like a run of unrelated single-note picks. EG-078 adds a small strum-continuation heuristic inside `AudioEngine::processPlayerFeelNoteOn`:
+
+- If a note-on follows the previous picked note within about 70 ms;
+- and it moves to a different, near-adjacent string;
+- and it has a clear cross-string travel direction;
+- then it is treated as a continuing strum stroke for Player Feel load accounting.
+
+For these continuation notes:
+
+- cognitive impulse is reduced strongly;
+- dexterity impulse is reduced substantially;
+- timing/energy variation still uses the accumulated load and remains deterministic.
+
+This does not schedule strums from block chords yet. It only prevents existing staggered strum MIDI from overcharging the load model. Full Auto Strum planning lives in `plans/0079-auto-strum-interpreter.md`.

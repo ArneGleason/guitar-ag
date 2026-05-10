@@ -677,3 +677,17 @@ Accepted
 
 Consequences:
 Load meters should climb more gradually during demanding passages. `Player Feel` near 50% remains the practical natural range, while 100% can delay picked note starts much more noticeably and widen velocity/energy variation. `Export Settings` is treated as a global audition/preset-context action and now lives in the header instead of inside the Articulation page.
+
+## 2026-05-10 — Treat fast cross-string clusters as strum continuations
+
+Decision:
+Before implementing full Auto Strum scheduling, make Player Feel recognize very short cross-string note-on clusters as a continuing right-hand strum stroke and charge them less cognitive/dexterity load.
+
+Reason:
+Human DAW audition showed that already-staggered strum MIDI was making the load meters climb as if every string in a chord were a separate difficult picking decision. Physically, a held chord strum is often one right-hand sweep while the left hand mostly holds a shape. The player model should start separating left-hand work from right-hand stroke continuation.
+
+Status:
+Accepted
+
+Consequences:
+EG-078 reduces the Player Feel load contribution for adjacent or near-adjacent cross-string note starts inside a short strum window. This preserves existing authored strum MIDI while lowering misleading load buildup. A later Auto Strum interpreter can accept simultaneous chord notes and internally schedule string-order timing.
