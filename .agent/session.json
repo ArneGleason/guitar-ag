@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Polish Articulation groups and release-candidate defaults",
-  "status": "EG-081 ArticGroups verified by Antigravity; awaiting human Bitwig sign-off",
-  "updatedAt": "2026-05-10T17:45:00-04:00",
+  "lastTask": "Prepare and publish v0.3.0 release",
+  "status": "Human Bitwig audition accepted EG-081; Codex is preparing v0.3.0 release docs, package, tag, and GitHub release.",
+  "updatedAt": "2026-05-10T18:10:00-04:00",
   "lastHandoff": ".agent/handoffs/20260510-174500-antigravity-eg081-artic-groups.md",
   "branch": "main",
-  "commit": "6ed57ff",
+  "commit": "80872ce",
   "projectState": {
-    "summary": "EG-081 reorganizes Articulation controls into parent/subordinate groups and changes new-instance defaults to Pick Texture 25%, Strum Speed 10%, Strum Balance -13%, and Player Feel 50%. Antigravity verified the pass; awaiting human Bitwig sign-off before any v3.0 release/version bump."
+    "summary": "EG-081 reorganized Articulation controls into parent/subordinate groups and changed new-instance defaults to Pick Texture 25%, Strum Speed 10%, Strum Balance -13%, and Player Feel 50%. Antigravity verified the pass and the human Bitwig audition accepted it. The current release target is v0.3.0 to match the existing pre-1.0 tag series."
   }
 }

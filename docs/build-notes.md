@@ -163,7 +163,7 @@ Manual checks for the current VST3 build:
 - No sound is produced when no MIDI note is held.
 - MIDI note-on produces the modeled clean-DI guitar tone.
 - MIDI note-off releases the tone.
-- New plugin instances should open as `v0.2.6 / StringVoice EG-081 ArticGroups`.
+- New plugin instances should open as `v0.3.0 / StringVoice EG-081 ArticGroups`.
 - `Distorted Return` should be enabled by default on new instances.
 - High `Amp Feedback` should bloom after picked attacks rather than grabbing the start of the note immediately.
 - With MPE enabled in the DAW and plugin, per-note pitch bend, channel pressure, and CC74 should affect only the matching member-channel voice.
@@ -189,10 +189,10 @@ Example:
 mkdir -p dist
 ditto -c -k --sequesterRsrc --keepParent \
   "build/GuitarAG_artefacts/Release/VST3/Guitar AG.vst3" \
-  "dist/GuitarAG-v0.2.6-macOS-vst3.zip"
+  "dist/GuitarAG-v0.3.0-macOS-vst3.zip"
 ```
 
-The GitHub release tag should match the CMake project version, for example `v0.2.6`.
+The GitHub release tag should match the CMake project version, for example `v0.3.0`.
 
 ## Bitwig Notes
 

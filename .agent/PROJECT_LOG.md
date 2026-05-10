@@ -68,3 +68,5 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Antigravity completed a broad retrospective review through commit `585049a` and cleared EG-066 through EG-079 with no required fixes; EG-080 remains the current unreviewed follow-up.
 - Implemented `StringVoice EG-081 ArticGroups`, reorganizing Articulation into parent/subordinate control groups and setting audition-ready defaults for Pick Texture, Strum Speed, Strum Balance, and Player Feel.
 - Antigravity verified EG-081 at commit `6ed57ff`, approving the articulation grouping, release-candidate defaults, session/export behavior, and `Strum Balance` string conversion.
+- Human Bitwig audition accepted the EG-081 release-candidate build.
+- Began the formal `v0.3.0` release pass: version bump, README refresh, user-facing release notes, macOS VST3 packaging, and GitHub release publication.

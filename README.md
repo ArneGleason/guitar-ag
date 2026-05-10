@@ -4,6 +4,12 @@ Guitar AG is an experimental **source-available physical-model electric guitar V
 
 It is **not sample based**. It synthesizes a clean DI-style electric guitar voice from modeled string behavior, pickup readout, and performance controls. The goal is a lightweight virtual instrument that can sit before a normal amp/cab simulator and respond more like a playable guitar-style synth than a static sample library.
 
+## Latest Release
+
+**v0.3.0 - Slide, Strum, and Player Feel** is the current release. It adds automatable neck-slide/glissando controls, direction-aware slide squeaks, a more guitar-aware plastic-pick and strumming model, deterministic player-feel timing/energy variation, grouped articulation controls, and the weekend's DSP performance/maintainability passes.
+
+Download it from [GitHub Releases](https://github.com/ArneGleason/guitar-ag/releases/latest). The current packaged binary is the macOS VST3 asset; Windows builds can still be produced from source and attached later from a Windows machine.
+
 If you have been looking for a small modeled alternative to multi-gigabyte sampled guitar libraries, this project is exploring that space: independent modeled string voices, guitar-like articulation, MPE per-note pitch bend/expression, and a DI output designed for external amp sims.
 
 It can be played as a performance instrument, but the original need was composition: writing guitar parts in a DAW piano roll without relying on keyswitches. Guitar AG favors automatable parameters, MPE/note-expression lanes, and a controllable amount of built-in player interpretation so guitar-like bends, pressure, timbre, legato, muting, pickup movement, and feedback can be drawn or automated over time.
@@ -20,7 +26,7 @@ The project is also a practical example of AI-assisted audio plugin development:
 
 ## Current Status
 
-The current build is a working VST3 instrument with macOS and Windows release assets.
+The current build is a working VST3 instrument. The current GitHub release includes a macOS VST3 asset; Windows remains buildable from source and can receive a matching binary asset after a Windows build pass.
 
 Implemented so far:
 
@@ -29,9 +35,10 @@ Implemented so far:
 - Standard MIDI note on/off and velocity.
 - Fretboard/string assignment heuristic.
 - Pickup type and pickup position controls.
-- Pick stiffness and pick texture controls.
+- Pick Bite, Pick Stroke, Pick Stiffness, and Pick Texture controls for a direction-aware plastic plectrum model.
 - Palm mute, harmonic touch, string age, sustain, bridge intonation, and fret pressure controls.
 - Lookahead finger-noise mode for rendered playback.
+- Neck Slide, Fret Steps, Slide Lift, and direction-aware slide squeak controls for authored glissando/slide gestures.
 - Finger vibrato controls with optional mod-wheel routing.
 - Global pitch-wheel whammy mode.
 - Per-note key/poly aftertouch bend.
@@ -39,14 +46,17 @@ Implemented so far:
 - MPE/channel expression routing for pressure and CC74/timbre, scoped to the matching MIDI channel/voice.
 - MPE-compatible whammy behavior: member-channel pitch wheel stays per-note, while channel 1 pitch wheel can drive global whammy in lower-zone MPE.
 - Player-articulation interpretation for picked notes, hammer-ons, pull-offs, and right-hand taps.
+- Auto Strum for exact same-time block chords, wired into pick-stroke direction and strum balance.
+- Deterministic Player Feel timing/energy interpretation with cognitive, dexterity, and endurance meters.
+- Copyable JSON settings export for DAW audition handoffs.
 - `Amp Feedback` control with onset-ducked dominant-band/string-focus feedback for controlled harmonic takeover.
 - Six-string voice allocation: repeated or dense MIDI input reuses physical string voices instead of accumulating generic synth voices.
-- Dedicated feature-audition and player-articulation MIDI clips plus offline render tooling.
+- Dedicated feature-audition, player-articulation, slide, pick-stroke, and auto-strum MIDI clips plus offline render tooling.
 
 Current model label:
 
 ```text
-StringVoice EG-061 RenderHelpers
+StringVoice EG-081 ArticGroups
 ```
 
 ## Demo
@@ -61,11 +71,11 @@ Short MP3 render from an earlier modeled guitar voice:
 
 Planned demo clips:
 
-- Clean DI modeled guitar demo: coming soon at `assets/demo/guitar-ag-v0.2.0-clean-di.mp3`.
-- Amp-sim context demo: coming soon at `assets/demo/guitar-ag-v0.2.0-through-amp-sim.mp3`.
-- MPE independent bend demo: coming soon at `assets/demo/guitar-ag-v0.2.0-mpe-bend.mp3`.
-- Player articulation demo with hammer-ons, pull-offs, and taps: coming soon at `assets/demo/guitar-ag-v0.2.0-articulation.mp3`.
-- Amp feedback takeover demo: coming soon at `assets/demo/guitar-ag-v0.2.0-feedback.mp3`.
+- Clean DI modeled guitar demo: coming soon at `assets/demo/guitar-ag-v0.3.0-clean-di.mp3`.
+- Amp-sim context demo: coming soon at `assets/demo/guitar-ag-v0.3.0-through-amp-sim.mp3`.
+- MPE independent bend demo: coming soon at `assets/demo/guitar-ag-v0.3.0-mpe-bend.mp3`.
+- Player articulation and Auto Strum demo: coming soon at `assets/demo/guitar-ag-v0.3.0-articulation-strum.mp3`.
+- Slide and feedback demo: coming soon at `assets/demo/guitar-ag-v0.3.0-slide-feedback.mp3`.
 
 The most useful first demos are short, dry, and direct: a clean DI clip that proves the plugin is not a sample library, and an MPE clip where one held chord tone bends while the others stay fixed.
 
@@ -155,15 +165,19 @@ Cross-compiling a Windows VST3 from macOS is not the recommended path. JUCE/CMak
 
 Compiled plugin binaries should be distributed through **GitHub Releases**, not committed directly into the repository.
 
-Current release assets:
+Current release asset:
 
+- `GuitarAG-v0.3.0-macOS-vst3.zip`
+
+Recent earlier assets:
+
+- `GuitarAG-v0.2.6-macOS-vst3.zip`
 - `Guitar-AG-macOS-v0.2.0.zip`
-- `Guitar-AG-v0.2.0-Windows-VST3.zip`
 
 Future release assets should use consistent names:
 
-- `Guitar-AG-vX.Y.Z-macOS-VST3.zip`
-- `Guitar-AG-vX.Y.Z-Windows-VST3.zip`
+- `GuitarAG-vX.Y.Z-macOS-vst3.zip`
+- `GuitarAG-vX.Y.Z-Windows-vst3.zip`
 
 Release packaging can be automated later with GitHub Actions so macOS and Windows builds are attached automatically to tagged releases.
 
@@ -228,21 +242,23 @@ The offline renderer is useful for DSP comparison and regression checks. It does
 
 We started with a rough idea: a lightweight physical-model electric guitar VST that could act as a clean DI instrument without samples, then built it in small auditionable steps. First we made the JUCE/CMake VST3 shell and a simple plucked string, then repeatedly listened, measured, and adjusted the model through pickup behavior, sustain, wound/plain string character, pick stiffness and texture, palm muting, harmonics, string age, intonation, fret pressure, finger noise, vibrato, whammy behavior, aftertouch bend, MPE per-note pitch bend, and MPE pressure/CC74 expression.
 
-The newest iteration added a phrase-aware player-articulation layer, a first amp-feedback model, a tighter six-string voice allocator, a passive modal fast path, a revised out-of-phase pickup model, a lower-zone MPE whammy split, and a string-focused feedback return with note-on bloom. `Legato Articulation` interprets eligible note transitions as pull-offs, hammer-ons, or right-hand taps with distinct excitation profiles. `Amp Feedback` combines local string sustain with a small global feedback resonator loop, so high settings can let one harmonic band and one physical string begin to dominate rather than evenly boosting every string. New note attacks temporarily duck the feedback return, then let it bloom back over the sustain so the picked/chord attack can establish the next resonant target. The voice allocator now caps the core model at six physical string voices and reuses a string's existing voice when new MIDI is assigned to that string. The passive fast path avoids unused modal work and inactive expression/feedback math without intentionally changing the rendered sound. The third pickup choice is now `Singles OOP`, a wider-spaced pair of single-coil readouts summed out of phase. In MPE mode, member-channel pitch wheel stays per-note while channel 1 pitch wheel can still drive global whammy. `Distorted Return` now defaults on, clipping only the internal feedback return while keeping the main output clean DI-style; clean return remains available as the alternate mode.
+The v0.3.0 iteration moved the project from a playable modeled guitar core toward a more guitar-aware performance surface. `Neck Slide` lets a held note or chord shape move like an authored slide lane, while `Fret Steps`, `Slide Lift`, and separate up/down squeak controls keep it from sounding like only a whammy bend. `Pick Bite`, `Pick Stroke`, `Strum Speed`, and `Strum Balance` model more of the right hand: repeated notes can alternate, string crossings use economy direction, and exact same-time block chords can be fanned across strings by the instrument instead of hand-staggered in MIDI. `Player Feel` adds deterministic timing and energy variation from cognitive load, dexterity load, and endurance, with visible meters and recovery/reset controls so a DAW part can feel performed without becoming random. The Articulation and Performance pages now use primary rows with disclosure tweaks so the control surface is less crowded.
+
+Under the hood, the weekend also included a code-level optimization cycle. Pitch modulation is cached at a short control interval, feedback weights are cached outside the modal inner loop, transient contact trigonometry uses narrow fast approximations, and the large render path was split into clearer helper stages. The intent is still the same: a clean DI modeled guitar source that can feed external amp/cab tools, with MPE and automation doing the expressive work.
 
 The process is very "warmer/colder": Codex makes a narrow hypothesis and builds it, the human tests in Bitwig and gives musical feedback, and the project keeps or redirects each experiment based on what actually sounds convincing. The repo has grown from documentation and an empty shell to a buildable, installed, versioned VST3 with real-time modeled guitar-like sound, useful performance controls, offline render tooling, and the core MPE goal working: independent pitch and expression control for notes via MPE.
 
 ## By The Numbers
 
-As of the `EG-061 RenderHelpers` milestone:
+As of the `EG-081 ArticGroups` release-candidate milestone:
 
-- Git commits before this milestone commit: 72.
-- Model checkpoints documented or build-labeled: 61.
-- VST parameters: 27.
+- Git commits before the release-prep commit: 119.
+- Model checkpoints documented or build-labeled: 81.
+- VST parameters: 40.
 - Editor pages: Setup, Pickup, Perform, Vibrato, MPE, Whammy, and Artic.
-- Plan files: 63, including player articulation, feedback-loop, CPU-performance, MPE-whammy, feedback-focus, and feedback-bloom plans.
-- Audition MIDI files: feature audition, player-articulation audition, single-note calibration, and velocity ladder.
-- Offline renderer flags now cover core tone controls, MPE expression, legato articulation, and amp feedback.
+- Plan files: 78, including slide gesture, finger squeak, pick-stroke, player-feel, Auto Strum, and preset-model plans.
+- Audition MIDI files: feature audition, player-articulation audition, slide gesture, pick-stroke, Auto Strum, single-note calibration, and velocity ladder.
+- Offline renderer flags now cover core tone controls, slide controls, MPE expression, pick/strum controls, player feel, legato articulation, and amp feedback.
 
 ## Repo Guide
 

@@ -7,8 +7,8 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 Suggested focus:
 
 - No code-review item is currently queued.
-- Await the human Bitwig audition of EG-081.
-- If the human signs off, the next likely task is the release/version bump decision for v3.0.
+- Human Bitwig audition of EG-081 has passed.
+- Current task is the `v0.3.0` release/version bump and GitHub release publication.
 
 Recently cleared:
 

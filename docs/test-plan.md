@@ -232,7 +232,7 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Compare the pick-stroke audition file against forced `Down` and forced `Up` to judge whether `Alternate` feels like right-hand travel rather than a mechanical toggle.
 - [ ] In the pick-stroke audition chord sections, strummed notes should feel like a held left-hand chord being re-articulated by the right hand, not like the fretting hand releases every note between strokes.
 - [ ] `Player Feel` at 0% sounds and renders like the current neutral picked path.
-- [ ] New plugin instances show `v0.2.6 / StringVoice EG-081 ArticGroups`.
+- [ ] New plugin instances show `v0.3.0 / StringVoice EG-081 ArticGroups`.
 - [ ] The `Player Feel` slider shows Bot, Pro, and Loose landmarks at 0%, 50%, and 100%.
 - [ ] Raising `Player Feel` adds picked-note timing/energy variation that grows during fast repetition, string skips, and awkward changes.
 - [ ] `Player Feel` around 50% lands near the accepted natural EG-075 100% feel.
