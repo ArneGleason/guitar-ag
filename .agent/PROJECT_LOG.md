@@ -44,3 +44,12 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Received human Bitwig feedback that EG-065 note-off slide tails were not convincing and could spike CPU at loop boundaries; recorded it in `.agent/handoffs/20260509-213804-human-slide-tail-feedback.md`.
 - Implemented `StringVoice EG-066 SlideLift`, replacing the `Slide Tail` choice with a continuous slide-pressure lift envelope during `Neck Slide` motion.
 - Routed EG-066 for review in `.agent/handoffs/20260509-214401-codex-slide-lift-implementation.md`.
+
+## 2026-05-10
+
+- Implemented `StringVoice EG-067 FingerSqueak`, revoicing finger and slide-lift contact noise away from broadband hiss toward string/fret-dependent stick-slip squeak.
+- Implemented `StringVoice EG-068 SlideSqueakMotion`, making slide squeak follow `Neck Slide` movement speed and current string pitch instead of a fixed carrier.
+- Implemented `StringVoice EG-069 SlideSqueakControl`, adding a separate slide-grouped squeak balance control and offline `--slide-squeak`.
+- Implemented `StringVoice EG-070 PerformanceUi`, capping `Slide Squeak` at 100%, defaulting it to 20%, and grouping Performance controls under disclosure rows.
+- Implemented `StringVoice EG-071 SlideSqueakDirection`, splitting slide squeak balance into upward and downward controls under the `Neck Slide` disclosure.
+- Added `plans/0072-preset-model.md` to define the stock/user preset architecture before implementing preset browser/export UI.

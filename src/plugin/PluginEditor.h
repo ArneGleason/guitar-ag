@@ -53,6 +53,7 @@ private:
     juce::Slider slideFretStepsSlider;
     juce::Slider slideLiftSlider;
     juce::Slider slideSqueakSlider;
+    juce::Slider slideSqueakDownSlider;
     juce::Slider fingerNoiseSlider;
     juce::Slider ampFeedbackSlider;
     juce::Slider vibratoSpeedSlider;
@@ -79,6 +80,7 @@ private:
     juce::Label slideFretStepsLabel;
     juce::Label slideLiftLabel;
     juce::Label slideSqueakLabel;
+    juce::Label slideSqueakDownLabel;
     juce::Label lookaheadLabel;
     juce::Label fingerNoiseLabel;
     juce::Label ampFeedbackLabel;
@@ -115,6 +117,7 @@ private:
     juce::TextButton slideFretStepsInfoButton;
     juce::TextButton slideLiftInfoButton;
     juce::TextButton slideSqueakInfoButton;
+    juce::TextButton slideSqueakDownInfoButton;
     juce::TextButton lookaheadInfoButton;
     juce::TextButton fingerNoiseInfoButton;
     juce::TextButton ampFeedbackInfoButton;
@@ -153,6 +156,7 @@ private:
     std::unique_ptr<SliderAttachment> slideFretStepsAttachment;
     std::unique_ptr<SliderAttachment> slideLiftAttachment;
     std::unique_ptr<SliderAttachment> slideSqueakAttachment;
+    std::unique_ptr<SliderAttachment> slideSqueakDownAttachment;
     std::unique_ptr<ComboBoxAttachment> lookaheadAttachment;
     std::unique_ptr<SliderAttachment> fingerNoiseAttachment;
     std::unique_ptr<SliderAttachment> ampFeedbackAttachment;

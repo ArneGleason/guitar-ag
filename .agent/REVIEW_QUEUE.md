@@ -6,14 +6,16 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Review the EG-066 `SlideLift` replacement for EG-065 `SlideTail`.
-- Confirm the `Slide Tail` choice and note-off release modes are fully removed from live code.
-- Confirm `Slide Lift` is neutral at 0%, only responds to recent `Neck Slide` motion, fades fret-step engagement, adds light lifted scrape, and damps sustain without touching MPE/whammy/vibrato pitch paths.
-- Confirm the UI info copy clearly explains the control in plain language and technical terms.
-- Confirm `GuitarAGOfflineRender` uses `--slide-lift` and no longer uses `--slide-tail`.
+- Review the EG-071 `SlideSqueakDirection` implementation.
+- Confirm the existing `slideSqueak` parameter ID remains the upward amount and the new `slideSqueakDown` parameter is wired end to end.
+- Confirm `StringVoice::slideFretDirection` only affects slide contact squeak/scrape amount selection and does not alter pitch, MPE, whammy, `Fret Steps`, or `Slide Lift`.
+- Confirm the Performance page shows `Squeak Up` and `Squeak Down` under `Neck Slide` with complete info notes.
+- Review `plans/0072-preset-model.md` for architecture sanity, treating it as planning-only.
 
 Known limitations:
 
+- EG-071 uses one persisted last-direction value per voice, so overlapping up/down contact tails are direction-approximated rather than separately accumulated.
+- The preset model is planned but not implemented.
 - EG-066 is still an approximation of lifted fretting pressure. Same-string speaking-length preservation remains future work.
 - DAW verification is still required for the lookahead/expression timing fix.
 - DAW listening is required for the new 4-sample pitch control-rate optimization.
@@ -28,5 +30,5 @@ Known limitations:
 Questions:
 
 - If performance still feels short of target in a specific DAW scenario, capture host, sample rate, buffer size, amp-sim chain, MIDI clip, and parameter settings before profiling.
-- If `Slide Lift` feels too subtle or too aggressive in a DAW, capture lift amount, slide speed, release timing, and target interval before changing the envelope/damping scalars.
-- After review/audition, decide whether to tune EG-066 or proceed to same-string speaking-length work.
+- If up/down squeak levels still feel uneven in a DAW, capture `Squeak Up`, `Squeak Down`, `Fret Steps`, `Slide Lift`, slide speed, interval, and direction before changing the contact model.
+- Decide whether the next implementation pass should be preset save/load UI or same-string speaking-length work.

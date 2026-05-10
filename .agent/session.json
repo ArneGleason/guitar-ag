@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Replace EG-065 Slide Tail with EG-066 Slide Lift",
-  "status": "slide-lift-implemented-awaiting-review",
-  "updatedAt": "2026-05-09T21:44:01-04:00",
-  "lastHandoff": ".agent/handoffs/20260509-214401-codex-slide-lift-implementation.md",
+  "lastTask": "Split slide squeak balance by movement direction",
+  "status": "EG-071 implementation awaiting review",
+  "updatedAt": "2026-05-10T08:30:10-04:00",
+  "lastHandoff": ".agent/handoffs/20260510-083010-codex-slide-squeak-direction.md",
   "branch": "main",
-  "commit": "EG-066 SlideLift implementation will be the latest pushed main commit after Codex commit",
+  "commit": "EG-071 SlideSqueakDirection implementation will be the latest pushed main commit after Codex commit",
   "projectState": {
-    "summary": "Human Bitwig audition superseded EG-065 SlideTail. EG-066 replaces the note-off tail choice with a Slide Lift slider that lifts fretting pressure during Neck Slide motion."
+    "summary": "EG-071 splits slide squeak amount into upward and downward controls under the Neck Slide disclosure, preserving the old slideSqueak parameter ID for upward compatibility. Preset architecture is planned separately in plans/0072-preset-model.md."
   }
 }

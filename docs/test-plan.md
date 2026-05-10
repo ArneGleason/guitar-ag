@@ -130,7 +130,7 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] The Performance page shows `Slide Squeak` under the slide controls.
 - [ ] `Slide Squeak` at 0% mutes slide contact squeak/scrape without disabling `Neck Slide`, `Fret Steps`, or `Slide Lift` damping.
 - [ ] `Slide Squeak` at 100% matches the EG-068 balance.
-- [ ] `Slide Squeak` above 100% boosts slide finger noise without changing the older `Finger Noise` approach/release layer.
+- [ ] `Slide Squeak` does not change the older `Finger Noise` approach/release layer.
 
 ## EG-070 Performance UI Checks
 
@@ -141,6 +141,16 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] The `Finger Noise` disclosure reveals `Lookahead`.
 - [ ] The `Amp Feedback` disclosure reveals `Return Clip`.
 - [ ] Secondary rows keep the same slider alignment and do not push `Amp Feedback` out of reach.
+
+## EG-071 Slide Squeak Direction Checks
+
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-071 SlideSqueakDirection`.
+- [ ] The `Neck Slide` disclosure reveals `Fret Steps`, `Slide Lift`, `Squeak Up`, and `Squeak Down`.
+- [ ] `Squeak Up` defaults to 20%, maxes at 100%, and controls upward `Neck Slide` squeak/scrape.
+- [ ] `Squeak Down` defaults to 20%, maxes at 100%, and controls downward `Neck Slide` squeak/scrape.
+- [ ] Setting `Squeak Up` to 0% while leaving `Squeak Down` raised mutes upward slide contact noise without muting downward returns.
+- [ ] Setting `Squeak Down` to 0% while leaving `Squeak Up` raised mutes downward slide contact noise without muting upward throws.
+- [ ] Existing saved sessions that had the old `Slide Squeak` parameter recall that value as `Slide Squeak Up`.
 
 ## Pickup Checks
 

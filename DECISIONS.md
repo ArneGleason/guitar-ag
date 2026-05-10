@@ -565,3 +565,31 @@ Accepted
 
 Consequences:
 The page now has a two-level structure without changing the existing top-level tabs. Secondary sliders remain column-aligned with primary sliders, but their labels are visually quieter. `Slide Squeak` is capped at 100% with a 20% default based on human audition.
+
+## 2026-05-10 — Split slide squeak by movement direction
+
+Decision:
+Keep the existing `slideSqueak` parameter ID as the upward slide-squeak amount, rename it host-facing as `Slide Squeak Up`, and add a new `Slide Squeak Down` parameter for downward slide motion.
+
+Reason:
+Human DAW listening found that the previous amount control changed the audible upward slide squeak but did not provide a useful independent balance for down-neck returns. Since slide direction is already known inside the fret/contact update path, exposing separate up/down balances is a small, musically useful extension.
+
+Status:
+Accepted
+
+Consequences:
+Existing sessions and automation that target `slideSqueak` continue to drive upward squeak. New sessions get both up and down defaults at 20%. The split affects only the slide contact squeak/scrape layer; `Neck Slide` pitch, `Fret Steps`, `Slide Lift`, MPE expression, and the older `Finger Noise` approach/release layer remain independent.
+
+## 2026-05-10 — Use APVTS state chunks plus file presets for the preset model
+
+Decision:
+Define the future preset system around the current `AudioProcessorValueTreeState` parameter state, saved as small versioned preset files for in-plugin stock/user preset management.
+
+Reason:
+The plugin already has host session recall through `getStateInformation` and `setStateInformation`, while JUCE's program API is currently a single stub program. A file-backed preset layer can sit above APVTS without changing the DSP model or depending on host-specific preset formats.
+
+Status:
+Planned
+
+Consequences:
+Stock presets should be loaded from bundled resources or an installed stock preset folder, while user presets should live in the user's application support preset folder. Adding user presets should not require recompilation. Updating bundled stock presets can happen through release packaging or a preset-folder installer; embedding them directly in the binary would require a rebuild.

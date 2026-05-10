@@ -38,6 +38,7 @@ public:
     static constexpr auto slideFretStepsParameterId = "slideFretSteps";
     static constexpr auto slideLiftParameterId = "slideLift";
     static constexpr auto slideSqueakParameterId = "slideSqueak";
+    static constexpr auto slideSqueakDownParameterId = "slideSqueakDown";
     static constexpr auto pickupPositionParameterId = "pickupPosition";
     static constexpr auto pickupModelParameterId = "pickupModel";
 
@@ -107,6 +108,7 @@ private:
     std::atomic<float>* slideFretStepsParameter = nullptr;
     std::atomic<float>* slideLiftParameter = nullptr;
     std::atomic<float>* slideSqueakParameter = nullptr;
+    std::atomic<float>* slideSqueakDownParameter = nullptr;
     std::atomic<float>* pickupPositionParameter = nullptr;
     std::atomic<float>* pickupModelParameter = nullptr;
     double currentSampleRate = 44100.0;

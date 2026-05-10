@@ -70,7 +70,8 @@ public:
                         float neckSlideSemitones,
                         float slideFretSteps,
                         float slideLift,
-                        float slideSqueak) noexcept;
+                        float slideSqueakUp,
+                        float slideSqueakDown) noexcept;
 
 private:
     static constexpr auto maxDelaySamples = 8192;
@@ -136,7 +137,7 @@ private:
                            float slideLift,
                            const FeedbackRenderContext& feedback) noexcept;
     float renderPickTransient() noexcept;
-    float renderContactLayer (float slideSqueak) noexcept;
+    float renderContactLayer (float slideSqueakUp, float slideSqueakDown) noexcept;
     [[nodiscard]] static float getEffectiveSlideFretSteps (float slideFretSteps) noexcept;
     [[nodiscard]] static float getFretSteppedSlideSemitones (float neckSlideSemitones,
                                                              float slideFretSteps,
@@ -242,6 +243,7 @@ private:
     float slideFretMotionDrive = 0.0f;
     float slideFretMotionDriveDecay = 1.0f;
     float slideFretSpeed = 0.0f;
+    float slideFretDirection = 1.0f;
     int slideFretSlipCountdown = 0;
     float previousNeckSlideSemitones = 0.0f;
     float slideMotionActivity = 0.0f;

@@ -70,6 +70,10 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Capped `Slide Squeak` at 100% and changed its default to 20% after human DAW audition found that balance more useful.
 - Reorganized the Performance page around primary controls with disclosure rows for slide, finger-noise, and feedback character tweaks.
 - Changed the model label to `StringVoice EG-070 PerformanceUi`.
+- Split slide contact volume into direction-aware `Slide Squeak Up` and `Slide Squeak Down` controls so upward throws and downward returns can be balanced separately.
+- Added offline-renderer `--slide-squeak-up` and `--slide-squeak-down` support while preserving `--slide-squeak` as the legacy/upward alias.
+- Added `plans/0072-preset-model.md` to define the recommended stock/user preset architecture before implementing preset UI.
+- Changed the model label to `StringVoice EG-071 SlideSqueakDirection`.
 
 ### Fixed
 

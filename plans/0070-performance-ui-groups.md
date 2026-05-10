@@ -16,7 +16,7 @@ Primary Performance controls:
 
 Secondary character/timing controls:
 
-- Under `Neck Slide`: `Fret Steps`, `Slide Lift`, `Slide Squeak`
+- Under `Neck Slide`: `Fret Steps`, `Slide Lift`, `Squeak Up`, `Squeak Down`
 - Under `Finger Noise`: `Lookahead`
 - Under `Amp Feedback`: `Return Clip`
 
@@ -34,7 +34,7 @@ Secondary character/timing controls:
 
 - New plugin instances show `v0.2.6 / StringVoice EG-070 PerformanceUi`.
 - Performance page shows primary controls without pushing `Amp Feedback` off the bottom.
-- `Neck Slide` disclosure reveals `Fret Steps`, `Slide Lift`, and `Slide Squeak`.
+- `Neck Slide` disclosure reveals `Fret Steps`, `Slide Lift`, `Squeak Up`, and `Squeak Down`.
 - `Finger Noise` disclosure reveals `Lookahead`.
 - `Amp Feedback` disclosure reveals `Return Clip`.
 - `Slide Squeak` maxes out at 100% and defaults to 20%.

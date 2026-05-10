@@ -102,6 +102,7 @@ void StringVoice::reset()
     slideFretMotionDrive = 0.0f;
     slideFretMotionDriveDecay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.026f)));
     slideFretSpeed = 0.0f;
+    slideFretDirection = 1.0f;
     slideFretSlipCountdown = 0;
     previousNeckSlideSemitones = 0.0f;
     slideMotionActivity = 0.0f;
@@ -314,6 +315,7 @@ void StringVoice::start (int midiNoteNumber,
     slideFretMotionDrive = 0.0f;
     slideFretMotionDriveDecay = std::pow (0.001f, 1.0f / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.026f)));
     slideFretSpeed = 0.0f;
+    slideFretDirection = 1.0f;
     slideFretSlipCountdown = 0;
     previousNeckSlideSemitones = 0.0f;
     slideMotionActivity = 0.0f;
@@ -786,7 +788,8 @@ float StringVoice::renderSample (float tailSustain,
                                  float neckSlideSemitones,
                                  float slideFretSteps,
                                  float slideLift,
-                                 float slideSqueak) noexcept
+                                 float slideSqueakUp,
+                                 float slideSqueakDown) noexcept
 {
     if (! active)
         return 0.0f;
@@ -888,7 +891,7 @@ float StringVoice::renderSample (float tailSustain,
     const auto effectiveSlideLift = juce::jlimit (0.0f, 1.0f, slideLiftEnvelope);
     auto modalOutput = renderModalBank (tailBlend, palmDecay, expressionPressure, expressionTimbre, effectiveSlideLift, feedback);
     modalOutput += renderPickTransient();
-    const auto contactOutput = renderContactLayer (slideSqueak);
+    const auto contactOutput = renderContactLayer (slideSqueakUp, slideSqueakDown);
 
     const auto attackRampSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * attackRampSeconds);
     modalOutput *= juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / attackRampSamples);
@@ -1023,10 +1026,12 @@ float StringVoice::renderPickTransient() noexcept
     return 0.0f;
 }
 
-float StringVoice::renderContactLayer (float slideSqueak) noexcept
+float StringVoice::renderContactLayer (float slideSqueakUp, float slideSqueakDown) noexcept
 {
     auto contactOutput = 0.0f;
-    const auto slideNoiseAmount = juce::jlimit (0.0f, 1.0f, slideSqueak);
+    const auto slideNoiseAmount = juce::jlimit (0.0f,
+                                                1.0f,
+                                                slideFretDirection >= 0.0f ? slideSqueakUp : slideSqueakDown);
 
     if (pickContactSamplesRemaining > 0)
     {
@@ -1531,6 +1536,9 @@ void StringVoice::updateSlideFretContact (float neckSlideSemitones, float slideF
     }
 
     const auto slideDelta = clampedSlide - previousNeckSlideSemitones;
+    if (std::abs (slideDelta) > 0.00001f)
+        slideFretDirection = slideDelta >= 0.0f ? 1.0f : -1.0f;
+
     const auto slideSpeedSemitonesPerSecond = std::abs (slideDelta)
                                             * static_cast<float> (sampleRate)
                                             / static_cast<float> (pitchControlUpdateInterval);

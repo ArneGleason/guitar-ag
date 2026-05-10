@@ -1664,6 +1664,17 @@ Human audition found the useful `Slide Squeak` range around 20%, and the Perform
 - Secondary rows keep the same slider alignment but use quieter labels.
 - `Slide Squeak` is now a 0% to 100% control and defaults to 20%.
 
+## 2026-05-10 — EG-071 Slide Squeak Direction
+
+Human audition found that upward slide squeak and downward slide squeak benefit from separate balances. EG-071 keeps the same contact model but splits the amount control by movement direction:
+
+- The existing `slideSqueak` parameter ID is preserved and host-facing renamed to `Slide Squeak Up`.
+- A new `slideSqueakDown` parameter exposes `Slide Squeak Down`.
+- Both controls range from 0% to 100% and default to 20%.
+- `StringVoice` stores the last active `Neck Slide` direction when the slide offset changes, so the short decaying contact tail keeps the direction of the motion that produced it.
+- The split only scales the slide contact squeak/scrape contribution in `renderContactLayer`; pitch, fret-step shaping, slide-lift damping, MPE, whammy, and global `Finger Noise` are unchanged.
+- `GuitarAGOfflineRender` keeps `--slide-squeak` as the legacy/upward flag, also accepts `--slide-squeak-up`, and adds `--slide-squeak-down`.
+
 ## Suggested MVP Signal Flow
 
 ```text

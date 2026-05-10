@@ -26,7 +26,7 @@ void printUsage()
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5] [--palm-mute 0.0] "
                  "[--harmonic-touch 0.0] [--string-age 0.0] [--bridge-intonation 0.0] "
                  "[--fret-pressure 0.0] [--aftertouch-bend 2.0] [--neck-slide 0.0] [--neck-slide-at seconds] "
-                 "[--slide-fret-steps 0.65] [--slide-lift 0.0] [--slide-squeak 0.2] "
+                 "[--slide-fret-steps 0.65] [--slide-lift 0.0] [--slide-squeak-up 0.2] [--slide-squeak-down 0.2] "
                  "[--aftertouch 0.0] "
                  "[--lookahead-ms 0] [--finger-noise 0.0] [--legato-articulation 0.0] [--amp-feedback 0.0] "
                  "[--feedback-return-distorted 1] "
@@ -139,6 +139,7 @@ int main (int argc, char* argv[])
     auto slideFretSteps = 0.65f;
     auto slideLift = 0.0f;
     auto slideSqueak = 0.20f;
+    auto slideSqueakDown = 0.20f;
     auto aftertouch = 0.0f;
     auto lookaheadMs = 0.0f;
     auto fingerNoise = 0.0f;
@@ -243,9 +244,13 @@ int main (int argc, char* argv[])
         {
             slideLift = juce::String (argv[++i]).getFloatValue();
         }
-        else if (argument == "--slide-squeak" && hasValue)
+        else if ((argument == "--slide-squeak" || argument == "--slide-squeak-up") && hasValue)
         {
             slideSqueak = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--slide-squeak-down" && hasValue)
+        {
+            slideSqueakDown = juce::String (argv[++i]).getFloatValue();
         }
         else if (argument == "--aftertouch" && hasValue)
         {
@@ -440,6 +445,7 @@ int main (int argc, char* argv[])
     engine.setSlideFretSteps (slideFretSteps);
     engine.setSlideLift (slideLift);
     engine.setSlideSqueak (slideSqueak);
+    engine.setSlideSqueakDown (slideSqueakDown);
     engine.setLookaheadSamples (static_cast<int> (std::round (sampleRate * static_cast<double> (lookaheadMs) / 1000.0)));
     engine.setFingerNoise (fingerNoise);
     engine.setLegatoArticulation (legatoArticulation);

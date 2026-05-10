@@ -517,6 +517,10 @@ Finger/string movement stops sounding guitar-like when it is mostly filtered ran
 
 A fixed-pitch squeak carrier under a random scrape floor still reads as hiss in a spectrum and by ear. Slide noise needs an explicit movement envelope: faster `Neck Slide` changes should raise pulse density and amplitude, while stopped movement should decay quickly toward silence.
 
+The perceptual balance of slide squeak can differ by direction. Upward throws and downward returns may need separate gains even when they share the same underlying motion-coupled contact model.
+
+For presets, host state recall and in-plugin preset browsing are related but not the same thing. The current JUCE/APVTS state chunk is enough for DAW sessions; a useful Guitar AG preset system should add named files around that parameter state so stock and user sounds can be curated without changing DSP code.
+
 ## 2026-05-10 — Slide noise and note finger noise need separate balances
 
 The motion-coupled slide squeak is now musically useful, but the older note approach/release `Finger Noise` layer is still not at the same realism level. Keeping them on separate controls lets slide gestures be balanced immediately without overcommitting to the older noise model.

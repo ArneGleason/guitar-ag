@@ -259,12 +259,19 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "squeak/scrape, and damp the modal sustain while the slide is moving. 50% reaches its lift over about 500 ms; 100% "
                          "reaches full lift in about 50 ms. This does not wait for note-off.");
 
-    configureLabel (slideSqueakLabel, "Slide Squeak");
+    configureLabel (slideSqueakLabel, "Squeak Up");
     configureSlider (slideSqueakSlider, juce::Colour (0xffffc56f));
     configureInfoButton (slideSqueakInfoButton,
-                         "Set the volume of the finger/string noise created by Neck Slide motion.\n\n"
-                         "Technical: this scales only the slide contact squeak/scrape layer. It does not change slide pitch, Fret Steps, "
-                         "Slide Lift damping, or the older note approach/release Finger Noise layer. 100% is the maximum EG-068 balance.");
+                         "Set the volume of the finger/string noise created by upward Neck Slide motion.\n\n"
+                         "Technical: this scales only the slide contact squeak/scrape layer when Neck Slide is moving upward. It does not "
+                         "change slide pitch, Fret Steps, Slide Lift damping, or the older note approach/release Finger Noise layer.");
+
+    configureLabel (slideSqueakDownLabel, "Squeak Down");
+    configureSlider (slideSqueakDownSlider, juce::Colour (0xffffa36f));
+    configureInfoButton (slideSqueakDownInfoButton,
+                         "Set the volume of the finger/string noise created by downward Neck Slide motion.\n\n"
+                         "Technical: downward slide squeak uses the same motion-coupled contact model as upward slide squeak, but has its own "
+                         "balance so down-neck returns can be softer, louder, or muted independently.");
 
     configureLabel (lookaheadLabel, "Lookahead");
     configureInfoButton (lookaheadInfoButton,
@@ -307,7 +314,7 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "Technical: On is the default because the clipped return gives the resonator bank a more amp-like source and reduces "
                          "early harmonic chirp. Off uses a cleaner DI-like return that listens to the shaped output.");
 
-    for (auto* label : { &slideFretStepsLabel, &slideLiftLabel, &slideSqueakLabel, &lookaheadLabel, &feedbackReturnLabel })
+    for (auto* label : { &slideFretStepsLabel, &slideLiftLabel, &slideSqueakLabel, &slideSqueakDownLabel, &lookaheadLabel, &feedbackReturnLabel })
         label->setColour (juce::Label::textColourId, juce::Colour (0xffa9b7c3));
 
     configureLabel (vibratoSpeedLabel, "Speed");
@@ -480,6 +487,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     slideSqueakAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                 GuitarAgAudioProcessor::slideSqueakParameterId,
                                                                 slideSqueakSlider);
+    slideSqueakDownAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                    GuitarAgAudioProcessor::slideSqueakDownParameterId,
+                                                                    slideSqueakDownSlider);
     lookaheadAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::lookaheadParameterId,
                                                                lookaheadBox);
@@ -692,6 +702,10 @@ void GuitarAgAudioProcessorEditor::resized()
             auto slideSqueakBounds = bounds.removeFromTop (rowHeight);
             layoutLabelAndInfo (slideSqueakBounds, slideSqueakLabel, slideSqueakInfoButton);
             slideSqueakSlider.setBounds (slideSqueakBounds);
+
+            auto slideSqueakDownBounds = bounds.removeFromTop (rowHeight);
+            layoutLabelAndInfo (slideSqueakDownBounds, slideSqueakDownLabel, slideSqueakDownInfoButton);
+            slideSqueakDownSlider.setBounds (slideSqueakDownBounds);
         }
 
         auto fingerNoiseBounds = bounds.removeFromTop (rowHeight);
@@ -950,7 +964,10 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&slideLiftSlider),
                              static_cast<juce::Component*> (&slideSqueakLabel),
                              static_cast<juce::Component*> (&slideSqueakInfoButton),
-                             static_cast<juce::Component*> (&slideSqueakSlider) })
+                             static_cast<juce::Component*> (&slideSqueakSlider),
+                             static_cast<juce::Component*> (&slideSqueakDownLabel),
+                             static_cast<juce::Component*> (&slideSqueakDownInfoButton),
+                             static_cast<juce::Component*> (&slideSqueakDownSlider) })
         component->setVisible (showSlideTweaks);
 
     const auto showFingerNoiseTweaks = activePage == 2 && fingerNoiseTweaksOpen;

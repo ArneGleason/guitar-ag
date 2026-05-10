@@ -54,6 +54,7 @@ public:
     void setSlideFretSteps (float newSlideFretSteps) noexcept;
     void setSlideLift (float newSlideLift) noexcept;
     void setSlideSqueak (float newSlideSqueak) noexcept;
+    void setSlideSqueakDown (float newSlideSqueakDown) noexcept;
     void setLegatoArticulation (float newLegatoArticulation) noexcept;
     void setAmpFeedback (float newAmpFeedback) noexcept;
     void setFeedbackReturnDistorted (bool shouldDistort) noexcept;
@@ -210,6 +211,7 @@ private:
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> slideFretSteps { 0.65f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> slideLift { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> slideSqueak { 0.20f };
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> slideSqueakDown { 0.20f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> legatoArticulation { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> ampFeedback { 0.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> vibratoSpeed { 5.5f };
