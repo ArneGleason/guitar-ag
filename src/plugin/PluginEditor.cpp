@@ -214,6 +214,13 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "squeak/scrape, and damp the modal sustain while the slide is moving. 50% reaches its lift over about 500 ms; 100% "
                          "reaches full lift in about 50 ms. This does not wait for note-off.");
 
+    configureLabel (slideSqueakLabel, "Slide Squeak");
+    configureSlider (slideSqueakSlider, juce::Colour (0xffffc56f));
+    configureInfoButton (slideSqueakInfoButton,
+                         "Set the volume of the finger/string noise created by Neck Slide motion.\n\n"
+                         "Technical: this scales only the slide contact squeak/scrape layer. It does not change slide pitch, Fret Steps, "
+                         "Slide Lift damping, or the older note approach/release Finger Noise layer. 100% is the EG-068 balance.");
+
     configureLabel (lookaheadLabel, "Lookahead");
     configureInfoButton (lookaheadInfoButton,
                          "Use Lookahead when rendered playback needs finger noises before the note.\n\n"
@@ -422,6 +429,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     slideLiftAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                               GuitarAgAudioProcessor::slideLiftParameterId,
                                                               slideLiftSlider);
+    slideSqueakAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
+                                                                GuitarAgAudioProcessor::slideSqueakParameterId,
+                                                                slideSqueakSlider);
     lookaheadAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::lookaheadParameterId,
                                                                lookaheadBox);
@@ -626,6 +636,10 @@ void GuitarAgAudioProcessorEditor::resized()
         auto slideLiftBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (slideLiftBounds, slideLiftLabel, slideLiftInfoButton);
         slideLiftSlider.setBounds (slideLiftBounds);
+
+        auto slideSqueakBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (slideSqueakBounds, slideSqueakLabel, slideSqueakInfoButton);
+        slideSqueakSlider.setBounds (slideSqueakBounds);
 
         auto lookaheadBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (lookaheadBounds, lookaheadLabel, lookaheadInfoButton);
@@ -840,6 +854,9 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&slideLiftLabel),
                              static_cast<juce::Component*> (&slideLiftInfoButton),
                              static_cast<juce::Component*> (&slideLiftSlider),
+                             static_cast<juce::Component*> (&slideSqueakLabel),
+                             static_cast<juce::Component*> (&slideSqueakInfoButton),
+                             static_cast<juce::Component*> (&slideSqueakSlider),
                              static_cast<juce::Component*> (&lookaheadLabel),
                              static_cast<juce::Component*> (&lookaheadInfoButton),
                              static_cast<juce::Component*> (&lookaheadBox),

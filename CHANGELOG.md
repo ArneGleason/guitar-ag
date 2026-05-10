@@ -64,6 +64,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Made slide squeak motion-coupled: pulse density, amplitude, decay, and carrier pitch now follow `Neck Slide` movement speed and current string pitch.
 - Reduced remaining broadband scrape weighting in the global `Finger Noise` approach/release layer.
 - Updated slide/finger-noise info notes and changed the model label to `StringVoice EG-068 SlideSqueakMotion`.
+- Added a `Slide Squeak` performance parameter, grouped with the slide controls, to balance motion-coupled slide finger noise independently from the older `Finger Noise` approach/release layer.
+- Added offline-renderer `--slide-squeak` support for slide-noise balance checks.
+- Changed the model label to `StringVoice EG-069 SlideSqueakControl`.
 
 ### Fixed
 

@@ -69,7 +69,8 @@ public:
                         float mpePitchBendRange,
                         float neckSlideSemitones,
                         float slideFretSteps,
-                        float slideLift) noexcept;
+                        float slideLift,
+                        float slideSqueak) noexcept;
 
 private:
     static constexpr auto maxDelaySamples = 8192;
@@ -135,7 +136,7 @@ private:
                            float slideLift,
                            const FeedbackRenderContext& feedback) noexcept;
     float renderPickTransient() noexcept;
-    float renderContactLayer() noexcept;
+    float renderContactLayer (float slideSqueak) noexcept;
     [[nodiscard]] static float getEffectiveSlideFretSteps (float slideFretSteps) noexcept;
     [[nodiscard]] static float getFretSteppedSlideSemitones (float neckSlideSemitones,
                                                              float slideFretSteps,

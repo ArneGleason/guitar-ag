@@ -516,3 +516,7 @@ Finger/string movement stops sounding guitar-like when it is mostly filtered ran
 ## 2026-05-10 — Slide squeak must follow motion
 
 A fixed-pitch squeak carrier under a random scrape floor still reads as hiss in a spectrum and by ear. Slide noise needs an explicit movement envelope: faster `Neck Slide` changes should raise pulse density and amplitude, while stopped movement should decay quickly toward silence.
+
+## 2026-05-10 — Slide noise and note finger noise need separate balances
+
+The motion-coupled slide squeak is now musically useful, but the older note approach/release `Finger Noise` layer is still not at the same realism level. Keeping them on separate controls lets slide gestures be balanced immediately without overcommitting to the older noise model.

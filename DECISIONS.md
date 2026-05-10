@@ -537,3 +537,17 @@ Accepted
 
 Consequences:
 `StringVoice` now keeps a short slide-motion drive envelope. Slide squeak pulse spacing, amplitude, and carrier frequency follow recent `Neck Slide` delta and current string frequency. The random scrape component remains only as a supporting texture and decays quickly after movement stops.
+
+## 2026-05-10 — Separate slide squeak amount from finger noise
+
+Decision:
+Expose `Slide Squeak` as a separate Performance-page amount control for motion-coupled slide finger/string noise.
+
+Reason:
+Human DAW listening found EG-068 useful enough to keep, but the musical need shifted to balancing the slide squeak against the main guitar volume. The existing `Finger Noise` control governs older note approach/release noises, which are not yet as convincing and should not be required just to balance slide gestures.
+
+Status:
+Accepted
+
+Consequences:
+`Slide Squeak` defaults to 100%, preserving the EG-068 balance. It ranges from 0% to 200%, scaling only slide contact squeak/scrape output. `Finger Noise` remains available for approach/release noises and can be revisited separately.

@@ -124,6 +124,14 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] The slide squeak changes pitch/color as the held note or chord moves, rather than staying at one fixed pitch.
 - [ ] `Finger Noise` approach/release events remain quieter and less broadband than EG-067.
 
+## EG-069 Slide Squeak Control Checks
+
+- [ ] New plugin instances show `v0.2.6 / StringVoice EG-069 SlideSqueakControl`.
+- [ ] The Performance page shows `Slide Squeak` under the slide controls.
+- [ ] `Slide Squeak` at 0% mutes slide contact squeak/scrape without disabling `Neck Slide`, `Fret Steps`, or `Slide Lift` damping.
+- [ ] `Slide Squeak` at 100% matches the EG-068 balance.
+- [ ] `Slide Squeak` above 100% boosts slide finger noise without changing the older `Finger Noise` approach/release layer.
+
 ## Pickup Checks
 
 - [ ] `Single Coil` remains narrow and bright.

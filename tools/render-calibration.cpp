@@ -26,7 +26,7 @@ void printUsage()
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.5] [--palm-mute 0.0] "
                  "[--harmonic-touch 0.0] [--string-age 0.0] [--bridge-intonation 0.0] "
                  "[--fret-pressure 0.0] [--aftertouch-bend 2.0] [--neck-slide 0.0] [--neck-slide-at seconds] "
-                 "[--slide-fret-steps 0.65] [--slide-lift 0.0] "
+                 "[--slide-fret-steps 0.65] [--slide-lift 0.0] [--slide-squeak 1.0] "
                  "[--aftertouch 0.0] "
                  "[--lookahead-ms 0] [--finger-noise 0.0] [--legato-articulation 0.0] [--amp-feedback 0.0] "
                  "[--feedback-return-distorted 1] "
@@ -138,6 +138,7 @@ int main (int argc, char* argv[])
     auto neckSlideAtSeconds = -1.0;
     auto slideFretSteps = 0.65f;
     auto slideLift = 0.0f;
+    auto slideSqueak = 1.0f;
     auto aftertouch = 0.0f;
     auto lookaheadMs = 0.0f;
     auto fingerNoise = 0.0f;
@@ -241,6 +242,10 @@ int main (int argc, char* argv[])
         else if (argument == "--slide-lift" && hasValue)
         {
             slideLift = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--slide-squeak" && hasValue)
+        {
+            slideSqueak = juce::String (argv[++i]).getFloatValue();
         }
         else if (argument == "--aftertouch" && hasValue)
         {
@@ -434,6 +439,7 @@ int main (int argc, char* argv[])
     engine.setNeckSlideSemitones (neckSlideAtSeconds >= 0.0 ? 0.0f : neckSlide);
     engine.setSlideFretSteps (slideFretSteps);
     engine.setSlideLift (slideLift);
+    engine.setSlideSqueak (slideSqueak);
     engine.setLookaheadSamples (static_cast<int> (std::round (sampleRate * static_cast<double> (lookaheadMs) / 1000.0)));
     engine.setFingerNoise (fingerNoise);
     engine.setLegatoArticulation (legatoArticulation);

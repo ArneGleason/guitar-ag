@@ -66,6 +66,8 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     slideFretSteps.setCurrentAndTargetValue (0.65f);
     slideLift.reset (sampleRate, 0.030);
     slideLift.setCurrentAndTargetValue (0.0f);
+    slideSqueak.reset (sampleRate, 0.030);
+    slideSqueak.setCurrentAndTargetValue (1.0f);
     legatoArticulation.reset (sampleRate, 0.035);
     legatoArticulation.setCurrentAndTargetValue (0.0f);
     ampFeedback.reset (sampleRate, 0.080);
@@ -135,6 +137,7 @@ void AudioEngine::reset()
     neckSlideSemitones.setCurrentAndTargetValue (neckSlideSemitones.getTargetValue());
     slideFretSteps.setCurrentAndTargetValue (slideFretSteps.getTargetValue());
     slideLift.setCurrentAndTargetValue (slideLift.getTargetValue());
+    slideSqueak.setCurrentAndTargetValue (slideSqueak.getTargetValue());
     legatoArticulation.setCurrentAndTargetValue (legatoArticulation.getTargetValue());
     ampFeedback.setCurrentAndTargetValue (ampFeedback.getTargetValue());
     vibratoSpeed.setCurrentAndTargetValue (vibratoSpeed.getTargetValue());
@@ -227,6 +230,11 @@ void AudioEngine::setSlideFretSteps (float newSlideFretSteps) noexcept
 void AudioEngine::setSlideLift (float newSlideLift) noexcept
 {
     slideLift.setTargetValue (juce::jlimit (0.0f, 1.0f, newSlideLift));
+}
+
+void AudioEngine::setSlideSqueak (float newSlideSqueak) noexcept
+{
+    slideSqueak.setTargetValue (juce::jlimit (0.0f, 2.0f, newSlideSqueak));
 }
 
 void AudioEngine::setLegatoArticulation (float newLegatoArticulation) noexcept
@@ -420,6 +428,7 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         const auto neckSlideAmount = neckSlideSemitones.getNextValue();
         const auto slideFretStepsAmount = slideFretSteps.getNextValue();
         const auto slideLiftAmount = slideLift.getNextValue();
+        const auto slideSqueakAmount = slideSqueak.getNextValue();
         pickStiffness.getNextValue();
         pickTexture.getNextValue();
         harmonicTouch.getNextValue();
@@ -452,7 +461,8 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
                                                mpePitchBendRangeAmount,
                                                neckSlideAmount,
                                                slideFretStepsAmount,
-                                               slideLiftAmount);
+                                               slideLiftAmount,
+                                               slideSqueakAmount);
 
         mixedSample += renderFingerNoiseSample() * fingerNoiseAmount;
         mixedSample = tone.processSample (mixedSample);

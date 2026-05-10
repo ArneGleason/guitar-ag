@@ -785,7 +785,8 @@ float StringVoice::renderSample (float tailSustain,
                                  float mpePitchBendRange,
                                  float neckSlideSemitones,
                                  float slideFretSteps,
-                                 float slideLift) noexcept
+                                 float slideLift,
+                                 float slideSqueak) noexcept
 {
     if (! active)
         return 0.0f;
@@ -887,7 +888,7 @@ float StringVoice::renderSample (float tailSustain,
     const auto effectiveSlideLift = juce::jlimit (0.0f, 1.0f, slideLiftEnvelope);
     auto modalOutput = renderModalBank (tailBlend, palmDecay, expressionPressure, expressionTimbre, effectiveSlideLift, feedback);
     modalOutput += renderPickTransient();
-    const auto contactOutput = renderContactLayer();
+    const auto contactOutput = renderContactLayer (slideSqueak);
 
     const auto attackRampSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * attackRampSeconds);
     modalOutput *= juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / attackRampSamples);
@@ -1022,9 +1023,10 @@ float StringVoice::renderPickTransient() noexcept
     return 0.0f;
 }
 
-float StringVoice::renderContactLayer() noexcept
+float StringVoice::renderContactLayer (float slideSqueak) noexcept
 {
     auto contactOutput = 0.0f;
+    const auto slideNoiseAmount = juce::jlimit (0.0f, 2.0f, slideSqueak);
 
     if (pickContactSamplesRemaining > 0)
     {
@@ -1185,10 +1187,11 @@ float StringVoice::renderContactLayer() noexcept
                                   + slideFretScrapeState * (0.045f + 0.055f * woundAmount)
                                   + slideFretBodyState * (0.070f + 0.080f * woundAmount));
 
-        contactOutput += softClip (slideFretContact * (0.66f * fretTick
-                                                       + 0.24f * slideFretScrapeState
-                                                       + 0.10f * slideFretBodyState)
-                                 + slideFretScrape * fretScrape);
+        const auto slideContactOutput = slideFretContact * (0.66f * fretTick
+                                                            + 0.24f * slideFretScrapeState
+                                                            + 0.10f * slideFretBodyState)
+                                      + slideFretScrape * fretScrape;
+        contactOutput += softClip (slideNoiseAmount * slideContactOutput);
         slideFretContact *= slideFretContactDecay;
         slideFretScrape *= slideFretScrapeDecay;
         slideFretImpulse *= slideFretImpulseDecay;

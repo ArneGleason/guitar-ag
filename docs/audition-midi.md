@@ -87,7 +87,7 @@ For the `Neck Slide` automation bed, draw the host parameter lane roughly as:
 
 For the fretted-slide character, start with `Fret Steps` around 10% to 25%. The control is perceptually remapped, so 10% now reaches the former 90% engagement point and the rest of the slider fine-tunes the audible fret-crossing range. Set `Fret Steps` to 0% when you want to compare against the earlier smooth global pitch lane.
 
-For pressure lift during slides, automate `Slide Lift` while `Neck Slide` is moving. 0% keeps the slide fretted. Around 50% lifts pressure gradually over about half a second. 100% lifts quickly, around 50 ms, fading fret-step engagement into lighter string scrape and damping.
+For pressure lift during slides, automate `Slide Lift` while `Neck Slide` is moving. 0% keeps the slide fretted. Around 50% lifts pressure gradually over about half a second. 100% lifts quickly, around 50 ms, fading fret-step engagement into lighter string scrape and damping. Use `Slide Squeak` to balance the volume of the motion-coupled slide finger noise independently from the older `Finger Noise` approach/release layer.
 
 For offline smoke checks, `--neck-slide-at <seconds>` starts the render neutral and then sends the `--neck-slide` target during playback. Use `--slide-lift` to compare lifted and fully fretted slide motion without drawing host automation.
 

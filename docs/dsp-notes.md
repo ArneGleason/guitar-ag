@@ -1644,6 +1644,16 @@ EG-068 changes the slide path from an event-like scrape layer into a motion-coup
 - The random scrape component in slide noise is reduced and gated by motion so it supports the squeak instead of becoming a steady hiss.
 - The global `Finger Noise` approach/release layer keeps its existing trigger model but has less broadband scrape weighting.
 
+## 2026-05-10 — EG-069 Slide Squeak Control
+
+EG-069 adds a separate balance control for the motion-coupled slide squeak:
+
+- The Performance page exposes `Slide Squeak` as a 0% to 200% slider.
+- 100% preserves the EG-068 slide-squeak balance.
+- The control scales only the slide contact squeak/scrape output in `StringVoice::renderContactLayer`.
+- It does not change `Neck Slide` pitch, `Fret Steps`, `Slide Lift` damping, or the global `Finger Noise` approach/release layer.
+- `GuitarAGOfflineRender` accepts `--slide-squeak` for calibration renders.
+
 ## Suggested MVP Signal Flow
 
 ```text
