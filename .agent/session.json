@@ -24,12 +24,13 @@
     }
   },
   "lastTask": "Prepare and publish v0.3.0 release",
-  "status": "Human Bitwig audition accepted EG-081; Codex is preparing v0.3.0 release docs, package, tag, and GitHub release.",
-  "updatedAt": "2026-05-10T18:10:00-04:00",
+  "status": "v0.3.0 is published on GitHub with the macOS VST3 release asset.",
+  "updatedAt": "2026-05-10T14:22:27-04:00",
   "lastHandoff": ".agent/handoffs/20260510-174500-antigravity-eg081-artic-groups.md",
   "branch": "main",
-  "commit": "80872ce",
+  "commit": "69269db",
+  "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.0",
   "projectState": {
-    "summary": "EG-081 reorganized Articulation controls into parent/subordinate groups and changed new-instance defaults to Pick Texture 25%, Strum Speed 10%, Strum Balance -13%, and Player Feel 50%. Antigravity verified the pass and the human Bitwig audition accepted it. The current release target is v0.3.0 to match the existing pre-1.0 tag series."
+    "summary": "EG-081 reorganized Articulation controls into parent/subordinate groups and changed new-instance defaults to Pick Texture 25%, Strum Speed 10%, Strum Balance -13%, and Player Feel 50%. Antigravity verified the pass, the human Bitwig audition accepted it, and v0.3.0 was published as the slide/strum/player-feel release."
   }
 }

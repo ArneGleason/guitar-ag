@@ -8,7 +8,7 @@ Suggested focus:
 
 - No code-review item is currently queued.
 - Human Bitwig audition of EG-081 has passed.
-- Current task is the `v0.3.0` release/version bump and GitHub release publication.
+- `v0.3.0` has been published. The next likely task is either a Windows build asset, stock/user preset management, or the next guitar-performance feature.
 
 Recently cleared:
 

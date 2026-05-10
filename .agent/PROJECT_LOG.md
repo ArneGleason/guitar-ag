@@ -70,3 +70,4 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Antigravity verified EG-081 at commit `6ed57ff`, approving the articulation grouping, release-candidate defaults, session/export behavior, and `Strum Balance` string conversion.
 - Human Bitwig audition accepted the EG-081 release-candidate build.
 - Began the formal `v0.3.0` release pass: version bump, README refresh, user-facing release notes, macOS VST3 packaging, and GitHub release publication.
+- Published `v0.3.0` on GitHub as `Guitar AG v0.3.0 - Slide, Strum, and Player Feel` with `GuitarAG-v0.3.0-macOS-vst3.zip`.
