@@ -6,20 +6,9 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Review the slide gesture EG-065 `Slide Tail` implementation:
-  - `plans/0064-slide-gesture-notation.md`,
-  - `scripts/create-slide-gesture-midi.py`,
-  - `tests/midi/guitar-ag-slide-gesture-audition.mid`,
-  - `src/plugin/PluginProcessor.cpp`,
-  - `src/plugin/PluginEditor.cpp`,
-  - `src/dsp/AudioEngine.cpp`,
-  - `src/dsp/StringVoice.cpp`,
-  - `tools/render-calibration.cpp`,
-  - `docs/audition-midi.md` slide gesture audition section.
-- Check especially whether `Neck Slide` is wired as a behavior-neutral global lane at zero, layers correctly with existing pitch controls, and clamps stacked pitch motion safely.
-- Check whether `Fret Steps` is behavior-neutral when `Neck Slide` is static/zero, whether the semitone plateau shaping feels plausible, and whether fret-crossing contact texture is scoped to moving slide gestures.
-- Check whether `Slide Tail` stays behavior-neutral in `Normal`, and whether non-normal modes only engage when a voice has recent `Neck Slide` movement.
-- Check the calibration-render hook: `--neck-slide-at` should be test-only/block-granular and should not imply full host automation support in the offline renderer.
+- No code review is currently queued. Antigravity approved EG-065 `SlideTail` at commit `350f6e7`.
+- Next step is human DAW audition of `Slide Tail` modes using the installed EG-065 VST3.
+- After audition, record whether `Muted`, `Open`, and `Slide Off` feel musically useful as-is or need scalar/gating changes.
 
 Known limitations:
 
@@ -39,4 +28,4 @@ Questions:
 
 - If performance still feels short of target in a specific DAW scenario, capture host, sample rate, buffer size, amp-sim chain, MIDI clip, and parameter settings before profiling.
 - If `Slide Tail` modes feel too subtle or too dramatic in a DAW, capture tail mode, slide speed, release timing, and target interval before changing the mode scalars.
-- After review, run a DAW/VST3 import test with the slide audition MIDI and release notes while `Neck Slide` automation is still moving.
+- After human audition, decide whether to tune the EG-065 tail scalars or proceed to same-string speaking-length work.

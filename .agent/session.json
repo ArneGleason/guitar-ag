@@ -23,13 +23,13 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Implement first slide-ending release modes",
-  "status": "slide-tail-phase-implemented",
-  "updatedAt": "2026-05-09T20:24:52-04:00",
-  "lastHandoff": ".agent/handoffs/20260509-201000-antigravity-fret-steps-verification.md",
+  "lastTask": "Route approved EG-065 Slide Tail to human DAW audition",
+  "status": "awaiting-human-slide-tail-audition",
+  "updatedAt": "2026-05-09T20:37:00-04:00",
+  "lastHandoff": ".agent/handoffs/20260509-203700-codex-slide-tail-human-audition.md",
   "branch": "main",
-  "commit": "slide tail implementation will be the latest pushed main commit after Codex commit",
+  "commit": "350f6e7",
   "projectState": {
-    "summary": "Slide gesture EG-065 adds gated Slide Tail modes for notes ending during recent Neck Slide motion, plus offline --slide-tail and --neck-slide-at smoke-test support."
+    "summary": "Antigravity approved EG-065 SlideTail. The installed VST3 is ready for human DAW audition of Normal, Muted, Open, and Slide Off tail behavior under real Neck Slide automation."
   }
 }

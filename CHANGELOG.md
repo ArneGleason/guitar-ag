@@ -51,6 +51,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Added the `Slide Tail` mode parameter with `Normal`, `Muted`, `Open`, and `Slide Off` release colors for notes ending during recent `Neck Slide` motion.
 - Added offline-renderer `--slide-tail` and `--neck-slide-at` support for slide-ending smoke checks.
 - Changed the model label to `StringVoice EG-065 SlideTail`.
+- Documented Antigravity approval of EG-065 and routed the next step to human DAW audition.
 
 ### Fixed
 
