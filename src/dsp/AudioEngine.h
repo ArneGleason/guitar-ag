@@ -52,6 +52,7 @@ public:
     void setFingerNoise (float newFingerNoise) noexcept;
     void setNeckSlideSemitones (float newNeckSlideSemitones) noexcept;
     void setSlideFretSteps (float newSlideFretSteps) noexcept;
+    void setSlideTailMode (int newSlideTailMode) noexcept;
     void setLegatoArticulation (float newLegatoArticulation) noexcept;
     void setAmpFeedback (float newAmpFeedback) noexcept;
     void setFeedbackReturnDistorted (bool shouldDistort) noexcept;
@@ -222,6 +223,7 @@ private:
     int64_t timelineSample = 0;
     int lookaheadSamples = 0;
     int pickupModel = 0;
+    int slideTailMode = 0;
     int nextVoice = 0;
     int nextFingerNoiseVoice = 0;
     int feedbackDominantBand = 0;

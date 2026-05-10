@@ -87,6 +87,10 @@ For the `Neck Slide` automation bed, draw the host parameter lane roughly as:
 
 For the fretted-slide character, start with `Fret Steps` around 10% to 25%. The control is perceptually remapped, so 10% now reaches the former 90% engagement point and the rest of the slider fine-tunes the audible fret-crossing range. Set `Fret Steps` to 0% when you want to compare against the earlier smooth global pitch lane.
 
+For slide endings, set `Slide Tail` to `Muted`, `Open`, or `Slide Off`, then release the note while the `Neck Slide` automation is still moving. The special tail colors are gated by recent slide motion, so releasing after the slide has fully settled should remain close to a normal note-off.
+
+For offline smoke checks, `--neck-slide-at <seconds>` starts the render neutral and then sends the `--neck-slide` target during playback. This is useful for checking the tail modes without drawing host automation.
+
 Regenerate it with:
 
 ```bash

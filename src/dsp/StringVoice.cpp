@@ -96,6 +96,10 @@ void StringVoice::reset()
     slideFretContactPhaseStep = 0.0f;
     previousSlideFretNoise = 0.0f;
     previousNeckSlideSemitones = 0.0f;
+    slideTailActivity = 0.0f;
+    slideTailActivityDecay = std::pow (0.001f,
+                                       static_cast<float> (pitchControlUpdateInterval)
+                                           / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.22f)));
     attackRampSeconds = 0.0025f;
     modalReleaseDecay = 1.0f;
     resonanceCoefficient.fill (0.0f);
@@ -295,6 +299,10 @@ void StringVoice::start (int midiNoteNumber,
     slideFretContactPhaseStep = 0.0f;
     previousSlideFretNoise = 0.0f;
     previousNeckSlideSemitones = 0.0f;
+    slideTailActivity = 0.0f;
+    slideTailActivityDecay = std::pow (0.001f,
+                                       static_cast<float> (pitchControlUpdateInterval)
+                                           / juce::jmax (1.0f, static_cast<float> (sampleRate * 0.22f)));
     attackRampSeconds = gestureAttackRampSeconds > 0.0f
                         ? gestureAttackRampSeconds
                         : juce::jmap (stiffnessAmount, 0.0090f, 0.0013f);
@@ -671,12 +679,12 @@ void StringVoice::start (int midiNoteNumber,
     updateDamping();
 }
 
-void StringVoice::release (int midiNoteNumber, int midiChannel)
+void StringVoice::release (int midiNoteNumber, int midiChannel, SlideTailMode slideTailMode)
 {
     if (active && noteNumber == midiNoteNumber && channel == midiChannel)
     {
         releasing = true;
-        startLeftHandRelease();
+        startLeftHandRelease (slideTailMode);
         updateDamping();
     }
 }
@@ -1155,8 +1163,16 @@ void StringVoice::updateDamping() noexcept
     damping = releasing ? releaseDamping : baseDamping;
 }
 
-void StringVoice::startLeftHandRelease() noexcept
+void StringVoice::startLeftHandRelease (SlideTailMode slideTailMode) noexcept
 {
+    const auto recentSlideActivity = juce::jlimit (0.0f, 1.0f, slideTailActivity);
+
+    if (slideTailMode != SlideTailMode::Normal && recentSlideActivity > 0.050f)
+    {
+        startSlideTailRelease (slideTailMode, recentSlideActivity);
+        return;
+    }
+
     const auto heldSeconds = static_cast<float> (samplesSinceStart) / static_cast<float> (sampleRate);
 
     if (heldSeconds < 0.12f)
@@ -1185,6 +1201,64 @@ void StringVoice::startLeftHandRelease() noexcept
     modalReleaseDecay = 0.99935f;
     const auto transitionSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * 0.06f);
     leftHandDampingStep = (leftHandDamping - leftHandDampingTarget) / transitionSamples;
+}
+
+void StringVoice::startSlideTailRelease (SlideTailMode slideTailMode, float activity) noexcept
+{
+    const auto slideActivity = juce::jlimit (0.0f, 1.0f, activity);
+    auto modalScale = 1.0f;
+    auto highModeScale = 1.0f;
+    auto transitionSeconds = 0.020f;
+
+    switch (slideTailMode)
+    {
+        case SlideTailMode::Muted:
+            leftHandDampingTarget = 0.34f;
+            modalReleaseDecay = 0.9915f - 0.0030f * slideActivity;
+            modalScale = 0.52f - 0.16f * slideActivity;
+            highModeScale = 0.62f;
+            energy *= 0.34f + 0.12f * (1.0f - slideActivity);
+            slideFretContact = juce::jlimit (0.0f, 0.090f, slideFretContact + slideActivity * (0.006f + 0.004f * woundAmount));
+            slideFretScrape = juce::jlimit (0.0f, 0.060f, slideFretScrape + slideActivity * (0.008f + 0.007f * woundAmount));
+            transitionSeconds = 0.008f;
+            break;
+
+        case SlideTailMode::Open:
+            leftHandDampingTarget = 0.97f;
+            modalReleaseDecay = 0.99945f;
+            modalScale = 0.90f + 0.08f * slideActivity;
+            highModeScale = 0.78f;
+            energy *= 0.82f + 0.10f * slideActivity;
+            pullOffSnap = juce::jlimit (0.0f, 0.080f, pullOffSnap + slideActivity * (0.008f + 0.012f * woundAmount));
+            slideFretScrape = juce::jlimit (0.0f, 0.060f, slideFretScrape + slideActivity * (0.0025f + 0.0035f * woundAmount));
+            transitionSeconds = 0.028f;
+            break;
+
+        case SlideTailMode::SlideOff:
+            leftHandDampingTarget = 0.20f;
+            modalReleaseDecay = 0.9875f - 0.0035f * slideActivity;
+            modalScale = 0.28f - 0.08f * slideActivity;
+            highModeScale = 0.48f;
+            energy *= 0.18f + 0.07f * (1.0f - slideActivity);
+            pullOffSnap = juce::jlimit (0.0f, 0.080f, pullOffSnap + slideActivity * (0.012f + 0.018f * woundAmount));
+            slideFretContact = juce::jlimit (0.0f, 0.090f, slideFretContact + slideActivity * (0.016f + 0.012f * woundAmount));
+            slideFretScrape = juce::jlimit (0.0f, 0.060f, slideFretScrape + slideActivity * (0.018f + 0.014f * woundAmount));
+            transitionSeconds = 0.005f;
+            break;
+
+        case SlideTailMode::Normal:
+            break;
+    }
+
+    const auto transitionSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * transitionSeconds);
+    leftHandDampingStep = (leftHandDamping - leftHandDampingTarget) / transitionSamples;
+
+    for (auto mode = 0; mode < activeModalCount; ++mode)
+    {
+        const auto modeIndex = static_cast<size_t> (mode);
+        const auto highDamping = 1.0f + (highModeScale - 1.0f) * modalHighWeight[modeIndex];
+        modalAmplitude[modeIndex] *= juce::jmax (0.0f, modalScale) * highDamping;
+    }
 }
 
 float StringVoice::pluckShapeAt (float position, float pluckPosition) const noexcept
@@ -1435,6 +1509,7 @@ void StringVoice::updateSlideFretContact (float neckSlideSemitones, float slideF
     const auto clampedSlide = juce::jlimit (-12.0f, 12.0f, neckSlideSemitones);
     const auto amount = getEffectiveSlideFretSteps (slideFretSteps);
     const auto currentFret = static_cast<int> (std::floor (clampedSlide + 0.5f));
+    slideTailActivity *= slideTailActivityDecay;
 
     if (! slideFretStateInitialized)
     {
@@ -1448,6 +1523,11 @@ void StringVoice::updateSlideFretContact (float neckSlideSemitones, float slideF
     const auto crossedFrets = currentFret >= previousSlideFret
                              ? currentFret - previousSlideFret
                              : previousSlideFret - currentFret;
+    const auto movementActivity = juce::jlimit (0.0f,
+                                                1.0f,
+                                                std::abs (slideDelta) * 220.0f
+                                                    + (crossedFrets > 0 ? 0.40f : 0.0f));
+    slideTailActivity = juce::jmax (slideTailActivity, movementActivity);
 
     if (amount > 0.0001f && crossedFrets > 0 && std::abs (slideDelta) > 0.00001f)
     {

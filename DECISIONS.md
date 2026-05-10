@@ -481,3 +481,17 @@ Accepted
 
 Consequences:
 At `Fret Steps` 0%, `Neck Slide` remains a smooth global pitch offset for diagnostic or special-effect use. Higher `Fret Steps` values pull the slide pitch toward semitone plateaus and add a light fret-crossing contact layer while the slide lane moves. This is still an approximation: same-string speaking-length preservation, explicit slide-in/out tail modes, and notation import remain later phases.
+
+## 2026-05-09 — Add gated Slide Tail modes
+
+Decision:
+Expose a `Slide Tail` performance choice with `Normal`, `Muted`, `Open`, and `Slide Off` modes. Non-normal modes only alter release behavior when a voice has recent `Neck Slide` motion.
+
+Reason:
+Slide-out gestures need different endings than ordinary note-offs, but always changing release behavior would make normal playing unpredictable. Gating the special release colors behind recent slide motion lets the first tail implementation stay behavior-neutral for ordinary notes while giving DAW automation a way to author muted tails, more open/ringing tails, and slide-off scrapes.
+
+Status:
+Accepted
+
+Consequences:
+`Normal` remains the default and preserves existing release behavior. `Muted`, `Open`, and `Slide Off` are first-pass release colors, not complete same-string/open-string speaking-length models. The true physical update of string/fret assignment remains in the later same-string slide phase.

@@ -48,6 +48,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Remapped `Fret Steps` so 10% reaches the former 90% engagement point, spreading the audible fret-engagement range across the rest of the control.
 - Documented human DAW/VST3 acceptance that the EG-064 `Fret Steps` remap makes the useful engagement range available across the slider.
 - Documented Antigravity approval of the EG-064 `Fret Steps` remap and clearance to proceed to slide endings.
+- Added the `Slide Tail` mode parameter with `Normal`, `Muted`, `Open`, and `Slide Off` release colors for notes ending during recent `Neck Slide` motion.
+- Added offline-renderer `--slide-tail` and `--neck-slide-at` support for slide-ending smoke checks.
+- Changed the model label to `StringVoice EG-065 SlideTail`.
 
 ### Fixed
 

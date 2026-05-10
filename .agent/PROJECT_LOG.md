@@ -37,3 +37,5 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Implemented `StringVoice EG-064 FretStepCurve`, remapping `Fret Steps` so 10% reaches the former 90% engagement point and 10% to 100% covers the useful high-engagement zone.
 - Received human DAW feedback accepting EG-064's remapped `Fret Steps` control as a more useful range across the slider.
 - Received Antigravity verification that EG-064's remap is mathematically sound, neutral at zero, and isolated from MPE/whammy/vibrato/aftertouch behavior; recorded it in `.agent/handoffs/20260509-201000-antigravity-fret-steps-verification.md`.
+- Implemented `StringVoice EG-065 SlideTail`, adding gated `Slide Tail` release modes (`Normal`, `Muted`, `Open`, `Slide Off`) for notes ending during recent `Neck Slide` motion.
+- Added offline `--slide-tail` and `--neck-slide-at` smoke checks for EG-065, confirming non-slide releases stay byte-identical and moving-slide releases diverge by tail mode.

@@ -95,6 +95,7 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     pickupPosition.reset (sampleRate, 0.050);
     pickupPosition.setCurrentAndTargetValue (0.39f);
     pickupModel = 0;
+    slideTailMode = 0;
     configureAmpFeedbackLoop();
     tone.prepare (sampleRate);
     reset();
@@ -219,6 +220,11 @@ void AudioEngine::setNeckSlideSemitones (float newNeckSlideSemitones) noexcept
 void AudioEngine::setSlideFretSteps (float newSlideFretSteps) noexcept
 {
     slideFretSteps.setTargetValue (juce::jlimit (0.0f, 1.0f, newSlideFretSteps));
+}
+
+void AudioEngine::setSlideTailMode (int newSlideTailMode) noexcept
+{
+    slideTailMode = juce::jlimit (0, 3, newSlideTailMode);
 }
 
 void AudioEngine::setLegatoArticulation (float newLegatoArticulation) noexcept
@@ -1262,7 +1268,7 @@ void AudioEngine::noteOff (int noteNumber, int channel)
     releaseArticulationNote (noteNumber, channel);
 
     for (auto& voice : voices)
-        voice.release (noteNumber, channel);
+        voice.release (noteNumber, channel, static_cast<SlideTailMode> (slideTailMode));
 }
 
 void AudioEngine::applyAftertouch (int noteNumber, int channel, float pressure) noexcept

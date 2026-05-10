@@ -224,4 +224,7 @@ Phase 2 started on 2026-05-09.
 - Added `Fret Steps` to blend the global slide lane toward semitone/fret plateaus and add subtle fret-crossing contact ticks/scrape while the lane moves.
 - Added `--slide-fret-steps` to `GuitarAGOfflineRender`.
 - After human DAW listening, Phase 2c remapped `Fret Steps` so 10% reaches the former 90% engagement point and 10% to 100% covers the audible fret-engagement zone.
-- Slide-out tail modes and same-string speaking-length changes remain future work.
+- After Antigravity verified EG-064, Phase 2d added the first `Slide Tail` modes: `Normal`, `Muted`, `Open`, and `Slide Off`.
+- `Slide Tail` special modes are gated by recent `Neck Slide` movement so ordinary note releases remain unchanged.
+- Added offline `--slide-tail` and `--neck-slide-at` checks so slide-ending behavior can be smoke-tested without DAW automation.
+- Same-string speaking-length changes remain future work.

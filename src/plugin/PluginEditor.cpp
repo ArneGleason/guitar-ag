@@ -205,6 +205,21 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "Technical: the control uses a perceptual curve, so 10% already reaches the old 90% engagement point and the rest of "
                          "the slider fine-tunes the audible fret-crossing zone. 0% leaves the slide lane smooth.");
 
+    configureLabel (slideTailLabel, "Slide Tail");
+    configureInfoButton (slideTailInfoButton,
+                         "Choose how an active slide gesture releases.\n\n"
+                         "Technical: Normal keeps ordinary note-off behavior. Muted, Open, and Slide Off only engage when a voice has recent "
+                         "Neck Slide motion, so normal releases stay unchanged.");
+    slideTailBox.addItem ("Normal", 1);
+    slideTailBox.addItem ("Muted", 2);
+    slideTailBox.addItem ("Open", 3);
+    slideTailBox.addItem ("Slide Off", 4);
+    slideTailBox.setColour (juce::ComboBox::textColourId, juce::Colour (0xffe8edf2));
+    slideTailBox.setColour (juce::ComboBox::backgroundColourId, juce::Colour (0xff202832));
+    slideTailBox.setColour (juce::ComboBox::outlineColourId, juce::Colour (0xff65717c));
+    slideTailBox.setColour (juce::ComboBox::arrowColourId, juce::Colour (0xffe8edf2));
+    addAndMakeVisible (slideTailBox);
+
     configureLabel (lookaheadLabel, "Lookahead");
     configureInfoButton (lookaheadInfoButton,
                          "Use Lookahead when rendered playback needs finger noises before the note.\n\n"
@@ -409,6 +424,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     slideFretStepsAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                                    GuitarAgAudioProcessor::slideFretStepsParameterId,
                                                                    slideFretStepsSlider);
+    slideTailAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
+                                                                GuitarAgAudioProcessor::slideTailParameterId,
+                                                                slideTailBox);
     lookaheadAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
                                                                GuitarAgAudioProcessor::lookaheadParameterId,
                                                                lookaheadBox);
@@ -609,6 +627,10 @@ void GuitarAgAudioProcessorEditor::resized()
         auto slideFretStepsBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (slideFretStepsBounds, slideFretStepsLabel, slideFretStepsInfoButton);
         slideFretStepsSlider.setBounds (slideFretStepsBounds);
+
+        auto slideTailBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (slideTailBounds, slideTailLabel, slideTailInfoButton);
+        slideTailBox.setBounds (slideTailBounds.reduced (0, 4));
 
         auto lookaheadBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (lookaheadBounds, lookaheadLabel, lookaheadInfoButton);
@@ -820,6 +842,9 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&slideFretStepsLabel),
                              static_cast<juce::Component*> (&slideFretStepsInfoButton),
                              static_cast<juce::Component*> (&slideFretStepsSlider),
+                             static_cast<juce::Component*> (&slideTailLabel),
+                             static_cast<juce::Component*> (&slideTailInfoButton),
+                             static_cast<juce::Component*> (&slideTailBox),
                              static_cast<juce::Component*> (&lookaheadLabel),
                              static_cast<juce::Component*> (&lookaheadInfoButton),
                              static_cast<juce::Component*> (&lookaheadBox),
@@ -900,5 +925,5 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
 
 int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
 {
-    return 472;
+    return 508;
 }

@@ -19,6 +19,14 @@ enum class PlayerGesture
     RightHandTap
 };
 
+enum class SlideTailMode
+{
+    Normal = 0,
+    Muted,
+    Open,
+    SlideOff
+};
+
 class StringVoice
 {
 public:
@@ -38,7 +46,7 @@ public:
                 float pickupPosition,
                 int pickupModel,
                 PlayerGesture gesture);
-    void release (int midiNoteNumber, int midiChannel);
+    void release (int midiNoteNumber, int midiChannel, SlideTailMode slideTailMode = SlideTailMode::Normal);
 
     [[nodiscard]] bool isActive() const noexcept { return active; }
     [[nodiscard]] int getNoteNumber() const noexcept { return noteNumber; }
@@ -93,7 +101,8 @@ private:
 
     float nextNoiseSample() noexcept;
     void updateDamping() noexcept;
-    void startLeftHandRelease() noexcept;
+    void startLeftHandRelease (SlideTailMode slideTailMode = SlideTailMode::Normal) noexcept;
+    void startSlideTailRelease (SlideTailMode slideTailMode, float activity) noexcept;
     float pluckShapeAt (float position, float pluckPosition) const noexcept;
     float readDelayLineAtOffset (int offset) const noexcept;
     float readSecondaryDelayLineAtOffset (int offset) const noexcept;
@@ -229,6 +238,8 @@ private:
     float slideFretContactPhaseStep = 0.0f;
     float previousSlideFretNoise = 0.0f;
     float previousNeckSlideSemitones = 0.0f;
+    float slideTailActivity = 0.0f;
+    float slideTailActivityDecay = 0.0f;
     float attackRampSeconds = 0.0025f;
     float modalReleaseDecay = 1.0f;
     std::array<float, resonanceCount> resonanceCoefficient {};

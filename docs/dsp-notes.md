@@ -1571,6 +1571,27 @@ Current behavior:
 - The remaining 10% to 100% of the control covers the former 90% to 100% engagement range, giving most of the slider to the audible fret-crossing zone.
 - This perceptual mapping feeds both semitone plateau shaping and fret-crossing contact ticks/scrape.
 
+## 2026-05-09 — EG-065 Slide Tail
+
+Added the first slide-ending behavior after EG-064 was accepted by human audition and reviewer verification.
+
+Current behavior:
+
+- The visible model label is now `StringVoice EG-065 SlideTail`.
+- New plugin instances expose a `Slide Tail` choice on the Performance page: `Normal`, `Muted`, `Open`, and `Slide Off`.
+- `Normal` is the default and keeps existing note-off behavior.
+- The non-normal modes only engage when a voice has recent `Neck Slide` motion, tracked inside `StringVoice` as a short decaying slide activity envelope.
+- `Muted` quickly damps the modal bank and adds a small release scrape.
+- `Open` leaves a more ringing release color with a light pull-off/scrape accent.
+- `Slide Off` applies the strongest damping and scrape/contact accent for a quick off-the-string style exit.
+- `GuitarAGOfflineRender` accepts `--slide-tail`, using `0 = Normal`, `1 = Muted`, `2 = Open`, and `3 = Slide Off`.
+- `GuitarAGOfflineRender --neck-slide-at <seconds>` starts the render at a neutral slide offset, then throws the `--neck-slide` target during rendering. This is a block-granular calibration hook for repeatable slide-tail checks.
+
+Scope limit:
+
+- `Open` is a first-pass release color. It does not yet retune the voice to a true open string or update the physical string/fret assignment.
+- Special slide tails are intentionally gated by recent slide movement so settled chord releases and ordinary note-offs stay unchanged.
+
 ## Suggested MVP Signal Flow
 
 ```text
