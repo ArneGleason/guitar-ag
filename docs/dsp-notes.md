@@ -1990,3 +1990,12 @@ EG-083 adds an explicit `Input Octave` choice because DAWs disagree about visibl
 - `DAW E2=52` subtracts one octave at the MIDI ingestion boundary. This lets DAWs that label MIDI note 40 as E1 play the guitar low E when the piano roll shows E2.
 - The transpose is applied before fretboard assignment, note-off matching, key/poly aftertouch, finger-noise assignment, Player Feel, and Auto Strum grouping. It is not a post-synthesis pitch shifter.
 - New plugin instances default to `DAW E2=52` for the current Bitwig audition workflow. Set `Input Octave` to `MIDI E2=40` for existing MIDI clips already authored around MIDI note 40.
+
+## 2026-05-17 — EG-084 Chord Legato Guard
+
+EG-084 fixes a performance-interpreter collision between block-chord assignment and automatic legato gestures.
+
+- The input-octave switch still only changes incoming MIDI note numbers before guitar interpretation.
+- Chord-aware Auto Strum assignments now bypass legato-source lookup when the generated note-on reaches the voice path. A block chord that previewed separate strings keeps those strings even when `Legato Articulation` is high.
+- Legato-source lookup now requires a candidate source note to have existed briefly before it can become a hammer-on, pull-off, or right-hand-tap source. This keeps same-instant or near-same-instant chord tones from stealing each other.
+- Offline verification with a DAW-label E2+B2 fixture showed default settings at max 2 active string voices, and `Legato Articulation = 100%` now also reaches max 2 active string voices instead of collapsing to 1.

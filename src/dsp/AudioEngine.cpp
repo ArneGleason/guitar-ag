@@ -1505,9 +1505,11 @@ int AudioEngine::consumePendingStrumString (int noteNumber, int channel) noexcep
 
 void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
 {
-    const auto articulationAmount = legatoArticulation.getTargetValue();
-    auto legatoSource = findLegatoSource (noteNumber, channel, articulationAmount);
     const auto strumPreferredString = consumePendingStrumString (noteNumber, channel);
+    const auto articulationAmount = legatoArticulation.getTargetValue();
+    auto legatoSource = strumPreferredString >= 0
+                      ? LegatoSource {}
+                      : findLegatoSource (noteNumber, channel, articulationAmount);
 
     if (legatoSource.valid)
     {
@@ -1676,12 +1678,25 @@ AudioEngine::LegatoSource AudioEngine::findLegatoSource (int noteNumber, int cha
     if (amount <= 0.20f)
         return best;
 
+    constexpr auto minimumSourceAgeSeconds = 0.018f;
     auto bestScore = 1000000.0f;
     const auto style = juce::jlimit (0.0f, 1.0f, (amount - 0.20f) / 0.80f);
 
     for (const auto& note : articulationNotes)
     {
         if (! note.valid || note.noteNumber == noteNumber)
+            continue;
+
+        // Same-instant block-chord tones should remain independent voices, not
+        // become hammer-ons from notes that only just started.
+        const auto sourceAgeSamples = timelineSample - note.startSample;
+
+        if (sourceAgeSamples < 0)
+            continue;
+
+        const auto sourceAgeSeconds = static_cast<float> (sourceAgeSamples) / static_cast<float> (sampleRate);
+
+        if (sourceAgeSeconds < minimumSourceAgeSeconds)
             continue;
 
         const auto destinationFret = fretboard.getFretForString (noteNumber, note.assignment.stringIndex);

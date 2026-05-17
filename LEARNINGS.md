@@ -20,6 +20,11 @@ Add notes here when something sounds good, bad, unstable, too bright, too dull, 
 - Bitwig audition exposed an octave-name mismatch: the note the human sees as E1 can be MIDI note 40, which is physically/scientifically E2 and the guitar low E. If the human authors visible E2 in that convention, the plugin receives MIDI note 52 unless an input-octave correction is applied.
 - This correction must happen before guitar interpretation, not as an audio pitch shift, because fretboard assignment, note-off matching, key/poly aftertouch, and strum grouping all depend on the same note number.
 
+## 2026-05-17 — Legato articulation can masquerade as string allocation failure
+
+- A DAW-label E2+B2 block chord correctly maps to native guitar E2+B2 after the input-octave correction, but high `Legato Articulation` can still collapse it if the second note treats the first note as a same-string hammer-on/tap source.
+- Offline rendering confirmed the symptom: the E2+B2 fixture reached max 2 active string voices at default settings, but collapsed to max 1 active voice with `Legato Articulation = 100%` before the guard.
+
 ## 2026-05-17 — Windows build identity probe
 
 - On the Windows PC, CMake's Git build-identity probe can return `unknown` if Git rejects the checkout as a dubious-ownership repository. Invoking Git with an explicit `safe.directory` for the source directory keeps the editor identity line tied to the actual commit.

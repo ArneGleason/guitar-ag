@@ -6,6 +6,12 @@ Guitar AG will expose an `Input Octave` choice rather than silently assuming eve
 
 The transpose happens before fretboard assignment, note-off matching, per-note aftertouch, Player Feel, finger noise, and Auto Strum grouping. This preserves voice routing and avoids treating the correction as a pitch-shift effect after the guitar model.
 
+## 2026-05-17 — Preserve block chords ahead of automatic legato
+
+Guitar AG will treat same-instant and near-same-instant chord tones as independent chord voices before considering automatic hammer-on, pull-off, or tap interpretation.
+
+When chord grouping has already selected a string for a note, that explicit chord assignment wins over legato-source lookup. Legato candidates must also have existed briefly before they can be used as sources, so a just-started chord tone cannot steal the next chord tone on the same string.
+
 Use this file to record important project decisions so they do not get lost in chat history.
 
 ## Template

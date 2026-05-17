@@ -232,7 +232,7 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Compare the pick-stroke audition file against forced `Down` and forced `Up` to judge whether `Alternate` feels like right-hand travel rather than a mechanical toggle.
 - [ ] In the pick-stroke audition chord sections, strummed notes should feel like a held left-hand chord being re-articulated by the right hand, not like the fretting hand releases every note between strokes.
 - [ ] `Player Feel` at 0% sounds and renders like the current neutral picked path.
-- [ ] New plugin instances show `v0.3.0 / StringVoice EG-083 InputOctave`.
+- [ ] New plugin instances show `v0.3.0 / StringVoice EG-084 ChordLegatoGuard`.
 - [ ] With `Input Octave = DAW E2=52`, a DAW piano-roll E2 plays the same low guitar E that previously required the DAW's E1 label in Bitwig.
 - [ ] With `Input Octave = MIDI E2=40`, MIDI note 40 plays the low guitar E directly for standard/scientific MIDI files.
 - [ ] In both `Input Octave` modes, the matching note-off releases the transposed note without leaving a stuck voice.
@@ -267,6 +267,7 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] D2+A2 at `Strum Speed = 0%` feels like an open Drop D power chord with no generated strum delay.
 - [ ] D2+A2 with nonzero `Strum Speed` keeps the open Drop D grip while fanning across strings.
 - [ ] E2+B2 in DAW-label mode rings as low E plus B on the A string, not as a stolen/reused low-string note.
+- [ ] With `Legato Articulation = 100%`, E2+B2 in DAW-label mode still rings as two independent legal chord tones rather than becoming a hammer-on/tap on the low E string.
 - [ ] G4+A4 after a low-position phrase stays compact on upper strings rather than spreading awkwardly.
 - [ ] Ab3+Bb3 after low-position context stays compact in the mid register.
 
