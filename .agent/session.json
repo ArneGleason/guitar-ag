@@ -28,7 +28,7 @@
   "updatedAt": "2026-05-17T10:26:50-04:00",
   "lastHandoff": ".agent/handoffs/20260517-codex-fretboard-0082-build-audit.md",
   "branch": "feature/0082-fretboard-drop-tuning-register-affinity",
-  "commit": "1335b4d",
+  "commit": "e7cae1c",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.0",
   "projectState": {
     "summary": "Plan 0082 is ready for human Bitwig audition on the feature branch. Auto drop tuning persists per FretboardMapper until reset, non-strum block chords now use chord-aware string assignment at Strum Speed 0%, and partial same-sample chords smaller than six notes use a fixed-size group search to avoid greedy dyad spreads."
