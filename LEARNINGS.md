@@ -25,6 +25,11 @@ Add notes here when something sounds good, bad, unstable, too bright, too dull, 
 - A DAW-label E2+B2 block chord correctly maps to native guitar E2+B2 after the input-octave correction, but high `Legato Articulation` can still collapse it if the second note treats the first note as a same-string hammer-on/tap source.
 - Offline rendering confirmed the symptom: the E2+B2 fixture reached max 2 active string voices at default settings, but collapsed to max 1 active voice with `Legato Articulation = 100%` before the guard.
 
+## 2026-05-17 — Stop/rewind can leave stale string occupancy without panic handling
+
+- Bitwig `Neck Slide` auditioning exposed a deeper reset-path issue: if a host stops or rewinds without ordinary note-offs, stale fretboard occupancy can survive and bias later string assignment.
+- MIDI CC120 All Sound Off and CC123-127 All Notes Off should be treated as panic/cleanup messages, not ignored as unrelated controllers.
+
 ## 2026-05-17 — Windows build identity probe
 
 - On the Windows PC, CMake's Git build-identity probe can return `unknown` if Git rejects the checkout as a dubious-ownership repository. Invoking Git with an explicit `safe.directory` for the source directory keeps the editor identity line tied to the actual commit.

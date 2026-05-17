@@ -12,6 +12,12 @@ Guitar AG will treat same-instant and near-same-instant chord tones as independe
 
 When chord grouping has already selected a string for a note, that explicit chord assignment wins over legato-source lookup. Legato candidates must also have existed briefly before they can be used as sources, so a just-started chord tone cannot steal the next chord tone on the same string.
 
+## 2026-05-17 — Treat host panic messages as performance-state resets
+
+Guitar AG will handle MIDI All Sound Off and All Notes Off messages as full voice and performance-interpreter cleanup events.
+
+The host may send these messages when stopping or rewinding instead of sending ordinary note-offs for every held note. Ignoring them can leave the fretboard mapper believing a string is still occupied after audio has stopped, especially after expressive gestures such as `Neck Slide`.
+
 Use this file to record important project decisions so they do not get lost in chat history.
 
 ## Template

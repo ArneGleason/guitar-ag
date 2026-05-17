@@ -112,6 +112,9 @@ private:
     void handleIncomingMidiGroup (const IncomingMidiGroup& group);
     [[nodiscard]] bool handleAutoStrumGroup (const IncomingMidiGroup& group);
     void handleIncomingMidiMessage (const juce::MidiMessage& message);
+    void releaseAllNotes() noexcept;
+    void resetMidiControllers() noexcept;
+    void reconcileFretboardOccupancy() noexcept;
     void handleIncomingNoteOn (const juce::MidiMessage& message,
                                int additionalDelaySamples = 0,
                                int preferredStringIndex = -1);

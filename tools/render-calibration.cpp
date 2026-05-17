@@ -77,7 +77,12 @@ bool readMidiEvents (const juce::File& midiFile, double sampleRate, std::vector<
                 && ! message.isAftertouch()
                 && ! message.isChannelPressure()
                 && ! message.isPitchWheel()
-                && ! (message.isController() && message.getControllerNumber() == 74))
+                && ! (message.isController()
+                      && (message.getControllerNumber() == 1
+                          || message.getControllerNumber() == 74
+                          || message.getControllerNumber() == 120
+                          || message.getControllerNumber() == 121
+                          || message.getControllerNumber() >= 123)))
                 continue;
 
             const auto sample = static_cast<int> (std::round (message.getTimeStamp() * sampleRate));

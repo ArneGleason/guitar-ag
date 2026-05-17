@@ -313,7 +313,11 @@ void AudioEngine::setFingerNoise (float newFingerNoise) noexcept
 
 void AudioEngine::setNeckSlideSemitones (float newNeckSlideSemitones) noexcept
 {
-    neckSlideSemitones.setTargetValue (juce::jlimit (-12.0f, 12.0f, newNeckSlideSemitones));
+    const auto clampedSlide = juce::jlimit (-12.0f, 12.0f, newNeckSlideSemitones);
+    neckSlideSemitones.setTargetValue (clampedSlide);
+
+    if (std::abs (clampedSlide) <= 0.0001f)
+        neckSlideSemitones.setCurrentAndTargetValue (0.0f);
 }
 
 void AudioEngine::setSlideFretSteps (float newSlideFretSteps) noexcept
@@ -918,6 +922,15 @@ void AudioEngine::handleIncomingMidiGroup (const IncomingMidiGroup& group)
     if (group.count <= 0)
         return;
 
+    for (auto index = 0; index < group.count; ++index)
+    {
+        if (group.messages[static_cast<size_t> (index)].isNoteOn())
+        {
+            reconcileFretboardOccupancy();
+            break;
+        }
+    }
+
     if (group.count == 1)
     {
         handleIncomingMidiMessage (group.messages[0]);
@@ -1404,6 +1417,23 @@ void AudioEngine::handleMidiMessage (const juce::MidiMessage& message)
         return;
     }
 
+    if (message.isController())
+    {
+        const auto controllerNumber = message.getControllerNumber();
+
+        if (controllerNumber == 120 || controllerNumber >= 123)
+        {
+            releaseAllNotes();
+            return;
+        }
+
+        if (controllerNumber == 121)
+        {
+            resetMidiControllers();
+            return;
+        }
+    }
+
     if (message.isChannelPressure())
     {
         applyMpePressure (message.getChannel(), static_cast<float> (message.getChannelPressureValue()) / 127.0f);
@@ -1412,6 +1442,70 @@ void AudioEngine::handleMidiMessage (const juce::MidiMessage& message)
 
     if (message.isController() && message.getControllerNumber() == 74)
         applyMpeTimbre (message.getChannel(), static_cast<float> (message.getControllerValue()) / 127.0f);
+}
+
+void AudioEngine::releaseAllNotes() noexcept
+{
+    for (auto& voice : voices)
+        voice.reset();
+
+    fretboard.reset();
+    fingerNoiseFretboard.reset();
+    playerFeelFretboard.reset();
+    clearScheduledMidiEvents();
+
+    for (auto& assignment : fingerAssignments)
+        assignment = {};
+
+    for (auto& note : articulationNotes)
+        note = {};
+
+    for (auto& assignment : pendingStrumAssignments)
+        assignment = {};
+
+    for (auto& voice : fingerNoiseVoices)
+        voice = {};
+
+    resetMidiControllers();
+    resetAmpFeedbackLoop();
+    resetPlayerFeel();
+    nextVoice = 0;
+    nextFingerNoiseVoice = 0;
+    lastPickedStringIndex = -1;
+    nextAlternatePickDown = true;
+    lastPickStrokeDirection = PickStrokeDirection::Up;
+
+    if (std::abs (neckSlideSemitones.getTargetValue()) <= 0.0001f)
+        neckSlideSemitones.setCurrentAndTargetValue (0.0f);
+}
+
+void AudioEngine::resetMidiControllers() noexcept
+{
+    modWheel.setCurrentAndTargetValue (0.0f);
+    pitchWheel.setCurrentAndTargetValue (0.0f);
+    mpePitchBendByChannel.fill (0.0f);
+    mpePressureByChannel.fill (0.0f);
+    mpeTimbreByChannel.fill (0.0f);
+}
+
+void AudioEngine::reconcileFretboardOccupancy() noexcept
+{
+    for (auto stringIndex = 0; stringIndex < maxVoices; ++stringIndex)
+    {
+        auto hasActiveVoiceOnString = false;
+
+        for (const auto& voice : voices)
+        {
+            if (voice.isActive() && voice.getStringIndex() == stringIndex)
+            {
+                hasActiveVoiceOnString = true;
+                break;
+            }
+        }
+
+        if (! hasActiveVoiceOnString)
+            fretboard.releaseString (stringIndex);
+    }
 }
 
 void AudioEngine::scheduleMidiMessage (const juce::MidiMessage& message, int64_t sampleTime) noexcept

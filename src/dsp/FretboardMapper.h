@@ -28,6 +28,7 @@ public:
                           FretboardAssignment* assignments,
                           int noteCount) noexcept;
     void releaseNote (int midiNoteNumber, int midiChannel) noexcept;
+    void releaseString (int stringIndex) noexcept;
 
     [[nodiscard]] int getFretForString (int midiNoteNumber, int stringIndex) const noexcept;
     [[nodiscard]] int getDropSemitones() const noexcept { return standardOpenNotes[0] - openNotes[0]; }

@@ -180,6 +180,14 @@ void FretboardMapper::releaseNote (int midiNoteNumber, int midiChannel) noexcept
     }
 }
 
+void FretboardMapper::releaseString (int stringIndex) noexcept
+{
+    if (stringIndex < 0 || stringIndex >= stringCount)
+        return;
+
+    activeStrings[static_cast<size_t> (stringIndex)] = {};
+}
+
 FretboardMapper::Candidate FretboardMapper::findBestCandidate (int midiNoteNumber,
                                                                int preferredStringIndex,
                                                                float preferredStringBonus,

@@ -1999,3 +1999,12 @@ EG-084 fixes a performance-interpreter collision between block-chord assignment 
 - Chord-aware Auto Strum assignments now bypass legato-source lookup when the generated note-on reaches the voice path. A block chord that previewed separate strings keeps those strings even when `Legato Articulation` is high.
 - Legato-source lookup now requires a candidate source note to have existed briefly before it can become a hammer-on, pull-off, or right-hand-tap source. This keeps same-instant or near-same-instant chord tones from stealing each other.
 - Offline verification with a DAW-label E2+B2 fixture showed default settings at max 2 active string voices, and `Legato Articulation = 100%` now also reaches max 2 active string voices instead of collapsing to 1.
+
+## 2026-05-17 — EG-085 Slide Panic Reset
+
+EG-085 fixes a stale performance-state path exposed by `Neck Slide` auditioning in Bitwig.
+
+- `Neck Slide` still applies after native guitar note/fret assignment; it does not retune the fretboard mapper.
+- When `Neck Slide` is set back to neutral, the engine now snaps its smoothed slide value to `0.0 st` instead of letting a tiny residual glide survive into later note starts.
+- Standard MIDI panic messages are now handled: CC120 All Sound Off and CC123-127 All Notes Off clear active voices, scheduled note events, articulation notes, finger-noise assignments, feedback focus, and fretboard occupancy.
+- Before a new note-on group is interpreted, the audio engine reconciles fretboard occupancy against the actual active string voices. If a host stopped playback without ordinary note-offs, stale occupied-string slots no longer bias the next chord assignment.
