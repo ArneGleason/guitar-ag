@@ -914,8 +914,9 @@ bool AudioEngine::handleAutoStrumGroup (const IncomingMidiGroup& group)
 {
     const auto strumAmount = juce::jlimit (0.0f, 1.0f, strumSpeed.getTargetValue());
 
-    if (strumAmount <= 0.0001f)
-        return false;
+    // Chord-aware string assignment runs for any simultaneous block chord (2+ note-ons),
+    // regardless of strum setting, so partial chords get natural register-ordered strings.
+    // When strumAmount == 0 perStringSeconds collapses to 0 and notes fire with zero delay.
 
     std::array<int, maxIncomingMidiGroup> noteIndices {};
     auto noteCount = 0;
@@ -932,6 +933,8 @@ bool AudioEngine::handleAutoStrumGroup (const IncomingMidiGroup& group)
     if (noteCount < 2)
         return false;
 
+    // Groups containing non-note events (e.g. CC) return false so handleIncomingMidiGroup
+    // dispatches them individually, keeping controller timing unaffected by chord logic.
     for (auto index = 0; index < group.count; ++index)
     {
         if (! group.messages[static_cast<size_t> (index)].isNoteOnOrOff())
@@ -1017,10 +1020,14 @@ bool AudioEngine::handleAutoStrumGroup (const IncomingMidiGroup& group)
     const auto balanceAmount = juce::jlimit (-1.0f, 1.0f, strumBalance.getTargetValue());
     auto strokeVelocityScale = 1.0f;
 
-    if (strokeDirection == PickStrokeDirection::Up && balanceAmount > 0.0f)
-        strokeVelocityScale = 1.0f - 0.94f * balanceAmount;
-    else if (strokeDirection == PickStrokeDirection::Down && balanceAmount < 0.0f)
-        strokeVelocityScale = 1.0f - 0.94f * std::abs (balanceAmount);
+    // Velocity balance only applies when there is an audible strum delay.
+    if (strumAmount > 0.0001f)
+    {
+        if (strokeDirection == PickStrokeDirection::Up && balanceAmount > 0.0f)
+            strokeVelocityScale = 1.0f - 0.94f * balanceAmount;
+        else if (strokeDirection == PickStrokeDirection::Down && balanceAmount < 0.0f)
+            strokeVelocityScale = 1.0f - 0.94f * std::abs (balanceAmount);
+    }
 
     for (auto noteIndex = 0; noteIndex < noteCount; ++noteIndex)
     {
@@ -1623,7 +1630,7 @@ AudioEngine::LegatoSource AudioEngine::findLegatoSource (int noteNumber, int cha
         if (! note.valid || note.noteNumber == noteNumber)
             continue;
 
-        const auto destinationFret = FretboardMapper::getFretForString (noteNumber, note.assignment.stringIndex);
+        const auto destinationFret = fretboard.getFretForString (noteNumber, note.assignment.stringIndex);
 
         if (destinationFret < 0 || destinationFret == note.assignment.fret)
             continue;

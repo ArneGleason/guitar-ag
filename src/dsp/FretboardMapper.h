@@ -24,7 +24,9 @@ public:
                                                   float preferredStringBonus = 0.0f,
                                                   bool allowPreferredOccupied = false) noexcept;
     void releaseNote (int midiNoteNumber, int midiChannel) noexcept;
-    [[nodiscard]] static int getFretForString (int midiNoteNumber, int stringIndex) noexcept;
+
+    [[nodiscard]] int getFretForString (int midiNoteNumber, int stringIndex) const noexcept;
+    [[nodiscard]] int getDropSemitones() const noexcept { return standardOpenNotes[0] - openNotes[0]; }
 
 private:
     static constexpr auto stringCount = 6;
@@ -50,7 +52,8 @@ private:
                                                int preferredStringIndex,
                                                float preferredStringBonus,
                                                bool allowPreferredOccupied) const noexcept;
-    [[nodiscard]] float scoreCandidate (int stringIndex,
+    [[nodiscard]] float scoreCandidate (int midiNoteNumber,
+                                        int stringIndex,
                                         int fret,
                                         int preferredStringIndex,
                                         float preferredStringBonus,
@@ -58,11 +61,13 @@ private:
     [[nodiscard]] bool isStringOccupied (int stringIndex) const noexcept;
     void rememberAssignment (const FretboardAssignment& assignment, int midiNoteNumber, int midiChannel) noexcept;
     void updatePositionMemory (int fret) noexcept;
+    void applyDropTuning (int midiNoteNumber) noexcept;
 
-    static constexpr std::array<int, stringCount> openNotes { 40, 45, 50, 55, 59, 64 };
+    static constexpr std::array<int, stringCount> standardOpenNotes { 40, 45, 50, 55, 59, 64 };
     static constexpr std::array<bool, stringCount> woundStrings { true, true, true, false, false, false };
     static constexpr std::array<float, stringCount> woundAmounts { 1.0f, 0.67f, 0.33f, 0.0f, 0.0f, 0.0f };
 
+    std::array<int, stringCount> openNotes { 40, 45, 50, 55, 59, 64 };
     std::array<ActiveString, stringCount> activeStrings {};
     float positionFret = 2.0f;
 };

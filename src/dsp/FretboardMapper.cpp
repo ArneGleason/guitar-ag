@@ -10,6 +10,7 @@ void FretboardMapper::reset() noexcept
     for (auto& activeString : activeStrings)
         activeString = {};
 
+    openNotes = standardOpenNotes;
     positionFret = 2.0f;
 }
 
@@ -19,6 +20,9 @@ FretboardAssignment FretboardMapper::assignNote (int midiNoteNumber,
                                                  float preferredStringBonus,
                                                  bool allowPreferredOccupied) noexcept
 {
+    if (midiNoteNumber < openNotes[0])
+        applyDropTuning (midiNoteNumber);
+
     const auto candidate = findBestCandidate (midiNoteNumber,
                                              preferredStringIndex,
                                              preferredStringBonus,
@@ -34,7 +38,7 @@ FretboardAssignment FretboardMapper::assignNote (int midiNoteNumber,
     return assignment;
 }
 
-int FretboardMapper::getFretForString (int midiNoteNumber, int stringIndex) noexcept
+int FretboardMapper::getFretForString (int midiNoteNumber, int stringIndex) const noexcept
 {
     auto clampedString = stringIndex;
 
@@ -46,6 +50,14 @@ int FretboardMapper::getFretForString (int midiNoteNumber, int stringIndex) noex
     const auto fret = midiNoteNumber - openNotes[static_cast<size_t> (clampedString)];
 
     return fret >= 0 && fret <= maxFret ? fret : -1;
+}
+
+void FretboardMapper::applyDropTuning (int midiNoteNumber) noexcept
+{
+    // Tune string 0 down to the exact requested note so it lands at fret 0.
+    // Persists until reset() — mirrors how a guitarist retunes and stays there.
+    if (midiNoteNumber < openNotes[0])
+        openNotes[0] = midiNoteNumber;
 }
 
 void FretboardMapper::releaseNote (int midiNoteNumber, int midiChannel) noexcept
@@ -72,7 +84,8 @@ FretboardMapper::Candidate FretboardMapper::findBestCandidate (int midiNoteNumbe
         if (fret < 0 || fret > maxFret)
             continue;
 
-        const auto score = scoreCandidate (stringIndex,
+        const auto score = scoreCandidate (midiNoteNumber,
+                                           stringIndex,
                                            fret,
                                            preferredStringIndex,
                                            preferredStringBonus,
@@ -89,13 +102,14 @@ FretboardMapper::Candidate FretboardMapper::findBestCandidate (int midiNoteNumbe
     if (best.score < std::numeric_limits<float>::max())
         return best;
 
-    if (midiNoteNumber < openNotes.front())
+    if (midiNoteNumber < openNotes[0])
         return { 0, 0, woundStrings.front(), woundAmounts.front(), 0.0f };
 
     return { stringCount - 1, maxFret, woundStrings.back(), woundAmounts.back(), 0.0f };
 }
 
-float FretboardMapper::scoreCandidate (int stringIndex,
+float FretboardMapper::scoreCandidate (int midiNoteNumber,
+                                       int stringIndex,
                                        int fret,
                                        int preferredStringIndex,
                                        float preferredStringBonus,
@@ -105,7 +119,17 @@ float FretboardMapper::scoreCandidate (int stringIndex,
     auto score = fretDistance * fretDistance;
 
     score += static_cast<float> (fret) * 0.030f;
-    score += static_cast<float> (stringCount - 1 - stringIndex) * 0.010f;
+
+    // Register affinity: reward notes landing on strings that match their pitch register.
+    // Low notes prefer low strings; high notes prefer high strings. This reduces spread
+    // voicings for partial chords on lower/upper strings without overriding strong
+    // position-memory preferences (weight 2.5 stays below a typical 4-fret memory pull).
+    const auto guitarRangeLow  = static_cast<float> (openNotes[0]);
+    const auto guitarRangeHigh = static_cast<float> (openNotes[stringCount - 1] + maxFret);
+    const auto noteNorm   = (static_cast<float> (midiNoteNumber) - guitarRangeLow) / (guitarRangeHigh - guitarRangeLow);
+    const auto stringNorm = static_cast<float> (stringIndex) / static_cast<float> (stringCount - 1);
+    const auto registerMismatch = noteNorm - stringNorm;
+    score += registerMismatch * registerMismatch * 2.5f;
 
     if (fret == 0)
         score -= 0.12f;

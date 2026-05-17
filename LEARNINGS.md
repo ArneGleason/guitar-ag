@@ -593,3 +593,19 @@ The first exported audition setting worth keeping is stored at `docs/audition-se
 ## 2026-05-10 — Strums are one gesture, not many decisions
 
 Already-staggered MIDI strums can fool a note-by-note feel model: each string arrival looks like another fast event, so cognitive and dexterity meters climb even though the player may simply be sweeping through a held chord shape. A better mental model separates left hand and right hand: the left hand holds or changes shape, while the right hand performs a stroke across strings. EG-078 starts with load reduction for short cross-string strum continuations; a future Auto Strum layer should generate the inter-string timing itself from simultaneous chord input.
+
+## 2026-05-17 — Drop tuning is a session-level retuning, not a per-note event
+
+Auto drop tuning works best as a persistent state change: the first sub-E2 note lowers string 0 to exactly that pitch, and the mapper stays there for the session. Resetting between notes would cause audible pitch inconsistency mid-phrase. The pattern mirrors how a real guitarist retunes and then plays — not how a pitch shifter works.
+
+Each FretboardMapper instance (main, fingerNoise, playerFeel, previewFretboard copy) tracks its own drop tuning state. The previewFretboard copy in handleAutoStrumGroup inherits the current drop state from `fretboard` at chord-assignment time, which is correct.
+
+## 2026-05-17 — Chord-aware assignment and strum delay are orthogonal
+
+Before this change, `handleAutoStrumGroup` did two things at once: assign strings in pitch-sorted register order AND apply inter-string strum delay. When strumSpeed = 0, the early return prevented the register-ordered assignment from running at all, so non-strum block chords fell through to per-note dispatch.
+
+Separating the concerns (by removing the early return and letting perStringSeconds collapse to 0 at strumAmount=0) gives register-aware string placement to all simultaneous note groups, not only strummed ones. Velocity balance scaling stays guarded by strumAmount > 0 to avoid affecting non-strum chord velocities.
+
+## 2026-05-17 — Register-affinity scoring weight calibration
+
+The register-affinity term (weight 2.5) in scoreCandidate adds at most ~0.63 penalty for maximum mismatch (note at one extreme, string at the other). A typical 4-fret deviation from positionFret contributes 16.0 to score, so the affinity term is subordinate to position memory. This is intentional: it nudges close-call assignments without overriding the dominant position-memory guidance for single-line playing. If audition finds it too weak or strong, adjust the weight from 2.5.
