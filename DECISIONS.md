@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-05-17 — Expose MIDI/DAW octave interpretation as an input mode
+
+Guitar AG will expose an `Input Octave` choice rather than silently assuming every host labels octaves the same way. `MIDI E2=40` keeps the physical/scientific mapping where MIDI note 40 is guitar low E. `DAW E2=52` subtracts one octave at MIDI ingestion so DAWs that display MIDI note 40 as E1 can still be authored with visible guitar names.
+
+The transpose happens before fretboard assignment, note-off matching, per-note aftertouch, Player Feel, finger noise, and Auto Strum grouping. This preserves voice routing and avoids treating the correction as a pitch-shift effect after the guitar model.
+
 Use this file to record important project decisions so they do not get lost in chat history.
 
 ## Template

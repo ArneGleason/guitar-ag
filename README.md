@@ -56,7 +56,7 @@ Implemented so far:
 Current model label:
 
 ```text
-StringVoice EG-082 FretboardHeuristics
+StringVoice EG-083 InputOctave
 ```
 
 ## Demo

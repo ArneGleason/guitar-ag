@@ -51,6 +51,7 @@ private:
     juce::TextButton pickStrokeTweaksButton;
     juce::TextButton playerFeelTweaksButton;
     juce::Slider sustainSlider;
+    juce::ComboBox inputOctaveBox;
     juce::Slider stringAgeSlider;
     juce::Slider bridgeIntonationSlider;
     juce::Slider fretPressureSlider;
@@ -84,6 +85,7 @@ private:
     juce::Slider palmMuteSlider;
     juce::Slider harmonicTouchSlider;
     juce::Label sustainLabel;
+    juce::Label inputOctaveLabel;
     juce::Label stringAgeLabel;
     juce::Label bridgeIntonationLabel;
     juce::Label fretPressureLabel;
@@ -133,6 +135,7 @@ private:
     juce::Label harmonicThirdLabel;
     juce::Label harmonicHalfLabel;
     juce::TextButton sustainInfoButton;
+    juce::TextButton inputOctaveInfoButton;
     juce::TextButton stringAgeInfoButton;
     juce::TextButton bridgeIntonationInfoButton;
     juce::TextButton fretPressureInfoButton;
@@ -188,6 +191,7 @@ private:
     juce::ProgressBar playerFeelDexterityMeter { playerFeelDexterityMeterValue };
     juce::ProgressBar playerFeelEnduranceMeter { playerFeelEnduranceMeterValue };
     std::unique_ptr<SliderAttachment> sustainAttachment;
+    std::unique_ptr<ComboBoxAttachment> inputOctaveAttachment;
     std::unique_ptr<SliderAttachment> stringAgeAttachment;
     std::unique_ptr<SliderAttachment> bridgeIntonationAttachment;
     std::unique_ptr<SliderAttachment> fretPressureAttachment;

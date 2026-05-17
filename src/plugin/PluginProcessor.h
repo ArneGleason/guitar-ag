@@ -15,6 +15,7 @@ public:
     };
 
     static constexpr auto tailSustainParameterId = "tailSustain";
+    static constexpr auto inputOctaveParameterId = "inputOctave";
     static constexpr auto pickStiffnessParameterId = "pickStiffness";
     static constexpr auto pickTextureParameterId = "pickTexture";
     static constexpr auto pickBiteParameterId = "pickBite";
@@ -94,6 +95,7 @@ private:
     guitar_ag::AudioEngine audioEngine;
     juce::AudioProcessorValueTreeState parameters;
     std::atomic<float>* tailSustainParameter = nullptr;
+    std::atomic<float>* inputOctaveParameter = nullptr;
     std::atomic<float>* pickStiffnessParameter = nullptr;
     std::atomic<float>* pickTextureParameter = nullptr;
     std::atomic<float>* pickBiteParameter = nullptr;

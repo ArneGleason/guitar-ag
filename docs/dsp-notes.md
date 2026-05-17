@@ -1981,3 +1981,12 @@ Verification notes:
 - D2+A2 maps to string 0 fret 0 plus string 1 fret 0.
 - After low-position context, G4+A4 maps to string 4 fret 8 plus string 5 fret 5.
 - Offline D2 render favored D2 over E2 by 56.12 dB in the analysis window.
+
+## 2026-05-17 — EG-083 Input Octave Mode
+
+EG-083 adds an explicit `Input Octave` choice because DAWs disagree about visible octave names.
+
+- `MIDI E2=40` leaves incoming MIDI note numbers unchanged. This is the scientific/guitar mapping where MIDI note 40 is low E2.
+- `DAW E2=52` subtracts one octave at the MIDI ingestion boundary. This lets DAWs that label MIDI note 40 as E1 play the guitar low E when the piano roll shows E2.
+- The transpose is applied before fretboard assignment, note-off matching, key/poly aftertouch, finger-noise assignment, Player Feel, and Auto Strum grouping. It is not a post-synthesis pitch shifter.
+- New plugin instances default to `DAW E2=52` for the current Bitwig audition workflow. Set `Input Octave` to `MIDI E2=40` for existing MIDI clips already authored around MIDI note 40.

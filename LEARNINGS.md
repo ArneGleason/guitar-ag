@@ -15,6 +15,11 @@ Use this file as the running memory for the project. Add concise notes when test
 
 Add notes here when something sounds good, bad, unstable, too bright, too dull, too synthetic, too clicky, or too CPU-heavy.
 
+## 2026-05-17 — DAW octave names versus MIDI note numbers
+
+- Bitwig audition exposed an octave-name mismatch: the note the human sees as E1 can be MIDI note 40, which is physically/scientifically E2 and the guitar low E. If the human authors visible E2 in that convention, the plugin receives MIDI note 52 unless an input-octave correction is applied.
+- This correction must happen before guitar interpretation, not as an audio pitch shift, because fretboard assignment, note-off matching, key/poly aftertouch, and strum grouping all depend on the same note number.
+
 ## 2026-05-17 — Windows build identity probe
 
 - On the Windows PC, CMake's Git build-identity probe can return `unknown` if Git rejects the checkout as a dubious-ownership repository. Invoking Git with an explicit `safe.directory` for the source directory keeps the editor identity line tied to the actual commit.

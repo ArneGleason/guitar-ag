@@ -48,6 +48,7 @@ public:
     void prepare (double sampleRate, int maximumBlockSize, int outputChannels);
     void reset();
     void setTailSustain (float newTailSustain) noexcept;
+    void setInputTransposeSemitones (int newInputTransposeSemitones) noexcept;
     void setPickStiffness (float newPickStiffness) noexcept;
     void setPickTexture (float newPickTexture) noexcept;
     void setPickBite (float newPickBite) noexcept;
@@ -107,6 +108,7 @@ private:
     struct PlayerFeelResult;
 
     void renderRange (juce::AudioBuffer<float>& audio, int startSample, int endSample) noexcept;
+    [[nodiscard]] juce::MidiMessage transposeIncomingMidiMessage (const juce::MidiMessage& message) const noexcept;
     void handleIncomingMidiGroup (const IncomingMidiGroup& group);
     [[nodiscard]] bool handleAutoStrumGroup (const IncomingMidiGroup& group);
     void handleIncomingMidiMessage (const juce::MidiMessage& message);
@@ -317,6 +319,7 @@ private:
     int64_t timelineSample = 0;
     int lookaheadSamples = 0;
     int pickupModel = 0;
+    int inputTransposeSemitones = 0;
     PickStrokeMode pickStrokeMode = PickStrokeMode::Alternate;
     int nextVoice = 0;
     int nextFingerNoiseVoice = 0;

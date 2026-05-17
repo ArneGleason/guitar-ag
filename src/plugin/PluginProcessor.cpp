@@ -9,6 +9,7 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
       parameters (*this, nullptr, "GuitarAGParameters", createParameterLayout())
 {
     tailSustainParameter = parameters.getRawParameterValue (tailSustainParameterId);
+    inputOctaveParameter = parameters.getRawParameterValue (inputOctaveParameterId);
     pickStiffnessParameter = parameters.getRawParameterValue (pickStiffnessParameterId);
     pickTextureParameter = parameters.getRawParameterValue (pickTextureParameterId);
     pickBiteParameter = parameters.getRawParameterValue (pickBiteParameterId);
@@ -138,6 +139,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
             .withLabel ("%")
             .withStringFromValueFunction (percentString)
             .withValueFromStringFunction (percentValue)));
+
+    layout.push_back (std::make_unique<juce::AudioParameterChoice> (
+        juce::ParameterID { inputOctaveParameterId, 1 },
+        "Input Octave",
+        juce::StringArray { "MIDI E2=40", "DAW E2=52" },
+        1));
 
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { pickStiffnessParameterId, 1 },
@@ -518,6 +525,8 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 {
     juce::ScopedNoDenormals noDenormals;
     buffer.clear();
+    const auto inputOctaveMode = inputOctaveParameter != nullptr ? juce::roundToInt (inputOctaveParameter->load()) : 1;
+    audioEngine.setInputTransposeSemitones (inputOctaveMode == 1 ? -12 : 0);
     audioEngine.setTailSustain (tailSustainParameter != nullptr ? tailSustainParameter->load() : 1.0f);
     audioEngine.setPickStiffness (pickStiffnessParameter != nullptr ? pickStiffnessParameter->load() : 0.5f);
     audioEngine.setPickTexture (pickTextureParameter != nullptr ? pickTextureParameter->load() : 0.25f);
@@ -620,6 +629,7 @@ juce::String GuitarAgAudioProcessor::exportSettingsJson() const
     };
 
     add (tailSustainParameterId, tailSustainParameter);
+    add (inputOctaveParameterId, inputOctaveParameter);
     add (pickStiffnessParameterId, pickStiffnessParameter);
     add (pickTextureParameterId, pickTextureParameter);
     add (pickBiteParameterId, pickBiteParameter);

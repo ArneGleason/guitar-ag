@@ -23,6 +23,7 @@ void printUsage()
 {
     std::cout << "Usage: GuitarAGOfflineRender --midi <input.mid> --output <output.wav> "
                  "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
+                 "[--input-octave midi|daw] [--input-transpose 0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.25] [--pick-bite 0.5] "
                  "[--pick-stroke alternate] [--strum-speed 0.10] [--strum-balance -0.13] "
                  "[--player-feel 0.5] [--player-feel-recovery 2.0] "
@@ -128,6 +129,7 @@ int main (int argc, char* argv[])
     auto blockSize = 512;
     auto tailSeconds = 2.0;
     auto gain = 1.0f;
+    auto inputTransposeSemitones = 0;
     auto sustain = 1.0f;
     auto pickStiffness = 0.5f;
     auto pickTexture = 0.25f;
@@ -201,6 +203,21 @@ int main (int argc, char* argv[])
         else if (argument == "--gain" && hasValue)
         {
             gain = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--input-octave" && hasValue)
+        {
+            const auto value = juce::String (argv[++i]).toLowerCase();
+
+            if (value == "daw" || value == "bitwig")
+                inputTransposeSemitones = -12;
+            else if (value == "midi" || value == "standard")
+                inputTransposeSemitones = 0;
+            else
+                inputTransposeSemitones = juce::jlimit (-24, 24, value.getIntValue());
+        }
+        else if (argument == "--input-transpose" && hasValue)
+        {
+            inputTransposeSemitones = juce::jlimit (-24, 24, juce::String (argv[++i]).getIntValue());
         }
         else if (argument == "--sustain" && hasValue)
         {
@@ -479,6 +496,7 @@ int main (int argc, char* argv[])
 
     guitar_ag::AudioEngine engine;
     engine.prepare (sampleRate, blockSize, output.getNumChannels());
+    engine.setInputTransposeSemitones (inputTransposeSemitones);
     engine.setTailSustain (sustain);
     engine.setPickStiffness (pickStiffness);
     engine.setPickTexture (pickTexture);

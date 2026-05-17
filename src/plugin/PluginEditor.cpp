@@ -211,6 +211,19 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
                          "Technical: this relaxes late modal damping after the initial attack, so the string tail decays more slowly "
                          "without changing the note's picked transient.");
 
+    configureLabel (inputOctaveLabel, "Input Octave");
+    configureInfoButton (inputOctaveInfoButton,
+                         "Choose how incoming MIDI note names should line up with guitar names.\n\n"
+                         "Technical: the physical guitar low E is MIDI note 40. Some DAWs label MIDI 40 as E1, so DAW E2 sends MIDI 52. "
+                         "DAW E2=52 subtracts one octave before fretboard assignment and synthesis; MIDI E2=40 leaves MIDI note numbers unchanged.");
+    inputOctaveBox.addItem ("MIDI E2=40", 1);
+    inputOctaveBox.addItem ("DAW E2=52", 2);
+    inputOctaveBox.setColour (juce::ComboBox::textColourId, juce::Colour (0xffe8edf2));
+    inputOctaveBox.setColour (juce::ComboBox::backgroundColourId, juce::Colour (0xff202832));
+    inputOctaveBox.setColour (juce::ComboBox::outlineColourId, juce::Colour (0xff65717c));
+    inputOctaveBox.setColour (juce::ComboBox::arrowColourId, juce::Colour (0xffe8edf2));
+    addAndMakeVisible (inputOctaveBox);
+
     configureLabel (stringAgeLabel, "String Age");
     configureSlider (stringAgeSlider, juce::Colour (0xff9ccf8a));
     configureInfoButton (stringAgeInfoButton,
@@ -639,6 +652,9 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     sustainAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                             GuitarAgAudioProcessor::tailSustainParameterId,
                                                             sustainSlider);
+    inputOctaveAttachment = std::make_unique<ComboBoxAttachment> (audioProcessor.getValueTreeState(),
+                                                                  GuitarAgAudioProcessor::inputOctaveParameterId,
+                                                                  inputOctaveBox);
     stringAgeAttachment = std::make_unique<SliderAttachment> (audioProcessor.getValueTreeState(),
                                                              GuitarAgAudioProcessor::stringAgeParameterId,
                                                              stringAgeSlider);
@@ -829,6 +845,10 @@ void GuitarAgAudioProcessorEditor::resized()
 
     if (activePage == 0)
     {
+        auto inputOctaveBounds = bounds.removeFromTop (36);
+        layoutLabelAndInfo (inputOctaveBounds, inputOctaveLabel, inputOctaveInfoButton);
+        inputOctaveBox.setBounds (inputOctaveBounds.reduced (0, 4));
+
         auto sustainBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (sustainBounds, sustainLabel, sustainInfoButton);
         sustainSlider.setBounds (sustainBounds);
@@ -1184,6 +1204,9 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
     for (auto* component : { static_cast<juce::Component*> (&sustainLabel),
                              static_cast<juce::Component*> (&sustainInfoButton),
                              static_cast<juce::Component*> (&sustainSlider),
+                             static_cast<juce::Component*> (&inputOctaveLabel),
+                             static_cast<juce::Component*> (&inputOctaveInfoButton),
+                             static_cast<juce::Component*> (&inputOctaveBox),
                              static_cast<juce::Component*> (&stringAgeLabel),
                              static_cast<juce::Component*> (&stringAgeInfoButton),
                              static_cast<juce::Component*> (&stringAgeSlider),

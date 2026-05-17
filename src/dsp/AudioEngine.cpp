@@ -195,6 +195,17 @@ void AudioEngine::setTailSustain (float newTailSustain) noexcept
     tailSustain.setTargetValue (juce::jlimit (0.0f, 1.0f, newTailSustain));
 }
 
+void AudioEngine::setInputTransposeSemitones (int newInputTransposeSemitones) noexcept
+{
+    const auto clampedTranspose = juce::jlimit (-24, 24, newInputTransposeSemitones);
+
+    if (clampedTranspose == inputTransposeSemitones)
+        return;
+
+    inputTransposeSemitones = clampedTranspose;
+    reset();
+}
+
 void AudioEngine::setPickStiffness (float newPickStiffness) noexcept
 {
     pickStiffness.setTargetValue (juce::jlimit (0.0f, 1.0f, newPickStiffness));
@@ -489,7 +500,7 @@ void AudioEngine::render (juce::AudioBuffer<float>& audio, const juce::MidiBuffe
         }
 
         groupSample = eventSample;
-        group.messages[static_cast<size_t> (group.count)] = metadata.getMessage();
+        group.messages[static_cast<size_t> (group.count)] = transposeIncomingMidiMessage (metadata.getMessage());
         ++group.count;
     }
 
@@ -502,6 +513,16 @@ void AudioEngine::render (juce::AudioBuffer<float>& audio, const juce::MidiBuffe
 
     renderRange (audio, currentSample, totalSamples);
     decayPlayerFeelLoads (timelineSample);
+}
+
+juce::MidiMessage AudioEngine::transposeIncomingMidiMessage (const juce::MidiMessage& message) const noexcept
+{
+    if (inputTransposeSemitones == 0 || (! message.isNoteOnOrOff() && ! message.isAftertouch()))
+        return message;
+
+    auto transposed = message;
+    transposed.setNoteNumber (juce::jlimit (0, 127, message.getNoteNumber() + inputTransposeSemitones));
+    return transposed;
 }
 
 void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample, int endSample) noexcept
