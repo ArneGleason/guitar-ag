@@ -18,6 +18,12 @@ Guitar AG will handle MIDI All Sound Off and All Notes Off messages as full voic
 
 The host may send these messages when stopping or rewinding instead of sending ordinary note-offs for every held note. Ignoring them can leave the fretboard mapper believing a string is still occupied after audio has stopped, especially after expressive gestures such as `Neck Slide`.
 
+## 2026-05-17 — Expose a manual and automatable panic reset
+
+Guitar AG will expose `Panic Reset` as both a visible editor button and an automatable host parameter.
+
+This gives DAW sessions a direct recovery and diagnostic tool even when MIDI CC panic messages are awkward to author or hidden behind host-specific controller lanes.
+
 Use this file to record important project decisions so they do not get lost in chat history.
 
 ## Template

@@ -30,6 +30,11 @@ Add notes here when something sounds good, bad, unstable, too bright, too dull, 
 - Bitwig `Neck Slide` auditioning exposed a deeper reset-path issue: if a host stops or rewinds without ordinary note-offs, stale fretboard occupancy can survive and bias later string assignment.
 - MIDI CC120 All Sound Off and CC123-127 All Notes Off should be treated as panic/cleanup messages, not ignored as unrelated controllers.
 
+## 2026-05-17 — Debug controls need to exist as plugin parameters
+
+- Bitwig can expose host automation lanes for plugin parameters more conveniently than authoring raw MIDI CC panic messages inside an instrument clip.
+- A dedicated `Panic Reset` parameter gives the human a reliable way to draw a reset pulse exactly at the point where assignment state goes bad.
+
 ## 2026-05-17 — Windows build identity probe
 
 - On the Windows PC, CMake's Git build-identity probe can return `unknown` if Git rejects the checkout as a dubious-ownership repository. Invoking Git with an explicit `safe.directory` for the source directory keeps the editor identity line tied to the actual commit.

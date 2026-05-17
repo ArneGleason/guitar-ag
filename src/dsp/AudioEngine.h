@@ -89,6 +89,7 @@ public:
     void setAftertouchBendSemitones (float newAftertouchBendSemitones) noexcept;
     void setPickupPosition (float newPickupPosition) noexcept;
     void setPickupModel (int newPickupModel) noexcept;
+    void panicReset() noexcept;
 
     void render (juce::AudioBuffer<float>& audio, const juce::MidiBuffer& midi);
     void setPerformanceStats (PerformanceStats* stats) noexcept;

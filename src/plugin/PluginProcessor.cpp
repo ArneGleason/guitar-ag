@@ -10,6 +10,7 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
 {
     tailSustainParameter = parameters.getRawParameterValue (tailSustainParameterId);
     inputOctaveParameter = parameters.getRawParameterValue (inputOctaveParameterId);
+    panicResetParameter = parameters.getRawParameterValue (panicResetParameterId);
     pickStiffnessParameter = parameters.getRawParameterValue (pickStiffnessParameterId);
     pickTextureParameter = parameters.getRawParameterValue (pickTextureParameterId);
     pickBiteParameter = parameters.getRawParameterValue (pickBiteParameterId);
@@ -145,6 +146,21 @@ juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::crea
         "Input Octave",
         juce::StringArray { "MIDI E2=40", "DAW E2=52" },
         1));
+
+    layout.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { panicResetParameterId, 1 },
+        "Panic Reset",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 1.0f, 1.0f },
+        0.0f,
+        juce::AudioParameterFloatAttributes()
+            .withStringFromValueFunction ([] (float value, int)
+            {
+                return value >= 0.5f ? juce::String ("Reset") : juce::String ("Ready");
+            })
+            .withValueFromStringFunction ([] (const juce::String& text)
+            {
+                return text.containsIgnoreCase ("reset") ? 1.0f : 0.0f;
+            })));
 
     layout.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { pickStiffnessParameterId, 1 },
@@ -527,6 +543,13 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     buffer.clear();
     const auto inputOctaveMode = inputOctaveParameter != nullptr ? juce::roundToInt (inputOctaveParameter->load()) : 1;
     audioEngine.setInputTransposeSemitones (inputOctaveMode == 1 ? -12 : 0);
+    const auto panicResetIsHigh = panicResetParameter != nullptr && panicResetParameter->load() >= 0.5f;
+
+    if (panicResetRequested.exchange (false) || (panicResetIsHigh && ! panicResetParameterWasHigh))
+        audioEngine.panicReset();
+
+    panicResetParameterWasHigh = panicResetIsHigh;
+
     audioEngine.setTailSustain (tailSustainParameter != nullptr ? tailSustainParameter->load() : 1.0f);
     audioEngine.setPickStiffness (pickStiffnessParameter != nullptr ? pickStiffnessParameter->load() : 0.5f);
     audioEngine.setPickTexture (pickTextureParameter != nullptr ? pickTextureParameter->load() : 0.25f);
@@ -607,6 +630,11 @@ void GuitarAgAudioProcessor::requestPlayerFeelReset() noexcept
     playerFeelResetRequested.store (true);
 }
 
+void GuitarAgAudioProcessor::requestPanicReset() noexcept
+{
+    panicResetRequested.store (true);
+}
+
 GuitarAgAudioProcessor::PlayerFeelMeterSnapshot GuitarAgAudioProcessor::getPlayerFeelMeters() const noexcept
 {
     return { playerFeelCognitiveMeter.load (std::memory_order_relaxed),
@@ -630,6 +658,7 @@ juce::String GuitarAgAudioProcessor::exportSettingsJson() const
 
     add (tailSustainParameterId, tailSustainParameter);
     add (inputOctaveParameterId, inputOctaveParameter);
+    add (panicResetParameterId, panicResetParameter);
     add (pickStiffnessParameterId, pickStiffnessParameter);
     add (pickTextureParameterId, pickTextureParameter);
     add (pickBiteParameterId, pickBiteParameter);

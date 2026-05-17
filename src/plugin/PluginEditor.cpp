@@ -224,6 +224,22 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     inputOctaveBox.setColour (juce::ComboBox::arrowColourId, juce::Colour (0xffe8edf2));
     addAndMakeVisible (inputOctaveBox);
 
+    panicResetButton.setButtonText ("Panic Reset");
+    panicResetButton.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff512a2a));
+    panicResetButton.setColour (juce::TextButton::buttonOnColourId, juce::Colour (0xff743939));
+    panicResetButton.setColour (juce::TextButton::textColourOffId, juce::Colour (0xffffdede));
+    panicResetButton.setColour (juce::TextButton::textColourOnId, juce::Colour (0xffffffff));
+    panicResetButton.onClick = [this]
+    {
+        audioProcessor.requestPanicReset();
+    };
+    addAndMakeVisible (panicResetButton);
+    configureInfoButton (panicResetInfoButton,
+                         "Immediately clear stuck performance state.\n\n"
+                         "Technical: this runs the same cleanup path as host panic messages: active voices, queued notes, fretboard occupancy, "
+                         "articulation memory, finger-noise assignments, feedback focus, pitch/mod controller state, and player-feel memory are cleared. "
+                         "The automatable Panic Reset parameter triggers the same reset when it rises above 50%.");
+
     configureLabel (stringAgeLabel, "String Age");
     configureSlider (stringAgeSlider, juce::Colour (0xff9ccf8a));
     configureInfoButton (stringAgeInfoButton,
@@ -849,6 +865,11 @@ void GuitarAgAudioProcessorEditor::resized()
         layoutLabelAndInfo (inputOctaveBounds, inputOctaveLabel, inputOctaveInfoButton);
         inputOctaveBox.setBounds (inputOctaveBounds.reduced (0, 4));
 
+        auto panicBounds = bounds.removeFromTop (34);
+        panicBounds.removeFromLeft (158);
+        panicResetButton.setBounds (panicBounds.removeFromLeft (140).reduced (0, 2));
+        panicResetInfoButton.setBounds (panicBounds.removeFromLeft (22).reduced (2, 6));
+
         auto sustainBounds = bounds.removeFromTop (36);
         layoutLabelAndInfo (sustainBounds, sustainLabel, sustainInfoButton);
         sustainSlider.setBounds (sustainBounds);
@@ -1207,6 +1228,8 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
                              static_cast<juce::Component*> (&inputOctaveLabel),
                              static_cast<juce::Component*> (&inputOctaveInfoButton),
                              static_cast<juce::Component*> (&inputOctaveBox),
+                             static_cast<juce::Component*> (&panicResetButton),
+                             static_cast<juce::Component*> (&panicResetInfoButton),
                              static_cast<juce::Component*> (&stringAgeLabel),
                              static_cast<juce::Component*> (&stringAgeInfoButton),
                              static_cast<juce::Component*> (&stringAgeSlider),

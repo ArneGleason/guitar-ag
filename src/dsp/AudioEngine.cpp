@@ -448,6 +448,11 @@ void AudioEngine::setPickupModel (int newPickupModel) noexcept
     pickupModel = juce::jlimit (0, 2, newPickupModel);
 }
 
+void AudioEngine::panicReset() noexcept
+{
+    releaseAllNotes();
+}
+
 void AudioEngine::setPerformanceStats (PerformanceStats* stats) noexcept
 {
     performanceStats = stats;

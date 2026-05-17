@@ -56,7 +56,7 @@ Implemented so far:
 Current model label:
 
 ```text
-StringVoice EG-085 SlidePanicReset
+StringVoice EG-086 PanicReset
 ```
 
 ## Demo

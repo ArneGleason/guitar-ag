@@ -2008,3 +2008,11 @@ EG-085 fixes a stale performance-state path exposed by `Neck Slide` auditioning 
 - When `Neck Slide` is set back to neutral, the engine now snaps its smoothed slide value to `0.0 st` instead of letting a tiny residual glide survive into later note starts.
 - Standard MIDI panic messages are now handled: CC120 All Sound Off and CC123-127 All Notes Off clear active voices, scheduled note events, articulation notes, finger-noise assignments, feedback focus, and fretboard occupancy.
 - Before a new note-on group is interpreted, the audio engine reconciles fretboard occupancy against the actual active string voices. If a host stopped playback without ordinary note-offs, stale occupied-string slots no longer bias the next chord assignment.
+
+## 2026-05-17 — EG-086 Panic Reset Control
+
+EG-086 exposes the panic cleanup path directly for DAW debugging and automation.
+
+- The Setup page has a `Panic Reset` button that requests the audio engine panic cleanup on the next audio block.
+- A new automatable `Panic Reset` parameter appears in host parameter lists. It triggers when automated from below 50% to 50% or higher, so a short 0% to 100% pulse can be drawn in Bitwig.
+- The reset path clears active voices, scheduled note events, fretboard occupancy, articulation memory, finger-noise assignments, feedback focus, pitch/mod controller state, and player-feel memory.

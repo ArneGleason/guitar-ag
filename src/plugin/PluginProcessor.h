@@ -16,6 +16,7 @@ public:
 
     static constexpr auto tailSustainParameterId = "tailSustain";
     static constexpr auto inputOctaveParameterId = "inputOctave";
+    static constexpr auto panicResetParameterId = "panicReset";
     static constexpr auto pickStiffnessParameterId = "pickStiffness";
     static constexpr auto pickTextureParameterId = "pickTexture";
     static constexpr auto pickBiteParameterId = "pickBite";
@@ -85,6 +86,7 @@ public:
 
     juce::AudioProcessorValueTreeState& getValueTreeState() noexcept { return parameters; }
     void requestPlayerFeelReset() noexcept;
+    void requestPanicReset() noexcept;
     [[nodiscard]] PlayerFeelMeterSnapshot getPlayerFeelMeters() const noexcept;
     [[nodiscard]] juce::String exportSettingsJson() const;
 
@@ -96,6 +98,7 @@ private:
     juce::AudioProcessorValueTreeState parameters;
     std::atomic<float>* tailSustainParameter = nullptr;
     std::atomic<float>* inputOctaveParameter = nullptr;
+    std::atomic<float>* panicResetParameter = nullptr;
     std::atomic<float>* pickStiffnessParameter = nullptr;
     std::atomic<float>* pickTextureParameter = nullptr;
     std::atomic<float>* pickBiteParameter = nullptr;
@@ -135,12 +138,14 @@ private:
     std::atomic<float>* slideSqueakDownParameter = nullptr;
     std::atomic<float>* pickupPositionParameter = nullptr;
     std::atomic<float>* pickupModelParameter = nullptr;
+    std::atomic<bool> panicResetRequested { false };
     std::atomic<bool> playerFeelResetRequested { false };
     std::atomic<float> playerFeelCognitiveMeter { 0.0f };
     std::atomic<float> playerFeelDexterityMeter { 0.0f };
     std::atomic<float> playerFeelEnduranceMeter { 0.0f };
     double currentSampleRate = 44100.0;
     int currentLatencySamples = 0;
+    bool panicResetParameterWasHigh = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarAgAudioProcessor)
 };

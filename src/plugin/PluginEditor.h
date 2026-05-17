@@ -37,6 +37,7 @@ private:
 
     GuitarAgAudioProcessor& audioProcessor;
     juce::TextButton projectInfoButton;
+    juce::TextButton panicResetButton;
     juce::TextButton setupSectionButton;
     juce::TextButton pickupSectionButton;
     juce::TextButton performanceSectionButton;
@@ -136,6 +137,7 @@ private:
     juce::Label harmonicHalfLabel;
     juce::TextButton sustainInfoButton;
     juce::TextButton inputOctaveInfoButton;
+    juce::TextButton panicResetInfoButton;
     juce::TextButton stringAgeInfoButton;
     juce::TextButton bridgeIntonationInfoButton;
     juce::TextButton fretPressureInfoButton;
