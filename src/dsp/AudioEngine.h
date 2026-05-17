@@ -5,6 +5,7 @@
 #include "StringVoice.h"
 
 #include <array>
+#include <atomic>
 #include <cstdint>
 
 namespace guitar_ag
@@ -43,6 +44,51 @@ public:
         float cognitiveLoad = 0.0f;
         float dexterityLoad = 0.0f;
         float endurance = 0.0f;
+    };
+
+    static constexpr auto stringCount = 6;
+    static constexpr auto maxDiagnosticEvents = 1000;
+
+    struct StringStatus
+    {
+        int openNote = 40;
+        int mapperNoteNumber = -1;
+        int mapperChannel = -1;
+        int mapperFret = -1;
+        int voiceNoteNumber = -1;
+        int voiceChannel = -1;
+        int voiceFret = -1;
+        bool mapperOccupied = false;
+        bool voiceActive = false;
+    };
+
+    struct DiagnosticEvent
+    {
+        uint64_t sequence = 0;
+        int type = 0;
+        int64_t sample = 0;
+        int blockSample = -1;
+        int channel = -1;
+        int hostNoteNumber = -1;
+        int engineNoteNumber = -1;
+        int velocity = -1;
+        int controllerNumber = -1;
+        int controllerValue = -1;
+        int stringIndex = -1;
+        int fret = -1;
+        int preferredString = -1;
+        int strumPreferredString = -1;
+        int legatoSourceString = -1;
+        int stolenString = -1;
+        int stolenNoteNumber = -1;
+        int mapperMaskBefore = 0;
+        int mapperMaskAfter = 0;
+        int voiceMaskBefore = 0;
+        int voiceMaskAfter = 0;
+        int dropSemitones = 0;
+        int inputTransposeSemitones = 0;
+        float neckSlideSemitones = 0.0f;
+        float legatoArticulation = 0.0f;
     };
 
     void prepare (double sampleRate, int maximumBlockSize, int outputChannels);
@@ -96,9 +142,11 @@ public:
     [[nodiscard]] PlayerFeelMeters getPlayerFeelMeters() const noexcept;
     [[nodiscard]] int getActiveVoiceCount() const noexcept;
     [[nodiscard]] int getActiveFingerNoiseVoiceCount() const noexcept;
+    [[nodiscard]] std::array<StringStatus, stringCount> getStringStatuses() const noexcept;
+    void copyDiagnosticEvents (std::array<DiagnosticEvent, maxDiagnosticEvents>& destination, int& eventCount) const noexcept;
 
 private:
-    static constexpr auto maxVoices = 6;
+    static constexpr auto maxVoices = stringCount;
     static constexpr auto maxScheduledMidiEvents = 256;
     static constexpr auto maxIncomingMidiGroup = 32;
     static constexpr auto maxFingerNoiseVoices = 12;
@@ -173,6 +221,13 @@ private:
     void updateAmpFeedbackLoop (float outputSample, float amount) noexcept;
     void updateFeedbackStringFocus (float amount, float loopFrequency, float loopAmount) noexcept;
     void recordPerformanceSample() noexcept;
+    void recordIncomingMidiDiagnostic (const juce::MidiMessage& hostMessage,
+                                       const juce::MidiMessage& engineMessage,
+                                       int blockSample,
+                                       int64_t absoluteSample) noexcept;
+    void recordDiagnosticEvent (DiagnosticEvent event) noexcept;
+    [[nodiscard]] int getMapperOccupancyMask() const noexcept;
+    [[nodiscard]] int getVoiceOccupancyMask() const noexcept;
 
     struct ScheduledMidiEvent
     {
@@ -261,6 +316,35 @@ private:
         uint32_t randomState = 0x0badf00du;
     };
 
+    struct DiagnosticEventSlot
+    {
+        std::atomic<uint64_t> sequence { 0 };
+        std::atomic<int> type { 0 };
+        std::atomic<int64_t> sample { 0 };
+        std::atomic<int> blockSample { -1 };
+        std::atomic<int> channel { -1 };
+        std::atomic<int> hostNoteNumber { -1 };
+        std::atomic<int> engineNoteNumber { -1 };
+        std::atomic<int> velocity { -1 };
+        std::atomic<int> controllerNumber { -1 };
+        std::atomic<int> controllerValue { -1 };
+        std::atomic<int> stringIndex { -1 };
+        std::atomic<int> fret { -1 };
+        std::atomic<int> preferredString { -1 };
+        std::atomic<int> strumPreferredString { -1 };
+        std::atomic<int> legatoSourceString { -1 };
+        std::atomic<int> stolenString { -1 };
+        std::atomic<int> stolenNoteNumber { -1 };
+        std::atomic<int> mapperMaskBefore { 0 };
+        std::atomic<int> mapperMaskAfter { 0 };
+        std::atomic<int> voiceMaskBefore { 0 };
+        std::atomic<int> voiceMaskAfter { 0 };
+        std::atomic<int> dropSemitones { 0 };
+        std::atomic<int> inputTransposeSemitones { 0 };
+        std::atomic<float> neckSlideSemitones { 0.0f };
+        std::atomic<float> legatoArticulation { 0.0f };
+    };
+
     std::array<StringVoice, maxVoices> voices;
     std::array<ScheduledMidiEvent, maxScheduledMidiEvents> scheduledMidiEvents {};
     std::array<PendingStrumAssignment, maxScheduledMidiEvents> pendingStrumAssignments {};
@@ -275,6 +359,8 @@ private:
     FretboardMapper fretboard;
     FretboardMapper fingerNoiseFretboard;
     FretboardMapper playerFeelFretboard;
+    std::array<DiagnosticEventSlot, maxDiagnosticEvents> diagnosticEvents {};
+    std::atomic<uint64_t> diagnosticSequence { 0 };
     ElectricGuitarTone tone;
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> tailSustain { 1.0f };
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> pickStiffness { 0.5f };

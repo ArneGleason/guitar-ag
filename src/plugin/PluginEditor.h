@@ -4,6 +4,18 @@
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
+#include <array>
+
+class StringStatusStrip final : public juce::Component
+{
+public:
+    void setStatuses (const std::array<GuitarAgAudioProcessor::StringStatusSnapshot, guitar_ag::AudioEngine::stringCount>& newStatuses);
+    void paint (juce::Graphics& graphics) override;
+
+private:
+    std::array<GuitarAgAudioProcessor::StringStatusSnapshot, guitar_ag::AudioEngine::stringCount> statuses {};
+};
+
 class GuitarAgAudioProcessorEditor final : public juce::AudioProcessorEditor,
                                            private juce::Timer
 {
@@ -24,6 +36,7 @@ private:
     void configureInfoButton (juce::TextButton& button, const juce::String& infoText);
     void showInfoPopover (juce::Component& source, const juce::String& infoText);
     void showSettingsExportPopover (juce::Component& source);
+    void showDiagnosticsExportPopover (juce::Component& source);
     void layoutLabelAndInfo (juce::Rectangle<int>& row, juce::Label& label, juce::TextButton& infoButton) noexcept;
     void layoutLabelInfoDisclosure (juce::Rectangle<int>& row,
                                     juce::Label& label,
@@ -37,6 +50,7 @@ private:
 
     GuitarAgAudioProcessor& audioProcessor;
     juce::TextButton projectInfoButton;
+    StringStatusStrip stringStatusStrip;
     juce::TextButton panicResetButton;
     juce::TextButton setupSectionButton;
     juce::TextButton pickupSectionButton;
@@ -177,6 +191,8 @@ private:
     juce::TextButton playerFeelResetInfoButton;
     juce::TextButton exportSettingsButton;
     juce::TextButton exportSettingsInfoButton;
+    juce::TextButton copyDiagnosticsButton;
+    juce::TextButton copyDiagnosticsInfoButton;
     juce::TextButton palmMuteInfoButton;
     juce::TextButton harmonicTouchInfoButton;
     juce::ComboBox lookaheadBox;

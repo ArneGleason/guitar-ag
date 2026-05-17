@@ -35,6 +35,12 @@ Add notes here when something sounds good, bad, unstable, too bright, too dull, 
 - Bitwig can expose host automation lanes for plugin parameters more conveniently than authoring raw MIDI CC panic messages inside an instrument clip.
 - A dedicated `Panic Reset` parameter gives the human a reliable way to draw a reset pulse exactly at the point where assignment state goes bad.
 
+## 2026-05-17 — String-assignment bugs need mapper and voice telemetry
+
+- Recovering with `Panic Reset` proves cleanup works, but does not identify which prior chord or controller state poisoned assignment.
+- A useful handoff log needs both host-visible note numbers and engine note numbers after input-octave correction.
+- The live UI should show mapper occupancy separately from active voices; a string can be "unavailable" to the mapper even when no audio voice is visibly ringing.
+
 ## 2026-05-17 — Windows build identity probe
 
 - On the Windows PC, CMake's Git build-identity probe can return `unknown` if Git rejects the checkout as a dubious-ownership repository. Invoking Git with an explicit `safe.directory` for the source directory keeps the editor identity line tied to the actual commit.

@@ -24,6 +24,12 @@ Guitar AG will expose `Panic Reset` as both a visible editor button and an autom
 
 This gives DAW sessions a direct recovery and diagnostic tool even when MIDI CC panic messages are awkward to author or hidden behind host-specific controller lanes.
 
+## 2026-05-17 — Add assignment diagnostics to the plugin surface
+
+Guitar AG will expose a live six-string status strip and a copyable JSON diagnostics log for fretboard assignment debugging.
+
+The string strip distinguishes mapper occupancy from actual active voices, because the suspected failure mode is stale assignment state rather than audio voice count alone. The log is bounded to the last 1000 events and is preallocated so diagnosis does not add audio-thread allocation or blocking.
+
 Use this file to record important project decisions so they do not get lost in chat history.
 
 ## Template

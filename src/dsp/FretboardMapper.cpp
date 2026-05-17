@@ -163,6 +163,30 @@ int FretboardMapper::getFretForString (int midiNoteNumber, int stringIndex) cons
     return fret >= 0 && fret <= maxFret ? fret : -1;
 }
 
+std::array<FretboardMapper::StringState, FretboardMapper::stringCount> FretboardMapper::getStringStates() const noexcept
+{
+    std::array<StringState, stringCount> states {};
+
+    for (auto stringIndex = 0; stringIndex < stringCount; ++stringIndex)
+    {
+        const auto openNote = openNotes[static_cast<size_t> (stringIndex)];
+        const auto& activeString = activeStrings[static_cast<size_t> (stringIndex)];
+        auto& state = states[static_cast<size_t> (stringIndex)];
+
+        state.openNote = openNote;
+
+        if (! activeString.active)
+            continue;
+
+        state.active = true;
+        state.noteNumber = activeString.noteNumber;
+        state.channel = activeString.channel;
+        state.fret = activeString.noteNumber - openNote;
+    }
+
+    return states;
+}
+
 void FretboardMapper::applyDropTuning (int midiNoteNumber) noexcept
 {
     // Tune string 0 down to the exact requested note so it lands at fret 0.

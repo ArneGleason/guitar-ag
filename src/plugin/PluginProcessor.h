@@ -4,6 +4,9 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
+#include <array>
+#include <atomic>
+
 class GuitarAgAudioProcessor final : public juce::AudioProcessor
 {
 public:
@@ -12,6 +15,19 @@ public:
         float cognitiveLoad = 0.0f;
         float dexterityLoad = 0.0f;
         float endurance = 0.0f;
+    };
+
+    struct StringStatusSnapshot
+    {
+        int openNote = 40;
+        int mapperNoteNumber = -1;
+        int mapperChannel = -1;
+        int mapperFret = -1;
+        int voiceNoteNumber = -1;
+        int voiceChannel = -1;
+        int voiceFret = -1;
+        bool mapperOccupied = false;
+        bool voiceActive = false;
     };
 
     static constexpr auto tailSustainParameterId = "tailSustain";
@@ -89,10 +105,13 @@ public:
     void requestPanicReset() noexcept;
     [[nodiscard]] PlayerFeelMeterSnapshot getPlayerFeelMeters() const noexcept;
     [[nodiscard]] juce::String exportSettingsJson() const;
+    [[nodiscard]] std::array<StringStatusSnapshot, guitar_ag::AudioEngine::stringCount> getStringStatuses() const noexcept;
+    [[nodiscard]] juce::String exportDiagnosticsJson() const;
 
 private:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     [[nodiscard]] int getLookaheadSamples() const noexcept;
+    void storeStringStatuses (const std::array<guitar_ag::AudioEngine::StringStatus, guitar_ag::AudioEngine::stringCount>& statuses) noexcept;
 
     guitar_ag::AudioEngine audioEngine;
     juce::AudioProcessorValueTreeState parameters;
@@ -143,6 +162,14 @@ private:
     std::atomic<float> playerFeelCognitiveMeter { 0.0f };
     std::atomic<float> playerFeelDexterityMeter { 0.0f };
     std::atomic<float> playerFeelEnduranceMeter { 0.0f };
+    std::array<std::atomic<int>, guitar_ag::AudioEngine::stringCount> stringOpenNote {};
+    std::array<std::atomic<int>, guitar_ag::AudioEngine::stringCount> stringMapperNote {};
+    std::array<std::atomic<int>, guitar_ag::AudioEngine::stringCount> stringMapperChannel {};
+    std::array<std::atomic<int>, guitar_ag::AudioEngine::stringCount> stringMapperFret {};
+    std::array<std::atomic<int>, guitar_ag::AudioEngine::stringCount> stringVoiceNote {};
+    std::array<std::atomic<int>, guitar_ag::AudioEngine::stringCount> stringVoiceChannel {};
+    std::array<std::atomic<int>, guitar_ag::AudioEngine::stringCount> stringVoiceFret {};
+    std::array<std::atomic<int>, guitar_ag::AudioEngine::stringCount> stringFlags {};
     double currentSampleRate = 44100.0;
     int currentLatencySamples = 0;
     bool panicResetParameterWasHigh = false;

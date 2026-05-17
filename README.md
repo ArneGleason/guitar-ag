@@ -56,7 +56,7 @@ Implemented so far:
 Current model label:
 
 ```text
-StringVoice EG-086 PanicReset
+StringVoice EG-087 AssignmentDiagnostics
 ```
 
 ## Demo

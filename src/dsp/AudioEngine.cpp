@@ -18,6 +18,10 @@ constexpr std::array<float, 8> feedbackBandBias {
 };
 
 constexpr auto lowerMpeMasterChannel = 1;
+constexpr auto diagnosticIncomingMidi = 1;
+constexpr auto diagnosticAssignment = 2;
+constexpr auto diagnosticNoteOff = 3;
+constexpr auto diagnosticPanicReset = 4;
 
 bool shouldDelayForLookahead (const juce::MidiMessage& message) noexcept
 {
@@ -450,7 +454,21 @@ void AudioEngine::setPickupModel (int newPickupModel) noexcept
 
 void AudioEngine::panicReset() noexcept
 {
+    DiagnosticEvent event;
+    event.type = diagnosticPanicReset;
+    event.sample = timelineSample;
+    event.mapperMaskBefore = getMapperOccupancyMask();
+    event.voiceMaskBefore = getVoiceOccupancyMask();
+    event.dropSemitones = fretboard.getDropSemitones();
+    event.inputTransposeSemitones = inputTransposeSemitones;
+    event.neckSlideSemitones = neckSlideSemitones.getTargetValue();
+    event.legatoArticulation = legatoArticulation.getTargetValue();
+
     releaseAllNotes();
+
+    event.mapperMaskAfter = getMapperOccupancyMask();
+    event.voiceMaskAfter = getVoiceOccupancyMask();
+    recordDiagnosticEvent (event);
 }
 
 void AudioEngine::setPerformanceStats (PerformanceStats* stats) noexcept
@@ -489,16 +507,100 @@ int AudioEngine::getActiveFingerNoiseVoiceCount() const noexcept
     return count;
 }
 
+std::array<AudioEngine::StringStatus, AudioEngine::stringCount> AudioEngine::getStringStatuses() const noexcept
+{
+    std::array<StringStatus, stringCount> statuses {};
+    const auto mapperStates = fretboard.getStringStates();
+
+    for (auto stringIndex = 0; stringIndex < stringCount; ++stringIndex)
+    {
+        const auto& mapperState = mapperStates[static_cast<size_t> (stringIndex)];
+        auto& status = statuses[static_cast<size_t> (stringIndex)];
+
+        status.openNote = mapperState.openNote;
+        status.mapperOccupied = mapperState.active;
+        status.mapperNoteNumber = mapperState.noteNumber;
+        status.mapperChannel = mapperState.channel;
+        status.mapperFret = mapperState.fret;
+    }
+
+    for (const auto& voice : voices)
+    {
+        if (! voice.isActive())
+            continue;
+
+        const auto stringIndex = juce::jlimit (0, stringCount - 1, voice.getStringIndex());
+        auto& status = statuses[static_cast<size_t> (stringIndex)];
+        status.voiceActive = true;
+        status.voiceNoteNumber = voice.getNoteNumber();
+        status.voiceChannel = voice.getChannel();
+        status.voiceFret = voice.getFret();
+    }
+
+    return statuses;
+}
+
+void AudioEngine::copyDiagnosticEvents (std::array<DiagnosticEvent, maxDiagnosticEvents>& destination,
+                                        int& eventCount) const noexcept
+{
+    const auto latestSequence = diagnosticSequence.load (std::memory_order_acquire);
+    const auto available = static_cast<int> (std::min<uint64_t> (latestSequence, maxDiagnosticEvents));
+    const auto firstSequence = latestSequence >= static_cast<uint64_t> (available)
+                             ? latestSequence - static_cast<uint64_t> (available) + 1u
+                             : 1u;
+
+    eventCount = 0;
+
+    for (auto offset = 0; offset < available; ++offset)
+    {
+        const auto sequence = firstSequence + static_cast<uint64_t> (offset);
+        const auto& slot = diagnosticEvents[static_cast<size_t> ((sequence - 1u) % maxDiagnosticEvents)];
+
+        if (slot.sequence.load (std::memory_order_acquire) != sequence)
+            continue;
+
+        auto& event = destination[static_cast<size_t> (eventCount)];
+        event.sequence = sequence;
+        event.type = slot.type.load (std::memory_order_relaxed);
+        event.sample = slot.sample.load (std::memory_order_relaxed);
+        event.blockSample = slot.blockSample.load (std::memory_order_relaxed);
+        event.channel = slot.channel.load (std::memory_order_relaxed);
+        event.hostNoteNumber = slot.hostNoteNumber.load (std::memory_order_relaxed);
+        event.engineNoteNumber = slot.engineNoteNumber.load (std::memory_order_relaxed);
+        event.velocity = slot.velocity.load (std::memory_order_relaxed);
+        event.controllerNumber = slot.controllerNumber.load (std::memory_order_relaxed);
+        event.controllerValue = slot.controllerValue.load (std::memory_order_relaxed);
+        event.stringIndex = slot.stringIndex.load (std::memory_order_relaxed);
+        event.fret = slot.fret.load (std::memory_order_relaxed);
+        event.preferredString = slot.preferredString.load (std::memory_order_relaxed);
+        event.strumPreferredString = slot.strumPreferredString.load (std::memory_order_relaxed);
+        event.legatoSourceString = slot.legatoSourceString.load (std::memory_order_relaxed);
+        event.stolenString = slot.stolenString.load (std::memory_order_relaxed);
+        event.stolenNoteNumber = slot.stolenNoteNumber.load (std::memory_order_relaxed);
+        event.mapperMaskBefore = slot.mapperMaskBefore.load (std::memory_order_relaxed);
+        event.mapperMaskAfter = slot.mapperMaskAfter.load (std::memory_order_relaxed);
+        event.voiceMaskBefore = slot.voiceMaskBefore.load (std::memory_order_relaxed);
+        event.voiceMaskAfter = slot.voiceMaskAfter.load (std::memory_order_relaxed);
+        event.dropSemitones = slot.dropSemitones.load (std::memory_order_relaxed);
+        event.inputTransposeSemitones = slot.inputTransposeSemitones.load (std::memory_order_relaxed);
+        event.neckSlideSemitones = slot.neckSlideSemitones.load (std::memory_order_relaxed);
+        event.legatoArticulation = slot.legatoArticulation.load (std::memory_order_relaxed);
+        ++eventCount;
+    }
+}
+
 void AudioEngine::render (juce::AudioBuffer<float>& audio, const juce::MidiBuffer& midi)
 {
     auto currentSample = 0;
     const auto totalSamples = audio.getNumSamples();
     IncomingMidiGroup group;
     auto groupSample = -1;
+    const auto blockStartSample = timelineSample;
 
     for (const auto metadata : midi)
     {
         const auto eventSample = juce::jlimit (0, totalSamples, metadata.samplePosition);
+        const auto engineMessage = transposeIncomingMidiMessage (metadata.getMessage());
 
         if (group.count > 0 && (eventSample != groupSample || group.count >= maxIncomingMidiGroup))
         {
@@ -509,7 +611,8 @@ void AudioEngine::render (juce::AudioBuffer<float>& audio, const juce::MidiBuffe
         }
 
         groupSample = eventSample;
-        group.messages[static_cast<size_t> (group.count)] = transposeIncomingMidiMessage (metadata.getMessage());
+        recordIncomingMidiDiagnostic (metadata.getMessage(), engineMessage, eventSample, blockStartSample + eventSample);
+        group.messages[static_cast<size_t> (group.count)] = engineMessage;
         ++group.count;
     }
 
@@ -638,6 +741,121 @@ void AudioEngine::recordPerformanceSample() noexcept
     performanceStats->maxActiveVoices = juce::jmax (performanceStats->maxActiveVoices, activeVoiceCount);
     performanceStats->maxActiveFingerNoiseVoices = juce::jmax (performanceStats->maxActiveFingerNoiseVoices,
                                                                activeFingerNoiseVoiceCount);
+}
+
+void AudioEngine::recordIncomingMidiDiagnostic (const juce::MidiMessage& hostMessage,
+                                                const juce::MidiMessage& engineMessage,
+                                                int blockSample,
+                                                int64_t absoluteSample) noexcept
+{
+    if (! (hostMessage.isNoteOnOrOff()
+           || hostMessage.isController()
+           || hostMessage.isPitchWheel()
+           || hostMessage.isAftertouch()
+           || hostMessage.isChannelPressure()))
+        return;
+
+    DiagnosticEvent event;
+    event.type = diagnosticIncomingMidi;
+    event.sample = absoluteSample;
+    event.blockSample = blockSample;
+    event.channel = hostMessage.getChannel();
+    event.mapperMaskBefore = getMapperOccupancyMask();
+    event.voiceMaskBefore = getVoiceOccupancyMask();
+    event.dropSemitones = fretboard.getDropSemitones();
+    event.inputTransposeSemitones = inputTransposeSemitones;
+    event.neckSlideSemitones = neckSlideSemitones.getTargetValue();
+    event.legatoArticulation = legatoArticulation.getTargetValue();
+
+    if (hostMessage.isNoteOnOrOff() || hostMessage.isAftertouch())
+    {
+        event.hostNoteNumber = hostMessage.getNoteNumber();
+        event.engineNoteNumber = engineMessage.getNoteNumber();
+    }
+
+    if (hostMessage.isNoteOn())
+        event.velocity = juce::jlimit (0, 127, juce::roundToInt (hostMessage.getFloatVelocity() * 127.0f));
+    else if (hostMessage.isController())
+    {
+        event.controllerNumber = hostMessage.getControllerNumber();
+        event.controllerValue = hostMessage.getControllerValue();
+    }
+    else if (hostMessage.isPitchWheel())
+    {
+        event.controllerNumber = 224;
+        event.controllerValue = hostMessage.getPitchWheelValue();
+    }
+    else if (hostMessage.isAftertouch())
+    {
+        event.controllerNumber = 160;
+        event.controllerValue = hostMessage.getAfterTouchValue();
+    }
+    else if (hostMessage.isChannelPressure())
+    {
+        event.controllerNumber = 208;
+        event.controllerValue = hostMessage.getChannelPressureValue();
+    }
+
+    recordDiagnosticEvent (event);
+}
+
+void AudioEngine::recordDiagnosticEvent (DiagnosticEvent event) noexcept
+{
+    const auto sequence = diagnosticSequence.fetch_add (1u, std::memory_order_acq_rel) + 1u;
+    auto& slot = diagnosticEvents[static_cast<size_t> ((sequence - 1u) % maxDiagnosticEvents)];
+
+    slot.type.store (event.type, std::memory_order_relaxed);
+    slot.sample.store (event.sample, std::memory_order_relaxed);
+    slot.blockSample.store (event.blockSample, std::memory_order_relaxed);
+    slot.channel.store (event.channel, std::memory_order_relaxed);
+    slot.hostNoteNumber.store (event.hostNoteNumber, std::memory_order_relaxed);
+    slot.engineNoteNumber.store (event.engineNoteNumber, std::memory_order_relaxed);
+    slot.velocity.store (event.velocity, std::memory_order_relaxed);
+    slot.controllerNumber.store (event.controllerNumber, std::memory_order_relaxed);
+    slot.controllerValue.store (event.controllerValue, std::memory_order_relaxed);
+    slot.stringIndex.store (event.stringIndex, std::memory_order_relaxed);
+    slot.fret.store (event.fret, std::memory_order_relaxed);
+    slot.preferredString.store (event.preferredString, std::memory_order_relaxed);
+    slot.strumPreferredString.store (event.strumPreferredString, std::memory_order_relaxed);
+    slot.legatoSourceString.store (event.legatoSourceString, std::memory_order_relaxed);
+    slot.stolenString.store (event.stolenString, std::memory_order_relaxed);
+    slot.stolenNoteNumber.store (event.stolenNoteNumber, std::memory_order_relaxed);
+    slot.mapperMaskBefore.store (event.mapperMaskBefore, std::memory_order_relaxed);
+    slot.mapperMaskAfter.store (event.mapperMaskAfter, std::memory_order_relaxed);
+    slot.voiceMaskBefore.store (event.voiceMaskBefore, std::memory_order_relaxed);
+    slot.voiceMaskAfter.store (event.voiceMaskAfter, std::memory_order_relaxed);
+    slot.dropSemitones.store (event.dropSemitones, std::memory_order_relaxed);
+    slot.inputTransposeSemitones.store (event.inputTransposeSemitones, std::memory_order_relaxed);
+    slot.neckSlideSemitones.store (event.neckSlideSemitones, std::memory_order_relaxed);
+    slot.legatoArticulation.store (event.legatoArticulation, std::memory_order_relaxed);
+    slot.sequence.store (sequence, std::memory_order_release);
+}
+
+int AudioEngine::getMapperOccupancyMask() const noexcept
+{
+    auto mask = 0;
+    const auto statuses = fretboard.getStringStates();
+
+    for (auto stringIndex = 0; stringIndex < stringCount; ++stringIndex)
+    {
+        if (statuses[static_cast<size_t> (stringIndex)].active)
+            mask |= 1 << stringIndex;
+    }
+
+    return mask;
+}
+
+int AudioEngine::getVoiceOccupancyMask() const noexcept
+{
+    auto mask = 0;
+
+    for (const auto& voice : voices)
+    {
+        if (voice.isActive())
+            mask |= 1 << juce::jlimit (0, stringCount - 1, voice.getStringIndex());
+    }
+
+    return mask;
 }
 
 void AudioEngine::configureAmpFeedbackLoop() noexcept
@@ -1606,6 +1824,8 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
 {
     const auto strumPreferredString = consumePendingStrumString (noteNumber, channel);
     const auto articulationAmount = legatoArticulation.getTargetValue();
+    const auto mapperMaskBefore = getMapperOccupancyMask();
+    const auto voiceMaskBefore = getVoiceOccupancyMask();
     auto legatoSource = strumPreferredString >= 0
                       ? LegatoSource {}
                       : findLegatoSource (noteNumber, channel, articulationAmount);
@@ -1642,6 +1862,8 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
     const auto pickAttackSeed = makePickAttackSeed (noteNumber, channel, assignment, gesture, pickStrokeDirection);
 
     auto& voice = selectVoiceForAssignment (assignment);
+    const auto stolenString = voice.isActive() ? voice.getStringIndex() : -1;
+    const auto stolenNoteNumber = voice.isActive() ? voice.getNoteNumber() : -1;
 
     if (voice.isActive())
     {
@@ -1670,6 +1892,30 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
     voice.setMpePressure (channel, mpePressureByChannel[channelIndex]);
     voice.setMpeTimbre (channel, mpeTimbreByChannel[channelIndex]);
     rememberArticulationNote (noteNumber, channel, assignment, gesture);
+
+    DiagnosticEvent event;
+    event.type = diagnosticAssignment;
+    event.sample = timelineSample;
+    event.channel = channel;
+    event.hostNoteNumber = juce::jlimit (0, 127, noteNumber - inputTransposeSemitones);
+    event.engineNoteNumber = noteNumber;
+    event.velocity = juce::jlimit (0, 127, juce::roundToInt (velocity * 127.0f));
+    event.stringIndex = assignment.stringIndex;
+    event.fret = assignment.fret;
+    event.preferredString = preferredString;
+    event.strumPreferredString = strumPreferredString;
+    event.legatoSourceString = legatoSource.valid ? legatoSource.assignment.stringIndex : -1;
+    event.stolenString = stolenString;
+    event.stolenNoteNumber = stolenNoteNumber;
+    event.mapperMaskBefore = mapperMaskBefore;
+    event.mapperMaskAfter = getMapperOccupancyMask();
+    event.voiceMaskBefore = voiceMaskBefore;
+    event.voiceMaskAfter = getVoiceOccupancyMask();
+    event.dropSemitones = fretboard.getDropSemitones();
+    event.inputTransposeSemitones = inputTransposeSemitones;
+    event.neckSlideSemitones = neckSlideSemitones.getTargetValue();
+    event.legatoArticulation = articulationAmount;
+    recordDiagnosticEvent (event);
 }
 
 PickStrokeDirection AudioEngine::resolvePickStrokeDirection (PlayerGesture gesture,
@@ -2129,11 +2375,30 @@ float AudioEngine::nextFingerNoiseRandom (uint32_t& state) noexcept
 
 void AudioEngine::noteOff (int noteNumber, int channel)
 {
+    const auto mapperMaskBefore = getMapperOccupancyMask();
+    const auto voiceMaskBefore = getVoiceOccupancyMask();
+
     fretboard.releaseNote (noteNumber, channel);
     releaseArticulationNote (noteNumber, channel);
 
     for (auto& voice : voices)
         voice.release (noteNumber, channel);
+
+    DiagnosticEvent event;
+    event.type = diagnosticNoteOff;
+    event.sample = timelineSample;
+    event.channel = channel;
+    event.hostNoteNumber = juce::jlimit (0, 127, noteNumber - inputTransposeSemitones);
+    event.engineNoteNumber = noteNumber;
+    event.mapperMaskBefore = mapperMaskBefore;
+    event.mapperMaskAfter = getMapperOccupancyMask();
+    event.voiceMaskBefore = voiceMaskBefore;
+    event.voiceMaskAfter = getVoiceOccupancyMask();
+    event.dropSemitones = fretboard.getDropSemitones();
+    event.inputTransposeSemitones = inputTransposeSemitones;
+    event.neckSlideSemitones = neckSlideSemitones.getTargetValue();
+    event.legatoArticulation = legatoArticulation.getTargetValue();
+    recordDiagnosticEvent (event);
 }
 
 void AudioEngine::applyAftertouch (int noteNumber, int channel, float pressure) noexcept

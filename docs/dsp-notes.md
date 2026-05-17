@@ -2016,3 +2016,13 @@ EG-086 exposes the panic cleanup path directly for DAW debugging and automation.
 - The Setup page has a `Panic Reset` button that requests the audio engine panic cleanup on the next audio block.
 - A new automatable `Panic Reset` parameter appears in host parameter lists. It triggers when automated from below 50% to 50% or higher, so a short 0% to 100% pulse can be drawn in Bitwig.
 - The reset path clears active voices, scheduled note events, fretboard occupancy, articulation memory, finger-noise assignments, feedback focus, pitch/mod controller state, and player-feel memory.
+
+## 2026-05-17 — EG-087 Assignment Diagnostics
+
+EG-087 adds assignment instrumentation for diagnosing Bitwig clips that leave the fretboard mapper unable to reuse apparently free strings.
+
+- The visible model label is now `StringVoice EG-087 AssignmentDiagnostics`.
+- The audio engine keeps a fixed-size rolling diagnostics buffer for the last 1000 incoming MIDI, assignment, note-off, and panic-reset events. It uses preallocated atomic slots so the audio thread does not allocate or block.
+- Each assignment event records host note, engine note after input-octave transpose, velocity, string/fret, preferred string, strum-preferred string, legato-source string, stolen voice, mapper occupancy mask, active-voice mask, input transpose, current drop tuning, `Neck Slide`, and `Legato Articulation`.
+- The editor header shows a six-string status strip. Green means mapper occupancy and active voice state agree; amber means the mapper still considers a string occupied even though no voice is active on that string.
+- `Copy Log` opens and copies a JSON snapshot with the live string statuses and rolling event log for handoff/debugging.

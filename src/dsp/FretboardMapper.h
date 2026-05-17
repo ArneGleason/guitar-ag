@@ -16,6 +16,17 @@ struct FretboardAssignment
 class FretboardMapper
 {
 public:
+    static constexpr auto stringCount = 6;
+
+    struct StringState
+    {
+        int openNote = 40;
+        int noteNumber = -1;
+        int channel = -1;
+        int fret = -1;
+        bool active = false;
+    };
+
     void reset() noexcept;
 
     [[nodiscard]] FretboardAssignment assignNote (int midiNoteNumber,
@@ -32,9 +43,9 @@ public:
 
     [[nodiscard]] int getFretForString (int midiNoteNumber, int stringIndex) const noexcept;
     [[nodiscard]] int getDropSemitones() const noexcept { return standardOpenNotes[0] - openNotes[0]; }
+    [[nodiscard]] std::array<StringState, stringCount> getStringStates() const noexcept;
 
 private:
-    static constexpr auto stringCount = 6;
     static constexpr auto maxFret = 24;
 
     struct ActiveString

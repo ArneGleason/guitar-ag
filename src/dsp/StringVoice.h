@@ -53,6 +53,7 @@ public:
     [[nodiscard]] int getNoteNumber() const noexcept { return noteNumber; }
     [[nodiscard]] int getChannel() const noexcept { return channel; }
     [[nodiscard]] int getStringIndex() const noexcept { return stringIndex; }
+    [[nodiscard]] int getFret() const noexcept { return fret; }
     [[nodiscard]] float getFeedbackCouplingScore (float loopFrequency) const noexcept;
     void setAftertouchPressure (int midiNoteNumber, int midiChannel, float pressure) noexcept;
     void setMpePitchBend (int midiChannel, float bend) noexcept;

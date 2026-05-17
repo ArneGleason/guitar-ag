@@ -4,6 +4,63 @@
 
 #include <cmath>
 
+namespace
+{
+juce::String getMidiNoteName (int noteNumber)
+{
+    if (noteNumber < 0 || noteNumber > 127)
+        return "none";
+
+    static constexpr const char* names[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+    return juce::String (names[noteNumber % 12]) + juce::String (noteNumber / 12 - 1);
+}
+
+juce::String getStringName (int stringIndex)
+{
+    static constexpr const char* names[] { "lowE", "A", "D", "G", "B", "highE" };
+    return stringIndex >= 0 && stringIndex < 6 ? juce::String (names[stringIndex]) : "none";
+}
+
+juce::String getDiagnosticEventTypeName (int eventType)
+{
+    switch (eventType)
+    {
+        case 1: return "incoming_midi";
+        case 2: return "assignment";
+        case 3: return "note_off";
+        case 4: return "panic_reset";
+        default: break;
+    }
+
+    return "unknown";
+}
+
+juce::String getIncomingMidiKindName (const guitar_ag::AudioEngine::DiagnosticEvent& event)
+{
+    if (event.type != 1)
+        return {};
+
+    if (event.hostNoteNumber >= 0)
+    {
+        if (event.controllerNumber == 160)
+            return "poly_aftertouch";
+
+        return event.velocity >= 0 ? "note_on" : "note_off";
+    }
+
+    if (event.controllerNumber >= 0 && event.controllerNumber <= 127)
+        return "cc";
+
+    if (event.controllerNumber == 224)
+        return "pitch_wheel";
+
+    if (event.controllerNumber == 208)
+        return "channel_pressure";
+
+    return "other";
+}
+} // namespace
+
 GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
       parameters (*this, nullptr, "GuitarAGParameters", createParameterLayout())
@@ -50,6 +107,21 @@ GuitarAgAudioProcessor::GuitarAgAudioProcessor()
     slideSqueakDownParameter = parameters.getRawParameterValue (slideSqueakDownParameterId);
     pickupPositionParameter = parameters.getRawParameterValue (pickupPositionParameterId);
     pickupModelParameter = parameters.getRawParameterValue (pickupModelParameterId);
+
+    static constexpr std::array<int, guitar_ag::AudioEngine::stringCount> defaultOpenNotes { 40, 45, 50, 55, 59, 64 };
+
+    for (auto stringIndex = 0; stringIndex < static_cast<int> (defaultOpenNotes.size()); ++stringIndex)
+    {
+        const auto index = static_cast<size_t> (stringIndex);
+        stringOpenNote[index].store (defaultOpenNotes[index], std::memory_order_relaxed);
+        stringMapperNote[index].store (-1, std::memory_order_relaxed);
+        stringMapperChannel[index].store (-1, std::memory_order_relaxed);
+        stringMapperFret[index].store (-1, std::memory_order_relaxed);
+        stringVoiceNote[index].store (-1, std::memory_order_relaxed);
+        stringVoiceChannel[index].store (-1, std::memory_order_relaxed);
+        stringVoiceFret[index].store (-1, std::memory_order_relaxed);
+        stringFlags[index].store (0, std::memory_order_relaxed);
+    }
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout GuitarAgAudioProcessor::createParameterLayout()
@@ -611,6 +683,7 @@ void GuitarAgAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     playerFeelCognitiveMeter.store (meters.cognitiveLoad, std::memory_order_relaxed);
     playerFeelDexterityMeter.store (meters.dexterityLoad, std::memory_order_relaxed);
     playerFeelEnduranceMeter.store (meters.endurance, std::memory_order_relaxed);
+    storeStringStatuses (audioEngine.getStringStatuses());
 }
 
 int GuitarAgAudioProcessor::getLookaheadSamples() const noexcept
@@ -640,6 +713,57 @@ GuitarAgAudioProcessor::PlayerFeelMeterSnapshot GuitarAgAudioProcessor::getPlaye
     return { playerFeelCognitiveMeter.load (std::memory_order_relaxed),
              playerFeelDexterityMeter.load (std::memory_order_relaxed),
              playerFeelEnduranceMeter.load (std::memory_order_relaxed) };
+}
+
+void GuitarAgAudioProcessor::storeStringStatuses (
+    const std::array<guitar_ag::AudioEngine::StringStatus, guitar_ag::AudioEngine::stringCount>& statuses) noexcept
+{
+    for (auto stringIndex = 0; stringIndex < static_cast<int> (statuses.size()); ++stringIndex)
+    {
+        const auto index = static_cast<size_t> (stringIndex);
+        const auto& status = statuses[index];
+        auto flags = 0;
+
+        if (status.mapperOccupied)
+            flags |= 1;
+
+        if (status.voiceActive)
+            flags |= 2;
+
+        stringOpenNote[index].store (status.openNote, std::memory_order_relaxed);
+        stringMapperNote[index].store (status.mapperNoteNumber, std::memory_order_relaxed);
+        stringMapperChannel[index].store (status.mapperChannel, std::memory_order_relaxed);
+        stringMapperFret[index].store (status.mapperFret, std::memory_order_relaxed);
+        stringVoiceNote[index].store (status.voiceNoteNumber, std::memory_order_relaxed);
+        stringVoiceChannel[index].store (status.voiceChannel, std::memory_order_relaxed);
+        stringVoiceFret[index].store (status.voiceFret, std::memory_order_relaxed);
+        stringFlags[index].store (flags, std::memory_order_release);
+    }
+}
+
+std::array<GuitarAgAudioProcessor::StringStatusSnapshot, guitar_ag::AudioEngine::stringCount>
+GuitarAgAudioProcessor::getStringStatuses() const noexcept
+{
+    std::array<StringStatusSnapshot, guitar_ag::AudioEngine::stringCount> statuses {};
+
+    for (auto stringIndex = 0; stringIndex < static_cast<int> (statuses.size()); ++stringIndex)
+    {
+        const auto index = static_cast<size_t> (stringIndex);
+        const auto flags = stringFlags[index].load (std::memory_order_acquire);
+        auto& status = statuses[index];
+
+        status.openNote = stringOpenNote[index].load (std::memory_order_relaxed);
+        status.mapperNoteNumber = stringMapperNote[index].load (std::memory_order_relaxed);
+        status.mapperChannel = stringMapperChannel[index].load (std::memory_order_relaxed);
+        status.mapperFret = stringMapperFret[index].load (std::memory_order_relaxed);
+        status.voiceNoteNumber = stringVoiceNote[index].load (std::memory_order_relaxed);
+        status.voiceChannel = stringVoiceChannel[index].load (std::memory_order_relaxed);
+        status.voiceFret = stringVoiceFret[index].load (std::memory_order_relaxed);
+        status.mapperOccupied = (flags & 1) != 0;
+        status.voiceActive = (flags & 2) != 0;
+    }
+
+    return statuses;
 }
 
 juce::String GuitarAgAudioProcessor::exportSettingsJson() const
@@ -707,6 +831,109 @@ juce::String GuitarAgAudioProcessor::exportSettingsJson() const
 
     root->setProperty ("parameters", juce::var (params));
     root->setProperty ("playerFeelMeters", juce::var (meterObject));
+    return juce::JSON::toString (juce::var (root), false);
+}
+
+juce::String GuitarAgAudioProcessor::exportDiagnosticsJson() const
+{
+    auto* root = new juce::DynamicObject();
+    root->setProperty ("plugin", "Guitar AG");
+    root->setProperty ("version", JucePlugin_VersionString);
+    root->setProperty ("model", GUITAR_AG_MODEL_LABEL);
+    root->setProperty ("commit", GUITAR_AG_GIT_COMMIT);
+    root->setProperty ("sampleRate", currentSampleRate);
+    root->setProperty ("maxEvents", guitar_ag::AudioEngine::maxDiagnosticEvents);
+
+    auto* params = new juce::DynamicObject();
+    if (inputOctaveParameter != nullptr)
+        params->setProperty ("inputOctave", inputOctaveParameter->load());
+    if (legatoArticulationParameter != nullptr)
+        params->setProperty ("legatoArticulation", legatoArticulationParameter->load());
+    if (strumSpeedParameter != nullptr)
+        params->setProperty ("strumSpeed", strumSpeedParameter->load());
+    if (strumBalanceParameter != nullptr)
+        params->setProperty ("strumBalance", strumBalanceParameter->load());
+    if (neckSlideParameter != nullptr)
+        params->setProperty ("neckSlide", neckSlideParameter->load());
+    if (lookaheadParameter != nullptr)
+        params->setProperty ("lookahead", lookaheadParameter->load());
+    root->setProperty ("parameters", juce::var (params));
+
+    juce::Array<juce::var> stringArray;
+    const auto stringStatuses = getStringStatuses();
+
+    for (auto stringIndex = 0; stringIndex < static_cast<int> (stringStatuses.size()); ++stringIndex)
+    {
+        const auto& status = stringStatuses[static_cast<size_t> (stringIndex)];
+        auto* stringObject = new juce::DynamicObject();
+        stringObject->setProperty ("stringIndex", stringIndex);
+        stringObject->setProperty ("stringName", getStringName (stringIndex));
+        stringObject->setProperty ("openNote", status.openNote);
+        stringObject->setProperty ("openName", getMidiNoteName (status.openNote));
+        stringObject->setProperty ("mapperOccupied", status.mapperOccupied);
+        stringObject->setProperty ("mapperNote", status.mapperNoteNumber);
+        stringObject->setProperty ("mapperNoteName", getMidiNoteName (status.mapperNoteNumber));
+        stringObject->setProperty ("mapperChannel", status.mapperChannel);
+        stringObject->setProperty ("mapperFret", status.mapperFret);
+        stringObject->setProperty ("voiceActive", status.voiceActive);
+        stringObject->setProperty ("voiceNote", status.voiceNoteNumber);
+        stringObject->setProperty ("voiceNoteName", getMidiNoteName (status.voiceNoteNumber));
+        stringObject->setProperty ("voiceChannel", status.voiceChannel);
+        stringObject->setProperty ("voiceFret", status.voiceFret);
+        stringArray.add (juce::var (stringObject));
+    }
+
+    root->setProperty ("strings", juce::var (stringArray));
+
+    std::array<guitar_ag::AudioEngine::DiagnosticEvent, guitar_ag::AudioEngine::maxDiagnosticEvents> events {};
+    auto eventCount = 0;
+    audioEngine.copyDiagnosticEvents (events, eventCount);
+    root->setProperty ("eventCount", eventCount);
+
+    juce::Array<juce::var> eventArray;
+
+    for (auto index = 0; index < eventCount; ++index)
+    {
+        const auto& event = events[static_cast<size_t> (index)];
+        auto* eventObject = new juce::DynamicObject();
+        eventObject->setProperty ("sequence", static_cast<double> (event.sequence));
+        eventObject->setProperty ("type", getDiagnosticEventTypeName (event.type));
+
+        if (event.type == 1)
+            eventObject->setProperty ("midiKind", getIncomingMidiKindName (event));
+
+        eventObject->setProperty ("sample", static_cast<double> (event.sample));
+        eventObject->setProperty ("seconds", currentSampleRate > 0.0 ? static_cast<double> (event.sample) / currentSampleRate : 0.0);
+        eventObject->setProperty ("blockSample", event.blockSample);
+        eventObject->setProperty ("channel", event.channel);
+        eventObject->setProperty ("hostNote", event.hostNoteNumber);
+        eventObject->setProperty ("hostNoteName", getMidiNoteName (event.hostNoteNumber));
+        eventObject->setProperty ("engineNote", event.engineNoteNumber);
+        eventObject->setProperty ("engineNoteName", getMidiNoteName (event.engineNoteNumber));
+        eventObject->setProperty ("velocity", event.velocity);
+        eventObject->setProperty ("controller", event.controllerNumber);
+        eventObject->setProperty ("controllerValue", event.controllerValue);
+        eventObject->setProperty ("stringIndex", event.stringIndex);
+        eventObject->setProperty ("stringName", getStringName (event.stringIndex));
+        eventObject->setProperty ("fret", event.fret);
+        eventObject->setProperty ("preferredString", event.preferredString);
+        eventObject->setProperty ("strumPreferredString", event.strumPreferredString);
+        eventObject->setProperty ("legatoSourceString", event.legatoSourceString);
+        eventObject->setProperty ("stolenString", event.stolenString);
+        eventObject->setProperty ("stolenNote", event.stolenNoteNumber);
+        eventObject->setProperty ("stolenNoteName", getMidiNoteName (event.stolenNoteNumber));
+        eventObject->setProperty ("mapperMaskBefore", event.mapperMaskBefore);
+        eventObject->setProperty ("mapperMaskAfter", event.mapperMaskAfter);
+        eventObject->setProperty ("voiceMaskBefore", event.voiceMaskBefore);
+        eventObject->setProperty ("voiceMaskAfter", event.voiceMaskAfter);
+        eventObject->setProperty ("dropSemitones", event.dropSemitones);
+        eventObject->setProperty ("inputTransposeSemitones", event.inputTransposeSemitones);
+        eventObject->setProperty ("neckSlideSemitones", event.neckSlideSemitones);
+        eventObject->setProperty ("legatoArticulation", event.legatoArticulation);
+        eventArray.add (juce::var (eventObject));
+    }
+
+    root->setProperty ("events", juce::var (eventArray));
     return juce::JSON::toString (juce::var (root), false);
 }
 

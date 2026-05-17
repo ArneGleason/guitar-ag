@@ -83,7 +83,82 @@ private:
     juce::TextEditor message;
 };
 
+juce::String getMidiNoteName (int noteNumber)
+{
+    if (noteNumber < 0 || noteNumber > 127)
+        return "--";
+
+    static constexpr const char* names[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+    return juce::String (names[noteNumber % 12]) + juce::String (noteNumber / 12 - 1);
+}
+
+juce::String getStringLabel (int stringIndex)
+{
+    static constexpr const char* labels[] { "E", "A", "D", "G", "B", "e" };
+    return stringIndex >= 0 && stringIndex < 6 ? juce::String (labels[stringIndex]) : "-";
+}
+
 } // namespace
+
+void StringStatusStrip::setStatuses (
+    const std::array<GuitarAgAudioProcessor::StringStatusSnapshot, guitar_ag::AudioEngine::stringCount>& newStatuses)
+{
+    statuses = newStatuses;
+    repaint();
+}
+
+void StringStatusStrip::paint (juce::Graphics& graphics)
+{
+    const auto bounds = getLocalBounds();
+    const auto cellWidth = bounds.getWidth() / static_cast<int> (statuses.size());
+
+    for (auto stringIndex = 0; stringIndex < static_cast<int> (statuses.size()); ++stringIndex)
+    {
+        auto cell = bounds.withX (bounds.getX() + stringIndex * cellWidth)
+                          .withWidth (stringIndex == static_cast<int> (statuses.size()) - 1
+                                           ? bounds.getRight() - (bounds.getX() + stringIndex * cellWidth)
+                                           : cellWidth)
+                          .reduced (2, 1);
+        const auto& status = statuses[static_cast<size_t> (stringIndex)];
+        const auto staleMapper = status.mapperOccupied && ! status.voiceActive;
+        const auto voiceOnly = status.voiceActive && ! status.mapperOccupied;
+        const auto active = status.mapperOccupied || status.voiceActive;
+
+        auto fill = juce::Colour (0xff202832);
+
+        if (staleMapper)
+            fill = juce::Colour (0xff5a4220);
+        else if (voiceOnly)
+            fill = juce::Colour (0xff3e3658);
+        else if (active)
+            fill = juce::Colour (0xff254735);
+
+        graphics.setColour (fill);
+        graphics.fillRoundedRectangle (cell.toFloat(), 5.0f);
+        graphics.setColour (staleMapper ? juce::Colour (0xffffc56f)
+                                        : active ? juce::Colour (0xff75d99a)
+                                                 : juce::Colour (0xff3a4653));
+        graphics.drawRoundedRectangle (cell.toFloat().reduced (0.5f), 5.0f, 1.0f);
+
+        auto light = cell.removeFromLeft (18).reduced (4, 7).toFloat();
+        graphics.setColour (staleMapper ? juce::Colour (0xffffb86b)
+                                        : active ? juce::Colour (0xff8ee8a8)
+                                                 : juce::Colour (0xff4a5561));
+        graphics.fillEllipse (light);
+
+        const auto noteNumber = status.mapperOccupied ? status.mapperNoteNumber : status.voiceNoteNumber;
+        const auto fret = status.mapperOccupied ? status.mapperFret : status.voiceFret;
+        const auto text = active
+                            ? getStringLabel (stringIndex) + " " + getMidiNoteName (noteNumber) + " f" + juce::String (fret)
+                            : getStringLabel (stringIndex) + " --";
+
+        graphics.setColour (staleMapper ? juce::Colour (0xffffe0aa)
+                                        : active ? juce::Colour (0xffe5f3e7)
+                                                 : juce::Colour (0xff8d9aa7));
+        graphics.setFont (juce::FontOptions (10.5f));
+        graphics.drawFittedText (text, cell.reduced (2, 0), juce::Justification::centredLeft, 1);
+    }
+}
 
 GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcessor& processor)
     : AudioProcessorEditor (&processor),
@@ -622,6 +697,24 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
     playerFeelDexterityMeter.setColour (juce::ProgressBar::foregroundColourId, juce::Colour (0xffffc56f));
     playerFeelEnduranceMeter.setColour (juce::ProgressBar::foregroundColourId, juce::Colour (0xffa6e6b1));
 
+    stringStatusStrip.setStatuses (audioProcessor.getStringStatuses());
+    addAndMakeVisible (stringStatusStrip);
+
+    copyDiagnosticsButton.setButtonText ("Copy Log");
+    copyDiagnosticsButton.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff263240));
+    copyDiagnosticsButton.setColour (juce::TextButton::buttonOnColourId, juce::Colour (0xff39485a));
+    copyDiagnosticsButton.setColour (juce::TextButton::textColourOffId, juce::Colour (0xffd6dee7));
+    copyDiagnosticsButton.setColour (juce::TextButton::textColourOnId, juce::Colour (0xfff3f6f9));
+    copyDiagnosticsButton.onClick = [this]
+    {
+        showDiagnosticsExportPopover (copyDiagnosticsButton);
+    };
+    addAndMakeVisible (copyDiagnosticsButton);
+    configureInfoButton (copyDiagnosticsInfoButton,
+                         "Copy a JSON diagnostics snapshot for assignment debugging.\n\n"
+                         "Technical: the log keeps the last 1000 MIDI/assignment events, including host note, engine note, string/fret choice, "
+                         "preferred string, voice steals, mapper occupancy, voice occupancy, input transpose, neck slide, and legato state.");
+
     exportSettingsButton.setButtonText ("Export Settings");
     exportSettingsButton.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff263240));
     exportSettingsButton.setColour (juce::TextButton::buttonOnColourId, juce::Colour (0xff39485a));
@@ -797,7 +890,7 @@ GuitarAgAudioProcessorEditor::GuitarAgAudioProcessorEditor (GuitarAgAudioProcess
 void GuitarAgAudioProcessorEditor::paint (juce::Graphics& graphics)
 {
     juce::ignoreUnused (audioProcessor);
-    constexpr auto headerHeight = 108;
+    constexpr auto headerHeight = 132;
 
     graphics.fillAll (juce::Colour (0xff12171d));
 
@@ -839,9 +932,12 @@ void GuitarAgAudioProcessorEditor::resized()
     auto bounds = getLocalBounds().reduced (24);
     const auto titleBounds = bounds.removeFromTop (40);
     projectInfoButton.setBounds (titleBounds.getX() + 116, titleBounds.getY() + 8, 22, 22);
-    exportSettingsButton.setBounds (getWidth() - 172, 72, 112, 24);
-    exportSettingsInfoButton.setBounds (getWidth() - 56, 72, 22, 22);
-    bounds.removeFromTop (54);
+    stringStatusStrip.setBounds (24, 76, juce::jmax (120, getWidth() - 220), 24);
+    copyDiagnosticsButton.setBounds (getWidth() - 172, 72, 112, 24);
+    copyDiagnosticsInfoButton.setBounds (getWidth() - 56, 72, 22, 22);
+    exportSettingsButton.setBounds (getWidth() - 172, 100, 112, 24);
+    exportSettingsInfoButton.setBounds (getWidth() - 56, 100, 22, 22);
+    bounds.removeFromTop (78);
 
     auto tabBounds = bounds.removeFromTop (32);
     auto distributeTab = [&tabBounds] (juce::Button& button, int remaining)
@@ -1184,6 +1280,14 @@ void GuitarAgAudioProcessorEditor::showSettingsExportPopover (juce::Component& s
     juce::CallOutBox::launchAsynchronously (std::move (content), source.getScreenBounds(), this);
 }
 
+void GuitarAgAudioProcessorEditor::showDiagnosticsExportPopover (juce::Component& source)
+{
+    const auto diagnosticsJson = audioProcessor.exportDiagnosticsJson();
+    juce::SystemClipboard::copyTextToClipboard (diagnosticsJson);
+    auto content = std::make_unique<SettingsExportContent> (diagnosticsJson);
+    juce::CallOutBox::launchAsynchronously (std::move (content), source.getScreenBounds(), this);
+}
+
 void GuitarAgAudioProcessorEditor::layoutLabelAndInfo (juce::Rectangle<int>& row,
                                                        juce::Label& label,
                                                        juce::TextButton& infoButton) noexcept
@@ -1399,6 +1503,9 @@ void GuitarAgAudioProcessorEditor::updateSectionVisibility()
 
     exportSettingsButton.setVisible (true);
     exportSettingsInfoButton.setVisible (true);
+    copyDiagnosticsButton.setVisible (true);
+    copyDiagnosticsInfoButton.setVisible (true);
+    stringStatusStrip.setVisible (true);
 
     setSize (560, getPreferredHeight());
     resized();
@@ -1417,6 +1524,8 @@ void GuitarAgAudioProcessorEditor::updateDisclosureButtons()
 
 void GuitarAgAudioProcessorEditor::timerCallback()
 {
+    stringStatusStrip.setStatuses (audioProcessor.getStringStatuses());
+
     const auto meters = audioProcessor.getPlayerFeelMeters();
     playerFeelCognitiveMeterValue = juce::jlimit (0.0, 1.0, static_cast<double> (meters.cognitiveLoad));
     playerFeelDexterityMeterValue = juce::jlimit (0.0, 1.0, static_cast<double> (meters.dexterityLoad));
@@ -1429,5 +1538,5 @@ void GuitarAgAudioProcessorEditor::timerCallback()
 
 int GuitarAgAudioProcessorEditor::getPreferredHeight() const noexcept
 {
-    return 776;
+    return 800;
 }
