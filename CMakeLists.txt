@@ -13,14 +13,14 @@ find_package(Git QUIET)
 
 if (Git_FOUND)
     execute_process(
-        COMMAND "${GIT_EXECUTABLE}" rev-parse --short HEAD
+        COMMAND "${GIT_EXECUTABLE}" -c "safe.directory=${CMAKE_CURRENT_SOURCE_DIR}" rev-parse --short HEAD
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         OUTPUT_VARIABLE GUITAR_AG_GIT_COMMIT
         OUTPUT_STRIP_TRAILING_WHITESPACE
         ERROR_QUIET)
 
     execute_process(
-        COMMAND "${GIT_EXECUTABLE}" status --porcelain
+        COMMAND "${GIT_EXECUTABLE}" -c "safe.directory=${CMAKE_CURRENT_SOURCE_DIR}" status --porcelain --untracked-files=no
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         OUTPUT_VARIABLE GUITAR_AG_GIT_STATUS
         OUTPUT_STRIP_TRAILING_WHITESPACE

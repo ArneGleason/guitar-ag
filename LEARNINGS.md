@@ -15,6 +15,11 @@ Use this file as the running memory for the project. Add concise notes when test
 
 Add notes here when something sounds good, bad, unstable, too bright, too dull, too synthetic, too clicky, or too CPU-heavy.
 
+## 2026-05-17 — Windows build identity probe
+
+- On the Windows PC, CMake's Git build-identity probe can return `unknown` if Git rejects the checkout as a dubious-ownership repository. Invoking Git with an explicit `safe.directory` for the source directory keeps the editor identity line tied to the actual commit.
+- The build identity dirty check should ignore untracked files so local build folders do not make normal PC deployment builds appear dirty.
+
 ## 2026-05-09 — Fret Steps control feel
 
 - EG-063 proved that fret engagement during `Neck Slide` is musically useful, but the audible effect was concentrated near the top of the `Fret Steps` slider.
