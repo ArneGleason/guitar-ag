@@ -79,3 +79,4 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Codex re-review found the draft still failed the G4+A4 low-position dyad case, because the modest register-affinity weight could not override greedy first-note assignment without damaging single-note position memory.
 - Implemented a fixed-size `FretboardMapper::assignNoteGroup` path for same-sample partial chords smaller than six notes, leaving full six-note block chords on the existing sequential preview path.
 - Built Release `GuitarAG_VST3` and `GuitarAGOfflineRender`, ran mapper probes and offline scenario renders, and re-rendered the feature, player-articulation, auto-strum, and pick-stroke audition MIDI clips.
+- Created a follow-up handoff for Codex on the human's Windows PC to act as PC build and deployment engineer: build the Windows VST3/offline renderer, deploy the plugin to Bitwig, and audition the Plan 0082 drop-tuning/partial-chord behavior in the active PC project.

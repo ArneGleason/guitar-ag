@@ -25,6 +25,7 @@ Machine handles are assigned by the human owner. Do not treat OS hostname, usern
 
 - `macbook-pro-m5`: Codex lead environment for this checkout.
 - `mac-mini-pro-m4`: Antigravity reviewer environment. The human may create an empty `guitar-ag` folder there before handoff; Antigravity should clone or pull from GitHub before reviewing.
+- Human Windows PC: PC build/deployment environment for Windows VST3 builds and DAW audition. A canonical machine handle is not assigned yet; do not infer it from OS hostname.
 
 ## Multi-Machine Git Hygiene
 
@@ -180,4 +181,4 @@ Then update `.agent/session.json`, `.agent/PROJECT_LOG.md`, `.agent/REVIEW_QUEUE
 
 - If the DAW-side MPE bend range and `MPE Bend Range` disagree, drawn bends will not match the expected semitone movement.
 - The offline renderer is not a substitute for testing the VST3 in a host such as Bitwig or Reaper.
-- The Mac lead and reviewer machine handles are assigned; any future Windows PC handle still needs human confirmation before a cross-machine handoff.
+- The Mac lead and reviewer machine handles are assigned. The human has confirmed a Windows PC build/deployment environment, but its canonical handle still needs to be assigned explicitly.

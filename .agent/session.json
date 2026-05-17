@@ -23,14 +23,14 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Plan 0082 fretboard heuristic improvements",
-  "status": "Codex re-reviewed Claude's draft, kept auto drop tuning and non-strum chord-aware assignment, added fixed-size partial-chord group assignment, built Release targets, and passed offline scenario/audition renders. Human Bitwig audition is next.",
-  "updatedAt": "2026-05-17T10:26:50-04:00",
-  "lastHandoff": ".agent/handoffs/20260517-codex-fretboard-0082-build-audit.md",
+  "lastTask": "Plan 0082 Windows build and deployment handoff",
+  "status": "Plan 0082 is ready for Codex on the human's Windows PC to act as PC build and deployment engineer: build the VST3/offline renderer with Visual Studio, deploy the VST3 to Bitwig, and audition the focused drop-tuning/partial-chord cases in the active PC project.",
+  "updatedAt": "2026-05-17T10:32:08-04:00",
+  "lastHandoff": ".agent/handoffs/20260517-pc-build-deployment-engineer-0082.md",
   "branch": "feature/0082-fretboard-drop-tuning-register-affinity",
-  "commit": "e7cae1c",
+  "commit": "b4630a3",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.0",
   "projectState": {
-    "summary": "Plan 0082 is ready for human Bitwig audition on the feature branch. Auto drop tuning persists per FretboardMapper until reset, non-strum block chords now use chord-aware string assignment at Strum Speed 0%, and partial same-sample chords smaller than six notes use a fixed-size group search to avoid greedy dyad spreads."
+    "summary": "Plan 0082 is committed and pushed at b4630a3. The next handoff is to a Windows PC Codex session acting as PC build and deployment engineer, with instructions to build/deploy the Windows VST3 and help the human audition the branch in Bitwig."
   }
 }

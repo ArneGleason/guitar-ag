@@ -6,6 +6,7 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
+- Next handoff target: Codex on the human's Windows PC as `PC build and deployment engineer`. Build/deploy the Windows VST3 for Plan 0082 and audition in the active PC Bitwig project.
 - Human Bitwig audition is queued for Plan 0082 on `feature/0082-fretboard-drop-tuning-register-affinity`: auto drop tuning, partial-chord group assignment, and non-strum block-chord assignment at `Strum Speed = 0%`.
 - Focus listening on Drop D/sub-D riffs, D2+A2 open power-chord blocks, G4+A4 or Ab3+Bb3 dyads after low-position context, and existing Auto Strum feel at nonzero `Strum Speed`.
 - No additional code-review item is currently queued after Codex's re-review/build pass.
@@ -35,7 +36,7 @@ Known limitations:
 - Antigravity accepted EG-061 and recommended ending the code-level optimization cycle.
 - EG-061 is behavior-neutral and matched EG-060 audio sample data exactly in local offline renders.
 - Initial human listening provisionally accepted sound equivalence and identity, with modest DAW-visible performance improvement.
-- Any future Windows PC machine handle still needs human confirmation before a cross-machine handoff.
+- The human has confirmed a Windows PC will be used for this Plan 0082 build/deployment pass, but a canonical machine handle still has not been assigned. The PC handoff intentionally says not to infer the handle from the OS hostname.
 
 Questions:
 
