@@ -1,5 +1,6 @@
 #include "FretboardMapper.h"
 
+#include <algorithm>
 #include <limits>
 
 namespace guitar_ag
@@ -36,6 +37,116 @@ FretboardAssignment FretboardMapper::assignNote (int midiNoteNumber,
     updatePositionMemory (assignment.fret);
 
     return assignment;
+}
+
+void FretboardMapper::assignNoteGroup (const int* midiNoteNumbers,
+                                       const int* midiChannels,
+                                       FretboardAssignment* assignments,
+                                       int noteCount) noexcept
+{
+    if (midiNoteNumbers == nullptr || midiChannels == nullptr || assignments == nullptr || noteCount <= 0)
+        return;
+
+    const auto clampedNoteCount = std::min (noteCount, stringCount);
+    auto lowestNote = midiNoteNumbers[0];
+
+    for (auto noteIndex = 1; noteIndex < clampedNoteCount; ++noteIndex)
+        lowestNote = std::min (lowestNote, midiNoteNumbers[noteIndex]);
+
+    if (lowestNote < openNotes[0])
+        applyDropTuning (lowestNote);
+
+    std::array<std::array<Candidate, stringCount>, stringCount> candidates {};
+    std::array<int, stringCount> candidateCounts {};
+
+    for (auto noteIndex = 0; noteIndex < clampedNoteCount; ++noteIndex)
+    {
+        for (auto stringIndex = 0; stringIndex < stringCount; ++stringIndex)
+        {
+            const auto fret = midiNoteNumbers[noteIndex] - openNotes[static_cast<size_t> (stringIndex)];
+
+            if (fret < 0 || fret > maxFret)
+                continue;
+
+            const auto candidateIndex = candidateCounts[static_cast<size_t> (noteIndex)]++;
+            candidates[static_cast<size_t> (noteIndex)][static_cast<size_t> (candidateIndex)] = {
+                stringIndex,
+                fret,
+                woundStrings[static_cast<size_t> (stringIndex)],
+                woundAmounts[static_cast<size_t> (stringIndex)],
+                scoreCandidate (midiNoteNumbers[noteIndex], stringIndex, fret, -1, 0.0f, false)
+            };
+        }
+
+        if (candidateCounts[static_cast<size_t> (noteIndex)] == 0)
+        {
+            for (auto fallbackIndex = 0; fallbackIndex < clampedNoteCount; ++fallbackIndex)
+                assignments[fallbackIndex] = assignNote (midiNoteNumbers[fallbackIndex], midiChannels[fallbackIndex]);
+
+            return;
+        }
+    }
+
+    std::array<Candidate, stringCount> current {};
+    std::array<Candidate, stringCount> best {};
+    std::array<bool, stringCount> usedStrings {};
+    auto bestScore = std::numeric_limits<float>::max();
+
+    const auto search = [&] (const auto& self, int noteIndex, float runningScore) noexcept -> void
+    {
+        if (noteIndex == clampedNoteCount)
+        {
+            if (runningScore < bestScore)
+            {
+                bestScore = runningScore;
+                best = current;
+            }
+
+            return;
+        }
+
+        const auto count = candidateCounts[static_cast<size_t> (noteIndex)];
+
+        for (auto candidateIndex = 0; candidateIndex < count; ++candidateIndex)
+        {
+            const auto candidate = candidates[static_cast<size_t> (noteIndex)][static_cast<size_t> (candidateIndex)];
+            const auto stringIndex = static_cast<size_t> (candidate.stringIndex);
+
+            if (usedStrings[stringIndex])
+                continue;
+
+            const auto nextScore = runningScore + candidate.score;
+
+            if (nextScore >= bestScore)
+                continue;
+
+            usedStrings[stringIndex] = true;
+            current[static_cast<size_t> (noteIndex)] = candidate;
+            self (self, noteIndex + 1, nextScore);
+            usedStrings[stringIndex] = false;
+        }
+    };
+
+    search (search, 0, 0.0f);
+
+    if (bestScore == std::numeric_limits<float>::max())
+    {
+        for (auto fallbackIndex = 0; fallbackIndex < clampedNoteCount; ++fallbackIndex)
+            assignments[fallbackIndex] = assignNote (midiNoteNumbers[fallbackIndex], midiChannels[fallbackIndex]);
+
+        return;
+    }
+
+    for (auto noteIndex = 0; noteIndex < clampedNoteCount; ++noteIndex)
+    {
+        const auto candidate = best[static_cast<size_t> (noteIndex)];
+        assignments[noteIndex] = { candidate.stringIndex,
+                                   candidate.fret,
+                                   candidate.wound,
+                                   candidate.woundAmount };
+        rememberAssignment (assignments[noteIndex], midiNoteNumbers[noteIndex], midiChannels[noteIndex]);
+        updatePositionMemory (assignments[noteIndex].fret);
+    }
 }
 
 int FretboardMapper::getFretForString (int midiNoteNumber, int stringIndex) const noexcept

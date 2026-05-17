@@ -72,3 +72,10 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Began the formal `v0.3.0` release pass: version bump, README refresh, user-facing release notes, macOS VST3 packaging, and GitHub release publication.
 - Published `v0.3.0` on GitHub as `Guitar AG v0.3.0 - Slide, Strum, and Player Feel` with `GuitarAG-v0.3.0-macOS-vst3.zip`.
 - Added PolyForm Noncommercial 1.0.0 licensing with required notices, commercial-use guidance, and contribution notes.
+
+## 2026-05-17
+
+- Received Claude reviewer/architect handoff for `feature/0082-fretboard-drop-tuning-register-affinity`, including a draft implementation of auto drop tuning, register affinity, and non-strum chord-aware assignment.
+- Codex re-review found the draft still failed the G4+A4 low-position dyad case, because the modest register-affinity weight could not override greedy first-note assignment without damaging single-note position memory.
+- Implemented a fixed-size `FretboardMapper::assignNoteGroup` path for same-sample partial chords smaller than six notes, leaving full six-note block chords on the existing sequential preview path.
+- Built Release `GuitarAG_VST3` and `GuitarAGOfflineRender`, ran mapper probes and offline scenario renders, and re-rendered the feature, player-articulation, auto-strum, and pick-stroke audition MIDI clips.

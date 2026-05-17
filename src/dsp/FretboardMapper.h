@@ -23,6 +23,10 @@ public:
                                                   int preferredStringIndex = -1,
                                                   float preferredStringBonus = 0.0f,
                                                   bool allowPreferredOccupied = false) noexcept;
+    void assignNoteGroup (const int* midiNoteNumbers,
+                          const int* midiChannels,
+                          FretboardAssignment* assignments,
+                          int noteCount) noexcept;
     void releaseNote (int midiNoteNumber, int midiChannel) noexcept;
 
     [[nodiscard]] int getFretForString (int midiNoteNumber, int stringIndex) const noexcept;

@@ -1955,3 +1955,29 @@ EG-081 is a release-candidate usability/defaults pass rather than a new DSP algo
   - `Player Feel`: 50%.
 
 These defaults make block-chord previews lightly strummed and human-feeling immediately, while existing sessions should retain their saved parameter values.
+
+## 2026-05-17 — Plan 0082 Fretboard Heuristic Improvements
+
+This pass keeps the `StringVoice EG-081 ArticGroups` model label. It changes the performance-interpreter heuristics, not the string model itself.
+
+Fretboard behavior:
+
+- `FretboardMapper` now keeps mutable string-open notes for its own instance.
+- If a note below standard E2 arrives, string 0 is tuned down to that exact MIDI note before candidate scoring.
+- The drop state persists until `FretboardMapper::reset()`.
+- `getDropSemitones()` exposes the current string-0 drop amount for diagnostics.
+- `getFretForString()` now reads the mapper instance tuning, so legato-source checks respect the current drop state.
+
+Assignment behavior:
+
+- Single-note scoring keeps the existing position-memory shape but adds a small register-affinity term so low notes prefer lower strings and high notes prefer higher strings in close calls.
+- Same-sample block chords now enter the chord-aware path even when `Strum Speed = 0%`; the inter-string delay collapses to zero, but the string assignment is still predicted as a chord.
+- Partial block chords smaller than six notes use a fixed-size group search over string/fret candidates. This prevents greedy dyads such as G4+A4 from choosing high-E fret 3 plus B-string fret 10 when B-string fret 8 plus high-E fret 5 is a better combined grip.
+- Full six-note block chords keep the existing sequential preview assignment path.
+
+Verification notes:
+
+- A mapper probe confirmed D2 maps to string 0 fret 0 with `getDropSemitones() == 2`.
+- D2+A2 maps to string 0 fret 0 plus string 1 fret 0.
+- After low-position context, G4+A4 maps to string 4 fret 8 plus string 5 fret 5.
+- Offline D2 render favored D2 over E2 by 56.12 dB in the analysis window.

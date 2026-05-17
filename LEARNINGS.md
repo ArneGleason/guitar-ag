@@ -609,3 +609,7 @@ Separating the concerns (by removing the early return and letting perStringSecon
 ## 2026-05-17 — Register-affinity scoring weight calibration
 
 The register-affinity term (weight 2.5) in scoreCandidate adds at most ~0.63 penalty for maximum mismatch (note at one extreme, string at the other). A typical 4-fret deviation from positionFret contributes 16.0 to score, so the affinity term is subordinate to position memory. This is intentional: it nudges close-call assignments without overriding the dominant position-memory guidance for single-line playing. If audition finds it too weak or strong, adjust the weight from 2.5.
+
+## 2026-05-17 — Partial chords need a group cost, not a huge single-note bias
+
+The first register-affinity pass still mapped a low-context G4+A4 block to high-E fret 3 plus B-string fret 10. Raising the single-note register weight enough to prevent that would overpower normal melodic position memory. A better boundary is to keep the single-note score modest, then run a fixed-size group search for same-sample partial chords so the combined assignment can choose G4 on string 4 fret 8 and A4 on string 5 fret 5.

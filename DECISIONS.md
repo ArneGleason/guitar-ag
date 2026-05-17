@@ -733,3 +733,17 @@ Accepted
 
 Consequences:
 `Pick Bite` is the primary pick-character row, with `Pick Stiffness` and `Pick Texture` grouped beneath it. `Pick Stroke` is the primary right-hand direction row, with `Strum Speed` and `Strum Balance` beneath it. `Player Feel` keeps the Bot/Pro/Loose parent row, with recovery/reset/meters beneath it. New instances default to `Pick Texture` 25%, `Strum Speed` 10%, `Strum Balance` -13%, and `Player Feel` 50%. Existing DAW sessions should continue loading their saved parameter states.
+
+## 2026-05-17 — Solve partial-chord voicing with group assignment
+
+Decision:
+Keep register affinity as a modest single-note scoring nudge, and use a fixed-size group search for same-sample partial chords smaller than six notes.
+
+Reason:
+Close-interval dyads can need a non-greedy string/fret choice. Raising the single-note register weight enough to fix those dyads would fight the moving position memory that makes melodic playing feel coherent. Same-sample partial chords are already a bounded guitar-specific interpretation point, so a small no-allocation group search is the cleaner place to solve the combined grip.
+
+Status:
+Accepted
+
+Consequences:
+Single-note playing keeps its current position-memory behavior. Partial block chords can choose a better combined layout, such as G4 on string 4 fret 8 plus A4 on string 5 fret 5 after low-position context. Full six-note block chords stay on the established sequential preview path for now.

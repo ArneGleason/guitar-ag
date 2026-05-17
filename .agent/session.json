@@ -23,14 +23,14 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Add noncommercial project license",
-  "status": "Adding PolyForm Noncommercial 1.0.0 license, required notices, commercial-use guidance, and contribution notes after v0.3.0 release.",
-  "updatedAt": "2026-05-10T14:35:00-04:00",
-  "lastHandoff": ".agent/handoffs/20260510-174500-antigravity-eg081-artic-groups.md",
-  "branch": "main",
-  "commit": "69269db",
+  "lastTask": "Plan 0082 fretboard heuristic improvements",
+  "status": "Codex re-reviewed Claude's draft, kept auto drop tuning and non-strum chord-aware assignment, added fixed-size partial-chord group assignment, built Release targets, and passed offline scenario/audition renders. Human Bitwig audition is next.",
+  "updatedAt": "2026-05-17T10:26:50-04:00",
+  "lastHandoff": ".agent/handoffs/20260517-codex-fretboard-0082-build-audit.md",
+  "branch": "feature/0082-fretboard-drop-tuning-register-affinity",
+  "commit": "1335b4d",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.0",
   "projectState": {
-    "summary": "v0.3.0 was published as the slide/strum/player-feel release. The repository is now being marked as source-available for noncommercial use under PolyForm Noncommercial 1.0.0, with required attribution notices and separate notes for commercial permission and contributions."
+    "summary": "Plan 0082 is ready for human Bitwig audition on the feature branch. Auto drop tuning persists per FretboardMapper until reset, non-strum block chords now use chord-aware string assignment at Strum Speed 0%, and partial same-sample chords smaller than six notes use a fixed-size group search to avoid greedy dyad spreads."
   }
 }

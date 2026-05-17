@@ -976,18 +976,51 @@ bool AudioEngine::handleAutoStrumGroup (const IncomingMidiGroup& group)
     auto minString = maxVoices;
     auto maxString = -1;
 
-    for (auto noteIndex = 0; noteIndex < noteCount; ++noteIndex)
+    if (noteCount < maxVoices)
     {
-        const auto sourceIndex = noteIndices[static_cast<size_t> (noteIndex)];
-        const auto& message = group.messages[static_cast<size_t> (sourceIndex)];
-        auto& note = notes[static_cast<size_t> (noteIndex)];
-        note.message = message;
-        note.assignment = previewFretboard.assignNote (message.getNoteNumber(), message.getChannel());
-        note.originalIndex = sourceIndex;
-        note.active = true;
+        std::array<int, maxVoices> chordNotes {};
+        std::array<int, maxVoices> chordChannels {};
+        std::array<FretboardAssignment, maxVoices> chordAssignments {};
 
-        minString = juce::jmin (minString, note.assignment.stringIndex);
-        maxString = juce::jmax (maxString, note.assignment.stringIndex);
+        for (auto noteIndex = 0; noteIndex < noteCount; ++noteIndex)
+        {
+            const auto sourceIndex = noteIndices[static_cast<size_t> (noteIndex)];
+            const auto& message = group.messages[static_cast<size_t> (sourceIndex)];
+            chordNotes[static_cast<size_t> (noteIndex)] = message.getNoteNumber();
+            chordChannels[static_cast<size_t> (noteIndex)] = message.getChannel();
+        }
+
+        previewFretboard.assignNoteGroup (chordNotes.data(), chordChannels.data(), chordAssignments.data(), noteCount);
+
+        for (auto noteIndex = 0; noteIndex < noteCount; ++noteIndex)
+        {
+            const auto sourceIndex = noteIndices[static_cast<size_t> (noteIndex)];
+            const auto& message = group.messages[static_cast<size_t> (sourceIndex)];
+            auto& note = notes[static_cast<size_t> (noteIndex)];
+            note.message = message;
+            note.assignment = chordAssignments[static_cast<size_t> (noteIndex)];
+            note.originalIndex = sourceIndex;
+            note.active = true;
+
+            minString = juce::jmin (minString, note.assignment.stringIndex);
+            maxString = juce::jmax (maxString, note.assignment.stringIndex);
+        }
+    }
+    else
+    {
+        for (auto noteIndex = 0; noteIndex < noteCount; ++noteIndex)
+        {
+            const auto sourceIndex = noteIndices[static_cast<size_t> (noteIndex)];
+            const auto& message = group.messages[static_cast<size_t> (sourceIndex)];
+            auto& note = notes[static_cast<size_t> (noteIndex)];
+            note.message = message;
+            note.assignment = previewFretboard.assignNote (message.getNoteNumber(), message.getChannel());
+            note.originalIndex = sourceIndex;
+            note.active = true;
+
+            minString = juce::jmin (minString, note.assignment.stringIndex);
+            maxString = juce::jmax (maxString, note.assignment.stringIndex);
+        }
     }
 
     auto strokeDirection = PickStrokeDirection::Down;

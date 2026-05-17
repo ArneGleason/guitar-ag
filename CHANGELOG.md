@@ -12,6 +12,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - `FretboardMapper::getDropSemitones()` accessor returns how many semitones string 0 is currently below standard E2 tuning.
 - Register-affinity scoring term in `FretboardMapper::scoreCandidate`: low notes prefer lower strings and high notes prefer higher strings, reducing spread voicings for partial chords on outer strings. Weight (2.5) is moderate — it nudges preferences without overriding position-memory choices.
 - Chord-aware string assignment for non-strum block chords: simultaneous note groups (2+ note-ons at the same sample position) now run through pitch-sorted previewFretboard assignment even when `Strum Speed` is 0%, giving natural register-ordered string placement without an audible strum delay. Previously the non-strum path dispatched each note independently.
+- Partial same-sample chord assignment now uses a fixed-size group search for chords smaller than six notes, so close dyads/triads can choose a better combined string/fret layout instead of a greedy first-note assignment that leaves the next note far up the neighboring string.
 - Added the PolyForm Noncommercial License 1.0.0, required notices, commercial-use guidance, and contribution notes.
 
 ## v0.3.0 - 2026-05-10

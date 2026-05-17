@@ -6,9 +6,9 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- No code-review item is currently queued.
-- Human Bitwig audition of EG-081 has passed.
-- `v0.3.0` has been published. The next likely task is either a Windows build asset, stock/user preset management, or the next guitar-performance feature.
+- Human Bitwig audition is queued for Plan 0082 on `feature/0082-fretboard-drop-tuning-register-affinity`: auto drop tuning, partial-chord group assignment, and non-strum block-chord assignment at `Strum Speed = 0%`.
+- Focus listening on Drop D/sub-D riffs, D2+A2 open power-chord blocks, G4+A4 or Ab3+Bb3 dyads after low-position context, and existing Auto Strum feel at nonzero `Strum Speed`.
+- No additional code-review item is currently queued after Codex's re-review/build pass.
 
 Recently cleared:
 
