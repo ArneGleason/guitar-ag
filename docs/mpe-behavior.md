@@ -37,6 +37,7 @@ Current implementation:
 - In MPE mode, pitch wheel messages on member channels are routed to active voices on the same MIDI channel.
 - In lower-zone MPE, pitch wheel on channel 1 is treated as the master/global whammy source when `Pitch Wheel Whammy` is enabled.
 - If multiple active voices share one MIDI channel, they will bend together; a DAW must send separate member channels for independent bends.
+- Same-sample MPE expression resets do not disable chord-aware string assignment. When pitch wheel, pressure, or CC74 arrive in the same sample as multiple note-ons, those expression messages are handled at that sample and the note-ons are still assigned as one guitar chord.
 - In non-MPE mode, pitch wheel remains available as the global whammy-bar control.
 - In non-MPE mode, channel pressure and CC74 are applied globally to all active voices and stored as the fallback value for newly started voices.
 - Toggling MPE mode clears per-channel pitch bend, pressure, and CC74 state so stale expression does not carry across modes.

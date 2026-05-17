@@ -280,6 +280,33 @@ float FretboardMapper::scoreCandidate (int midiNoteNumber,
     if (fret >= 1 && fret <= 5)
         score -= 0.18f;
 
+    if (midiNoteNumber <= openNotes[2] + 2
+        && fret >= 5
+        && stringIndex != preferredStringIndex)
+    {
+        auto hasOpenPositionAlternative = false;
+
+        for (auto alternateString = 0; alternateString < stringCount; ++alternateString)
+        {
+            if (alternateString == stringIndex)
+                continue;
+
+            const auto alternateFret = midiNoteNumber - openNotes[static_cast<size_t> (alternateString)];
+
+            if (alternateFret >= 0 && alternateFret <= 3)
+            {
+                hasOpenPositionAlternative = true;
+                break;
+            }
+        }
+
+        // Keep bass-register notes such as A2-E3 on their natural low-fret
+        // strings after high-position phrases, unless a chord preview already
+        // chose this string explicitly.
+        if (hasOpenPositionAlternative)
+            score += 160.0f;
+    }
+
     if (stringIndex == preferredStringIndex && preferredStringBonus > 0.0f)
         score -= preferredStringBonus;
 

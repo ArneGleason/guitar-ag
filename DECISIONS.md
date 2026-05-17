@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-05-17 — Preserve chord assignment in mixed MPE event groups
+
+Guitar AG will treat same-sample MPE pitch, pressure, and CC74 messages as expression setup for the note-ons in that sample, not as a reason to bypass chord-aware string assignment.
+
+The audio engine should dispatch note-offs and expression messages at the sample boundary, then assign the remaining simultaneous note-ons as one guitar chord. This preserves Bitwig-style MPE ordering while keeping dyads such as E2+B2 on separate physical strings.
+
 ## 2026-05-17 — Expose MIDI/DAW octave interpretation as an input mode
 
 Guitar AG will expose an `Input Octave` choice rather than silently assuming every host labels octaves the same way. `MIDI E2=40` keeps the physical/scientific mapping where MIDI note 40 is guitar low E. `DAW E2=52` subtracts one octave at MIDI ingestion so DAWs that display MIDI note 40 as E1 can still be authored with visible guitar names.

@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(JUCE_PATH "" CACHE PATH "Optional path to a local JUCE checkout")
-set(GUITAR_AG_MODEL_LABEL "StringVoice EG-087 AssignmentDiagnostics")
+set(GUITAR_AG_MODEL_LABEL "StringVoice EG-088 MixedMpeChordAssignment")
 
 find_package(Git QUIET)
 

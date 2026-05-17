@@ -15,6 +15,12 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Partial same-sample chord assignment now uses a fixed-size group search for chords smaller than six notes, so close dyads/triads can choose a better combined string/fret layout instead of a greedy first-note assignment that leaves the next note far up the neighboring string.
 - Added the PolyForm Noncommercial License 1.0.0, required notices, commercial-use guidance, and contribution notes.
 
+### Changed
+
+- Same-sample MPE expression resets no longer disable chord-aware assignment; mixed groups now process note-offs/expression at the sample and still assign the note-on subset as one guitar chord.
+- Bass-register string selection now resists drifting to high-fret low-string duplicates when a natural low-fret string is available, keeping E2+B2-style parts stable after higher-position passages.
+- Incoming MIDI diagnostics now mirror occupancy before/after fields for the pre-processing snapshot instead of leaving the after fields at zero.
+
 ## v0.3.0 - 2026-05-10
 
 ### Added

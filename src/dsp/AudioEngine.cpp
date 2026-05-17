@@ -762,6 +762,8 @@ void AudioEngine::recordIncomingMidiDiagnostic (const juce::MidiMessage& hostMes
     event.channel = hostMessage.getChannel();
     event.mapperMaskBefore = getMapperOccupancyMask();
     event.voiceMaskBefore = getVoiceOccupancyMask();
+    event.mapperMaskAfter = event.mapperMaskBefore;
+    event.voiceMaskAfter = event.voiceMaskBefore;
     event.dropSemitones = fretboard.getDropSemitones();
     event.inputTransposeSemitones = inputTransposeSemitones;
     event.neckSlideSemitones = neckSlideSemitones.getTargetValue();
@@ -1190,14 +1192,9 @@ bool AudioEngine::handleAutoStrumGroup (const IncomingMidiGroup& group)
     if (noteCount < 2)
         return false;
 
-    // Groups containing non-note events (e.g. CC) return false so handleIncomingMidiGroup
-    // dispatches them individually, keeping controller timing unaffected by chord logic.
-    for (auto index = 0; index < group.count; ++index)
-    {
-        if (! group.messages[static_cast<size_t> (index)].isNoteOnOrOff())
-            return false;
-    }
-
+    // MPE hosts commonly place per-channel pitch/pressure/CC74 resets in the
+    // same sample as chord note-ons. Keep those expression events sample-accurate
+    // while still assigning the note-on subset as one guitar chord.
     for (auto index = 0; index < group.count; ++index)
     {
         const auto& message = group.messages[static_cast<size_t> (index)];

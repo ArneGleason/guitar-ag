@@ -267,6 +267,7 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] D2+A2 at `Strum Speed = 0%` feels like an open Drop D power chord with no generated strum delay.
 - [ ] D2+A2 with nonzero `Strum Speed` keeps the open Drop D grip while fanning across strings.
 - [ ] E2+B2 in DAW-label mode rings as low E plus B on the A string, not as a stolen/reused low-string note.
+- [ ] E2+B2 in DAW-label mode still uses low E plus A-string B when same-sample MPE pitch wheel, CC74, and pressure resets are present.
 - [ ] With `Legato Articulation = 100%`, E2+B2 in DAW-label mode still rings as two independent legal chord tones rather than becoming a hammer-on/tap on the low E string.
 - [ ] After automating `Neck Slide` up and back to `0.0 st`, stopping/rewinding the DAW does not leave later E2+B2 assignment stuck or transposed.
 - [ ] Host All Notes Off / All Sound Off messages clear active voices and fretboard occupancy.
