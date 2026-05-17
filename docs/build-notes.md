@@ -163,11 +163,11 @@ Manual checks for the current VST3 build:
 - No sound is produced when no MIDI note is held.
 - MIDI note-on produces the modeled clean-DI guitar tone.
 - MIDI note-off releases the tone.
-- New plugin instances should open as `v0.3.0 / StringVoice EG-087 AssignmentDiagnostics`.
+- New plugin instances should open as `v0.3.1 / StringVoice EG-088 MixedMpeChordAssignment`.
 - `Distorted Return` should be enabled by default on new instances.
 - High `Amp Feedback` should bloom after picked attacks rather than grabbing the start of the note immediately.
 - With MPE enabled in the DAW and plugin, per-note pitch bend, channel pressure, and CC74 should affect only the matching member-channel voice.
-- The editor identity line should show the current model label, for example `StringVoice EG-087 AssignmentDiagnostics`.
+- The editor identity line should show the current model label, for example `StringVoice EG-088 MixedMpeChordAssignment`.
 
 ## Release Packaging
 
@@ -189,10 +189,10 @@ Example:
 mkdir -p dist
 ditto -c -k --sequesterRsrc --keepParent \
   "build/GuitarAG_artefacts/Release/VST3/Guitar AG.vst3" \
-  "dist/GuitarAG-v0.3.0-macOS-vst3.zip"
+  "dist/GuitarAG-v0.3.1-macOS-vst3.zip"
 ```
 
-The GitHub release tag should match the CMake project version, for example `v0.3.0`.
+The GitHub release tag should match the CMake project version, for example `v0.3.1`.
 
 For a Windows VST3 release asset, configure with Visual Studio and the local JUCE checkout, then build the VST3 target:
 
@@ -212,6 +212,14 @@ Recommended asset name:
 ```text
 GuitarAG-v<version>-Windows-vst3.zip
 ```
+
+On Windows, keep the canonical installed development copy in:
+
+```text
+C:\Program Files\Common Files\VST3\Guitar AG.vst3
+```
+
+Avoid also installing `Guitar AG.vst3` under the per-user `AppData\Local\Programs\Common\VST3` location, because Bitwig can scan both locations and show duplicate entries.
 
 Windows/MSVC is stricter than the macOS clang release build about lambda captures in editor layout code. Layout helpers that use local constants such as marker widths should capture those constants explicitly.
 

@@ -232,7 +232,7 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Compare the pick-stroke audition file against forced `Down` and forced `Up` to judge whether `Alternate` feels like right-hand travel rather than a mechanical toggle.
 - [ ] In the pick-stroke audition chord sections, strummed notes should feel like a held left-hand chord being re-articulated by the right hand, not like the fretting hand releases every note between strokes.
 - [ ] `Player Feel` at 0% sounds and renders like the current neutral picked path.
-- [ ] New plugin instances show `v0.3.0 / StringVoice EG-087 AssignmentDiagnostics`.
+- [ ] New plugin instances show `v0.3.1 / StringVoice EG-088 MixedMpeChordAssignment`.
 - [ ] With `Input Octave = DAW E2=52`, a DAW piano-roll E2 plays the same low guitar E that previously required the DAW's E1 label in Bitwig.
 - [ ] With `Input Octave = MIDI E2=40`, MIDI note 40 plays the low guitar E directly for standard/scientific MIDI files.
 - [ ] In both `Input Octave` modes, the matching note-off releases the transposed note without leaving a stuck voice.

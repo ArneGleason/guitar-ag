@@ -6,6 +6,8 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ## Unreleased
 
+## v0.3.1 - 2026-05-17
+
 ### Added
 
 - Auto drop tuning in `FretboardMapper`: when a note arrives below the current open string 0 pitch, string 0 is automatically tuned down to that exact MIDI note and stays there until `reset()`. Enables Drop D, Drop C, and any arbitrary low string pitch without manual configuration.
@@ -20,6 +22,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Same-sample MPE expression resets no longer disable chord-aware assignment; mixed groups now process note-offs/expression at the sample and still assign the note-on subset as one guitar chord.
 - Bass-register string selection now resists drifting to high-fret low-string duplicates when a natural low-fret string is available, keeping E2+B2-style parts stable after higher-position passages.
 - Incoming MIDI diagnostics now mirror occupancy before/after fields for the pre-processing snapshot instead of leaving the after fields at zero.
+- Bumped the project version to `0.3.1` for the fretboard assignment, diagnostics, and Windows package release.
 
 ## v0.3.0 - 2026-05-10
 

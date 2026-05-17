@@ -2026,3 +2026,12 @@ EG-087 adds assignment instrumentation for diagnosing Bitwig clips that leave th
 - Each assignment event records host note, engine note after input-octave transpose, velocity, string/fret, preferred string, strum-preferred string, legato-source string, stolen voice, mapper occupancy mask, active-voice mask, input transpose, current drop tuning, `Neck Slide`, and `Legato Articulation`.
 - The editor header shows a six-string status strip. Green means mapper occupancy and active voice state agree; amber means the mapper still considers a string occupied even though no voice is active on that string.
 - `Copy Log` opens and copies a JSON snapshot with the live string statuses and rolling event log for handoff/debugging.
+
+## 2026-05-17 — EG-088 Mixed MPE Chord Assignment
+
+EG-088 fixes the Bitwig MPE event shape that made chord-aware string assignment disappear partway through a song.
+
+- The visible model label is now `StringVoice EG-088 MixedMpeChordAssignment`.
+- Same-sample groups may contain pitch-wheel, CC74, channel pressure, note-off, and note-on events together. The audio engine now routes expression and note-off events first, then still sends the remaining note-ons through the chord-aware assignment path.
+- Incoming-MIDI diagnostics now record post-routing mapper and voice masks instead of a stale zeroed `after` snapshot for events that only update controller or note-off state.
+- Bass-register scoring now penalizes high-fret reuse of the low string when a low-fret neighboring string is a musically closer option, while preserving explicit chord-preview string choices.

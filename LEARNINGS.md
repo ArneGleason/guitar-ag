@@ -644,3 +644,9 @@ The register-affinity term (weight 2.5) in scoreCandidate adds at most ~0.63 pen
 ## 2026-05-17 — Partial chords need a group cost, not a huge single-note bias
 
 The first register-affinity pass still mapped a low-context G4+A4 block to high-E fret 3 plus B-string fret 10. Raising the single-note register weight enough to prevent that would overpower normal melodic position memory. A better boundary is to keep the single-note score modest, then run a fixed-size group search for same-sample partial chords so the combined assignment can choose G4 on string 4 fret 8 and A4 on string 5 fret 5.
+
+## 2026-05-17 — Mixed MPE resets can hide chord intent
+
+Bitwig can send pitch wheel, CC74, and channel-pressure resets in the same sample as chord note-ons. Treating mixed same-sample groups as "not a chord" bypassed the chord-aware assignment path, so later E2+B2 dyads could collapse onto low E after position memory drift. The better routing is to process same-sample note-offs and expression messages at that sample, then assign the remaining note-ons as one guitar chord.
+
+On Windows, Bitwig scanned both the system VST3 folder and a per-user VST3 file under `%LOCALAPPDATA%\Programs\Common\VST3`. Keeping duplicate `Guitar AG.vst3` copies makes DAW identity checks ambiguous; use the system-wide VST3 folder as the canonical PC install.

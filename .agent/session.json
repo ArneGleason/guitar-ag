@@ -23,14 +23,14 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "Plan 0082 Windows build and deployment handoff",
-  "status": "Plan 0082 is ready for Codex on the human's Windows PC to act as PC build and deployment engineer: build the VST3/offline renderer with Visual Studio, deploy the VST3 to Bitwig, and audition the focused drop-tuning/partial-chord cases in the active PC project.",
-  "updatedAt": "2026-05-17T10:32:08-04:00",
-  "lastHandoff": ".agent/handoffs/20260517-pc-build-deployment-engineer-0082.md",
-  "branch": "feature/0082-fretboard-drop-tuning-register-affinity",
-  "commit": "b4630a3",
-  "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.0",
+  "lastTask": "v0.3.1 release prep and Mac build handoff",
+  "status": "Windows Codex merged the fretboard assignment branch into main, prepared the v0.3.1 release docs, and produced/verified the Windows VST3 build. MacBook Codex should build the macOS VST3 from main/tag v0.3.1 and attach it to the GitHub release.",
+  "updatedAt": "2026-05-17T14:55:00-04:00",
+  "lastHandoff": ".agent/handoffs/20260517-mac-codex-v031-release-build.md",
+  "branch": "main",
+  "commit": "v0.3.1 release commit/tag pending",
+  "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0082 is committed and pushed at b4630a3. The next handoff is to a Windows PC Codex session acting as PC build and deployment engineer, with instructions to build/deploy the Windows VST3 and help the human audition the branch in Bitwig."
+    "summary": "v0.3.1 release preparation is in progress on main. The next handoff is to MacBook Codex to build and attach the macOS VST3 release asset after the Windows package/release commit/tag are pushed."
   }
 }

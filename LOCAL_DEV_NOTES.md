@@ -103,6 +103,14 @@ Installed macOS VST3 path:
 ~/Library/Audio/Plug-Ins/VST3/Guitar AG.vst3
 ```
 
+Windows canonical development install path:
+
+```text
+C:\Program Files\Common Files\VST3\Guitar AG.vst3
+```
+
+Do not keep an additional `Guitar AG.vst3` in `%LOCALAPPDATA%\Programs\Common\VST3`; Bitwig scans both locations and can list/load the wrong copy.
+
 ## Offline Render
 
 Build the offline renderer:

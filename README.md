@@ -6,9 +6,9 @@ It is **not sample based**. It synthesizes a clean DI-style electric guitar voic
 
 ## Latest Release
 
-**v0.3.0 - Slide, Strum, and Player Feel** is the current release. It adds automatable neck-slide/glissando controls, direction-aware slide squeaks, a more guitar-aware plastic-pick and strumming model, deterministic player-feel timing/energy variation, grouped articulation controls, and the weekend's DSP performance/maintainability passes.
+**v0.3.1 - Fretboard Assignment and Diagnostics** is the current release. It focuses the v0.3 series on dependable guitar-style string assignment in real DAW/MPE sessions: input-octave selection, auto drop tuning, chord-aware same-sample assignment, panic reset tools, and a copyable assignment diagnostics log.
 
-Download it from [GitHub Releases](https://github.com/ArneGleason/guitar-ag/releases/latest). The current packaged binary is the macOS VST3 asset; Windows builds can still be produced from source and attached later from a Windows machine.
+Download it from [GitHub Releases](https://github.com/ArneGleason/guitar-ag/releases/latest). Release assets are packaged as platform VST3 zips.
 
 If you have been looking for a small modeled alternative to multi-gigabyte sampled guitar libraries, this project is exploring that space: independent modeled string voices, guitar-like articulation, MPE per-note pitch bend/expression, and a DI output designed for external amp sims.
 
@@ -56,7 +56,7 @@ Implemented so far:
 Current model label:
 
 ```text
-StringVoice EG-087 AssignmentDiagnostics
+StringVoice EG-088 MixedMpeChordAssignment
 ```
 
 ## Demo
@@ -71,11 +71,11 @@ Short MP3 render from an earlier modeled guitar voice:
 
 Planned demo clips:
 
-- Clean DI modeled guitar demo: coming soon at `assets/demo/guitar-ag-v0.3.0-clean-di.mp3`.
-- Amp-sim context demo: coming soon at `assets/demo/guitar-ag-v0.3.0-through-amp-sim.mp3`.
-- MPE independent bend demo: coming soon at `assets/demo/guitar-ag-v0.3.0-mpe-bend.mp3`.
-- Player articulation and Auto Strum demo: coming soon at `assets/demo/guitar-ag-v0.3.0-articulation-strum.mp3`.
-- Slide and feedback demo: coming soon at `assets/demo/guitar-ag-v0.3.0-slide-feedback.mp3`.
+- Clean DI modeled guitar demo: coming soon at `assets/demo/guitar-ag-v0.3.1-clean-di.mp3`.
+- Amp-sim context demo: coming soon at `assets/demo/guitar-ag-v0.3.1-through-amp-sim.mp3`.
+- MPE independent bend demo: coming soon at `assets/demo/guitar-ag-v0.3.1-mpe-bend.mp3`.
+- Player articulation and Auto Strum demo: coming soon at `assets/demo/guitar-ag-v0.3.1-articulation-strum.mp3`.
+- Slide and feedback demo: coming soon at `assets/demo/guitar-ag-v0.3.1-slide-feedback.mp3`.
 
 The most useful first demos are short, dry, and direct: a clean DI clip that proves the plugin is not a sample library, and an MPE clip where one held chord tone bends while the others stay fixed.
 
@@ -165,12 +165,14 @@ Cross-compiling a Windows VST3 from macOS is not the recommended path. JUCE/CMak
 
 Compiled plugin binaries should be distributed through **GitHub Releases**, not committed directly into the repository.
 
-Current release asset:
+Current release assets:
 
-- `GuitarAG-v0.3.0-macOS-vst3.zip`
+- `GuitarAG-v0.3.1-macOS-vst3.zip`
+- `GuitarAG-v0.3.1-Windows-vst3.zip`
 
 Recent earlier assets:
 
+- `GuitarAG-v0.3.0-macOS-vst3.zip`
 - `GuitarAG-v0.2.6-macOS-vst3.zip`
 - `Guitar-AG-macOS-v0.2.0.zip`
 
@@ -243,6 +245,8 @@ The offline renderer is useful for DSP comparison and regression checks. It does
 We started with a rough idea: a lightweight physical-model electric guitar VST that could act as a clean DI instrument without samples, then built it in small auditionable steps. First we made the JUCE/CMake VST3 shell and a simple plucked string, then repeatedly listened, measured, and adjusted the model through pickup behavior, sustain, wound/plain string character, pick stiffness and texture, palm muting, harmonics, string age, intonation, fret pressure, finger noise, vibrato, whammy behavior, aftertouch bend, MPE per-note pitch bend, and MPE pressure/CC74 expression.
 
 The v0.3.0 iteration moved the project from a playable modeled guitar core toward a more guitar-aware performance surface. `Neck Slide` lets a held note or chord shape move like an authored slide lane, while `Fret Steps`, `Slide Lift`, and separate up/down squeak controls keep it from sounding like only a whammy bend. `Pick Bite`, `Pick Stroke`, `Strum Speed`, and `Strum Balance` model more of the right hand: repeated notes can alternate, string crossings use economy direction, and exact same-time block chords can be fanned across strings by the instrument instead of hand-staggered in MIDI. `Player Feel` adds deterministic timing and energy variation from cognitive load, dexterity load, and endurance, with visible meters and recovery/reset controls so a DAW part can feel performed without becoming random. The Articulation and Performance pages now use primary rows with disclosure tweaks so the control surface is less crowded.
+
+The v0.3.1 iteration tightens the performance interpreter around real DAW authoring. It adds `Input Octave` for host octave-label differences, auto drop tuning for sub-E2 guitar parts, more robust simultaneous chord assignment, panic reset controls, and assignment diagnostics. It also fixes a Bitwig/MPE case where pitch wheel, CC74, and pressure resets arriving in the same sample as chord note-ons could bypass chord-aware assignment and collapse E2+B2-style dyads onto the low E string.
 
 Under the hood, the weekend also included a code-level optimization cycle. Pitch modulation is cached at a short control interval, feedback weights are cached outside the modal inner loop, transient contact trigonometry uses narrow fast approximations, and the large render path was split into clearer helper stages. The intent is still the same: a clean DI modeled guitar source that can feed external amp/cab tools, with MPE and automation doing the expressive work.
 
