@@ -232,7 +232,7 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Compare the pick-stroke audition file against forced `Down` and forced `Up` to judge whether `Alternate` feels like right-hand travel rather than a mechanical toggle.
 - [ ] In the pick-stroke audition chord sections, strummed notes should feel like a held left-hand chord being re-articulated by the right hand, not like the fretting hand releases every note between strokes.
 - [ ] `Player Feel` at 0% sounds and renders like the current neutral picked path.
-- [ ] New plugin instances show `v0.3.0 / StringVoice EG-081 ArticGroups`.
+- [ ] New plugin instances show `v0.3.0 / StringVoice EG-082 FretboardHeuristics`.
 - [ ] The `Player Feel` slider shows Bot, Pro, and Loose landmarks at 0%, 50%, and 100%.
 - [ ] Raising `Player Feel` adds picked-note timing/energy variation that grows during fast repetition, string skips, and awkward changes.
 - [ ] `Player Feel` around 50% lands near the accepted natural EG-075 100% feel.
@@ -260,6 +260,11 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] `Pick Stroke = Alternate` alternates repeated block-chord strokes while still using economy direction between chord areas.
 - [ ] Single-note runs remain unchanged by `Strum Speed` and `Strum Balance`.
 - [ ] Drag `tests/midi/guitar-ag-auto-strum-audition.mid` into a DAW and compare `Strum Speed` at 0%, around 40-70%, and 100%.
+- [ ] D2 alone sounds as actual D2 rather than E2 transposed by assignment.
+- [ ] D2+A2 at `Strum Speed = 0%` feels like an open Drop D power chord with no generated strum delay.
+- [ ] D2+A2 with nonzero `Strum Speed` keeps the open Drop D grip while fanning across strings.
+- [ ] G4+A4 after a low-position phrase stays compact on upper strings rather than spreading awkwardly.
+- [ ] Ab3+Bb3 after low-position context stays compact in the mid register.
 
 ## MPE Pitch Bend Checks
 

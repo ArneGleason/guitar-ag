@@ -30,6 +30,7 @@ Implemented in `src/dsp/FretboardMapper.cpp/.h` and `src/dsp/AudioEngine.cpp`:
 - `handleAutoStrumGroup` no longer returns early when `strumAmount == 0`; `perStringSeconds` collapses to 0 naturally, delivering chord-aware string placement with zero strum delay.
 - Velocity balance scaling is guarded by `strumAmount > 0.0001f` to avoid unintended velocity differences in non-strum chords.
 - After Codex re-review, partial same-sample chords smaller than six notes now use `FretboardMapper::assignNoteGroup`, a fixed-size no-allocation search over string/fret candidates. This keeps the single-note register-affinity weight modest while fixing greedy dyad spreads such as G4+A4 after low-position context.
+- The visible model label is `StringVoice EG-082 FretboardHeuristics` for DAW audition clarity.
 
 ## Verification
 

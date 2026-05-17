@@ -1958,7 +1958,7 @@ These defaults make block-chord previews lightly strummed and human-feeling imme
 
 ## 2026-05-17 — Plan 0082 Fretboard Heuristic Improvements
 
-This pass keeps the `StringVoice EG-081 ArticGroups` model label. It changes the performance-interpreter heuristics, not the string model itself.
+This pass uses the visible model label `StringVoice EG-082 FretboardHeuristics`. It changes the performance-interpreter heuristics, not the string model itself.
 
 Fretboard behavior:
 
