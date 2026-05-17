@@ -24,13 +24,13 @@
     }
   },
   "lastTask": "v0.3.1 release prep and Mac build handoff",
-  "status": "Windows Codex merged the fretboard assignment branch into main, prepared the v0.3.1 release docs, and produced/verified the Windows VST3 build. MacBook Codex should build the macOS VST3 from main/tag v0.3.1 and attach it to the GitHub release.",
-  "updatedAt": "2026-05-17T14:55:00-04:00",
+  "status": "Windows Codex merged the fretboard assignment branch into main, pushed tag v0.3.1, created the draft GitHub release, uploaded the Windows VST3 zip, and verified the Windows build. MacBook Codex should build the macOS VST3 from tag v0.3.1, attach it to the draft release, then publish it.",
+  "updatedAt": "2026-05-17T15:50:00-04:00",
   "lastHandoff": ".agent/handoffs/20260517-mac-codex-v031-release-build.md",
   "branch": "main",
-  "commit": "v0.3.1 release commit/tag pending",
-  "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
+  "commit": "v0.3.1 -> 13c93f3; main may include later handoff-only commits",
+  "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/untagged-a5711c18bac7d45567dc",
   "projectState": {
-    "summary": "v0.3.1 release preparation is in progress on main. The next handoff is to MacBook Codex to build and attach the macOS VST3 release asset after the Windows package/release commit/tag are pushed."
+    "summary": "v0.3.1 is tagged and has a draft GitHub release with the Windows VST3 asset uploaded. The next handoff is to MacBook Codex to build the macOS VST3 from tag v0.3.1, upload the macOS asset, and publish the draft release."
   }
 }

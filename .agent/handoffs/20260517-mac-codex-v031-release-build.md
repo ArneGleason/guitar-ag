@@ -11,18 +11,21 @@ Build the macOS VST3 asset for Guitar AG `v0.3.1` and attach it to the GitHub re
 ## Starting State
 
 - Branch: `main`
-- Intended tag: `v0.3.1`
+- Release tag: `v0.3.1` at commit `13c93f3`
 - Release title: `Guitar AG v0.3.1 - Fretboard Assignment and Diagnostics`
 - Release notes: `dist/RELEASE_NOTES-v0.3.1.md`
-- Windows asset produced on the PC as `dist/GuitarAG-v0.3.1-Windows-vst3.zip`
-- GitHub CLI auth on the Windows PC was invalid, so Mac Codex may need to create/finalize the GitHub release if it has working auth.
+- Draft GitHub release exists for tag `v0.3.1`.
+- Windows asset is uploaded as `GuitarAG-v0.3.1-Windows-vst3.zip`.
+- GitHub reports the draft URL as `https://github.com/ArneGleason/guitar-ag/releases/tag/untagged-a5711c18bac7d45567dc` until publication.
+- Build the macOS asset from tag `v0.3.1`, not from any later handoff-only commits on `main`.
 
 ## Mac Build Steps
 
 1. Pull `main` and tags from GitHub.
 2. Confirm `CMakeLists.txt` says `project(GuitarAG VERSION 0.3.1 LANGUAGES C CXX)`.
-3. Build the macOS VST3 release target.
-4. Package with:
+3. Check out tag `v0.3.1` for the build.
+4. Build the macOS VST3 release target.
+5. Package with:
 
 ```sh
 mkdir -p dist
@@ -31,7 +34,8 @@ ditto -c -k --sequesterRsrc --keepParent \
   "dist/GuitarAG-v0.3.1-macOS-vst3.zip"
 ```
 
-5. Attach `dist/GuitarAG-v0.3.1-macOS-vst3.zip` to the `v0.3.1` GitHub release.
+6. Attach `dist/GuitarAG-v0.3.1-macOS-vst3.zip` to the draft `v0.3.1` GitHub release.
+7. Publish the draft release once both Windows and macOS assets are present.
 
 ## Verification
 
