@@ -6,6 +6,10 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
+- Plan 0091 shows the next useful work is on the accepted legacy engine: replace the rejected deep-pick additive extras with modal-string excitation, fix register-specific modal identity, and replace the comb-like finger-noise overlay with motion-driven friction.
+- The deep/flexible/textured A/B attributed the woody digital rattle to `renderPickTransient()` / `renderContactLayer()` rather than the short chirp-mode bank. Review the next prototype for energy entering through modal state instead of an independent audible layer.
+- Review whether the modal recipe scales too uniformly with pitch and whether plain/high strings need different modal density, decay irregularity, phase/excitation, and pickup behavior rather than a brightness-only correction.
+- Finger-noise review should reject free-running periodic ridge oscillation; require movement speed and finger depth/position to cause hiss, transverse motion, and any restrained pitched squeak.
 - Plan 0090 failed its human timbre gate: both stateful preserve/reset variants sounded like synths. Do not promote the engine or proceed to left-hand-state work in its current form.
 - The next focused review should challenge the stateful excitation, dispersion/loss, pickup readout, and body-response assumptions against isolated electric-guitar DI identity—not optimize repick behavior or spectral-distance metrics yet.
 - Preserve the offline selector/A-B fixture and the compile-time boundary that excludes stateful storage from the VST3 while exploring the smallest next refinement.
@@ -20,6 +24,8 @@ Recently cleared:
 
 Known limitations:
 
+- The current global finger-noise voice is an independent filtered-noise/stick-impulse/multi-sine generator mixed over the strings and was rejected in isolated listening as plastic-comb-like.
+- The high E in the Plan 0091 fixture sounded like a lower-register guitar model pitch-shifted upward, indicating a register-identity problem not solved by high-frequency roll-off.
 - Human A/B rejected the current stateful note timbre even with loudness matching; preserve/reset differences are secondary until the isolated note stops reading as a synth.
 - Plan 0090 is offline-only. The VST3 cannot select the stateful engine.
 - The stateful engine preserves same-string vibration but does not yet model a moving fret/finger boundary; hammer-ons, pull-offs, taps, slides, harmonic touch, and finger contact remain provisional or absent.

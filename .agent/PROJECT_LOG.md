@@ -100,3 +100,7 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Routed Plan 0090 to human listening before any VST3 promotion or left-hand-state work.
 - Human completed a loudness-matched three-way A/B: legacy was usable but had a spectral-chirp attack and glassy body, while both stateful preserve/reset variants sounded like synths.
 - Rejected promotion of the current Plan 0090 stateful voice. Kept the offline harness and VST3 isolation; the next DSP step is isolated-note string/pickup/body refinement before repick or left-hand-state expansion.
+- Implemented Plan 0091 offline-only legacy attack/contact ablations on `codex/0091-legacy-layer-ablation`; both Release targets build and default legacy output remains byte-identical.
+- Human A/B found default-setting chirp modes negligible, explicit overlays necessary for pick identity, high E suggestive of a pitch-shifted low-register modal recipe, and isolated finger noise unacceptable as a plastic-comb-like overlay.
+- Accepted a motion-driven finger-noise target and routed the next attack test to the actual failure regime: deep pick, flexible stiffness, and added texture.
+- Completed the targeted deep/flexible/textured A/B. The full attack became a sparse woody rattle, short chirp-mode removal remained minor, and the isolated pick/contact extras sounded like crude digital synthesis; route the next prototype through modal-string excitation instead of another overlay retune.

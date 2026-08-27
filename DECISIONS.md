@@ -821,3 +821,29 @@ The production VST3 remains on the legacy modal engine. The next DSP work must
 refine or replace the stateful excitation/string-loss/dispersion/pickup/body
 combination offline and pass an isolated-note A/B gate before repick continuity
 or physical left-hand modeling becomes relevant.
+
+## 2026-08-27 — Improve the accepted modal engine before adding persistence
+
+Decision:
+Use the legacy modal engine as the tone foundation for the next realism work.
+First repair deep-pick attack behavior, high-register voicing, and finger-motion
+noise. Defer persistent modal repicks until the isolated picked note and contact
+layers pass listening.
+
+Reason:
+Plan 0091 showed that ordinary-setting chirp modes are minor, while removing
+explicit overlays removes pick identity without changing the modal-body
+character. The high E sounds like the same low-register construction shifted in
+pitch, and the independent finger-noise generator sounds like a plastic comb.
+Those are more immediate realism failures than note-to-note state continuity.
+
+Status:
+Accepted
+
+Consequences:
+The completed deep-pick comparison attributed the woody digital rattle to the
+explicit transient/contact output rather than the short chirp-mode bank. Replace
+that additive path with modal-coupled excitation. Finger noise should be rebuilt
+around inferred finger motion and string-coupled friction rather than retuning
+the existing ridge oscillator. Modal-state preservation remains valuable, but
+it is not the next milestone.

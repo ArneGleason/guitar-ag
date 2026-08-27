@@ -2073,6 +2073,11 @@ Windows verification at 48 kHz:
 - the six-voice Auto Strum render reached 33.0x real time, with a 3.03 ms maximum offline block and a -2.4 dBFS peak
 - the stateful single-note reference diagnostic moved full/attack/early/late log-spectral distance from legacy `40.42/39.19/40.76/40.43 dB` to `30.88/26.88/28.58/33.05 dB`
 
+The distance movement is encouraging but not an acceptance result. Stateful
+spectral-flatness ratio remains too high and flux remains low relative to the
+selected Guitar-TECHS examples. Human listening decides whether the new
+attack/body is musically preferable.
+
 ## 2026-08-27 — Plan 0091 Legacy Layer Ablation
 
 Human A/B listening rejected the Plan 0090 stateful engine as synth-like and
@@ -2108,4 +2113,31 @@ brightness, shortens/darkens contact layers, steepens high-modal damping, and
 shortens several side/winding/chirp decays. It can therefore hide glassiness
 without identifying whether the root cause is the entry transient or modal body.
 
-The distance movement is encouraging but not an acceptance result. Stateful spectral-flatness ratio remains too high and flux remains low relative to the selected Guitar-TECHS examples. Human listening decides whether the new attack/body is musically preferable.
+Human listening found that removing the short chirp modes was barely different
+at ordinary pick settings. The explicit transient/contact layers supply audible
+pick identity, but removing them did not reveal a different sustained body. The
+high E4 instead sounded like a lower-register guitar model digitally transposed
+upward, suggesting that the harmonic/modal construction is too pitch-invariant.
+
+A targeted rerender used 100% `Pick Bite`, 10% `Pick Stiffness`, and 75%
+`Pick Texture`. The current attack read as a sparse, pronounced woody rattle;
+disabling the short chirp modes again changed little. The isolated correctly
+subtracted pick/contact contribution sounded like crude digital synthesis rather
+than a plectrum/string material interaction. The deep-pick defect therefore
+lives primarily in the independently rendered transient/contact path, not the
+short modal chirp modes. The next prototype should replace that path with a
+finite-duration force/energy injection into the modal string so the pickup hears
+the string's response instead of an additive attack signal.
+
+The isolated finger-noise residual was rejected as resembling a stiff plastic
+hair comb. Its periodic stick impulses and multi-sine ridge carrier are therefore
+the wrong foundation. The accepted design target is continuous motion-speed-
+driven friction hiss plus less-periodic transverse/bowing motion, with finger
+depth optionally coupling into a restrained string/harmonic-position squeak.
+
+The first residual-render command was invalid: FFmpeg `amix` treated a negative
+weight as a magnitude and summed the two inputs, producing a residual exactly
+6 dB louder and perceptually similar to the sources. Correct residuals use
+`amerge` plus explicit `pan` channel subtraction. Adding each corrected residual
+back to its ablated source reconstructs the original with infinite measured
+ audio PSNR.

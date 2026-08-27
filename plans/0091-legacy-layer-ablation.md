@@ -46,7 +46,37 @@ glassiness without identifying its source.
 - [x] Default legacy calibration output remains byte-identical (`C67DCE0C...48B`).
 - [x] Every A/B file is aligned, equal length, and distinctly named.
 - [x] Residual files contain the aligned output-domain difference introduced by each ablation.
-- [ ] Human records a verdict on attack origin and finger-noise translation.
+- [x] Human records a verdict on attack origin and finger-noise translation.
+
+## Listening Results — 2026-08-27
+
+- At the ordinary fixture settings, removing the short chirp modes was barely
+  different from legacy. The reported chirp problem occurs under a deliberately
+  deep pick with a flexible pick and added texture, so that regime needs its own
+  follow-up render.
+- Removing the explicit pick transient/contact layers removed recognizable pick
+  identity, but the modal-body-only render sounded the same as the broader
+  no-overlay render. The overlays are not the source of the sustained body.
+- At 1.924–3.157 seconds, the high-register E4 sounded like a semi-realistic
+  low-register guitar tone digitally pitch-shifted upward rather than a native
+  high-register guitar string. This points to register-invariant modal/body
+  construction, not only excessive brightness.
+- The isolated global finger noise sounded like "plucking the teeth on a stiff
+  plastic hair comb" and was rejected. The target is motion-speed-driven hiss
+  plus a less-periodic transverse/bowing component, with depth optionally
+  engaging a string/harmonic-position-dependent pitched squeak.
+- The targeted deep/flexible/textured pass confirmed the nonlinear failure
+  regime. The full legacy attack became a sparse, pronounced "woody rattle";
+  removing the short chirp modes was still not much different. The correctly
+  isolated pick/contact residual sounded like recognizably digital synthesis,
+  not material interaction. This attributes the deep-pick failure to the
+  explicit transient/contact extras rather than the short modal chirp bank.
+
+The first subtraction residual was invalid because FFmpeg `amix` treated the
+negative weight as a magnitude and summed the signals. Correct residuals now use
+explicit merged-channel subtraction and reconstruct their originals with
+infinite measured PSNR. Tracks 1–4 in the attack session were unaffected by this
+preparation error.
 
 ## Decision Gate
 

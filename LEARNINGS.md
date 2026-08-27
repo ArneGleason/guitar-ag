@@ -706,3 +706,37 @@ dispersion/loss, pickup readout, or body response still lacks electric-guitar
 identity. Do not build left-hand/fret mechanics on the present stateful voice
 or expose it in the VST3. Keep the offline A/B harness and first improve the
 isolated picked-note body enough to pass an ear-based guitar-DI gate.
+
+## 2026-08-27 — Diagnose layers at the parameter regime where they fail
+
+At ordinary pick settings, disabling the legacy short chirp-mode bank was barely
+audible. The human clarified that objectionable chirp appears when pick depth is
+high, stiffness is low, and texture is raised. An ablation at defaults cannot
+clear or condemn a nonlinear/extreme control regime; reproduce the reported
+gesture first, then remove one component at a time.
+
+The high E4 sounded like a low-register guitar model digitally pitch-shifted
+upward. This is different from excessive treble and will not be solved by
+`String Age` roll-off. A model that scales nearly the same modal recipe with
+fundamental frequency can retain mathematically clean harmonic relationships
+while failing to acquire register-specific string identity.
+
+The current global finger noise confirmed the overlay concern. Periodic
+stick impulses driving a multi-sine ridge carrier sound like a plastic comb when
+isolated. Finger movement needs motion as its cause: speed-driven friction hiss,
+less-periodic transverse/bowing energy, and only a restrained depth-dependent
+squeak coupled to string/harmonic position.
+
+Residual preparation must be reconstruction-tested. FFmpeg `amix` did not honor
+a negative weight as subtraction in this workflow; it summed the inputs and made
+the supposed residual 6 dB louder. Explicit channel subtraction produced the
+correct residual, and source plus residual reconstructed the original with
+infinite measured PSNR.
+
+The targeted deep-pick test resolved the attack attribution. At 100% bite, 10%
+stiffness, and 75% texture, the full attack became a sparse woody rattle and the
+isolated explicit extras sounded unmistakably like crude digital synthesis.
+Removing the short chirp modes still made little difference. Do not spend the
+next pass retuning that mode bank or low-passing the residual; replace the
+additive pick/contact path with excitation that enters and decays through the
+modal string itself.

@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0090 offline stateful waveguide A/B slice",
-  "status": "Plan 0090 failed human A/B listening: both stateful variants sounded like synths. The VST3 remains protected on the legacy engine; refine isolated-note string/pickup/body mechanics offline before any promotion or left-hand-state work.",
-  "updatedAt": "2026-08-27T15:23:14-04:00",
-  "lastHandoff": ".agent/handoffs/20260827-codex-plan0090-listening-verdict.md",
-  "branch": "codex/0090-stateful-waveguide-ab",
-  "commit": "Plan 0090 work based on cdf11f420085f57a38c3211f1842886320f1d942; see branch HEAD for the resulting commit",
+  "lastTask": "Plan 0091 legacy attack and finger-layer ablation",
+  "status": "Plan 0091 is complete. Deep/flexible/textured listening attributed the woody digital rattle to the explicit pick/contact extras, not the short chirp-mode bank. Next replace additive attack output with modal-coupled excitation, then redesign motion-driven finger noise and register voicing before modal persistence.",
+  "updatedAt": "2026-08-27T16:35:28-04:00",
+  "lastHandoff": ".agent/handoffs/20260827-codex-plan0091-listening-verdict.md",
+  "branch": "codex/0091-legacy-layer-ablation",
+  "commit": "a0c09ea plus listening-result documentation; see branch HEAD",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Human loudness-matched A/B listening rejected both Plan 0090 stateful variants as synth-like. The legacy engine remains imperfect (spectral-chirp attack and glassy body) but closer to the intended guitar DI. Keep the stateful engine offline, retain the A/B harness, and refine or replace its excitation/string-loss/dispersion/pickup/body mechanics before repick continuity, left-hand physics, or VST3 promotion. The old clean checkout at C:\\code\\guitar-ag remains a separate cleanup task."
+    "summary": "Plan 0091 kept the VST3/default render unchanged and exposed offline legacy layers for A/B. Human listening found short chirp modes negligible even at deep/flexible/textured settings, attributed the woody digital rattle to explicit pick/contact output, flagged high E as a pitch-shifted low-register modal recipe, and rejected isolated finger noise as plastic-comb-like. Next inject pick energy into modal state, then rebuild finger noise from inferred motion speed, transverse friction, and restrained depth/position-coupled squeak. The old clean checkout at C:\\code\\guitar-ag remains a separate cleanup task."
   }
 }
