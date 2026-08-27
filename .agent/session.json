@@ -29,13 +29,13 @@
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
   "lastTask": "Plan 0090 offline stateful waveguide A/B slice",
-  "status": "The offline stateful waveguide experiment is implemented and technically verified, with the production VST3 isolated from the new engine. Human A/B listening is the next gate.",
-  "updatedAt": "2026-08-27T14:54:36-04:00",
-  "lastHandoff": ".agent/handoffs/20260827-codex-plan0090-stateful-listening.md",
+  "status": "Plan 0090 failed human A/B listening: both stateful variants sounded like synths. The VST3 remains protected on the legacy engine; refine isolated-note string/pickup/body mechanics offline before any promotion or left-hand-state work.",
+  "updatedAt": "2026-08-27T15:23:14-04:00",
+  "lastHandoff": ".agent/handoffs/20260827-codex-plan0090-listening-verdict.md",
   "branch": "codex/0090-stateful-waveguide-ab",
   "commit": "Plan 0090 work based on cdf11f420085f57a38c3211f1842886320f1d942; see branch HEAD for the resulting commit",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0090 is ready for human listening. The new primary+secondary stateful waveguide is available only in the offline renderer behind --string-engine stateful; the VST3 remains on the exact legacy path. Focused preserve/reset renders prove that same-string repicks retain residual state, while the pre-repick sections remain identical. The old clean checkout at C:\\code\\guitar-ag could not be removed because the Codex app still treats it as the active workspace root; remove it from a fresh task rooted at C:\\code\\github\\guitar-ag."
+    "summary": "Human loudness-matched A/B listening rejected both Plan 0090 stateful variants as synth-like. The legacy engine remains imperfect (spectral-chirp attack and glassy body) but closer to the intended guitar DI. Keep the stateful engine offline, retain the A/B harness, and refine or replace its excitation/string-loss/dispersion/pickup/body mechanics before repick continuity, left-hand physics, or VST3 promotion. The old clean checkout at C:\\code\\guitar-ag remains a separate cleanup task."
   }
 }

@@ -35,7 +35,13 @@ This slice intentionally does not claim realistic hammer-ons, pull-offs, slides,
 - [x] Stateful offline performance has ample headroom.
 - [x] Preserved-state and reset-on-note repeated-note renders differ while all other inputs remain equal.
 - [x] Run calibration/reference diagnostics and record their limits without optimizing blindly for them.
-- [ ] Human listens to isolated wound/plain attacks and repeated F2 repicks at matched level.
+- [x] Human listens to isolated wound/plain attacks and repeated F2 repicks at matched level.
+
+Human verdict on 2026-08-27: the legacy render still sounds usable but exposes a
+spectral-chirp attack and glassy note body. Both stateful variants "just sound
+like a synth." The slice therefore fails the electric-guitar-DI acceptance gate;
+keep the A/B harness and offline boundary, but do not promote this engine to the
+VST3 or build left-hand physics on top of its current string/body mechanics.
 
 ## Focused Fixture
 

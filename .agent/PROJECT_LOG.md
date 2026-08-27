@@ -98,3 +98,5 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Confirmed the legacy calibration render remains byte-identical, the stateful render is deterministic, and repick-preserve/reset renders diverge only after the repeated-note section begins.
 - Built both Windows Release targets, rendered at 44.1/48 kHz, and rendered a six-voice Auto Strum stress fixture at 33.0x real time with a -2.4 dBFS peak.
 - Routed Plan 0090 to human listening before any VST3 promotion or left-hand-state work.
+- Human completed a loudness-matched three-way A/B: legacy was usable but had a spectral-chirp attack and glassy body, while both stateful preserve/reset variants sounded like synths.
+- Rejected promotion of the current Plan 0090 stateful voice. Kept the offline harness and VST3 isolation; the next DSP step is isolated-note string/pickup/body refinement before repick or left-hand-state expansion.

@@ -6,10 +6,9 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Plan 0090 is implemented on `codex/0090-stateful-waveguide-ab` and awaits human listening before promotion or further physical-model expansion.
-- Human should compare `eg090-legacy.wav`, `eg090-stateful-preserve.wav`, and `eg090-stateful-reset.wav` in clean DI monitoring and the normal amp-sim chain.
-- Focus on isolated E2/E4 attack chirp, note-body density, and continuity/buildup across eight F2 repicks. The final E2-to-G2 transition is a known preview of missing left-hand physics.
-- A code reviewer should inspect fractional-delay stability, force/velocity interpretation, loop/pickup filtering, extreme MPE delay bounds, and the compile-time boundary that excludes stateful storage from the VST3.
+- Plan 0090 failed its human timbre gate: both stateful preserve/reset variants sounded like synths. Do not promote the engine or proceed to left-hand-state work in its current form.
+- The next focused review should challenge the stateful excitation, dispersion/loss, pickup readout, and body-response assumptions against isolated electric-guitar DI identity—not optimize repick behavior or spectral-distance metrics yet.
+- Preserve the offline selector/A-B fixture and the compile-time boundary that excludes stateful storage from the VST3 while exploring the smallest next refinement.
 
 Recently cleared:
 
@@ -21,6 +20,7 @@ Recently cleared:
 
 Known limitations:
 
+- Human A/B rejected the current stateful note timbre even with loudness matching; preserve/reset differences are secondary until the isolated note stops reading as a synth.
 - Plan 0090 is offline-only. The VST3 cannot select the stateful engine.
 - The stateful engine preserves same-string vibration but does not yet model a moving fret/finger boundary; hammer-ons, pull-offs, taps, slides, harmonic touch, and finger contact remain provisional or absent.
 - The stateful note body is about 9 dB less dense than legacy in the focused peak-matched whole-file comparison.

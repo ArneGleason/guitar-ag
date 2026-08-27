@@ -797,3 +797,27 @@ Accepted
 
 Consequences:
 `--string-engine stateful` and `--stateful-repick 0|1` are offline development controls, not host parameters. The normal renderer path and VST3 remain legacy. A later decision must explicitly promote the stateful engine before it appears in the plugin or saved state.
+
+## 2026-08-27 — Reject Plan 0090 stateful voice promotion
+
+Decision:
+Keep the Plan 0090 A/B harness and prototype available for offline research,
+but do not promote the current `StatefulStringVoice` to an experimental VST3
+and do not extend it with left-hand/fret state yet.
+
+Reason:
+In loudness-matched human A/B listening, both the preserve-repick and reset-
+repick stateful variants "just sound like a synth." The legacy render still
+has a spectral-chirp attack and glassy note body, but the new engine failed the
+more fundamental requirement that its isolated notes read as electric-guitar
+DI. Determinism, stability, spectral-distance movement, and demonstrated state
+continuity do not override that listening verdict.
+
+Status:
+Accepted
+
+Consequences:
+The production VST3 remains on the legacy modal engine. The next DSP work must
+refine or replace the stateful excitation/string-loss/dispersion/pickup/body
+combination offline and pass an isolated-note A/B gate before repick continuity
+or physical left-hand modeling becomes relevant.

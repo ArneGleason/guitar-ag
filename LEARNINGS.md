@@ -691,3 +691,18 @@ The first register-affinity pass still mapped a low-context G4+A4 block to high-
 Bitwig can send pitch wheel, CC74, and channel-pressure resets in the same sample as chord note-ons. Treating mixed same-sample groups as "not a chord" bypassed the chord-aware assignment path, so later E2+B2 dyads could collapse onto low E after position memory drift. The better routing is to process same-sample note-offs and expression messages at that sample, then assign the remaining note-ons as one guitar chord.
 
 On Windows, Bitwig scanned both the system VST3 folder and a per-user VST3 file under `%LOCALAPPDATA%\Programs\Common\VST3`. Keeping duplicate `Guitar AG.vst3` copies makes DAW identity checks ambiguous; use the system-wide VST3 folder as the canonical PC install.
+
+## 2026-08-27 — Stateful storage is not sufficient for guitar identity
+
+Loudness-matched human A/B listening rejected both Plan 0090 stateful variants:
+the preserved-state and reset-on-note renders both "just sound like a synth."
+The legacy engine remains imperfect—the attack has a spectral chirp and the
+note body is somewhat glassy—but it still reads closer to the intended source.
+
+This separates two questions that metrics and state-continuity tests cannot
+collapse into one. Persistent delay-line state can be deterministic, stable,
+fast, and measurably different on repicks while the underlying excitation,
+dispersion/loss, pickup readout, or body response still lacks electric-guitar
+identity. Do not build left-hand/fret mechanics on the present stateful voice
+or expose it in the VST3. Keep the offline A/B harness and first improve the
+isolated picked-note body enough to pass an ear-based guitar-DI gate.

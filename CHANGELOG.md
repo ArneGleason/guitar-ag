@@ -19,6 +19,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 - Updated the realism vision and project learnings with the 2026-08-27 architecture diagnosis, local DI-reference measurements, recent real-time nonlinear-string/pick/pickup research, and an explicit A/B-first implementation boundary.
 - Refreshed Studio Pattern session and review memory after confirming `main` is synchronized with GitHub, `v0.3.1` is published, and both Windows Release targets build successfully.
 - Kept the VST3 target on the legacy engine and excluded the experimental delay buffers at compile time; the released/default offline path remains byte-identical.
+- Recorded the failed Plan 0090 human A/B gate: both stateful variants sounded like synths, so the prototype remains offline and must be refined before any VST3 or left-hand-state promotion.
 
 ## v0.3.1 - 2026-05-17
 
