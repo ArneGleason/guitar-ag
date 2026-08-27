@@ -2174,3 +2174,19 @@ and repeated 1.75x modal renders are byte-identical. The prepared deep-pick set
 is stereo 48 kHz and exactly 486,000 samples per file. Its isolated 1.75x modal
 contribution reconstructs the coupled source from the body-only track with
 infinite measured audio PSNR.
+
+Human listening selected the 1.75x modal-force version as the useful foundation
+for the next attack pass. It still needs some of the current additive texture,
+but at a much lower level and with greater event density. This preserves the
+modal string response as the main attack while testing whether a subordinate,
+less sparse surface-friction contribution can supply missing pick material.
+
+The same listening pass described the high-register failure by analogy to vocal
+pitch shifting without formant correction: the first low note sounds relatively
+natural, while upper notes acquire a small/Munchkin-like identity. This matches
+the current implementation's extensive use of harmonic number for contact
+filtering, partial tilt, decay curvature, and pickup electrical tilt. Those
+spectral envelopes therefore move upward with the fundamental. A separate
+offline experiment should keep modal pitches harmonic while anchoring more of
+the material/pickup envelope in absolute frequency; do not combine that change
+with the hybrid-pick comparison.

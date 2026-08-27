@@ -41,3 +41,13 @@ response, refine the modal state/output separation. If both remain synthetic,
 stop shaping the plectrum envelope and revisit the modal representation before
 production work.
 
+## Human Direction
+
+Use `4_deep-modal-force-175.wav` as the next foundation. Blend in a lesser
+amount of `1_deep-current-additive.wav` for texture, but increase the texture
+event density. Keep the direct contribution subordinate and isolate it in the
+next A/B.
+
+The high-register body was also described as pitch shifting without formant
+correction. Test absolute-frequency spectral-envelope anchoring separately from
+the hybrid attack.

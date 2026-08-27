@@ -748,3 +748,16 @@ below a useful comparison. Scaling the integrated impulse into the modal body's
 amplitude range produced -50 dB at 1.00x and -45 dB at 1.75x without changing
 the default output. A physically motivated topology can still be an invalid A/B
 if its effect is effectively inaudible.
+
+Human listening preferred the stronger 1.75x modal-force direction but still
+wanted a little of the old attack for texture. The important constraint is
+hierarchy: modal response carries the note entry; direct texture is quieter and
+denser so it does not return as the sparse woody rattle that Plan 0091 rejected.
+
+The high-note "pitch shift without formant correction" analogy is technically
+useful. Scaling a fixed envelope over harmonic index moves that envelope in Hz
+with the fundamental, just as naive resampling moves vocal formants. Guitar
+partials must move with pitch, but pickup electronics, material/contact bands,
+and much of the perceived body envelope should remain fixed or move much less.
+An absolute-frequency spectral-envelope experiment is a better next test than
+simply darkening high notes.

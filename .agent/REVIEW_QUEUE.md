@@ -6,7 +6,8 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Plan 0092 is awaiting human listening. Judge whether either modal-force level gives the entry a material/string response rather than merely a different synthesized onset; the isolated modal contribution is the decisive topology check.
+- Plan 0092 listening selected the 1.75x modal-force direction as a useful foundation. Review the next hybrid for whether low-level denser direct texture adds material detail without restoring the sparse woody digital rattle.
+- Keep register/formant correction separate: inspect which harmonic-index envelopes should instead use absolute modal frequency so high notes retain instrument scale without becoming merely darker.
 - Review the Plan 0092 quadrature update as an offline hypothesis test only: current modal amplitudes already combine string excitation and pickup observation, so promotion would require a clearer state/output separation if listening is positive.
 - Plan 0091 shows the next useful work is on the accepted legacy engine: replace the rejected deep-pick additive extras with modal-string excitation, fix register-specific modal identity, and replace the comb-like finger-noise overlay with motion-driven friction.
 - The deep/flexible/textured A/B attributed the woody digital rattle to `renderPickTransient()` / `renderContactLayer()` rather than the short chirp-mode bank. Review the next prototype for energy entering through modal state instead of an independent audible layer.

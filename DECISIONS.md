@@ -847,3 +847,25 @@ that additive path with modal-coupled excitation. Finger noise should be rebuilt
 around inferred finger motion and string-coupled friction rather than retuning
 the existing ridge oscillator. Modal-state preservation remains valuable, but
 it is not the next milestone.
+
+## 2026-08-27 — Use modal force as the attack foundation and subordinate direct texture
+
+Decision:
+Continue from the Plan 0092 1.75x modal-force candidate. Add only a low-level,
+higher-density version of the current direct pick texture and keep the modal
+string response dominant.
+
+Reason:
+Human listening found the stronger modal-force direction useful but requested
+some of the current attack for material texture. Plan 0091 already showed that
+the direct layer becomes a sparse woody digital rattle when it defines the
+attack. Blending it quietly and increasing event density tests whether it can
+serve as surface detail without reclaiming the onset.
+
+Status:
+Accepted for offline A/B.
+
+Consequences:
+The next comparison must include the isolated hybrid texture contribution. It
+remains offline-only. Register/formant correction is a separate experiment so
+the attack verdict is not confounded by a simultaneous body revoice.

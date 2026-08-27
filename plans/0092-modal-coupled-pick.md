@@ -52,7 +52,7 @@ sound. It is not another retune of the rejected overlay.
 - [x] Modal-coupled renders repeat byte-identically.
 - [x] A/B files are aligned, equal length, distinctly named, and reconstruction-
       checked where subtraction is used.
-- [ ] Human listening decides whether modal coupling improves material/string
+- [x] Human listening decides whether modal coupling improves material/string
       identity at deep-pick settings.
 
 ## Prepared Listening Set — 2026-08-27
@@ -69,6 +69,18 @@ The isolated contribution reconstructs track 4 when added to track 2 with
 infinite measured audio PSNR. The initial 1.00x implementation contribution was
 about -50.0 dB mean / -32.1 dB peak; 1.75x reaches -45.2 dB mean / -27.2 dB
 peak, so the listening set can separate shape/character from insufficient level.
+
+## Listening Verdict — 2026-08-27
+
+The 1.75x modal-force render is the promising foundation. It does not yet carry
+enough pick-surface texture by itself. The requested next candidate is the 1.75x
+modal render plus a much smaller amount of the current additive attack, with the
+additive texture events made denser so they read as continuous material contact
+rather than a sparse woody rattle.
+
+This is a qualified positive result for coupling attack energy into the modal
+state, not acceptance of the current candidate for production. Keep the direct
+layer subordinate and verify its isolated hybrid contribution.
 
 ## Decision Gate
 
