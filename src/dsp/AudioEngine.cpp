@@ -228,6 +228,16 @@ void AudioEngine::setStatefulRepickEnabled (bool shouldPreserveState) noexcept
 #endif
 }
 
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+void AudioEngine::setLegacyOfflineLayerState (bool attackModesEnabled,
+                                              bool pickTransientEnabled,
+                                              bool contactLayerEnabled) noexcept
+{
+    for (auto& voice : voices)
+        voice.setOfflineLayerState (attackModesEnabled, pickTransientEnabled, contactLayerEnabled);
+}
+#endif
+
 void AudioEngine::setTailSustain (float newTailSustain) noexcept
 {
     tailSustain.setTargetValue (juce::jlimit (0.0f, 1.0f, newTailSustain));

@@ -2073,4 +2073,39 @@ Windows verification at 48 kHz:
 - the six-voice Auto Strum render reached 33.0x real time, with a 3.03 ms maximum offline block and a -2.4 dBFS peak
 - the stateful single-note reference diagnostic moved full/attack/early/late log-spectral distance from legacy `40.42/39.19/40.76/40.43 dB` to `30.88/26.88/28.58/33.05 dB`
 
+## 2026-08-27 — Plan 0091 Legacy Layer Ablation
+
+Human A/B listening rejected the Plan 0090 stateful engine as synth-like and
+described the accepted legacy engine as having a spectral-chirp attack, a
+mirror-like glassy body, and pick/finger noises that sound laid over the string.
+
+The source topology supports that diagnosis. `StringVoice` renders its modal
+bank, then separately adds `renderPickTransient()` and `renderContactLayer()`.
+`AudioEngine` separately generates global finger-noise voices made from filtered
+noise, a sinusoidal ridge carrier, and stick-slip impulses, then adds them to the
+summed strings before `ElectricGuitarTone`. Those finger noises do not currently
+excite or interact with a physical/modal string state.
+
+The offline renderer now exposes three research-only switches:
+
+- `--legacy-attack-modes 0|1`
+- `--legacy-pick-transient 0|1`
+- `--legacy-contact-layer 0|1`
+
+`GUITAR_AG_ENABLE_OFFLINE_ABLATION` is defined only for
+`GuitarAGOfflineRender`; the VST3 does not compile the switches. Disabled chirp
+modes retain their modal slots and frequencies with zero amplitude, preventing
+other modes from filling the space and contaminating the ablation.
+
+The known default legacy calibration remains byte-identical at SHA-256
+`C67DCE0C59AA6D0A903BA887E2C55953B5842CAF1CA3160C035D0704BF0BD48B`.
+The attack and finger-noise comparison sets are stereo 48 kHz and exactly
+486,000 samples (10.125 seconds) per file. Subtraction residuals expose the
+aligned final-output difference after the shared tone stage.
+
+`String Age` is not a single tone roll-off. It simultaneously reduces pick
+brightness, shortens/darkens contact layers, steepens high-modal damping, and
+shortens several side/winding/chirp decays. It can therefore hide glassiness
+without identifying whether the root cause is the entry transient or modal body.
+
 The distance movement is encouraging but not an acceptance result. Stateful spectral-flatness ratio remains too high and flux remains low relative to the selected Guitar-TECHS examples. Human listening decides whether the new attack/body is musically preferable.

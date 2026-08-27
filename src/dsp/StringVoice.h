@@ -60,6 +60,12 @@ public:
     void setMpePressure (int midiChannel, float pressure) noexcept;
     void setMpeTimbre (int midiChannel, float timbre) noexcept;
 
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    void setOfflineLayerState (bool attackModesEnabled,
+                               bool pickTransientEnabled,
+                               bool contactLayerEnabled) noexcept;
+#endif
+
     float renderSample (float tailSustain,
                         float palmMute,
                         float vibratoDepthCents,
@@ -304,6 +310,12 @@ private:
     bool woundString = false;
     bool useCachedPitchSteps = false;
     bool slideFretStateInitialized = false;
+
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    bool offlineAttackModesEnabled = true;
+    bool offlinePickTransientEnabled = true;
+    bool offlineContactLayerEnabled = true;
+#endif
 };
 
 } // namespace guitar_ag

@@ -765,12 +765,18 @@ void StringVoice::start (int midiNoteNumber,
             const auto chirpPickScale = (0.10f + 0.22f * highTexture + 0.10f * hardStrike)
                                       * strokeBrightnessScale * attackVariationBrightness
                                       * pickBiteScale * agePickBrightnessScale;
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+            const auto offlineAttackModeScale = offlineAttackModesEnabled ? 1.0f : 0.0f;
+#else
+            constexpr auto offlineAttackModeScale = 1.0f;
+#endif
 
             configureMode (modeIndex++,
                            chirpFrequency,
                            std::abs (amplitude) * attackModeGain * chirpPickScale * std::pow (harmonicFloat, 0.72f)
                                * (0.35f + 0.65f * touchMask)
-                               * (0.86f - 0.46f * stringAgeAmount),
+                               * (0.86f - 0.46f * stringAgeAmount)
+                               * offlineAttackModeScale,
                            chirpDecay,
                            phase + 0.63f * harmonicFloat);
         }
@@ -820,6 +826,17 @@ void StringVoice::setMpeTimbre (int midiChannel, float timbre) noexcept
 
     mpeTimbreTarget = juce::jlimit (0.0f, 1.0f, timbre);
 }
+
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+void StringVoice::setOfflineLayerState (bool attackModesEnabled,
+                                        bool pickTransientEnabled,
+                                        bool contactLayerEnabled) noexcept
+{
+    offlineAttackModesEnabled = attackModesEnabled;
+    offlinePickTransientEnabled = pickTransientEnabled;
+    offlineContactLayerEnabled = contactLayerEnabled;
+}
+#endif
 
 float StringVoice::getFeedbackCouplingScore (float loopFrequency) const noexcept
 {
@@ -970,8 +987,16 @@ float StringVoice::renderSample (float tailSustain,
 
     const auto effectiveSlideLift = juce::jlimit (0.0f, 1.0f, slideLiftEnvelope);
     auto modalOutput = renderModalBank (tailBlend, palmDecay, expressionPressure, expressionTimbre, effectiveSlideLift, feedback);
-    modalOutput += renderPickTransient();
-    const auto contactOutput = renderContactLayer (slideSqueakUp, slideSqueakDown);
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    if (offlinePickTransientEnabled)
+#endif
+        modalOutput += renderPickTransient();
+
+    auto contactOutput = 0.0f;
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    if (offlineContactLayerEnabled)
+#endif
+        contactOutput = renderContactLayer (slideSqueakUp, slideSqueakDown);
 
     const auto attackRampSamples = juce::jmax (1.0f, static_cast<float> (sampleRate) * attackRampSeconds);
     modalOutput *= juce::jlimit (0.0f, 1.0f, static_cast<float> (samplesSinceStart) / attackRampSamples);

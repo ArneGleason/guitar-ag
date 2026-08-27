@@ -114,6 +114,7 @@ target_sources(GuitarAGOfflineRender
 
 target_compile_definitions(GuitarAGOfflineRender
     PRIVATE
+        GUITAR_AG_ENABLE_OFFLINE_ABLATION=1
         GUITAR_AG_ENABLE_STATEFUL_ENGINE=1
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0)

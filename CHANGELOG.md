@@ -8,6 +8,8 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0091 and offline-only legacy layer switches for separately ablating short chirp modes, the pick transient, and the per-voice contact layer without changing the VST3 or default renderer output.
+- Added aligned attack/finger-noise diagnostic renders and subtraction residuals for human A/B attribution of the legacy spectral-chirp, glassiness, and overlay-like contact noises.
 - Added Plan 0089, a research-backed staged path from the current reset-on-note modal/contact engine to a stateful two-polarization string with compliant pick contact, persistent left-hand state, and measured-inspired electric-instrument response.
 - Added a Windows Visual Studio 2022 x64 build recipe and local Guitar-TECHS reference-audio workflow to the Studio Pattern development notes.
 - Added Plan 0090 and an offline-only `StatefulStringVoice` prototype with two persistent polarization loops, fractional-delay pitch control, compliant plectrum force, finite pickup aperture/filtering, and state-preserving repicks.

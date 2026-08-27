@@ -24,6 +24,7 @@ void printUsage()
     std::cout << "Usage: GuitarAGOfflineRender --midi <input.mid> --output <output.wav> "
                  "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
                  "[--string-engine legacy|stateful] [--stateful-repick 0|1] "
+                 "[--legacy-attack-modes 0|1] [--legacy-pick-transient 0|1] [--legacy-contact-layer 0|1] "
                  "[--input-octave midi|daw] [--input-transpose 0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.25] [--pick-bite 0.5] "
                  "[--pick-stroke alternate] [--strum-speed 0.10] [--strum-balance -0.13] "
@@ -137,6 +138,9 @@ int main (int argc, char* argv[])
     auto gain = 1.0f;
     auto stringEngine = guitar_ag::AudioEngine::StringEngine::LegacyModal;
     auto statefulRepick = true;
+    auto legacyAttackModes = true;
+    auto legacyPickTransient = true;
+    auto legacyContactLayer = true;
     auto inputTransposeSemitones = 0;
     auto sustain = 1.0f;
     auto pickStiffness = 0.5f;
@@ -229,6 +233,18 @@ int main (int argc, char* argv[])
         else if (argument == "--stateful-repick" && hasValue)
         {
             statefulRepick = juce::String (argv[++i]).getIntValue() != 0;
+        }
+        else if (argument == "--legacy-attack-modes" && hasValue)
+        {
+            legacyAttackModes = juce::String (argv[++i]).getIntValue() != 0;
+        }
+        else if (argument == "--legacy-pick-transient" && hasValue)
+        {
+            legacyPickTransient = juce::String (argv[++i]).getIntValue() != 0;
+        }
+        else if (argument == "--legacy-contact-layer" && hasValue)
+        {
+            legacyContactLayer = juce::String (argv[++i]).getIntValue() != 0;
         }
         else if (argument == "--input-octave" && hasValue)
         {
@@ -524,6 +540,9 @@ int main (int argc, char* argv[])
     engine.prepare (sampleRate, blockSize, output.getNumChannels());
     engine.setStringEngine (stringEngine);
     engine.setStatefulRepickEnabled (statefulRepick);
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    engine.setLegacyOfflineLayerState (legacyAttackModes, legacyPickTransient, legacyContactLayer);
+#endif
     engine.setInputTransposeSemitones (inputTransposeSemitones);
     engine.setTailSustain (sustain);
     engine.setPickStiffness (pickStiffness);

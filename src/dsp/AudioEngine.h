@@ -105,6 +105,11 @@ public:
     void reset();
     void setStringEngine (StringEngine newStringEngine) noexcept;
     void setStatefulRepickEnabled (bool shouldPreserveState) noexcept;
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    void setLegacyOfflineLayerState (bool attackModesEnabled,
+                                     bool pickTransientEnabled,
+                                     bool contactLayerEnabled) noexcept;
+#endif
     void setTailSustain (float newTailSustain) noexcept;
     void setInputTransposeSemitones (int newInputTransposeSemitones) noexcept;
     void setPickStiffness (float newPickStiffness) noexcept;
