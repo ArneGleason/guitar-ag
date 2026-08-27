@@ -783,3 +783,17 @@ Accepted
 
 Consequences:
 Single-note playing keeps its current position-memory behavior. Partial block chords can choose a better combined layout, such as G4 on string 4 fret 8 plus A4 on string 5 fret 5 after low-position context. Full six-note block chords stay on the established sequential preview path for now.
+
+## 2026-08-27 — Keep the first stateful string experiment offline-only
+
+Decision:
+Add the Plan 0090 stateful two-polarization engine only to `GuitarAGOfflineRender`. Keep the VST3 compiled on the legacy modal engine until deterministic A/B renders and human listening justify promotion.
+
+Reason:
+The new engine changes the physical state representation and is not yet a production replacement. Compiling its large per-string delay buffers only into the research renderer protects plugin memory/reset cost, host state compatibility, and released audio while still allowing realistic MIDI routing, polyphony, MPE, tone processing, and reference analysis to exercise the prototype.
+
+Status:
+Accepted
+
+Consequences:
+`--string-engine stateful` and `--stateful-repick 0|1` are offline development controls, not host parameters. The normal renderer path and VST3 remain legacy. A later decision must explicitly promote the stateful engine before it appears in the plugin or saved state.

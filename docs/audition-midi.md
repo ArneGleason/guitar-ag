@@ -266,6 +266,31 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
 
 `Strum Balance` is a reducer, not a booster. Positive values leave generated downstrokes at authored velocity and soften generated upstrokes; negative values do the reverse. The first implementation only groups note-ons that share the exact same sample. If a host imports or emits chord notes a few samples apart, those notes will behave like normal authored timing until a future tolerance-window pass exists.
 
+## Plan 0090 Stateful Waveguide A/B
+
+Generate the focused MIDI fixture:
+
+```powershell
+python scripts\create-stateful-waveguide-audition-midi.py
+```
+
+Render the protected legacy baseline and the experimental engine:
+
+```powershell
+$renderer = 'build-vs2022-x64\GuitarAGOfflineRender_artefacts\Release\GuitarAGOfflineRender.exe'
+$common = @('--midi', 'tests\midi\guitar-ag-stateful-waveguide-audition.mid', '--player-feel', '0', '--strum-speed', '0', '--finger-noise', '0', '--legato-articulation', '1', '--tail-seconds', '2')
+
+& $renderer @common --output build-vs2022-x64\diagnostics\eg090-legacy.wav --string-engine legacy
+& $renderer @common --output build-vs2022-x64\diagnostics\eg090-stateful-preserve.wav --string-engine stateful --stateful-repick 1
+& $renderer @common --output build-vs2022-x64\diagnostics\eg090-stateful-reset.wav --string-engine stateful --stateful-repick 0
+```
+
+The three sections that gate this slice are isolated low E2, isolated high E4, and eight repeated F2 attacks on the low-E string. The final E2-to-G2 section previews the still-missing physical left-hand transition.
+
+The legacy and stateful renders are peak matched closely enough to compare attack character directly. The stateful body is currently less dense, so do not loudness-normalize away that difference before deciding whether it is a strength or a weakness. Compare clean DI first, then the normal amp-sim chain.
+
+`--stateful-repick 0` clears the delay state at every note start. It exists only to isolate residual-state continuity in offline research and is not a proposed user control.
+
 ## Amp Feedback Audition
 
 `Amp Feedback` is easiest to judge on longer held notes and then on the player-articulation file.

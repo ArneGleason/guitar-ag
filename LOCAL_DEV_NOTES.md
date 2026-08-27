@@ -78,6 +78,22 @@ build-vs2022-x64\diagnostics\baseline-v031-single-note.wav
 
 Use the existing repository analysis scripts for repeatable comparisons, but treat their scores as diagnostic evidence rather than a listening-test replacement.
 
+Plan 0090's experimental engine is available only in the offline renderer:
+
+```powershell
+build-vs2022-x64\GuitarAGOfflineRender_artefacts\Release\GuitarAGOfflineRender.exe `
+  --midi tests\midi\guitar-ag-stateful-waveguide-audition.mid `
+  --output build-vs2022-x64\diagnostics\eg090-stateful-preserve.wav `
+  --string-engine stateful `
+  --stateful-repick 1 `
+  --player-feel 0 `
+  --strum-speed 0 `
+  --finger-noise 0 `
+  --legato-articulation 1
+```
+
+Omitting `--string-engine` selects the protected legacy modal path. The VST3 target does not compile the experimental stateful engine.
+
 ## Multi-Machine Git Hygiene
 
 Before meaningful work:

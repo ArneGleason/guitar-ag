@@ -48,6 +48,11 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     for (auto& voice : voices)
         voice.prepare (sampleRate);
 
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    for (auto& voice : statefulVoices)
+        voice.prepare (sampleRate);
+#endif
+
     tailSustain.reset (sampleRate, 0.035);
     tailSustain.setCurrentAndTargetValue (1.0f);
     pickStiffness.reset (sampleRate, 0.035);
@@ -127,6 +132,11 @@ void AudioEngine::reset()
     for (auto& voice : voices)
         voice.reset();
 
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    for (auto& voice : statefulVoices)
+        voice.reset();
+#endif
+
     fretboard.reset();
     fingerNoiseFretboard.reset();
     playerFeelFretboard.reset();
@@ -192,6 +202,30 @@ void AudioEngine::reset()
     pickAttackCounter = 0;
     nextAlternatePickDown = true;
     lastPickStrokeDirection = PickStrokeDirection::Up;
+}
+
+void AudioEngine::setStringEngine (StringEngine newStringEngine) noexcept
+{
+#if ! defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    if (newStringEngine == StringEngine::StatefulWaveguide)
+        return;
+#endif
+
+    if (stringEngine == newStringEngine)
+        return;
+
+    stringEngine = newStringEngine;
+    reset();
+}
+
+void AudioEngine::setStatefulRepickEnabled (bool shouldPreserveState) noexcept
+{
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    for (auto& voice : statefulVoices)
+        voice.setPreserveStateOnStart (shouldPreserveState);
+#else
+    juce::ignoreUnused (shouldPreserveState);
+#endif
 }
 
 void AudioEngine::setTailSustain (float newTailSustain) noexcept
@@ -480,10 +514,23 @@ int AudioEngine::getActiveVoiceCount() const noexcept
 {
     auto count = 0;
 
-    for (const auto& voice : voices)
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    if (stringEngine == StringEngine::StatefulWaveguide)
     {
-        if (voice.isActive())
-            ++count;
+        for (const auto& voice : statefulVoices)
+        {
+            if (voice.isActive())
+                ++count;
+        }
+    }
+    else
+#endif
+    {
+        for (const auto& voice : voices)
+        {
+            if (voice.isActive())
+                ++count;
+        }
     }
 
     return count;
@@ -496,6 +543,11 @@ AudioEngine::PlayerFeelMeters AudioEngine::getPlayerFeelMeters() const noexcept
 
 int AudioEngine::getActiveFingerNoiseVoiceCount() const noexcept
 {
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    if (stringEngine == StringEngine::StatefulWaveguide)
+        return 0;
+#endif
+
     auto count = 0;
 
     for (const auto& voice : fingerNoiseVoices)
@@ -524,17 +576,37 @@ std::array<AudioEngine::StringStatus, AudioEngine::stringCount> AudioEngine::get
         status.mapperFret = mapperState.fret;
     }
 
-    for (const auto& voice : voices)
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    if (stringEngine == StringEngine::StatefulWaveguide)
     {
-        if (! voice.isActive())
-            continue;
+        for (const auto& voice : statefulVoices)
+        {
+            if (! voice.isActive())
+                continue;
 
-        const auto stringIndex = juce::jlimit (0, stringCount - 1, voice.getStringIndex());
-        auto& status = statuses[static_cast<size_t> (stringIndex)];
-        status.voiceActive = true;
-        status.voiceNoteNumber = voice.getNoteNumber();
-        status.voiceChannel = voice.getChannel();
-        status.voiceFret = voice.getFret();
+            const auto stringIndex = juce::jlimit (0, stringCount - 1, voice.getStringIndex());
+            auto& status = statuses[static_cast<size_t> (stringIndex)];
+            status.voiceActive = true;
+            status.voiceNoteNumber = voice.getNoteNumber();
+            status.voiceChannel = voice.getChannel();
+            status.voiceFret = voice.getFret();
+        }
+    }
+    else
+#endif
+    {
+        for (const auto& voice : voices)
+        {
+            if (! voice.isActive())
+                continue;
+
+            const auto stringIndex = juce::jlimit (0, stringCount - 1, voice.getStringIndex());
+            auto& status = statuses[static_cast<size_t> (stringIndex)];
+            status.voiceActive = true;
+            status.voiceNoteNumber = voice.getNoteNumber();
+            status.voiceChannel = voice.getChannel();
+            status.voiceFret = voice.getFret();
+        }
     }
 
     return statuses;
@@ -692,31 +764,55 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
         dispatchScheduledMidiEvents();
         recordPerformanceSample();
 
-        for (auto& voice : voices)
-            mixedSample += voice.renderSample (sustainAmount,
-                                               palmMuteAmount,
-                                               vibratoDepthAmount,
-                                               vibratoSpeedAmount,
-                                               vibratoDelaySeconds,
-                                               whammySemitones,
-                                               whammySpreadAmount,
-                                               ampFeedbackAmount,
-                                               feedbackLoopFrequencyForVoices,
-                                               feedbackLoopAmountForVoices,
-                                               feedbackLoopSignalForVoices,
-                                               feedbackDominantString,
-                                               feedbackStringFocus,
-                                               aftertouchBendAmount,
-                                               mpePressureAmountValue,
-                                               mpeTimbreAmountValue,
-                                               mpePitchBendRangeAmount,
-                                               neckSlideAmount,
-                                               slideFretStepsAmount,
-                                               slideLiftAmount,
-                                               slideSqueakAmount,
-                                               slideSqueakDownAmount);
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+        if (stringEngine == StringEngine::StatefulWaveguide)
+        {
+            for (auto& voice : statefulVoices)
+                mixedSample += voice.renderSample (sustainAmount,
+                                                   palmMuteAmount,
+                                                   vibratoDepthAmount,
+                                                   vibratoSpeedAmount,
+                                                   vibratoDelaySeconds,
+                                                   whammySemitones,
+                                                   whammySpreadAmount,
+                                                   aftertouchBendAmount,
+                                                   mpePressureAmountValue,
+                                                   mpeTimbreAmountValue,
+                                                   mpePitchBendRangeAmount,
+                                                   neckSlideAmount,
+                                                   slideLiftAmount,
+                                                   ampFeedbackAmount,
+                                                   feedbackLoopSignalForVoices);
+        }
+        else
+#endif
+        {
+            for (auto& voice : voices)
+                mixedSample += voice.renderSample (sustainAmount,
+                                                   palmMuteAmount,
+                                                   vibratoDepthAmount,
+                                                   vibratoSpeedAmount,
+                                                   vibratoDelaySeconds,
+                                                   whammySemitones,
+                                                   whammySpreadAmount,
+                                                   ampFeedbackAmount,
+                                                   feedbackLoopFrequencyForVoices,
+                                                   feedbackLoopAmountForVoices,
+                                                   feedbackLoopSignalForVoices,
+                                                   feedbackDominantString,
+                                                   feedbackStringFocus,
+                                                   aftertouchBendAmount,
+                                                   mpePressureAmountValue,
+                                                   mpeTimbreAmountValue,
+                                                   mpePitchBendRangeAmount,
+                                                   neckSlideAmount,
+                                                   slideFretStepsAmount,
+                                                   slideLiftAmount,
+                                                   slideSqueakAmount,
+                                                   slideSqueakDownAmount);
 
-        mixedSample += renderFingerNoiseSample() * fingerNoiseAmount;
+            mixedSample += renderFingerNoiseSample() * fingerNoiseAmount;
+        }
         mixedSample = tone.processSample (mixedSample);
         updateAmpFeedbackLoop (mixedSample, ampFeedbackAmount);
 
@@ -851,10 +947,23 @@ int AudioEngine::getVoiceOccupancyMask() const noexcept
 {
     auto mask = 0;
 
-    for (const auto& voice : voices)
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    if (stringEngine == StringEngine::StatefulWaveguide)
     {
-        if (voice.isActive())
-            mask |= 1 << juce::jlimit (0, stringCount - 1, voice.getStringIndex());
+        for (const auto& voice : statefulVoices)
+        {
+            if (voice.isActive())
+                mask |= 1 << juce::jlimit (0, stringCount - 1, voice.getStringIndex());
+        }
+    }
+    else
+#endif
+    {
+        for (const auto& voice : voices)
+        {
+            if (voice.isActive())
+                mask |= 1 << juce::jlimit (0, stringCount - 1, voice.getStringIndex());
+        }
     }
 
     return mask;
@@ -1669,6 +1778,11 @@ void AudioEngine::releaseAllNotes() noexcept
     for (auto& voice : voices)
         voice.reset();
 
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    for (auto& voice : statefulVoices)
+        voice.reset();
+#endif
+
     fretboard.reset();
     fingerNoiseFretboard.reset();
     playerFeelFretboard.reset();
@@ -1714,12 +1828,24 @@ void AudioEngine::reconcileFretboardOccupancy() noexcept
     {
         auto hasActiveVoiceOnString = false;
 
-        for (const auto& voice : voices)
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+        if (stringEngine == StringEngine::StatefulWaveguide)
         {
-            if (voice.isActive() && voice.getStringIndex() == stringIndex)
-            {
+            const auto& voice = statefulVoices[static_cast<size_t> (stringIndex)];
+
+            if (voice.isActive())
                 hasActiveVoiceOnString = true;
-                break;
+        }
+        else
+#endif
+        {
+            for (const auto& voice : voices)
+            {
+                if (voice.isActive() && voice.getStringIndex() == stringIndex)
+                {
+                    hasActiveVoiceOnString = true;
+                    break;
+                }
             }
         }
 
@@ -1858,36 +1984,75 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
     const auto pickStrokeDirection = resolvePickStrokeDirection (gesture, assignment);
     const auto pickAttackSeed = makePickAttackSeed (noteNumber, channel, assignment, gesture, pickStrokeDirection);
 
-    auto& voice = selectVoiceForAssignment (assignment);
-    const auto stolenString = voice.isActive() ? voice.getStringIndex() : -1;
-    const auto stolenNoteNumber = voice.isActive() ? voice.getNoteNumber() : -1;
-
-    if (voice.isActive())
-    {
-        fretboard.releaseNote (voice.getNoteNumber(), voice.getChannel());
-        releaseArticulationNote (voice.getNoteNumber(), voice.getChannel());
-    }
-
-    voice.start (noteNumber,
-                 channel,
-                 velocity,
-                 assignment,
-                 notePickStiffness,
-                 notePickTexture,
-                 notePickBite,
-                 noteHarmonicTouch,
-                 noteStringAge,
-                 noteBridgeIntonation,
-                 noteFretPressure,
-                 notePickupPosition,
-                 notePickupModel,
-                 gesture,
-                 pickStrokeDirection,
-                 pickAttackSeed);
     const auto channelIndex = static_cast<size_t> (juce::jlimit (1, 16, channel) - 1);
-    voice.setMpePitchBend (channel, mpePitchBendByChannel[channelIndex]);
-    voice.setMpePressure (channel, mpePressureByChannel[channelIndex]);
-    voice.setMpeTimbre (channel, mpeTimbreByChannel[channelIndex]);
+    auto stolenString = -1;
+    auto stolenNoteNumber = -1;
+
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    if (stringEngine == StringEngine::StatefulWaveguide)
+    {
+        auto& statefulVoice = statefulVoices[static_cast<size_t> (juce::jlimit (0, stringCount - 1, assignment.stringIndex))];
+        stolenString = statefulVoice.isActive() ? statefulVoice.getStringIndex() : -1;
+        stolenNoteNumber = statefulVoice.isActive() ? statefulVoice.getNoteNumber() : -1;
+
+        if (statefulVoice.isActive())
+        {
+            fretboard.releaseNote (statefulVoice.getNoteNumber(), statefulVoice.getChannel());
+            releaseArticulationNote (statefulVoice.getNoteNumber(), statefulVoice.getChannel());
+        }
+
+        statefulVoice.start (noteNumber,
+                             channel,
+                             velocity,
+                             assignment,
+                             notePickStiffness,
+                             notePickTexture,
+                             notePickBite,
+                             noteStringAge,
+                             noteBridgeIntonation,
+                             noteFretPressure,
+                             notePickupPosition,
+                             notePickupModel,
+                             gesture,
+                             pickStrokeDirection,
+                             pickAttackSeed);
+        statefulVoice.setMpePitchBend (channel, mpePitchBendByChannel[channelIndex]);
+        statefulVoice.setMpePressure (channel, mpePressureByChannel[channelIndex]);
+        statefulVoice.setMpeTimbre (channel, mpeTimbreByChannel[channelIndex]);
+    }
+    else
+#endif
+    {
+        auto& voice = selectVoiceForAssignment (assignment);
+        stolenString = voice.isActive() ? voice.getStringIndex() : -1;
+        stolenNoteNumber = voice.isActive() ? voice.getNoteNumber() : -1;
+
+        if (voice.isActive())
+        {
+            fretboard.releaseNote (voice.getNoteNumber(), voice.getChannel());
+            releaseArticulationNote (voice.getNoteNumber(), voice.getChannel());
+        }
+
+        voice.start (noteNumber,
+                     channel,
+                     velocity,
+                     assignment,
+                     notePickStiffness,
+                     notePickTexture,
+                     notePickBite,
+                     noteHarmonicTouch,
+                     noteStringAge,
+                     noteBridgeIntonation,
+                     noteFretPressure,
+                     notePickupPosition,
+                     notePickupModel,
+                     gesture,
+                     pickStrokeDirection,
+                     pickAttackSeed);
+        voice.setMpePitchBend (channel, mpePitchBendByChannel[channelIndex]);
+        voice.setMpePressure (channel, mpePressureByChannel[channelIndex]);
+        voice.setMpeTimbre (channel, mpeTimbreByChannel[channelIndex]);
+    }
     rememberArticulationNote (noteNumber, channel, assignment, gesture);
 
     DiagnosticEvent event;
@@ -2187,6 +2352,11 @@ void AudioEngine::releaseLegatoSource (const LegatoSource& source) noexcept
 
     for (auto& voice : voices)
         voice.release (source.noteNumber, source.channel);
+
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    for (auto& voice : statefulVoices)
+        voice.release (source.noteNumber, source.channel);
+#endif
 }
 
 float AudioEngine::getDeterministicGestureChance (int noteNumber,
@@ -2381,6 +2551,11 @@ void AudioEngine::noteOff (int noteNumber, int channel)
     for (auto& voice : voices)
         voice.release (noteNumber, channel);
 
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    for (auto& voice : statefulVoices)
+        voice.release (noteNumber, channel);
+#endif
+
     DiagnosticEvent event;
     event.type = diagnosticNoteOff;
     event.sample = timelineSample;
@@ -2402,6 +2577,11 @@ void AudioEngine::applyAftertouch (int noteNumber, int channel, float pressure) 
 {
     for (auto& voice : voices)
         voice.setAftertouchPressure (noteNumber, channel, pressure);
+
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    for (auto& voice : statefulVoices)
+        voice.setAftertouchPressure (noteNumber, channel, pressure);
+#endif
 }
 
 void AudioEngine::applyMpePitchBend (int channel, float bend) noexcept
@@ -2412,6 +2592,11 @@ void AudioEngine::applyMpePitchBend (int channel, float bend) noexcept
 
     for (auto& voice : voices)
         voice.setMpePitchBend (clampedChannel, clampedBend);
+
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    for (auto& voice : statefulVoices)
+        voice.setMpePitchBend (clampedChannel, clampedBend);
+#endif
 }
 
 void AudioEngine::applyMpePressure (int channel, float pressure) noexcept
@@ -2426,6 +2611,11 @@ void AudioEngine::applyMpePressure (int channel, float pressure) noexcept
         for (auto& voice : voices)
             voice.setMpePressure (voice.getChannel(), clampedPressure);
 
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+        for (auto& voice : statefulVoices)
+            voice.setMpePressure (voice.getChannel(), clampedPressure);
+#endif
+
         return;
     }
 
@@ -2433,6 +2623,11 @@ void AudioEngine::applyMpePressure (int channel, float pressure) noexcept
 
     for (auto& voice : voices)
         voice.setMpePressure (clampedChannel, clampedPressure);
+
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    for (auto& voice : statefulVoices)
+        voice.setMpePressure (clampedChannel, clampedPressure);
+#endif
 }
 
 void AudioEngine::applyMpeTimbre (int channel, float timbre) noexcept
@@ -2447,6 +2642,11 @@ void AudioEngine::applyMpeTimbre (int channel, float timbre) noexcept
         for (auto& voice : voices)
             voice.setMpeTimbre (voice.getChannel(), clampedTimbre);
 
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+        for (auto& voice : statefulVoices)
+            voice.setMpeTimbre (voice.getChannel(), clampedTimbre);
+#endif
+
         return;
     }
 
@@ -2454,6 +2654,11 @@ void AudioEngine::applyMpeTimbre (int channel, float timbre) noexcept
 
     for (auto& voice : voices)
         voice.setMpeTimbre (clampedChannel, clampedTimbre);
+
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    for (auto& voice : statefulVoices)
+        voice.setMpeTimbre (clampedChannel, clampedTimbre);
+#endif
 }
 
 } // namespace guitar_ag

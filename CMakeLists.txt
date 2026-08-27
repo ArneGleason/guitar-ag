@@ -107,11 +107,14 @@ target_sources(GuitarAGOfflineRender
         src/dsp/ElectricGuitarTone.h
         src/dsp/FretboardMapper.cpp
         src/dsp/FretboardMapper.h
+        src/dsp/StatefulStringVoice.cpp
+        src/dsp/StatefulStringVoice.h
         src/dsp/StringVoice.cpp
         src/dsp/StringVoice.h)
 
 target_compile_definitions(GuitarAGOfflineRender
     PRIVATE
+        GUITAR_AG_ENABLE_STATEFUL_ENGINE=1
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0)
 

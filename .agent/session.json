@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0089 stateful electric-guitar realism research and Windows readiness",
-  "status": "GitHub main and the published v0.3.1 release are current. Windows VST3 and offline-renderer Release builds pass. The current audio core was diagnosed as a reset-on-note modal bank plus explicit contact layers; Plan 0089 proposes an A/B-safe stateful two-polarization string and compliant-contact path as the next milestone.",
-  "updatedAt": "2026-08-27T12:59:35-04:00",
-  "lastHandoff": ".agent/handoffs/20260827-codex-windows-realism-research.md",
-  "branch": "main",
-  "commit": "Plan 0089 documentation work based on d6fad1a0ddce650a39595a0c46de1a76676fb587; see branch HEAD for the resulting commit",
+  "lastTask": "Plan 0090 offline stateful waveguide A/B slice",
+  "status": "The offline stateful waveguide experiment is implemented and technically verified, with the production VST3 isolated from the new engine. Human A/B listening is the next gate.",
+  "updatedAt": "2026-08-27T14:54:36-04:00",
+  "lastHandoff": ".agent/handoffs/20260827-codex-plan0090-stateful-listening.md",
+  "branch": "codex/0090-stateful-waveguide-ab",
+  "commit": "Plan 0090 work based on cdf11f420085f57a38c3211f1842886320f1d942; see branch HEAD for the resulting commit",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "v0.3.1 is published for Windows and macOS. The canonical Windows checkout builds cleanly. Plan 0089 is ready for a first experimental A/B milestone; production DSP remains unchanged."
+    "summary": "Plan 0090 is ready for human listening. The new primary+secondary stateful waveguide is available only in the offline renderer behind --string-engine stateful; the VST3 remains on the exact legacy path. Focused preserve/reset renders prove that same-string repicks retain residual state, while the pre-repick sections remain identical. The old clean checkout at C:\\code\\guitar-ag could not be removed because the Codex app still treats it as the active workspace root; remove it from a fresh task rooted at C:\\code\\github\\guitar-ag."
   }
 }

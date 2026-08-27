@@ -6,10 +6,10 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Plan 0082 was merged, released as `v0.3.1`, and accepted in Windows Bitwig. Its old deployment/audition queue is closed.
-- Next engineering focus: Plan 0089 Milestone 0/1, adding an A/B-safe experimental stateful string path and compliant plectrum excitation without changing the legacy default.
-- When the DSP core changes, review audio-thread safety, fractional-delay stability, MPE smoothing, deterministic rendering, residual-state repicks, and legacy-path equivalence.
-- Human listening should compare isolated wound/plain attacks and repeated same-fret repicks at matched loudness through clean DI monitoring and the normal external amp-sim chain.
+- Plan 0090 is implemented on `codex/0090-stateful-waveguide-ab` and awaits human listening before promotion or further physical-model expansion.
+- Human should compare `eg090-legacy.wav`, `eg090-stateful-preserve.wav`, and `eg090-stateful-reset.wav` in clean DI monitoring and the normal amp-sim chain.
+- Focus on isolated E2/E4 attack chirp, note-body density, and continuity/buildup across eight F2 repicks. The final E2-to-G2 transition is a known preview of missing left-hand physics.
+- A code reviewer should inspect fractional-delay stability, force/velocity interpretation, loop/pickup filtering, extreme MPE delay bounds, and the compile-time boundary that excludes stateful storage from the VST3.
 
 Recently cleared:
 
@@ -21,9 +21,12 @@ Recently cleared:
 
 Known limitations:
 
+- Plan 0090 is offline-only. The VST3 cannot select the stateful engine.
+- The stateful engine preserves same-string vibration but does not yet model a moving fret/finger boundary; hammer-ons, pull-offs, taps, slides, harmonic touch, and finger contact remain provisional or absent.
+- The stateful note body is about 9 dB less dense than legacy in the focused peak-matched whole-file comparison.
+- Stateful amp-feedback focus and assignment `stolenVoice` diagnostics still reflect legacy-engine assumptions.
 - The current `StringVoice` delay-line buffers are initialized but unused during rendering; the audible core is modal plus explicit contact layers.
 - All current note starts reset voice state, so inferred legato, repicks, and fret changes cannot preserve physical string vibration.
-- Plan 0089 is research/planning only. No stateful replacement engine or A/B selector is implemented yet.
 - The preset model is planned but not implemented.
 - EG-071 uses one persisted last-direction value per voice, so overlapping up/down contact tails are direction-approximated rather than separately accumulated.
 - EG-073 is still one ordinary plastic plectrum model only; fingerpicking, fingernail attack, material families, and explicit pick-depth UI remain deferred.

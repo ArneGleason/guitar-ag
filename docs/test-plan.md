@@ -310,3 +310,17 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Confirm the key/poly aftertouch segment bends only the chord's top note.
 - [ ] Confirm the MPE pitch bend segment bends only the middle note of the held chord.
 - [ ] Confirm the MPE pressure and CC74 segment changes held-note tone/sustain without changing every note at once.
+
+## Plan 0090 Offline Stateful-String Checks
+
+- [x] Build both Windows Release targets; the VST3 excludes the experimental engine and the offline renderer includes it.
+- [x] Render `single-note-calibration.mid` without `--string-engine`; its WAV SHA-256 remains identical to the pre-Plan-0090 baseline.
+- [x] Render the same stateful fixture twice and confirm byte-identical WAV output.
+- [x] Render `guitar-ag-stateful-waveguide-audition.mid` with `--stateful-repick 1` and `0`; audio before the repeated-F2 section is identical and the repeated-note section differs.
+- [x] Render at both 44.1 and 48 kHz without instability or invalid samples.
+- [x] Render the Auto Strum audition with six active stateful voices; peak remains below 0 dBFS and offline performance remains comfortably faster than real time.
+- [ ] Listen to the peak-matched legacy and stateful focused renders using clean DI monitoring.
+- [ ] Repeat the comparison through the project's normal external amp-sim chain.
+- [ ] Decide whether the isolated E2/E4 attacks have less separate tonal chirp and whether the less-dense stateful body is acceptable.
+- [ ] Compare preserved and reset F2 repicks for continuity, unwanted buildup, clicks, or loss of articulation.
+- [ ] Treat the E2-to-G2 section as a known missing left-hand model, not a Plan 0090 acceptance gate.

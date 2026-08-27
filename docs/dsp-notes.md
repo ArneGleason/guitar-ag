@@ -2035,3 +2035,42 @@ EG-088 fixes the Bitwig MPE event shape that made chord-aware string assignment 
 - Same-sample groups may contain pitch-wheel, CC74, channel pressure, note-off, and note-on events together. The audio engine now routes expression and note-off events first, then still sends the remaining note-ons through the chord-aware assignment path.
 - Incoming-MIDI diagnostics now record post-routing mapper and voice masks instead of a stale zeroed `after` snapshot for events that only update controller or note-off state.
 - Bass-register scoring now penalizes high-fret reuse of the low string when a low-fret neighboring string is a musically closer option, while preserving explicit chord-preview string choices.
+
+## 2026-08-27 — Plan 0090 Stateful Waveguide A/B
+
+Plan 0090 adds a second, offline-only string engine without changing the VST3's legacy modal sound.
+
+`StatefulStringVoice` currently contains:
+
+- one fixed-size primary and secondary delay loop per physical string
+- fractional reads for smooth pitch/MPE movement
+- slight polarization detuning and coupling
+- frequency-dependent loop loss and separate polarization damping
+- a finite-aperture magnetic pickup read plus temporal pickup filtering
+- a nonlinear finite plectrum trajectory with compliance, damping, and release threshold
+- deterministic attack variation that changes contact geometry rather than mixing audible noise
+- optional state-preserving repicks on an already vibrating physical string
+
+The delay state is interpreted as a force/velocity traveling wave, so pickup output reads the spatially averaged wave directly before temporal filtering and DC blocking. Differentiating that signal again produced an overly bright, short-lived attack and was rejected during the implementation pass.
+
+The contact force is injected into the two string polarizations and is never mixed directly into output. The stateful path does not render the legacy pick chirp/ring bank or global finger-noise voices.
+
+The engine is compiled only when `GUITAR_AG_ENABLE_STATEFUL_ENGINE` is defined for `GuitarAGOfflineRender`. The VST3 target does not compile or instantiate the experimental delay buffers.
+
+Current limitations are deliberate:
+
+- a changed fret retunes the persistent loop but does not yet move a physical fret/finger boundary
+- hammer-on, pull-off, tap, slide, harmonic touch, and finger noise do not yet have stateful contact models
+- amp-feedback focus diagnostics still belong to the legacy engine
+- the stateful note body is less dense than legacy at peak-matched level
+- the existing tone stage is shared rather than recalibrated for the new pickup output
+
+Windows verification at 48 kHz:
+
+- legacy single-note calibration SHA-256 remained `C67DCE0C59AA6D0A903BA887E2C55953B5842CAF1CA3160C035D0704BF0BD48B`
+- the focused stateful render repeated byte-identically
+- preserved-state and reset-on-note renders were identical before the repick section and diverged during the eight F2 repicks
+- the six-voice Auto Strum render reached 33.0x real time, with a 3.03 ms maximum offline block and a -2.4 dBFS peak
+- the stateful single-note reference diagnostic moved full/attack/early/late log-spectral distance from legacy `40.42/39.19/40.76/40.43 dB` to `30.88/26.88/28.58/33.05 dB`
+
+The distance movement is encouraging but not an acceptance result. Stateful spectral-flatness ratio remains too high and flux remains low relative to the selected Guitar-TECHS examples. Human listening decides whether the new attack/body is musically preferable.

@@ -26,6 +26,23 @@ Use this file as the running memory for the project. Add concise notes when test
 - Pick depth should govern a contact/release event and initial string state. It should not be a linear alias for more brightness or more noise.
 - Magnetic pickup response should shape the resulting string transient; raw contact foley should not bypass the string/pickup path.
 
+## 2026-08-27 — Force-wave pickup readout avoids double differentiation
+
+- In the Plan 0090 prototype, the delay state is excited directly by a compliant contact force. Treating that state as displacement and differentiating again at the pickup produced an extremely bright attack, weak body, and rapid apparent decay.
+- Treating the traveling-wave state as force/velocity, then applying finite pickup aperture, temporal low-pass response, and DC blocking, produced more plausible attack-to-sustain and zero-crossing behaviour.
+- This choice must remain explicit as the model evolves; mixing displacement, velocity, and force interpretations without an impedance-aware conversion can create convincing-looking code with the wrong spectral slope.
+
+## 2026-08-27 — Residual-state repicks can be isolated deterministically
+
+- The Plan 0090 offline `--stateful-repick` switch creates a controlled experiment: the preserving and reset renders are bit-identical before the repeated-note section and diverge only when the same physical string is restruck.
+- The focused stateful render is byte-identical across repeated runs. Persistent state does not require nondeterminism.
+- Peak-matched stateful audio is currently about 9 dB less dense in whole-file mean level than legacy. Human listening should decide whether this reads as healthier dynamics or an underpowered note body.
+
+## 2026-08-27 — Experimental DSP should not tax the released plugin
+
+- The first integration instantiated experimental delay buffers in the VST3 even though the engine was not selectable. That would have increased plugin memory and reset work without user benefit.
+- A target-specific compile definition now includes the stateful engine only in `GuitarAGOfflineRender`; the VST3 retains the original `AudioEngine` storage and behavior.
+
 ## Initial Learnings
 
 - MPE is the required control model, not MPC.

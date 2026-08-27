@@ -23,6 +23,7 @@ void printUsage()
 {
     std::cout << "Usage: GuitarAGOfflineRender --midi <input.mid> --output <output.wav> "
                  "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
+                 "[--string-engine legacy|stateful] [--stateful-repick 0|1] "
                  "[--input-octave midi|daw] [--input-transpose 0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.25] [--pick-bite 0.5] "
                  "[--pick-stroke alternate] [--strum-speed 0.10] [--strum-balance -0.13] "
@@ -134,6 +135,8 @@ int main (int argc, char* argv[])
     auto blockSize = 512;
     auto tailSeconds = 2.0;
     auto gain = 1.0f;
+    auto stringEngine = guitar_ag::AudioEngine::StringEngine::LegacyModal;
+    auto statefulRepick = true;
     auto inputTransposeSemitones = 0;
     auto sustain = 1.0f;
     auto pickStiffness = 0.5f;
@@ -208,6 +211,24 @@ int main (int argc, char* argv[])
         else if (argument == "--gain" && hasValue)
         {
             gain = juce::String (argv[++i]).getFloatValue();
+        }
+        else if (argument == "--string-engine" && hasValue)
+        {
+            const auto value = juce::String (argv[++i]).toLowerCase();
+
+            if (value == "legacy" || value == "modal")
+                stringEngine = guitar_ag::AudioEngine::StringEngine::LegacyModal;
+            else if (value == "stateful" || value == "waveguide")
+                stringEngine = guitar_ag::AudioEngine::StringEngine::StatefulWaveguide;
+            else
+            {
+                std::cerr << "Unknown string engine: " << value << "\n";
+                return 2;
+            }
+        }
+        else if (argument == "--stateful-repick" && hasValue)
+        {
+            statefulRepick = juce::String (argv[++i]).getIntValue() != 0;
         }
         else if (argument == "--input-octave" && hasValue)
         {
@@ -501,6 +522,8 @@ int main (int argc, char* argv[])
 
     guitar_ag::AudioEngine engine;
     engine.prepare (sampleRate, blockSize, output.getNumChannels());
+    engine.setStringEngine (stringEngine);
+    engine.setStatefulRepickEnabled (statefulRepick);
     engine.setInputTransposeSemitones (inputTransposeSemitones);
     engine.setTailSustain (sustain);
     engine.setPickStiffness (pickStiffness);

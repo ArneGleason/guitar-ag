@@ -4,6 +4,10 @@
 #include "FretboardMapper.h"
 #include "StringVoice.h"
 
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+#include "StatefulStringVoice.h"
+#endif
+
 #include <array>
 #include <atomic>
 #include <cstdint>
@@ -49,6 +53,12 @@ public:
     static constexpr auto stringCount = 6;
     static constexpr auto maxDiagnosticEvents = 1000;
 
+    enum class StringEngine
+    {
+        LegacyModal,
+        StatefulWaveguide
+    };
+
     struct StringStatus
     {
         int openNote = 40;
@@ -93,6 +103,8 @@ public:
 
     void prepare (double sampleRate, int maximumBlockSize, int outputChannels);
     void reset();
+    void setStringEngine (StringEngine newStringEngine) noexcept;
+    void setStatefulRepickEnabled (bool shouldPreserveState) noexcept;
     void setTailSustain (float newTailSustain) noexcept;
     void setInputTransposeSemitones (int newInputTransposeSemitones) noexcept;
     void setPickStiffness (float newPickStiffness) noexcept;
@@ -346,6 +358,9 @@ private:
     };
 
     std::array<StringVoice, maxVoices> voices;
+#if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
+    std::array<StatefulStringVoice, maxVoices> statefulVoices;
+#endif
     std::array<ScheduledMidiEvent, maxScheduledMidiEvents> scheduledMidiEvents {};
     std::array<PendingStrumAssignment, maxScheduledMidiEvents> pendingStrumAssignments {};
     std::array<FingerAssignment, maxVoices> fingerAssignments {};
@@ -440,6 +455,7 @@ private:
     bool whammyEnabled = true;
     bool feedbackReturnDistorted = true;
     bool nextAlternatePickDown = true;
+    StringEngine stringEngine = StringEngine::LegacyModal;
     float playerFeelCognitiveLoad = 0.0f;
     float playerFeelDexterityLoad = 0.0f;
     float playerFeelEndurance = 0.0f;

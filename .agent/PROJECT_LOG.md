@@ -92,3 +92,9 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Diagnosed that the current audible engine is a modal bank plus explicit contact layers; its two delay-line buffers are not advanced or read, and all note starts reset physical state.
 - Traced commit `3457200` as the last project revision with a running two-polarization delay loop and finite pickup-aperture reads.
 - Added Plan 0089 to stage an A/B-safe stateful string/contact redesign before fret-dependent termination and optional nonlinear-core experiments.
+- Verified the redundant `C:\code\guitar-ag` checkout is clean and older than the canonical checkout, but the active-workspace filesystem guard rejected recursive deletion. Cleanup remains for a fresh task opened from `C:\code\github\guitar-ag`.
+- Created `codex/0090-stateful-waveguide-ab` and implemented an offline-only two-polarization stateful string prototype with compliant plectrum force and residual-state repicks.
+- Protected the production boundary with `GUITAR_AG_ENABLE_STATEFUL_ENGINE`: the offline target includes the experiment; the VST3 does not compile or instantiate it.
+- Confirmed the legacy calibration render remains byte-identical, the stateful render is deterministic, and repick-preserve/reset renders diverge only after the repeated-note section begins.
+- Built both Windows Release targets, rendered at 44.1/48 kHz, and rendered a six-voice Auto Strum stress fixture at 33.0x real time with a -2.4 dBFS peak.
+- Routed Plan 0090 to human listening before any VST3 promotion or left-hand-state work.
