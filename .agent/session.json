@@ -23,14 +23,19 @@
       "localCheckout": "human-created guitar-ag folder; clone or pull from GitHub before review"
     }
   },
-  "lastTask": "v0.3.1 release prep and Mac build handoff",
-  "status": "Windows Codex merged the fretboard assignment branch into main, pushed tag v0.3.1, created the draft GitHub release, uploaded the Windows VST3 zip, and verified the Windows build. MacBook Codex should build the macOS VST3 from tag v0.3.1, attach it to the draft release, then publish it.",
-  "updatedAt": "2026-05-17T15:50:00-04:00",
-  "lastHandoff": ".agent/handoffs/20260517-mac-codex-v031-release-build.md",
+  "currentWorkstation": {
+    "agentTool": "Codex",
+    "machineHandle": "unassigned Windows PC",
+    "localCheckout": "C:\\code\\github\\guitar-ag"
+  },
+  "lastTask": "Plan 0089 stateful electric-guitar realism research and Windows readiness",
+  "status": "GitHub main and the published v0.3.1 release are current. Windows VST3 and offline-renderer Release builds pass. The current audio core was diagnosed as a reset-on-note modal bank plus explicit contact layers; Plan 0089 proposes an A/B-safe stateful two-polarization string and compliant-contact path as the next milestone.",
+  "updatedAt": "2026-08-27T12:59:35-04:00",
+  "lastHandoff": ".agent/handoffs/20260827-codex-windows-realism-research.md",
   "branch": "main",
-  "commit": "v0.3.1 -> 13c93f3; main may include later handoff-only commits",
-  "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/untagged-a5711c18bac7d45567dc",
+  "commit": "Plan 0089 documentation work based on d6fad1a0ddce650a39595a0c46de1a76676fb587; see branch HEAD for the resulting commit",
+  "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "v0.3.1 is tagged and has a draft GitHub release with the Windows VST3 asset uploaded. The next handoff is to MacBook Codex to build the macOS VST3 from tag v0.3.1, upload the macOS asset, and publish the draft release."
+    "summary": "v0.3.1 is published for Windows and macOS. The canonical Windows checkout builds cleanly. Plan 0089 is ready for a first experimental A/B milestone; production DSP remains unchanged."
   }
 }

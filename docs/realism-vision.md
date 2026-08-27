@@ -203,3 +203,20 @@ Listening checks:
 - Can hammer-ons and pull-offs be modeled without a full left-hand/fret simulation?
 - How should authored MPE pitch curves map to physical bend/vibrato gestures without fighting the performer?
 - Would a small learned model be useful for choosing articulations from MIDI context while keeping audio synthesis physical?
+
+## 2026-08-27 — Stateful Realism Course Correction
+
+The implementation has outgrown the original near-term experiment ladder, but the current audible core is not the persistent waveguide implied by the early architecture. `StringVoice` now renders a modal bank plus explicit pick/contact signals; its two delay-line buffers are initialized but not advanced or read. Note starts also reset voice state, so inferred legato changes cannot preserve a string's prior vibration.
+
+This explains why isolated attacks and finger events can sound tonal, chirpy, or like added noise even after careful parameter tuning. The next realism pass should change the physical cause instead of adding more transient layers:
+
+- recover the project-owned two-polarization delay-line work from `KS015 DualPickup` behind an experimental A/B path
+- model the pick as a finite compliant contact force that excites the string until release
+- preserve string state for repicks, hammer-ons, pull-offs, fret changes, and slides
+- make left-hand state per physical string, not synonymous with MIDI note lifetime
+- route contact consequences through string motion and magnetic pickup readout
+- add fret-dependent neck termination and subtle pickup/polarization nonlinearities only after the contact/string foundation is convincing
+
+Recent real-time nonlinear-string work shows that dynamic finger/fret collision and stable repeated strikes are computationally feasible, while recent robotic-picking measurements show that sub-millimetre pick-depth changes produce nonlinear threshold and shelf behaviour. A deeper pick should therefore not be implemented as a linear increase in bright noise.
+
+The detailed evidence, staged architecture, acceptance tests, and licensing boundary are recorded in `plans/0089-stateful-electric-guitar-realism.md`.

@@ -82,3 +82,13 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Created a follow-up handoff for Codex on the human's Windows PC to act as PC build and deployment engineer: build the Windows VST3/offline renderer, deploy the plugin to Bitwig, and audition the Plan 0082 drop-tuning/partial-chord behavior in the active PC project.
 - Windows Codex diagnosed a Bitwig assignment log showing mixed same-sample MPE reset messages bypassing chord-aware assignment, implemented `StringVoice EG-088 MixedMpeChordAssignment`, built/deployed the Windows VST3, and human Bitwig audition confirmed the song section now behaves.
 - Merged `feature/0082-fretboard-drop-tuning-register-affinity` back into `main` and began the `v0.3.1` release pass with a Windows package and Mac build handoff.
+
+## 2026-08-27
+
+- Confirmed `main` is clean and exactly synchronized with `origin/main` at `d6fad1a`; confirmed the `v0.3.1` GitHub release is published with Windows and macOS VST3 assets.
+- Established `C:\code\github\guitar-ag` as the canonical Windows checkout. The clean legacy `C:\code\guitar-ag` checkout remains temporarily because the active Codex workspace prevented Windows from moving it safely.
+- Configured Visual Studio 2022 x64 with JUCE at `C:\code\JUCE` and built Release `GuitarAG_VST3` and `GuitarAGOfflineRender` successfully.
+- Downloaded the Guitar-TECHS P1 single-note subset outside the repository and compared the current deterministic calibration render with real direct-input notes.
+- Diagnosed that the current audible engine is a modal bank plus explicit contact layers; its two delay-line buffers are not advanced or read, and all note starts reset physical state.
+- Traced commit `3457200` as the last project revision with a running two-polarization delay loop and finite pickup-aperture reads.
+- Added Plan 0089 to stage an A/B-safe stateful string/contact redesign before fret-dependent termination and optional nonlinear-core experiments.

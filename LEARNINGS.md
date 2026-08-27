@@ -2,6 +2,30 @@
 
 Use this file as the running memory for the project. Add concise notes when testing, debugging, researching, or making discoveries.
 
+## 2026-08-27 — Current `StringVoice` is modal, not a running waveguide
+
+- The current `delayLine` and `secondaryDelayLine` buffers are filled during `start()` but are not advanced or read by the render path.
+- Audible output comes from the modal bank plus explicit pick/contact layers. The contact layer includes tonal rings, chirp modes, impact sinusoids, and periodic scrape components that directly explain the synthetic chirp/specular-noise complaint.
+- Commit `3457200` had a functioning two-polarization delay loop and finite-aperture pickup readout. It is a useful project-owned basis for an experimental stateful engine, but it should not be restored as a blind revert because the modal pivot was preferred in the earlier listening context.
+
+## 2026-08-27 — Articulation realism requires persistent string state
+
+- `AudioEngine` can infer a same-string legato source, but it releases that source and calls `StringVoice::start()`, which resets vibration and contact state.
+- A convincing hammer-on, pull-off, slide, or repick should change the boundary/contact/excitation of one continuing string rather than start an unrelated note plus an auxiliary noise event.
+- MIDI note lifetime and physical finger/string lifetime are different. A repeated fretted note may keep the left-hand finger down while only the right hand acts again.
+
+## 2026-08-27 — Windows baseline versus Guitar-TECHS DI
+
+- The current six-note calibration render showed roughly 4–8 times the zero-crossing rate of matched Guitar-TECHS P1 DI examples while also being substantially more periodic/harmonic and less spectrally evolving.
+- That combination is consistent with a narrow chirpy high-frequency layer over an overly clean/static modal core.
+- Whole-note analyzer scores remain supporting evidence only. Earlier Guitar AG experiments proved that metric improvement does not reliably predict human listening preference.
+
+## 2026-08-27 — Recent picking research changes the control mapping
+
+- Robotic measurements at 192-micrometre pick-depth increments found nonlinear threshold/shelf changes in loudness, harmonic balance, noisiness, centroid, and flux.
+- Pick depth should govern a contact/release event and initial string state. It should not be a linear alias for more brightness or more noise.
+- Magnetic pickup response should shape the resulting string transient; raw contact foley should not bypass the string/pickup path.
+
 ## Initial Learnings
 
 - MPE is the required control model, not MPC.

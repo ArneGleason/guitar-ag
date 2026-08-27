@@ -6,6 +6,16 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ## Unreleased
 
+### Added
+
+- Added Plan 0089, a research-backed staged path from the current reset-on-note modal/contact engine to a stateful two-polarization string with compliant pick contact, persistent left-hand state, and measured-inspired electric-instrument response.
+- Added a Windows Visual Studio 2022 x64 build recipe and local Guitar-TECHS reference-audio workflow to the Studio Pattern development notes.
+
+### Changed
+
+- Updated the realism vision and project learnings with the 2026-08-27 architecture diagnosis, local DI-reference measurements, recent real-time nonlinear-string/pick/pickup research, and an explicit A/B-first implementation boundary.
+- Refreshed Studio Pattern session and review memory after confirming `main` is synchronized with GitHub, `v0.3.1` is published, and both Windows Release targets build successfully.
+
 ## v0.3.1 - 2026-05-17
 
 ### Added

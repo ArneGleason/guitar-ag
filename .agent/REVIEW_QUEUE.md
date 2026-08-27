@@ -6,10 +6,10 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Next handoff target: Codex on the human's Windows PC as `PC build and deployment engineer`. Build/deploy the Windows VST3 for Plan 0082 and audition in the active PC Bitwig project.
-- Human Bitwig audition is queued for Plan 0082 on `feature/0082-fretboard-drop-tuning-register-affinity`: auto drop tuning, partial-chord group assignment, and non-strum block-chord assignment at `Strum Speed = 0%`.
-- Focus listening on Drop D/sub-D riffs, D2+A2 open power-chord blocks, G4+A4 or Ab3+Bb3 dyads after low-position context, and existing Auto Strum feel at nonzero `Strum Speed`.
-- No additional code-review item is currently queued after Codex's re-review/build pass.
+- Plan 0082 was merged, released as `v0.3.1`, and accepted in Windows Bitwig. Its old deployment/audition queue is closed.
+- Next engineering focus: Plan 0089 Milestone 0/1, adding an A/B-safe experimental stateful string path and compliant plectrum excitation without changing the legacy default.
+- When the DSP core changes, review audio-thread safety, fractional-delay stability, MPE smoothing, deterministic rendering, residual-state repicks, and legacy-path equivalence.
+- Human listening should compare isolated wound/plain attacks and repeated same-fret repicks at matched loudness through clean DI monitoring and the normal external amp-sim chain.
 
 Recently cleared:
 
@@ -21,6 +21,9 @@ Recently cleared:
 
 Known limitations:
 
+- The current `StringVoice` delay-line buffers are initialized but unused during rendering; the audible core is modal plus explicit contact layers.
+- All current note starts reset voice state, so inferred legato, repicks, and fret changes cannot preserve physical string vibration.
+- Plan 0089 is research/planning only. No stateful replacement engine or A/B selector is implemented yet.
 - The preset model is planned but not implemented.
 - EG-071 uses one persisted last-direction value per voice, so overlapping up/down contact tails are direction-approximated rather than separately accumulated.
 - EG-073 is still one ordinary plastic plectrum model only; fingerpicking, fingernail attack, material families, and explicit pick-depth UI remain deferred.

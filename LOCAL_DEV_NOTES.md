@@ -27,6 +27,57 @@ Machine handles are assigned by the human owner. Do not treat OS hostname, usern
 - `mac-mini-pro-m4`: Antigravity reviewer environment. The human may create an empty `guitar-ag` folder there before handoff; Antigravity should clone or pull from GitHub before reviewing.
 - Human Windows PC: PC build/deployment environment for Windows VST3 builds and DAW audition. A canonical machine handle is not assigned yet; do not infer it from OS hostname.
 
+## Windows PC Checkout and Build
+
+The canonical Windows checkout is:
+
+```text
+C:\code\github\guitar-ag
+```
+
+JUCE is currently available at `C:\code\JUCE`. Configure and build from PowerShell:
+
+```powershell
+cmake -S . -B build-vs2022-x64 -DJUCE_PATH=C:\code\JUCE -A x64
+cmake --build build-vs2022-x64 --config Release --target GuitarAG_VST3
+cmake --build build-vs2022-x64 --config Release --target GuitarAGOfflineRender
+```
+
+Expected artifacts:
+
+```text
+build-vs2022-x64\GuitarAG_artefacts\Release\VST3\Guitar AG.vst3
+build-vs2022-x64\GuitarAGOfflineRender_artefacts\Release\GuitarAGOfflineRender.exe
+```
+
+The previous checkout at `C:\code\guitar-ag` was clean and at the same GitHub commit when the canonical clone was created. Windows would not move it while the original Codex workspace held the directory open. Remove that duplicate only from a later task after the original workspace is closed and the exact path is re-verified.
+
+On this PC, Git may reject a checkout as dubious ownership. Prefer an explicit per-command override such as:
+
+```powershell
+git -c safe.directory=C:/code/github/guitar-ag status --short --branch
+```
+
+Do not add a broad global safe-directory wildcard.
+
+## Windows Realism Reference Data
+
+Large reference audio stays outside Git:
+
+```text
+C:\code\reference-audio\Guitar-TECHS\archives\P1_singlenotes.zip
+C:\code\reference-audio\Guitar-TECHS\extracted\P1_singlenotes
+C:\code\reference-audio\Guitar-TECHS\analysis
+```
+
+The current Windows calibration render is generated under:
+
+```text
+build-vs2022-x64\diagnostics\baseline-v031-single-note.wav
+```
+
+Use the existing repository analysis scripts for repeatable comparisons, but treat their scores as diagnostic evidence rather than a listening-test replacement.
+
 ## Multi-Machine Git Hygiene
 
 Before meaningful work:
