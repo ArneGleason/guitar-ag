@@ -248,6 +248,18 @@ void AudioEngine::setLegacyOfflineModalPickForceScale (float forceScale) noexcep
     for (auto& voice : voices)
         voice.setOfflineModalPickForceScale (forceScale);
 }
+
+void AudioEngine::setLegacyOfflineModalPickDirectMix (float directMix) noexcept
+{
+    for (auto& voice : voices)
+        voice.setOfflineModalPickDirectMix (directMix);
+}
+
+void AudioEngine::setLegacyOfflinePickTextureDensity (float textureDensity) noexcept
+{
+    for (auto& voice : voices)
+        voice.setOfflinePickTextureDensity (textureDensity);
+}
 #endif
 
 void AudioEngine::setTailSustain (float newTailSustain) noexcept

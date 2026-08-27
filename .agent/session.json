@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0092 offline modal-coupled pick excitation",
-  "status": "Plan 0092 listening selected the 1.75x modal-force direction as the next foundation. Build a separate offline hybrid with a quieter, denser direct texture; then test absolute-frequency register/formant anchoring independently.",
-  "updatedAt": "2026-08-27T17:20:00-04:00",
-  "lastHandoff": ".agent/handoffs/20260827-codex-plan0092-modal-pick-listening.md",
-  "branch": "codex/0092-modal-coupled-pick",
-  "commit": "Plan 0092 implementation based on 0ea1c1a; see branch HEAD",
+  "lastTask": "Plan 0093 hybrid modal pick texture",
+  "status": "Plan 0093 is implemented and awaiting human A/B: the 1.75x modal-force foundation is blended with 12% or 22% direct texture, with a same-mix sparse/dense control and isolated dense contribution.",
+  "updatedAt": "2026-08-27T17:45:00-04:00",
+  "lastHandoff": ".agent/handoffs/20260827-codex-plan0093-hybrid-pick-listening.md",
+  "branch": "codex/0093-hybrid-pick-texture",
+  "commit": "Plan 0093 implementation based on 1e6c540; see branch HEAD",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0092 listening chose the 1.75x modal-force attack as the useful foundation, with a request to blend a much smaller and denser form of the current direct texture. The high-register body was described as pitch shifting without formant correction; test absolute-frequency spectral-envelope anchoring only after the hybrid attack verdict. Motion-driven finger noise remains a later separate milestone. The old clean checkout at C:\\code\\guitar-ag remains a separate cleanup task."
+    "summary": "Plan 0093 implements the requested hybrid attack offline: the selected 1.75x modal force plus low-level direct texture at compensated higher event density. A five-track A/B separates mix amount, density, and the isolated added contribution. A damped-guitar DI capture protocol is ready for measurement-based resynthesis. Absolute-frequency register/formant anchoring remains the next separate experiment after the hybrid verdict. The old clean checkout at C:\\code\\guitar-ag remains a separate cleanup task."
   }
 }

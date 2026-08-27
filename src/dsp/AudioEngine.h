@@ -111,6 +111,8 @@ public:
                                      bool contactLayerEnabled) noexcept;
     void setLegacyOfflineModalPickExcitationEnabled (bool shouldUseModalPickExcitation) noexcept;
     void setLegacyOfflineModalPickForceScale (float forceScale) noexcept;
+    void setLegacyOfflineModalPickDirectMix (float directMix) noexcept;
+    void setLegacyOfflinePickTextureDensity (float textureDensity) noexcept;
 #endif
     void setTailSustain (float newTailSustain) noexcept;
     void setInputTransposeSemitones (int newInputTransposeSemitones) noexcept;

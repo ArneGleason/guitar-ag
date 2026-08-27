@@ -761,3 +761,9 @@ partials must move with pitch, but pickup electronics, material/contact bands,
 and much of the perceived body envelope should remain fixed or move much less.
 An absolute-frequency spectral-envelope experiment is a better next test than
 simply darkening high notes.
+
+When raising stochastic event density, scale individual impulses down by the
+square root of the density ratio before judging timbre. Otherwise "denser" also
+means trivially louder and the comparison cannot identify whether continuity or
+level helped. Keep a same-mix sparse control because the shared nonlinear output
+stage can still alter apparent level after this first-order compensation.

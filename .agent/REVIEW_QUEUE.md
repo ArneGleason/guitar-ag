@@ -6,6 +6,7 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
+- Plan 0093 is awaiting listening. Compare 12% versus 22% dense texture, then compare 22% dense versus 22% sparse; use the isolated added contribution to reject any remaining digital/woody event character.
 - Plan 0092 listening selected the 1.75x modal-force direction as a useful foundation. Review the next hybrid for whether low-level denser direct texture adds material detail without restoring the sparse woody digital rattle.
 - Keep register/formant correction separate: inspect which harmonic-index envelopes should instead use absolute modal frequency so high notes retain instrument scale without becoming merely darker.
 - Review the Plan 0092 quadrature update as an offline hypothesis test only: current modal amplitudes already combine string excitation and pickup observation, so promotion would require a clearer state/output separation if listening is positive.

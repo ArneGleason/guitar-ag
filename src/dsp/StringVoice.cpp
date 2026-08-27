@@ -843,10 +843,20 @@ void StringVoice::start (int midiNoteNumber,
             offlineModalPickTexture = textureAmount;
             offlineModalPickReplacesDirectLayers = true;
 
-            // The modal experiment replaces picked direct-output layers. Later
-            // slide/fret contact remains available through renderContactLayer().
-            pickContactSamplesRemaining = 0;
-            pickHeavyChoke = 0.0f;
+            // The modal force carries the attack. An optional offline mix keeps
+            // only a subordinate amount of the old picked texture; later slide
+            // and fret contact are independent and remain at their normal level.
+            const auto directMix = juce::jlimit (0.0f, 1.0f, offlineModalPickDirectMix);
+            pickTransient *= directMix;
+            pickContact *= directMix;
+            pickContactRing *= directMix;
+            pickGrindAmount *= directMix;
+            pickCoinAmount *= directMix;
+            pickHeavyAmount *= directMix;
+            pickHeavyChoke *= directMix;
+
+            if (directMix <= 0.000001f)
+                pickContactSamplesRemaining = 0;
         }
     }
 #endif
@@ -914,6 +924,16 @@ void StringVoice::setOfflineModalPickExcitationEnabled (bool shouldUseModalPickE
 void StringVoice::setOfflineModalPickForceScale (float forceScale) noexcept
 {
     offlineModalPickForceScale = juce::jlimit (0.0f, 3.0f, forceScale);
+}
+
+void StringVoice::setOfflineModalPickDirectMix (float directMix) noexcept
+{
+    offlineModalPickDirectMix = juce::jlimit (0.0f, 1.0f, directMix);
+}
+
+void StringVoice::setOfflinePickTextureDensity (float textureDensity) noexcept
+{
+    offlinePickTextureDensity = juce::jlimit (1.0f, 6.0f, textureDensity);
 }
 #endif
 
@@ -1070,7 +1090,7 @@ float StringVoice::renderSample (float tailSustain,
 #endif
     auto modalOutput = renderModalBank (tailBlend, palmDecay, expressionPressure, expressionTimbre, effectiveSlideLift, feedback);
 #if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
-    if (offlinePickTransientEnabled && ! offlineModalPickReplacesDirectLayers)
+    if (offlinePickTransientEnabled)
 #endif
         modalOutput += renderPickTransient();
 
@@ -1276,6 +1296,14 @@ float StringVoice::renderContactLayer (float slideSqueakUp, float slideSqueakDow
 
     if (pickContactSamplesRemaining > 0)
     {
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+        const auto textureDensity = offlineModalPickReplacesDirectLayers
+                                  ? juce::jlimit (1.0f, 6.0f, offlinePickTextureDensity)
+                                  : 1.0f;
+#else
+        constexpr auto textureDensity = 1.0f;
+#endif
+        const auto textureImpulseScale = 1.0f / std::sqrt (textureDensity);
         const auto rawContact = nextNoiseSample();
         const auto contactScratch = rawContact - previousContactNoise * pickContactScratchHighpass;
         previousContactNoise = rawContact;
@@ -1303,9 +1331,11 @@ float StringVoice::renderContactLayer (float slideSqueakUp, float slideSqueakDow
         {
             if (pickSlipCountdown <= 0)
             {
-                const auto intervalSeconds = 0.00028f + 0.00085f * (0.5f + 0.5f * nextNoiseSample());
+                const auto intervalSeconds = (0.00028f + 0.00085f * (0.5f + 0.5f * nextNoiseSample()))
+                                           / textureDensity;
                 pickSlipCountdown = juce::jmax (1, static_cast<int> (sampleRate * intervalSeconds));
-                pickSlipImpulse += pickGrindAmount * (0.45f + 0.55f * nextNoiseSample());
+                pickSlipImpulse += pickGrindAmount * textureImpulseScale
+                                 * (0.45f + 0.55f * nextNoiseSample());
             }
 
             const auto grindTone = fastContactSin (pickGrindPhase)
@@ -1323,9 +1353,11 @@ float StringVoice::renderContactLayer (float slideSqueakUp, float slideSqueakDow
         {
             if (pickCoinCountdown <= 0)
             {
-                const auto intervalSeconds = 0.00011f + 0.00046f * (0.5f + 0.5f * nextNoiseSample());
+                const auto intervalSeconds = (0.00011f + 0.00046f * (0.5f + 0.5f * nextNoiseSample()))
+                                           / textureDensity;
                 pickCoinCountdown = juce::jmax (1, static_cast<int> (sampleRate * intervalSeconds));
-                pickCoinImpulse += pickCoinAmount * (0.58f + 0.42f * std::abs (fastContactSin (pickCoinPhase * 0.43f + nextNoiseSample())));
+                pickCoinImpulse += pickCoinAmount * textureImpulseScale
+                                 * (0.58f + 0.42f * std::abs (fastContactSin (pickCoinPhase * 0.43f + nextNoiseSample())));
             }
 
             const auto ridge = std::tanh (3.2f * (fastContactSin (pickCoinPhase)

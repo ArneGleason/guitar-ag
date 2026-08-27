@@ -8,6 +8,8 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0093 with offline modal/direct pick blending and texture-event density controls, plus a five-track hybrid A/B that separates mix amount from density and isolates the added direct contribution.
+- Added a clean-DI damped-guitar pick-contact capture protocol for fitting synthesized excitation statistics without sample playback.
 - Added Plan 0092 and an offline-only modal-coupled pick excitation that applies deterministic plectrum force to modal quadrature state instead of mixing the rejected picked transient/contact layers directly into output.
 - Added offline `--legacy-pick-excitation additive|modal` and `--legacy-modal-pick-force` research controls plus a reconstruction-checked deep-pick A/B set.
 - Added Plan 0091 and offline-only legacy layer switches for separately ablating short chirp modes, the pick transient, and the per-voice contact layer without changing the VST3 or default renderer output.

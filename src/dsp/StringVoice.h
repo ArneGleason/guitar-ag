@@ -66,6 +66,8 @@ public:
                                bool contactLayerEnabled) noexcept;
     void setOfflineModalPickExcitationEnabled (bool shouldUseModalPickExcitation) noexcept;
     void setOfflineModalPickForceScale (float forceScale) noexcept;
+    void setOfflineModalPickDirectMix (float directMix) noexcept;
+    void setOfflinePickTextureDensity (float textureDensity) noexcept;
 #endif
 
     float renderSample (float tailSustain,
@@ -330,6 +332,8 @@ private:
     bool offlineModalPickExcitationEnabled = false;
     bool offlineModalPickReplacesDirectLayers = false;
     float offlineModalPickForceScale = 1.0f;
+    float offlineModalPickDirectMix = 0.0f;
+    float offlinePickTextureDensity = 1.0f;
 #endif
 };
 

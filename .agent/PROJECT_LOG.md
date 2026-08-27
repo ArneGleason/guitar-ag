@@ -107,3 +107,5 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Created Plan 0092 and implemented an offline-only modal-coupled pick experiment. The direct picked extras are suppressed while a deterministic stiffness/bite/texture-shaped force updates modal quadrature state; the VST3/default render remains unchanged.
 - Built both Windows Release targets, confirmed the canonical default hash and repeated modal determinism, and prepared a five-track deep-pick A/B with an exactly reconstructing isolated modal contribution.
 - Human selected the 1.75x modal-force direction as the next attack foundation and requested a subordinate, denser version of the old additive texture. The high-register failure was clarified as a formant-envelope problem rather than simple brightness.
+- Created Plan 0093, added offline direct-texture mix and compensated event-density controls, preserved the default and Plan 0092 zero-mix hashes, and prepared an exact-residual five-track hybrid A/B.
+- Added a damped-guitar clean-DI capture protocol so real pick contact can calibrate synthesized force/noise statistics without becoming a playback sample.

@@ -2190,3 +2190,30 @@ spectral envelopes therefore move upward with the fundamental. A separate
 offline experiment should keep modal pitches harmonic while anchoring more of
 the material/pickup envelope in absolute frequency; do not combine that change
 with the hybrid-pick comparison.
+
+## 2026-08-27 — Plan 0093 Hybrid Pick Texture
+
+The offline renderer now accepts:
+
+- `--legacy-additive-pick-mix 0.0..1.0`
+- `--legacy-pick-texture-density 1.0..6.0`
+
+These controls act only when modal pick excitation is selected. The direct mix
+scales the old picked transient, contact scratch/ring, grind, coin, heavy-contact
+state, and heavy choke together. It does not scale subsequent slide/fret contact.
+At zero mix, the Plan 0092 modal-only output is exactly preserved.
+
+Density shortens grind/coin slip intervals while scaling each new impulse by
+`1 / sqrt(density)`. This makes events overlap more often without intentionally
+turning density into an equivalent loudness control. The shared nonlinear tone
+path still makes exact perceptual level preservation impossible, so the A/B
+holds mix constant when comparing sparse and dense candidates.
+
+Both Windows Release targets build, and the default calibration remains byte-
+identical at SHA-256
+`C67DCE0C59AA6D0A903BA887E2C55953B5842CAF1CA3160C035D0704BF0BD48B`.
+Zero direct mix reproduces the Plan 0092 1.75x render at SHA-256
+`9FC966858E60532AF269F331DE486D4F75707D24B5A7419E669C59C69D702094`.
+Repeated 22% / 2.5x-density hybrid renders are byte-identical. The isolated
+dense contribution reconstructs the full hybrid from the modal foundation with
+infinite measured audio PSNR and measures -56.8 dB mean / -31.4 dB peak.
