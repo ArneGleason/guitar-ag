@@ -236,6 +236,18 @@ void AudioEngine::setLegacyOfflineLayerState (bool attackModesEnabled,
     for (auto& voice : voices)
         voice.setOfflineLayerState (attackModesEnabled, pickTransientEnabled, contactLayerEnabled);
 }
+
+void AudioEngine::setLegacyOfflineModalPickExcitationEnabled (bool shouldUseModalPickExcitation) noexcept
+{
+    for (auto& voice : voices)
+        voice.setOfflineModalPickExcitationEnabled (shouldUseModalPickExcitation);
+}
+
+void AudioEngine::setLegacyOfflineModalPickForceScale (float forceScale) noexcept
+{
+    for (auto& voice : voices)
+        voice.setOfflineModalPickForceScale (forceScale);
+}
 #endif
 
 void AudioEngine::setTailSustain (float newTailSustain) noexcept

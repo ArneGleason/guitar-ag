@@ -740,3 +740,11 @@ Removing the short chirp modes still made little difference. Do not spend the
 next pass retuning that mode bank or low-passing the residual; replace the
 additive pick/contact path with excitation that enters and decays through the
 modal string itself.
+
+A state-coupled experiment still needs an audible-difference check before human
+review. The first normalized modal impulse was deterministic and structurally
+correct but its isolated contribution measured about -76 dB mean, roughly 29 dB
+below a useful comparison. Scaling the integrated impulse into the modal body's
+amplitude range produced -50 dB at 1.00x and -45 dB at 1.75x without changing
+the default output. A physically motivated topology can still be an invalid A/B
+if its effect is effectively inaudible.

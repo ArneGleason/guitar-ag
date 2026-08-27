@@ -64,6 +64,8 @@ public:
     void setOfflineLayerState (bool attackModesEnabled,
                                bool pickTransientEnabled,
                                bool contactLayerEnabled) noexcept;
+    void setOfflineModalPickExcitationEnabled (bool shouldUseModalPickExcitation) noexcept;
+    void setOfflineModalPickForceScale (float forceScale) noexcept;
 #endif
 
     float renderSample (float tailSustain,
@@ -154,6 +156,9 @@ private:
                            const FeedbackRenderContext& feedback) noexcept;
     float renderPickTransient() noexcept;
     float renderContactLayer (float slideSqueakUp, float slideSqueakDown) noexcept;
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    void applyOfflineModalPickExcitation() noexcept;
+#endif
     [[nodiscard]] static float getEffectiveSlideFretSteps (float slideFretSteps) noexcept;
     [[nodiscard]] static float getFretSteppedSlideSemitones (float neckSlideSemitones,
                                                              float slideFretSteps,
@@ -312,9 +317,19 @@ private:
     bool slideFretStateInitialized = false;
 
 #if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    std::array<float, modalCount> offlineModalPickCoupling {};
+    int offlineModalPickSamplesRemaining = 0;
+    int offlineModalPickTotalSamples = 0;
+    float offlineModalPickImpulse = 0.0f;
+    float offlineModalPickTexture = 0.0f;
+    float offlineModalPickNoiseState = 0.0f;
+    uint32_t offlineModalPickRandomState = 0x9e3779b9u;
     bool offlineAttackModesEnabled = true;
     bool offlinePickTransientEnabled = true;
     bool offlineContactLayerEnabled = true;
+    bool offlineModalPickExcitationEnabled = false;
+    bool offlineModalPickReplacesDirectLayers = false;
+    float offlineModalPickForceScale = 1.0f;
 #endif
 };
 

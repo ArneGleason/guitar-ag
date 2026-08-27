@@ -147,6 +147,16 @@ void StringVoice::reset()
     pitchControlSamplesUntilUpdate = 0;
     feedbackControlSamplesUntilUpdate = 0;
     previousSlideFret = 0;
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    offlineModalPickCoupling.fill (0.0f);
+    offlineModalPickSamplesRemaining = 0;
+    offlineModalPickTotalSamples = 0;
+    offlineModalPickImpulse = 0.0f;
+    offlineModalPickTexture = 0.0f;
+    offlineModalPickNoiseState = 0.0f;
+    offlineModalPickRandomState = 0x9e3779b9u;
+    offlineModalPickReplacesDirectLayers = false;
+#endif
     active = false;
     releasing = false;
     woundString = false;
@@ -344,6 +354,19 @@ void StringVoice::start (int midiNoteNumber,
     pickHeavyBodyState = 0.0f;
     pickHeavyChoke = 0.0f;
     pickContactSamplesRemaining = 0;
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    offlineModalPickCoupling.fill (0.0f);
+    offlineModalPickSamplesRemaining = 0;
+    offlineModalPickTotalSamples = 0;
+    offlineModalPickImpulse = 0.0f;
+    offlineModalPickTexture = 0.0f;
+    offlineModalPickNoiseState = 0.0f;
+    offlineModalPickRandomState = randomState ^ 0x9e3779b9u;
+    offlineModalPickReplacesDirectLayers = false;
+
+    if (offlineModalPickRandomState == 0u)
+        offlineModalPickRandomState = 0x9e3779b9u;
+#endif
     fingerImpact = 0.0f;
     fingerImpactDecay = 0.0f;
     fingerImpactPhase = 0.0f;
@@ -782,6 +805,52 @@ void StringVoice::start (int midiNoteNumber,
         }
     }
 
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    if (offlineModalPickExcitationEnabled && isPickedGesture && ! harmonicActive)
+    {
+        auto maximumModeAmplitude = 0.0f;
+
+        for (auto mode = 0; mode < activeModalCount; ++mode)
+            maximumModeAmplitude = juce::jmax (maximumModeAmplitude,
+                                               std::abs (modalAmplitude[static_cast<size_t> (mode)]));
+
+        if (maximumModeAmplitude > 0.000001f)
+        {
+            for (auto mode = 0; mode < activeModalCount; ++mode)
+            {
+                const auto modeIndexValue = static_cast<size_t> (mode);
+                const auto signedAmplitude = modalAmplitude[modeIndexValue];
+                const auto relativeAmplitude = std::abs (signedAmplitude) / maximumModeAmplitude;
+                const auto frequencyRatio = modalFrequency[modeIndexValue] / static_cast<float> (frequency);
+                const auto upperModeWeight = juce::jlimit (0.0f, 1.0f, (frequencyRatio - 1.0f) / 20.0f);
+                const auto materialTilt = 0.68f + upperModeWeight * (0.34f + 0.42f * textureAmount);
+                offlineModalPickCoupling[modeIndexValue] = (signedAmplitude < 0.0f ? -1.0f : 1.0f)
+                                                        * std::pow (relativeAmplitude, 0.72f)
+                                                        * materialTilt;
+            }
+
+            const auto contactSeconds = juce::jmap (stiffnessAmount, 0.0060f, 0.0010f)
+                                      * (0.85f + 0.35f * pickBiteAmount);
+            offlineModalPickTotalSamples = juce::jmax (2, static_cast<int> (sampleRate * contactSeconds));
+            offlineModalPickSamplesRemaining = offlineModalPickTotalSamples;
+            offlineModalPickImpulse = strokeSign
+                                    * velocityGain
+                                    * attackVariationContact
+                                    * strokeContactScale
+                                    * (0.120f + 0.400f * pickBiteAmount)
+                                    * (0.72f + 0.48f * textureAmount)
+                                    * offlineModalPickForceScale;
+            offlineModalPickTexture = textureAmount;
+            offlineModalPickReplacesDirectLayers = true;
+
+            // The modal experiment replaces picked direct-output layers. Later
+            // slide/fret contact remains available through renderContactLayer().
+            pickContactSamplesRemaining = 0;
+            pickHeavyChoke = 0.0f;
+        }
+    }
+#endif
+
     updateDamping();
 }
 
@@ -835,6 +904,16 @@ void StringVoice::setOfflineLayerState (bool attackModesEnabled,
     offlineAttackModesEnabled = attackModesEnabled;
     offlinePickTransientEnabled = pickTransientEnabled;
     offlineContactLayerEnabled = contactLayerEnabled;
+}
+
+void StringVoice::setOfflineModalPickExcitationEnabled (bool shouldUseModalPickExcitation) noexcept
+{
+    offlineModalPickExcitationEnabled = shouldUseModalPickExcitation;
+}
+
+void StringVoice::setOfflineModalPickForceScale (float forceScale) noexcept
+{
+    offlineModalPickForceScale = juce::jlimit (0.0f, 3.0f, forceScale);
 }
 #endif
 
@@ -986,9 +1065,12 @@ float StringVoice::renderSample (float tailSustain,
     };
 
     const auto effectiveSlideLift = juce::jlimit (0.0f, 1.0f, slideLiftEnvelope);
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    applyOfflineModalPickExcitation();
+#endif
     auto modalOutput = renderModalBank (tailBlend, palmDecay, expressionPressure, expressionTimbre, effectiveSlideLift, feedback);
 #if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
-    if (offlinePickTransientEnabled)
+    if (offlinePickTransientEnabled && ! offlineModalPickReplacesDirectLayers)
 #endif
         modalOutput += renderPickTransient();
 
@@ -1118,6 +1200,60 @@ float StringVoice::renderModalBank (float tailBlend,
 
     return modalOutput;
 }
+
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+void StringVoice::applyOfflineModalPickExcitation() noexcept
+{
+    if (! offlineModalPickReplacesDirectLayers
+        || offlineModalPickSamplesRemaining <= 0
+        || offlineModalPickTotalSamples <= 1)
+        return;
+
+    constexpr auto pi = 3.14159265358979323846f;
+    const auto elapsedSamples = offlineModalPickTotalSamples - offlineModalPickSamplesRemaining;
+    const auto progress = static_cast<float> (elapsedSamples)
+                        / static_cast<float> (offlineModalPickTotalSamples - 1);
+    const auto smoothContactForce = std::sin (pi * juce::jlimit (0.0f, 1.0f, progress));
+
+    offlineModalPickRandomState = offlineModalPickRandomState * 1664525u + 1013904223u;
+    const auto rawNoise = static_cast<float> ((offlineModalPickRandomState >> 8) & 0x00ffffffu)
+                        * (2.0f / 16777215.0f) - 1.0f;
+    const auto previousNoiseState = offlineModalPickNoiseState;
+    offlineModalPickNoiseState += 0.14f * (rawNoise - offlineModalPickNoiseState);
+    const auto forceRoughness = offlineModalPickNoiseState
+                              + 0.42f * (rawNoise - previousNoiseState);
+    const auto textureModulation = juce::jlimit (0.45f,
+                                                 1.55f,
+                                                 1.0f + 0.24f * offlineModalPickTexture * forceRoughness);
+    const auto normalizedImpulse = offlineModalPickImpulse
+                                 * (0.5f * pi / static_cast<float> (offlineModalPickTotalSamples));
+    const auto force = normalizedImpulse * smoothContactForce * textureModulation;
+
+    for (auto mode = 0; mode < activeModalCount; ++mode)
+    {
+        const auto modeIndex = static_cast<size_t> (mode);
+        const auto coupling = offlineModalPickCoupling[modeIndex];
+
+        if (std::abs (coupling) <= 0.000001f)
+            continue;
+
+        const auto positionState = modalAmplitude[modeIndex] * modalCosine[modeIndex];
+        const auto velocityState = modalAmplitude[modeIndex] * modalSine[modeIndex] + force * coupling;
+        const auto magnitude = juce::jmin (1.6f,
+                                          std::sqrt (positionState * positionState
+                                                   + velocityState * velocityState));
+
+        if (magnitude > 0.0000001f)
+        {
+            modalAmplitude[modeIndex] = magnitude;
+            modalCosine[modeIndex] = positionState / magnitude;
+            modalSine[modeIndex] = velocityState / magnitude;
+        }
+    }
+
+    --offlineModalPickSamplesRemaining;
+}
+#endif
 
 float StringVoice::renderPickTransient() noexcept
 {

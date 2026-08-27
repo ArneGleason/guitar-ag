@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0091 legacy attack and finger-layer ablation",
-  "status": "Plan 0091 is complete. Deep/flexible/textured listening attributed the woody digital rattle to the explicit pick/contact extras, not the short chirp-mode bank. Next replace additive attack output with modal-coupled excitation, then redesign motion-driven finger noise and register voicing before modal persistence.",
-  "updatedAt": "2026-08-27T16:35:28-04:00",
-  "lastHandoff": ".agent/handoffs/20260827-codex-plan0091-listening-verdict.md",
-  "branch": "codex/0091-legacy-layer-ablation",
-  "commit": "a0c09ea plus listening-result documentation; see branch HEAD",
+  "lastTask": "Plan 0092 offline modal-coupled pick excitation",
+  "status": "Plan 0092 is implemented and awaiting human A/B. It replaces direct picked extras with a finite deterministic force applied to modal quadrature state at two reviewable strengths while leaving the VST3/default render byte-identical.",
+  "updatedAt": "2026-08-27T17:05:00-04:00",
+  "lastHandoff": ".agent/handoffs/20260827-codex-plan0092-modal-pick-listening.md",
+  "branch": "codex/0092-modal-coupled-pick",
+  "commit": "Plan 0092 implementation based on 0ea1c1a; see branch HEAD",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0091 kept the VST3/default render unchanged and exposed offline legacy layers for A/B. Human listening found short chirp modes negligible even at deep/flexible/textured settings, attributed the woody digital rattle to explicit pick/contact output, flagged high E as a pitch-shifted low-register modal recipe, and rejected isolated finger noise as plastic-comb-like. Next inject pick energy into modal state, then rebuild finger noise from inferred motion speed, transverse friction, and restrained depth/position-coupled squeak. The old clean checkout at C:\\code\\guitar-ag remains a separate cleanup task."
+    "summary": "Plan 0092 keeps the accepted modal body but routes a finite plectrum force into oscillator quadrature state instead of direct picked audio. The five-track deep-pick A/B compares current additive, body-only, 1.00x and 1.75x modal force, and the isolated 1.75x contribution. Human listening decides whether the topology improves material/string identity. High-register voicing and motion-driven finger noise remain subsequent separate milestones. The old clean checkout at C:\\code\\guitar-ag remains a separate cleanup task."
   }
 }

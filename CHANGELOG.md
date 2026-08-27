@@ -8,6 +8,8 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0092 and an offline-only modal-coupled pick excitation that applies deterministic plectrum force to modal quadrature state instead of mixing the rejected picked transient/contact layers directly into output.
+- Added offline `--legacy-pick-excitation additive|modal` and `--legacy-modal-pick-force` research controls plus a reconstruction-checked deep-pick A/B set.
 - Added Plan 0091 and offline-only legacy layer switches for separately ablating short chirp modes, the pick transient, and the per-voice contact layer without changing the VST3 or default renderer output.
 - Added aligned attack/finger-noise diagnostic renders and subtraction residuals for human A/B attribution of the legacy spectral-chirp, glassiness, and overlay-like contact noises.
 - Added Plan 0089, a research-backed staged path from the current reset-on-note modal/contact engine to a stateful two-polarization string with compliant pick contact, persistent left-hand state, and measured-inspired electric-instrument response.

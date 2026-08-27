@@ -2140,4 +2140,37 @@ weight as a magnitude and summed the two inputs, producing a residual exactly
 6 dB louder and perceptually similar to the sources. Correct residuals use
 `amerge` plus explicit `pan` channel subtraction. Adding each corrected residual
 back to its ablated source reconstructs the original with infinite measured
- audio PSNR.
+audio PSNR.
+
+## 2026-08-27 — Plan 0092 Modal-Coupled Pick Excitation
+
+Plan 0092 adds an offline-only alternative to the direct picked transient and
+contact output:
+
+- `--legacy-pick-excitation additive|modal`
+- `--legacy-modal-pick-force 0.0..3.0`
+
+In `modal` mode, a picked note receives a deterministic half-sine plectrum-force
+envelope lasting roughly 1–7 ms. Pick stiffness shortens the contact, bite sets
+the impulse, and texture adds bounded non-periodic roughness to the force. The
+force updates each configured oscillator's position/velocity quadrature; it is
+not mixed into audio directly. Coupling follows the existing configured modal
+amplitudes, so the experiment inherits the current pluck position, pickup
+response, aperture, string/side-mode recipe, and modal decay. The existing
+modal representation already bakes pickup response into amplitude, so this is a
+controlled listening test of state-coupled excitation, not yet a complete
+separation of physical string state from pickup observation.
+
+For picked notes in this mode, `renderPickTransient()` is skipped and the picked
+section of `renderContactLayer()` is disabled. Later slide/fret contact remains
+available. Non-picked gestures retain their existing behavior. The selector,
+force scale, extra state, and per-sample injection are compiled only into
+`GuitarAGOfflineRender`; the VST3 neither stores nor executes them.
+
+Both Windows Release targets build. The normal calibration render remains byte-
+identical at SHA-256
+`C67DCE0C59AA6D0A903BA887E2C55953B5842CAF1CA3160C035D0704BF0BD48B`,
+and repeated 1.75x modal renders are byte-identical. The prepared deep-pick set
+is stereo 48 kHz and exactly 486,000 samples per file. Its isolated 1.75x modal
+contribution reconstructs the coupled source from the body-only track with
+infinite measured audio PSNR.

@@ -109,6 +109,8 @@ public:
     void setLegacyOfflineLayerState (bool attackModesEnabled,
                                      bool pickTransientEnabled,
                                      bool contactLayerEnabled) noexcept;
+    void setLegacyOfflineModalPickExcitationEnabled (bool shouldUseModalPickExcitation) noexcept;
+    void setLegacyOfflineModalPickForceScale (float forceScale) noexcept;
 #endif
     void setTailSustain (float newTailSustain) noexcept;
     void setInputTransposeSemitones (int newInputTransposeSemitones) noexcept;

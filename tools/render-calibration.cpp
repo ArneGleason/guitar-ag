@@ -25,6 +25,7 @@ void printUsage()
                  "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
                  "[--string-engine legacy|stateful] [--stateful-repick 0|1] "
                  "[--legacy-attack-modes 0|1] [--legacy-pick-transient 0|1] [--legacy-contact-layer 0|1] "
+                 "[--legacy-pick-excitation additive|modal] [--legacy-modal-pick-force 1.0] "
                  "[--input-octave midi|daw] [--input-transpose 0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.25] [--pick-bite 0.5] "
                  "[--pick-stroke alternate] [--strum-speed 0.10] [--strum-balance -0.13] "
@@ -141,6 +142,8 @@ int main (int argc, char* argv[])
     auto legacyAttackModes = true;
     auto legacyPickTransient = true;
     auto legacyContactLayer = true;
+    auto legacyModalPickExcitation = false;
+    auto legacyModalPickForce = 1.0f;
     auto inputTransposeSemitones = 0;
     auto sustain = 1.0f;
     auto pickStiffness = 0.5f;
@@ -245,6 +248,24 @@ int main (int argc, char* argv[])
         else if (argument == "--legacy-contact-layer" && hasValue)
         {
             legacyContactLayer = juce::String (argv[++i]).getIntValue() != 0;
+        }
+        else if (argument == "--legacy-pick-excitation" && hasValue)
+        {
+            const auto value = juce::String (argv[++i]).toLowerCase();
+
+            if (value == "additive" || value == "legacy")
+                legacyModalPickExcitation = false;
+            else if (value == "modal" || value == "coupled")
+                legacyModalPickExcitation = true;
+            else
+            {
+                std::cerr << "Unknown legacy pick excitation: " << value << "\n";
+                return 2;
+            }
+        }
+        else if (argument == "--legacy-modal-pick-force" && hasValue)
+        {
+            legacyModalPickForce = juce::jlimit (0.0f, 3.0f, juce::String (argv[++i]).getFloatValue());
         }
         else if (argument == "--input-octave" && hasValue)
         {
@@ -542,6 +563,8 @@ int main (int argc, char* argv[])
     engine.setStatefulRepickEnabled (statefulRepick);
 #if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
     engine.setLegacyOfflineLayerState (legacyAttackModes, legacyPickTransient, legacyContactLayer);
+    engine.setLegacyOfflineModalPickExcitationEnabled (legacyModalPickExcitation);
+    engine.setLegacyOfflineModalPickForceScale (legacyModalPickForce);
 #endif
     engine.setInputTransposeSemitones (inputTransposeSemitones);
     engine.setTailSustain (sustain);
