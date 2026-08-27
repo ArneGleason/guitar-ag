@@ -29,13 +29,13 @@
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
   "lastTask": "Plan 0093 hybrid modal pick texture",
-  "status": "Plan 0093 is implemented and awaiting human A/B: the 1.75x modal-force foundation is blended with 12% or 22% direct texture, with a same-mix sparse/dense control and isolated dense contribution.",
-  "updatedAt": "2026-08-27T17:45:00-04:00",
+  "status": "Plan 0093 listening calibrated the dense hybrid: 12% direct texture is medium and 22% is maximum over the 1.75x modal-force foundation. Use the 12% baseline for the next separate absolute-frequency register/formant experiment.",
+  "updatedAt": "2026-08-27T19:16:43-04:00",
   "lastHandoff": ".agent/handoffs/20260827-codex-plan0093-hybrid-pick-listening.md",
   "branch": "codex/0093-hybrid-pick-texture",
   "commit": "Plan 0093 implementation based on 1e6c540; see branch HEAD",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0093 implements the requested hybrid attack offline: the selected 1.75x modal force plus low-level direct texture at compensated higher event density. A five-track A/B separates mix amount, density, and the isolated added contribution. A damped-guitar DI capture protocol is ready for measurement-based resynthesis. Absolute-frequency register/formant anchoring remains the next separate experiment after the hybrid verdict. The old clean checkout at C:\\code\\guitar-ag remains a separate cleanup task."
+    "summary": "Plan 0093 listening accepted a bounded hybrid texture range over the 1.75x modal force: 12% at 2.5x density is medium and 22% is maximum. Use 12% as the fixed neutral attack for a separate absolute-frequency register/formant experiment. A damped-guitar DI capture protocol is ready for measurement-based resynthesis; motion-driven finger noise remains later. The old clean checkout at C:\\code\\guitar-ag remains a separate cleanup task."
   }
 }

@@ -109,3 +109,4 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Human selected the 1.75x modal-force direction as the next attack foundation and requested a subordinate, denser version of the old additive texture. The high-register failure was clarified as a formant-envelope problem rather than simple brightness.
 - Created Plan 0093, added offline direct-texture mix and compensated event-density controls, preserved the default and Plan 0092 zero-mix hashes, and prepared an exact-residual five-track hybrid A/B.
 - Added a damped-guitar clean-DI capture protocol so real pick contact can calibrate synthesized force/noise statistics without becoming a playback sample.
+- Human loudness-matched A/B accepted the 2.5x-density hybrid range: 12% direct texture is a good medium setting and 22% is a good maximum. Route register/formant work through the 12% baseline.

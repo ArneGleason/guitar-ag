@@ -22,6 +22,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Changed
 
+- Recorded the Plan 0093 listening calibration: 12% dense direct texture is a good medium setting and 22% is a good maximum over the 1.75x modal-force foundation.
 - Recorded the Plan 0092 listening direction: retain the 1.75x modal-force attack as the foundation, then test a quieter and denser form of the current additive texture in a separate hybrid A/B.
 - Recorded Plan 0091 human A/B findings: short chirp modes are negligible even in the deep/flexible/textured failure regime, the explicit attack extras become a woody digital rattle, high E sounds like a pitch-shifted low-register model, and the current comb-like finger-noise generator is rejected.
 - Updated the realism vision and project learnings with the 2026-08-27 architecture diagnosis, local DI-reference measurements, recent real-time nonlinear-string/pick/pickup research, and an explicit A/B-first implementation boundary.

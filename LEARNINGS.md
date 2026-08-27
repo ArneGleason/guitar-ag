@@ -767,3 +767,8 @@ square root of the density ratio before judging timbre. Otherwise "denser" also
 means trivially louder and the comparison cannot identify whether continuity or
 level helped. Keep a same-mix sparse control because the shared nonlinear output
 stage can still alter apparent level after this first-order compensation.
+
+The hybrid listening pass turned an open-ended blend into useful control bounds:
+12% dense direct texture reads as medium and 22% as maximum over the 1.75x modal
+force. Preserve both endpoints. A single chosen blend would throw away the
+human's more valuable calibration of the musical range.

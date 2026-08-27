@@ -34,7 +34,7 @@ sparse woody rattle.
 - [x] Zero direct mix reproduces the Plan 0092 1.75x modal render.
 - [x] Hybrid renders repeat byte-identically.
 - [x] Dense contribution reconstruction is exact.
-- [ ] Human decides mix amount and whether increased density improves texture.
+- [x] Human decides mix amount and whether increased density improves texture.
 
 ## Prepared Listening Set — 2026-08-27
 
@@ -50,6 +50,15 @@ Track 1 remains byte-identical to the Plan 0092 1.75x render. The hybrid repeats
 byte-identically. Track 1 plus track 5 reconstructs track 3 with infinite
 measured audio PSNR. Track 5 measures -56.8 dB mean / -31.4 dB peak before the
 A/B tool's loudness matching.
+
+## Listening Verdict — 2026-08-27
+
+- 12% direct texture at 2.5x event density is a good medium setting.
+- 22% direct texture at 2.5x event density is a good maximum setting.
+
+This establishes a bounded useful range for the hybrid rather than selecting one
+fixed mix. Use the 12% medium setting as the neutral baseline for subsequent body
+and register experiments, with 22% retained as the upper attack-texture extent.
 
 ## Decision Gate
 

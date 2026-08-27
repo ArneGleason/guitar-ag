@@ -869,3 +869,7 @@ Consequences:
 The next comparison must include the isolated hybrid texture contribution. It
 remains offline-only. Register/formant correction is a separate experiment so
 the attack verdict is not confounded by a simultaneous body revoice.
+
+Human listening subsequently calibrated 12% direct mix at 2.5x event density as
+a good medium setting and 22% as a good maximum. Use 12% as the fixed attack
+baseline for the register/formant experiment.

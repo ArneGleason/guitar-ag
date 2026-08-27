@@ -2217,3 +2217,10 @@ Zero direct mix reproduces the Plan 0092 1.75x render at SHA-256
 Repeated 22% / 2.5x-density hybrid renders are byte-identical. The isolated
 dense contribution reconstructs the full hybrid from the modal foundation with
 infinite measured audio PSNR and measures -56.8 dB mean / -31.4 dB peak.
+
+Human loudness-matched listening accepted 12% direct texture at 2.5x density as
+a good medium setting and 22% at the same density as a good maximum. The useful
+hybrid therefore has a calibrated range: modal force remains the foundation,
+while the denser legacy layer contributes 12–22% surface detail. Use 12% as the
+neutral baseline when testing register/body changes so maximum pick texture does
+not mask their effect.

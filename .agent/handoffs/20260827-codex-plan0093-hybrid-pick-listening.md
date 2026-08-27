@@ -40,3 +40,11 @@ reconstructs track 3 with infinite measured audio PSNR.
 for measuring real contact envelopes, fixed-Hz band decay, event density, and
 variation without shipping or replaying samples.
 
+## Human Verdict
+
+- `2_hybrid-12pct-dense.wav` is a good medium setting.
+- `3_hybrid-22pct-dense.wav` is a good maximum setting.
+
+Use the 12% / 2.5x-density hybrid as the fixed baseline for the separate
+register/formant experiment. No notes JSON was saved; the exported listening
+notes were supplied directly in the task conversation.
