@@ -287,6 +287,28 @@ $common = @('--midi', 'tests\midi\guitar-ag-stateful-waveguide-audition.mid', '-
 
 The three sections that gate this slice are isolated low E2, isolated high E4, and eight repeated F2 attacks on the low-E string. The final E2-to-G2 section previews the still-missing physical left-hand transition.
 
+## Plan 0094 Register/Formant Open Strings
+
+Generate the focused fixture with:
+
+```powershell
+python scripts\create-register-formant-audition-midi.py
+```
+
+`tests/midi/register-formant-open-strings.mid` plays six 0.85-second notes with
+0.35-second gaps:
+
+- `0.0 s` — E2
+- `1.2 s` — A2
+- `2.4 s` — D3
+- `3.6 s` — G3
+- `4.8 s` — B3
+- `6.0 s` — E4
+
+The compact open-string sequence makes perceived instrument scale easy to track
+across the register while holding velocity and the accepted medium hybrid attack
+constant.
+
 The legacy and stateful renders are peak matched closely enough to compare attack character directly. The stateful body is currently less dense, so do not loudness-normalize away that difference before deciding whether it is a strength or a weakness. Compare clean DI first, then the normal amp-sim chain.
 
 `--stateful-repick 0` clears the delay state at every note start. It exists only to isolate residual-state continuity in offline research and is not a proposed user control.

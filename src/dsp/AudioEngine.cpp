@@ -260,6 +260,12 @@ void AudioEngine::setLegacyOfflinePickTextureDensity (float textureDensity) noex
     for (auto& voice : voices)
         voice.setOfflinePickTextureDensity (textureDensity);
 }
+
+void AudioEngine::setLegacyOfflineRegisterEnvelopeAnchor (float anchorAmount) noexcept
+{
+    for (auto& voice : voices)
+        voice.setOfflineRegisterEnvelopeAnchor (anchorAmount);
+}
 #endif
 
 void AudioEngine::setTailSustain (float newTailSustain) noexcept

@@ -27,6 +27,7 @@ void printUsage()
                  "[--legacy-attack-modes 0|1] [--legacy-pick-transient 0|1] [--legacy-contact-layer 0|1] "
                  "[--legacy-pick-excitation additive|modal] [--legacy-modal-pick-force 1.0] "
                  "[--legacy-additive-pick-mix 0.0] [--legacy-pick-texture-density 1.0] "
+                 "[--legacy-register-anchor 0.0] "
                  "[--input-octave midi|daw] [--input-transpose 0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.25] [--pick-bite 0.5] "
                  "[--pick-stroke alternate] [--strum-speed 0.10] [--strum-balance -0.13] "
@@ -147,6 +148,7 @@ int main (int argc, char* argv[])
     auto legacyModalPickForce = 1.0f;
     auto legacyAdditivePickMix = 0.0f;
     auto legacyPickTextureDensity = 1.0f;
+    auto legacyRegisterAnchor = 0.0f;
     auto inputTransposeSemitones = 0;
     auto sustain = 1.0f;
     auto pickStiffness = 0.5f;
@@ -277,6 +279,10 @@ int main (int argc, char* argv[])
         else if (argument == "--legacy-pick-texture-density" && hasValue)
         {
             legacyPickTextureDensity = juce::jlimit (1.0f, 6.0f, juce::String (argv[++i]).getFloatValue());
+        }
+        else if (argument == "--legacy-register-anchor" && hasValue)
+        {
+            legacyRegisterAnchor = juce::jlimit (0.0f, 1.0f, juce::String (argv[++i]).getFloatValue());
         }
         else if (argument == "--input-octave" && hasValue)
         {
@@ -578,6 +584,7 @@ int main (int argc, char* argv[])
     engine.setLegacyOfflineModalPickForceScale (legacyModalPickForce);
     engine.setLegacyOfflineModalPickDirectMix (legacyAdditivePickMix);
     engine.setLegacyOfflinePickTextureDensity (legacyPickTextureDensity);
+    engine.setLegacyOfflineRegisterEnvelopeAnchor (legacyRegisterAnchor);
 #endif
     engine.setInputTransposeSemitones (inputTransposeSemitones);
     engine.setTailSustain (sustain);

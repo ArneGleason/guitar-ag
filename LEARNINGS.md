@@ -772,3 +772,10 @@ The hybrid listening pass turned an open-ended blend into useful control bounds:
 12% dense direct texture reads as medium and 22% as maximum over the 1.75x modal
 force. Preserve both endpoints. A single chosen blend would throw away the
 human's more valuable calibration of the musical range.
+
+A fixed-Hz spectral-envelope experiment must be level-controlled per register.
+The first literal Plan 0094 anchor reduced E4 by roughly 4–14 dB across the three
+anchor strengths, even though it preserved low E2. Global A/B loudness matching
+cannot correct each note independently and would make the unchanged low note
+louder. A smooth audition-only register compensation brought per-note levels to
+within about 1 dB, making "less Munchkin-like" separable from "much quieter."

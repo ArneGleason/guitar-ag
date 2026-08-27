@@ -156,6 +156,7 @@ void StringVoice::reset()
     offlineModalPickNoiseState = 0.0f;
     offlineModalPickRandomState = 0x9e3779b9u;
     offlineModalPickReplacesDirectLayers = false;
+    offlineRegisterLevelCompensation = 1.0f;
 #endif
     active = false;
     releasing = false;
@@ -363,6 +364,7 @@ void StringVoice::start (int midiNoteNumber,
     offlineModalPickNoiseState = 0.0f;
     offlineModalPickRandomState = randomState ^ 0x9e3779b9u;
     offlineModalPickReplacesDirectLayers = false;
+    offlineRegisterLevelCompensation = 1.0f;
 
     if (offlineModalPickRandomState == 0u)
         offlineModalPickRandomState = 0x9e3779b9u;
@@ -451,6 +453,15 @@ void StringVoice::start (int midiNoteNumber,
                                          8000.0,
                                          juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber)
                                              * static_cast<double> (intonationRatio * fretPressureRatio));
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    if (offlineRegisterEnvelopeAnchor > 0.000001f)
+    {
+        constexpr auto lowEReferenceHz = 82.40689f;
+        const auto registerRatio = juce::jmax (1.0f, static_cast<float> (frequency) / lowEReferenceHz);
+        offlineRegisterLevelCompensation = std::pow (registerRatio,
+                                                     1.08f * offlineRegisterEnvelopeAnchor);
+    }
+#endif
     slideFretContactPhase = nextNoiseSample() * twoPi;
     slideFretContactPhaseStep = twoPi
                               * juce::jlimit (700.0f,
@@ -695,6 +706,31 @@ void StringVoice::start (int midiNoteNumber,
         if (stiffFrequency >= sampleRate * 0.43)
             break;
 
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+        auto envelopeIndex = harmonicFloat;
+        auto relativeEnvelopeIndex = harmonicFloat;
+
+        if (offlineRegisterEnvelopeAnchor > 0.000001f)
+        {
+            constexpr auto lowEReferenceHz = 82.40689f;
+            const auto fundamentalFrequencyIndex = juce::jmax (1.0f,
+                                                               static_cast<float> (frequency)
+                                                                   / lowEReferenceHz);
+            const auto absoluteFrequencyIndex = juce::jmax (1.0f,
+                                                            static_cast<float> (frequency) * harmonicFloat
+                                                                / lowEReferenceHz);
+            const auto anchorAmount = juce::jlimit (0.0f, 1.0f, offlineRegisterEnvelopeAnchor);
+            const auto fundamentalEnvelopeIndex = std::exp (anchorAmount * std::log (fundamentalFrequencyIndex));
+            envelopeIndex = std::exp (std::log (harmonicFloat)
+                                    + anchorAmount
+                                        * (std::log (absoluteFrequencyIndex) - std::log (harmonicFloat)));
+            relativeEnvelopeIndex = 1.0f + juce::jmax (0.0f, envelopeIndex - fundamentalEnvelopeIndex);
+        }
+#else
+        const auto envelopeIndex = harmonicFloat;
+        const auto relativeEnvelopeIndex = harmonicFloat;
+#endif
+
         const auto pluckShape = std::sin (twoPi * 0.5f * harmonicFloat * pluckPosition);
         const auto pickupShape = std::sin (twoPi * 0.5f * harmonicFloat * pickupPosition);
         const auto humbuckerCoilA = std::sin (twoPi * 0.5f * harmonicFloat
@@ -710,22 +746,23 @@ void StringVoice::start (int midiNoteNumber,
         const auto pickupModelShape = pickupModelIndex == 0 ? pickupShape
                                   : pickupModelIndex == 1 ? 0.5f * (humbuckerCoilA + humbuckerCoilB) * 2.05f
                                                           : (outOfPhaseNeckCoil - outOfPhaseBridgeCoil) * 1.35f;
-        const auto pickupElectricalTilt = pickupModelIndex == 1 ? std::exp (-0.010f * harmonicFloat)
-                                                                : 1.0f;
+        const auto pickupElectricalTilt = pickupModelIndex == 1 ? std::exp (-0.010f * envelopeIndex)
+                                                                 : 1.0f;
         const auto aperture = std::abs (harmonicFloat * pickupWidth) < 0.0001f
                             ? 1.0f
                             : std::sin (twoPi * 0.5f * harmonicFloat * pickupWidth)
                                 / (twoPi * 0.5f * harmonicFloat * pickupWidth);
         const auto decayBaseSeconds = (6.4f + (8.2f - 6.4f) * woundAmount) * (1.0f - 0.16f * stringAgeAmount);
         const auto decayCurvature = (0.0090f + (0.0065f - 0.0090f) * woundAmount) * (1.0f + 1.55f * stringAgeAmount);
-        const auto decaySeconds = decayBaseSeconds / (1.0f + decayCurvature * harmonicFloat * harmonicFloat);
+        const auto decaySeconds = decayBaseSeconds / (1.0f + decayCurvature * envelopeIndex * envelopeIndex);
         const auto decay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * decaySeconds));
         const auto tiltStart = 1.00f + (0.92f - 1.00f) * woundAmount;
         const auto tiltEnd = 0.48f + (0.34f - 0.48f) * woundAmount;
         const auto tiltExponent = juce::jmap (strikeAmount, tiltStart, tiltEnd);
-        const auto contactFilter = std::exp (-contactWidth * harmonicFloat);
-        const auto agePartialDamping = std::exp (-0.026f * stringAgeAmount * juce::jmax (0.0f, harmonicFloat - 1.0f));
-        const auto partialTilt = contactFilter * agePartialDamping / std::pow (harmonicFloat, tiltExponent);
+        const auto contactFilter = std::exp (-contactWidth * relativeEnvelopeIndex);
+        const auto agePartialDamping = std::exp (-0.026f * stringAgeAmount
+                                               * juce::jmax (0.0f, relativeEnvelopeIndex - 1.0f));
+        const auto partialTilt = contactFilter * agePartialDamping / std::pow (relativeEnvelopeIndex, tiltExponent);
         const auto velocityScale = juce::jlimit (0.12f, 4.0f, stiffFrequency / 470.0f);
         const auto attackEmphasis = 1.0f
                                   + strikeAmount * juce::jlimit (0.0f, 3.0f, (harmonicFloat - 1.0f) / 8.0f)
@@ -935,6 +972,11 @@ void StringVoice::setOfflinePickTextureDensity (float textureDensity) noexcept
 {
     offlinePickTextureDensity = juce::jlimit (1.0f, 6.0f, textureDensity);
 }
+
+void StringVoice::setOfflineRegisterEnvelopeAnchor (float anchorAmount) noexcept
+{
+    offlineRegisterEnvelopeAnchor = juce::jlimit (0.0f, 1.0f, anchorAmount);
+}
 #endif
 
 float StringVoice::getFeedbackCouplingScore (float loopFrequency) const noexcept
@@ -1109,7 +1151,12 @@ float StringVoice::renderSample (float tailSustain,
     modalOutput += contactOutput;
 
     ++samplesSinceStart;
-    energy = 0.9994f * energy + 0.0006f * std::abs (modalOutput);
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    const auto voiceOutput = modalOutput * offlineRegisterLevelCompensation;
+#else
+    const auto voiceOutput = modalOutput;
+#endif
+    energy = 0.9994f * energy + 0.0006f * std::abs (voiceOutput);
 
     const auto feedbackHold = 1.0f - 0.78f * feedbackRise * cachedFeedbackHowl - 0.58f * loopAmount;
     const auto energyCutoff = (0.00004f + (0.000008f - 0.00004f) * sustainAmount)
@@ -1121,7 +1168,7 @@ float StringVoice::renderSample (float tailSustain,
         return 0.0f;
     }
 
-    return modalOutput * outputGain;
+    return voiceOutput * outputGain;
 }
 
 float StringVoice::renderModalBank (float tailBlend,

@@ -8,6 +8,8 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0094, an offline absolute-frequency register/formant envelope anchor with audition-only level compensation and progressive 35/65/100% A/B candidates.
+- Added a compact E2-to-E4 open-string register audition MIDI generator and fixture.
 - Added Plan 0093 with offline modal/direct pick blending and texture-event density controls, plus a five-track hybrid A/B that separates mix amount from density and isolates the added direct contribution.
 - Added a clean-DI damped-guitar pick-contact capture protocol for fitting synthesized excitation statistics without sample playback.
 - Added Plan 0092 and an offline-only modal-coupled pick excitation that applies deterministic plectrum force to modal quadrature state instead of mixing the rejected picked transient/contact layers directly into output.

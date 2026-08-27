@@ -110,3 +110,6 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Created Plan 0093, added offline direct-texture mix and compensated event-density controls, preserved the default and Plan 0092 zero-mix hashes, and prepared an exact-residual five-track hybrid A/B.
 - Added a damped-guitar clean-DI capture protocol so real pick contact can calibrate synthesized force/noise statistics without becoming a playback sample.
 - Human loudness-matched A/B accepted the 2.5x-density hybrid range: 12% direct texture is a good medium setting and 22% is a good maximum. Route register/formant work through the 12% baseline.
+- Created Plan 0094 and an offline absolute-frequency modal-envelope anchor, preserving pitch-relative modes/pickup geometry while progressively fixing material/contact/decay scale to low E2.
+- Added audition-only register level compensation after the literal anchor made high E up to about 14 dB quieter; final per-note levels stay within about 1 dB, low E is effectively unchanged, and default/anchor-zero hashes remain exact.
+- Generated a compact six-open-string register fixture and a reconstruction-checked five-track 35/65/100% anchor A/B.

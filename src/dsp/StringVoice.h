@@ -68,6 +68,7 @@ public:
     void setOfflineModalPickForceScale (float forceScale) noexcept;
     void setOfflineModalPickDirectMix (float directMix) noexcept;
     void setOfflinePickTextureDensity (float textureDensity) noexcept;
+    void setOfflineRegisterEnvelopeAnchor (float anchorAmount) noexcept;
 #endif
 
     float renderSample (float tailSustain,
@@ -334,6 +335,8 @@ private:
     float offlineModalPickForceScale = 1.0f;
     float offlineModalPickDirectMix = 0.0f;
     float offlinePickTextureDensity = 1.0f;
+    float offlineRegisterEnvelopeAnchor = 0.0f;
+    float offlineRegisterLevelCompensation = 1.0f;
 #endif
 };
 

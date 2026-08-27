@@ -2224,3 +2224,34 @@ hybrid therefore has a calibrated range: modal force remains the foundation,
 while the denser legacy layer contributes 12–22% surface detail. Use 12% as the
 neutral baseline when testing register/body changes so maximum pick texture does
 not mask their effect.
+
+## 2026-08-27 — Plan 0094 Register/Formant Envelope Anchor
+
+The offline renderer now accepts `--legacy-register-anchor 0.0..1.0`. Zero uses
+the existing harmonic-number envelope exactly. Above zero, each harmonic's
+envelope index moves geometrically toward its absolute frequency divided by the
+low-E2 reference frequency (82.40689 Hz).
+
+The anchored index controls contact-width filtering, partial tilt, string-age
+damping, pickup electrical tilt, and modal decay curvature. The mechanical
+amplitude terms are normalized at each note's fundamental before applying the
+fixed-Hz spacing, while pickup electrical tilt and decay retain absolute-
+frequency behavior. Modal pitch, inharmonic stiffness, pickup-position nodes and
+aperture, pluck geometry, and harmonic attack emphasis remain pitch-relative.
+
+A literal unnormalized anchor reduced high-E mean level by roughly 4/8/14 dB at
+35/65/100% and was rejected as a confounded audition. The final offline test adds
+a smooth register-dependent level compensation proportional to
+`(frequency / E2)^(1.08 * anchor)`. This is an audition normalization, not a
+proposed production loudness law. It holds per-note mean levels within about
+1 dB of the current fixture so listening can focus on perceived instrument scale.
+
+Both Windows Release targets build. Default calibration remains byte-identical
+at SHA-256
+`C67DCE0C59AA6D0A903BA887E2C55953B5842CAF1CA3160C035D0704BF0BD48B`,
+and anchor zero exactly reproduces the accepted Plan 0093 medium hybrid. The 65%
+render repeats byte-identically at
+`51AE6DBEC942F150469C731AA91B02AB0789F1C5D8F12D3ACAE80BC811DE0D57`.
+All five A/B files are stereo 48 kHz and 424,800 samples. Adding the signed
+`baseline - 65%` difference to the 65% render reconstructs baseline with infinite
+measured audio PSNR.
