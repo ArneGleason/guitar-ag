@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 import json
+import os
 import re
 from datetime import datetime
 from pathlib import Path
@@ -13,6 +15,14 @@ from pathlib import Path
 def slugify(value: str) -> str:
     value = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
     return value or "capture"
+
+
+def default_documents_directory() -> Path:
+    if os.name == "nt":
+        buffer = ctypes.create_unicode_buffer(260)
+        if ctypes.windll.shell32.SHGetFolderPathW(None, 5, None, 0, buffer) == 0:
+            return Path(buffer.value)
+    return Path.home() / "Documents"
 
 
 def main() -> int:
@@ -43,7 +53,7 @@ def main() -> int:
     parser.add_argument(
         "--capture-root",
         type=Path,
-        default=Path.home() / "Documents" / "Guitar AG Reference Captures",
+        default=default_documents_directory() / "Guitar AG Reference Captures",
     )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()

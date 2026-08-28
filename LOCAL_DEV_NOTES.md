@@ -62,6 +62,16 @@ Its request/session workflow is documented in
 `Documents\Guitar AG Reference Captures`, outside Git. Enable only the intended
 Focusrite input because the MVP records the first enabled input channel.
 
+Create the guided 30-item inventory and stable request files in the operating
+system's Documents known folder:
+
+```powershell
+python scripts\create-reference-capture-inventory.py
+```
+
+The app discovers that inventory automatically. Complete only Phase 0 plus the
+six Phase 1 items before analysis; later phases are deliberately deferred.
+
 The previous checkout at `C:\code\guitar-ag` was clean and at the same GitHub commit when the canonical clone was created. Windows would not move it while the original Codex workspace held the directory open. Remove that duplicate only from a later task after the original workspace is closed and the exact path is re-verified.
 
 On this PC, Git may reject a checkout as dubious ownership. Prefer an explicit per-command override such as:

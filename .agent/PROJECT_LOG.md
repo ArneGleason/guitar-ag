@@ -137,3 +137,15 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
   driver, loaded a generated request, retained a seeded approved take across a
   restart, and exposed that take through the validator. Real guitar recording
   and playback remain the human gate.
+- Created Plan 0100 after human feedback showed that single request files did
+  not provide a usable capture queue. Added a 30-item, five-phase inventory but
+  made the first stopping point only seven items: input noise floor plus six
+  low/high E ringing/hand-damped/foam-damped baselines.
+- Added automatic Documents-known-folder inventory discovery, first-incomplete
+  selection, `[done]` progress labels, inline research reasons, and immediate
+  refresh when approvals change. Inventory sessions use fixed directories so
+  progress cannot be detached by changing folders.
+- Generated the real local inventory under the OneDrive-redirected Documents
+  folder. Unit tests pass, the Windows app builds, default discovery creates the
+  correct first session, a seeded approval advances to Phase 1, and inventory
+  startup no longer creates stray manual-session folders.

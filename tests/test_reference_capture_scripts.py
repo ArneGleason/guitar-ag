@@ -15,6 +15,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CREATE_SCRIPT = REPO_ROOT / "scripts" / "create-reference-capture-request.py"
 SUMMARY_SCRIPT = REPO_ROOT / "scripts" / "summarize-reference-capture-session.py"
+INVENTORY_SCRIPT = REPO_ROOT / "scripts" / "create-reference-capture-inventory.py"
 
 
 class ReferenceCaptureScriptsTest(unittest.TestCase):
@@ -127,6 +128,48 @@ class ReferenceCaptureScriptsTest(unittest.TestCase):
             )
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("between 1 and 100", result.stderr)
+
+    def test_phased_inventory_is_stable_and_finite(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory) / "captures"
+            result = subprocess.run(
+                [sys.executable, str(INVENTORY_SCRIPT), "--capture-root", str(root)],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            self.assertIn("items=30", result.stdout)
+
+            inventory_path = root / "capture-inventory.json"
+            inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
+            self.assertEqual(inventory["schema_version"], 1)
+            self.assertEqual(len(inventory["items"]), 30)
+            self.assertEqual(len(inventory["phases"]), 5)
+            self.assertIn("Phase 0 and Phase 1 first", inventory["instructions"])
+
+            phase_one = [
+                item
+                for item in inventory["items"]
+                if item["phase_id"] == "phase-1-pick-contact-baseline"
+            ]
+            self.assertEqual(len(phase_one), 6)
+            self.assertTrue(all(item["required_approved_takes"] == 1 for item in phase_one))
+
+            request_ids = [item["request_id"] for item in inventory["items"]]
+            self.assertEqual(len(request_ids), len(set(request_ids)))
+            for item in inventory["items"]:
+                request_path = Path(item["request_file"])
+                request = json.loads(request_path.read_text(encoding="utf-8"))
+                self.assertEqual(request["request_id"], item["request_id"])
+                self.assertEqual(request["research_reason"], item["why"])
+
+            duplicate = subprocess.run(
+                [sys.executable, str(INVENTORY_SCRIPT), "--capture-root", str(root)],
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(duplicate.returncode, 0)
+            self.assertIn("inventory already exists", duplicate.stderr)
 
 
 if __name__ == "__main__":

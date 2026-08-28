@@ -57,6 +57,18 @@ struct Take
     bool droppedAudio = false;
 };
 
+struct InventoryItem
+{
+    int order = 0;
+    juce::String requestId;
+    juce::String phaseId;
+    juce::String phaseTitle;
+    juce::String title;
+    juce::String why;
+    juce::File requestFile;
+    int requiredApprovedTakes = 1;
+};
+
 class CaptureComponent final : public juce::Component,
                                private juce::AudioIODeviceCallback,
                                private juce::ListBoxModel,
@@ -87,6 +99,7 @@ public:
         configureLabel (statusLabelComponent, {}, 14.0f, true);
         configureLabel (meterLabel, "Input: -- dBFS", 15.0f, true);
         configureLabel (takeNotesLabel, "Selected-take notes", 13.0f, false);
+        configureLabel (inventoryProgressLabel, "No capture inventory loaded", 14.0f, true);
 
         instructionsEditor.setMultiLine (true);
         instructionsEditor.setReadOnly (true);
@@ -106,7 +119,8 @@ public:
         takeNotesEditor.setReturnKeyStartsNewLine (true);
         addAndMakeVisible (takeNotesEditor);
 
-        configureButton (loadRequestButton, "Load request...", [this] { chooseRequest(); });
+        configureButton (loadInventoryButton, "Load inventory...", [this] { chooseInventory(); });
+        configureButton (loadRequestButton, "Load one request...", [this] { chooseRequest(); });
         configureButton (chooseFolderButton, "Capture folder...", [this] { chooseFolder(); });
         configureButton (recordButton, "Record take", [this] { startRecording(); });
         configureButton (stopButton, "Stop", [this] { stopRecording(); });
@@ -116,20 +130,45 @@ public:
         configureButton (candidateButton, "Reset candidate", [this] { setSelectedStatus ("candidate"); });
         configureButton (saveNotesButton, "Save notes", [this] { saveSelectedNotes(); });
 
+        inventoryCombo.setTextWhenNothingSelected ("Choose the next capture item");
+        inventoryCombo.onChange = [this]
+        {
+            if (updatingInventory)
+                return;
+
+            const auto index = inventoryCombo.getSelectedId() - 1;
+            if (index >= 0 && index < static_cast<int> (inventoryItems.size()))
+                loadRequest (inventoryItems[static_cast<size_t> (index)].requestFile);
+        };
+        addAndMakeVisible (inventoryCombo);
+
         takesList.setModel (this);
         takesList.setRowHeight (28);
         addAndMakeVisible (takesList);
-
-        initialiseManualSession();
 
         if (deviceError.isNotEmpty())
             setStatus ("Audio device error: " + deviceError, true);
         else
             setStatus ("Ready. Enable only the intended guitar input channel.", false);
 
+        const auto inventoryArgument = findInventoryArgument (commandLine);
         const auto requestArgument = findRequestArgument (commandLine);
-        if (requestArgument.isNotEmpty())
+        if (inventoryArgument.isNotEmpty())
+            loadInventory (juce::File (inventoryArgument));
+        else if (requestArgument.isNotEmpty())
             loadRequest (juce::File (requestArgument));
+        else
+        {
+            const auto defaultInventory = juce::File::getSpecialLocation (
+                juce::File::userDocumentsDirectory)
+                                              .getChildFile ("Guitar AG Reference Captures")
+                                              .getChildFile ("capture-inventory.json");
+            if (defaultInventory.existsAsFile())
+                loadInventory (defaultInventory);
+        }
+
+        if (requestId.isEmpty())
+            initialiseManualSession();
 
         setSize (1120, 760);
         startTimerHz (20);
@@ -172,17 +211,22 @@ public:
         area.removeFromLeft (16);
 
         auto topButtons = area.removeFromTop (32);
-        loadRequestButton.setBounds (topButtons.removeFromLeft (140));
+        loadInventoryButton.setBounds (topButtons.removeFromLeft (132));
         topButtons.removeFromLeft (8);
-        chooseFolderButton.setBounds (topButtons.removeFromLeft (140));
+        loadRequestButton.setBounds (topButtons.removeFromLeft (142));
+        topButtons.removeFromLeft (8);
+        chooseFolderButton.setBounds (topButtons.removeFromLeft (132));
         topButtons.removeFromLeft (8);
         outputLabel.setBounds (topButtons);
 
         area.removeFromTop (8);
-        requestTitleLabel.setBounds (area.removeFromTop (28));
-        instructionsEditor.setBounds (area.removeFromTop (100));
+        inventoryProgressLabel.setBounds (area.removeFromTop (24));
+        inventoryCombo.setBounds (area.removeFromTop (32));
         area.removeFromTop (8);
-        contextEditor.setBounds (area.removeFromTop (82));
+        requestTitleLabel.setBounds (area.removeFromTop (28));
+        instructionsEditor.setBounds (area.removeFromTop (88));
+        area.removeFromTop (8);
+        contextEditor.setBounds (area.removeFromTop (76));
         area.removeFromTop (10);
 
         auto transport = area.removeFromTop (36);
@@ -237,6 +281,17 @@ private:
 
         if (args.size() == 1 && args[0].endsWithIgnoreCase (".json"))
             return args[0];
+
+        return {};
+    }
+
+    static juce::String findInventoryArgument (const juce::StringArray& args)
+    {
+        for (int i = 0; i < args.size(); ++i)
+        {
+            if (args[i] == "--inventory" && i + 1 < args.size())
+                return args[i + 1];
+        }
 
         return {};
     }
@@ -300,8 +355,206 @@ private:
                                      });
     }
 
+    void chooseInventory()
+    {
+        inventoryChooser = std::make_unique<juce::FileChooser> (
+            "Load a Guitar AG capture inventory", juce::File(), "*.json");
+        auto safeThis = juce::Component::SafePointer<CaptureComponent> (this);
+        inventoryChooser->launchAsync (juce::FileBrowserComponent::openMode
+                                           | juce::FileBrowserComponent::canSelectFiles,
+                                       [safeThis] (const juce::FileChooser& chooser)
+                                       {
+                                           if (safeThis != nullptr)
+                                           {
+                                               const auto result = chooser.getResult();
+                                               if (result.existsAsFile())
+                                                   safeThis->loadInventory (result);
+                                           }
+                                       });
+    }
+
+    void loadInventory (const juce::File& file)
+    {
+        if (isRecording())
+        {
+            setStatus ("Stop recording before loading an inventory.", true);
+            return;
+        }
+
+        const auto parsed = juce::JSON::parse (file.loadFileAsString());
+        auto* root = parsed.getDynamicObject();
+        if (root == nullptr || static_cast<int> (root->getProperty ("schema_version")) != 1)
+        {
+            setStatus ("That file is not a schema-version 1 capture inventory.", true);
+            return;
+        }
+
+        const auto itemValue = root->getProperty ("items");
+        const auto* itemArray = itemValue.getArray();
+        if (itemArray == nullptr || itemArray->isEmpty())
+        {
+            setStatus ("The inventory contains no capture items.", true);
+            return;
+        }
+
+        std::vector<InventoryItem> loadedItems;
+        for (const auto& value : *itemArray)
+        {
+            auto* itemObject = value.getDynamicObject();
+            if (itemObject == nullptr)
+                continue;
+
+            InventoryItem item;
+            item.order = static_cast<int> (itemObject->getProperty ("order"));
+            item.requestId = itemObject->getProperty ("request_id").toString();
+            item.phaseId = itemObject->getProperty ("phase_id").toString();
+            item.phaseTitle = itemObject->getProperty ("phase_title").toString();
+            item.title = itemObject->getProperty ("title").toString();
+            item.why = itemObject->getProperty ("why").toString();
+            item.requiredApprovedTakes = juce::jmax (
+                1, static_cast<int> (itemObject->getProperty ("required_approved_takes")));
+
+            const auto requestPath = itemObject->getProperty ("request_file").toString();
+            item.requestFile = juce::File::isAbsolutePath (requestPath)
+                                   ? juce::File (requestPath)
+                                   : file.getParentDirectory().getChildFile (requestPath);
+
+            if (item.requestId.isNotEmpty() && item.title.isNotEmpty()
+                && item.requestFile.existsAsFile())
+                loadedItems.push_back (std::move (item));
+        }
+
+        if (loadedItems.empty())
+        {
+            setStatus ("None of the inventory request files could be found.", true);
+            return;
+        }
+
+        inventoryTitle = root->getProperty ("title").toString();
+        inventoryInstructions = root->getProperty ("instructions").toString();
+        inventoryItems = std::move (loadedItems);
+        chooseFolderButton.setEnabled (false);
+        refreshInventory (true);
+        setStatus ("Inventory loaded. Complete Phase 0 and Phase 1, then stop for analysis.",
+                   false);
+    }
+
+    int getApprovedTakeCount (const InventoryItem& item) const
+    {
+        const auto request = juce::JSON::parse (item.requestFile.loadFileAsString());
+        auto* requestObject = request.getDynamicObject();
+        if (requestObject == nullptr)
+            return 0;
+
+        const auto directoryPath = requestObject->getProperty ("session_directory").toString();
+        if (directoryPath.isEmpty())
+            return 0;
+
+        const auto manifestFile = juce::File (directoryPath).getChildFile ("session.json");
+        if (! manifestFile.existsAsFile())
+            return 0;
+
+        const auto manifest = juce::JSON::parse (manifestFile.loadFileAsString());
+        auto* manifestObject = manifest.getDynamicObject();
+        if (manifestObject == nullptr
+            || manifestObject->getProperty ("request_id").toString() != item.requestId)
+            return 0;
+
+        const auto takeValue = manifestObject->getProperty ("takes");
+        const auto* takeArray = takeValue.getArray();
+        if (takeArray == nullptr)
+            return 0;
+
+        int approved = 0;
+        for (const auto& takeValueItem : *takeArray)
+            if (auto* takeObject = takeValueItem.getDynamicObject();
+                takeObject != nullptr
+                && takeObject->getProperty ("status").toString() == "approved")
+                ++approved;
+        return approved;
+    }
+
+    void refreshInventory (bool selectFirstIncomplete = false)
+    {
+        if (inventoryItems.empty())
+            return;
+
+        const auto previousSelection = inventoryCombo.getSelectedId();
+        auto firstIncomplete = 0;
+        auto completed = 0;
+        juce::String activePhase;
+
+        updatingInventory = true;
+        inventoryCombo.clear (juce::dontSendNotification);
+        for (int index = 0; index < static_cast<int> (inventoryItems.size()); ++index)
+        {
+            const auto& item = inventoryItems[static_cast<size_t> (index)];
+            const auto approved = getApprovedTakeCount (item);
+            const auto isComplete = approved >= item.requiredApprovedTakes;
+            if (isComplete)
+                ++completed;
+            else if (firstIncomplete == 0)
+            {
+                firstIncomplete = index + 1;
+                activePhase = item.phaseTitle;
+            }
+
+            const auto prefix = isComplete ? "[done] " : "[ ] ";
+            inventoryCombo.addItem (prefix + juce::String (item.order) + ". " + item.title,
+                                    index + 1);
+        }
+
+        auto selection = selectFirstIncomplete ? firstIncomplete : previousSelection;
+        if (selection <= 0)
+            selection = firstIncomplete > 0 ? firstIncomplete : 1;
+        inventoryCombo.setSelectedId (selection, juce::dontSendNotification);
+        updatingInventory = false;
+
+        if (completed == static_cast<int> (inventoryItems.size()))
+            activePhase = "Inventory complete";
+
+        auto phaseCompleted = 0;
+        auto phaseTotal = 0;
+        if (activePhase != "Inventory complete")
+        {
+            for (const auto& item : inventoryItems)
+            {
+                if (item.phaseTitle != activePhase)
+                    continue;
+
+                ++phaseTotal;
+                if (getApprovedTakeCount (item) >= item.requiredApprovedTakes)
+                    ++phaseCompleted;
+            }
+        }
+
+        const auto progressText = activePhase == "Inventory complete"
+                                      ? "Inventory complete — " + juce::String (completed) + "/"
+                                            + juce::String (inventoryItems.size())
+                                      : activePhase + ": " + juce::String (phaseCompleted) + "/"
+                                            + juce::String (phaseTotal) + " — overall "
+                                            + juce::String (completed) + "/"
+                                            + juce::String (inventoryItems.size());
+        inventoryProgressLabel.setText (
+            progressText,
+            juce::dontSendNotification);
+        inventoryProgressLabel.setTooltip (
+            (inventoryTitle.isNotEmpty() ? inventoryTitle : "Capture inventory") + "\n"
+            + inventoryInstructions);
+
+        if (selectFirstIncomplete && selection > 0)
+            loadRequest (inventoryItems[static_cast<size_t> (selection - 1)].requestFile);
+    }
+
     void chooseFolder()
     {
+        if (! inventoryItems.empty())
+        {
+            setStatus ("Inventory requests use fixed session folders so progress remains trackable.",
+                       true);
+            return;
+        }
+
         if (! takes.empty())
         {
             setStatus ("Choose the session folder before recording the first take.", true);
@@ -362,11 +615,14 @@ private:
         instructionsEditor.setText (newInstructions, false);
 
         const auto context = object->getProperty ("context");
+        const auto researchReason = object->getProperty ("research_reason").toString();
         const auto requestedTakes = static_cast<int> (
             object->getProperty ("requested_take_count"));
         auto contextText = requestedTakes > 0
                                ? "Requested takes: " + juce::String (requestedTakes) + "\n"
                                : juce::String();
+        if (researchReason.isNotEmpty())
+            contextText += "Why: " + researchReason + "\n";
         contextText += context.isVoid() ? "No structured context supplied."
                                         : juce::JSON::toString (context, true);
         contextEditor.setText (contextText,
@@ -399,6 +655,7 @@ private:
             setStatus ("Request resumed with " + juce::String (takes.size()) + " existing takes.",
                        false);
         }
+        refreshInventory();
     }
 
     void loadExistingSession()
@@ -509,8 +766,10 @@ private:
 
         recordButton.setEnabled (false);
         playButton.setEnabled (false);
+        loadInventoryButton.setEnabled (false);
         loadRequestButton.setEnabled (false);
         chooseFolderButton.setEnabled (false);
+        inventoryCombo.setEnabled (false);
         setStatus ("Recording take " + juce::String (currentTakeNumber) + "...", false);
     }
 
@@ -558,8 +817,10 @@ private:
 
         recordButton.setEnabled (true);
         playButton.setEnabled (true);
+        loadInventoryButton.setEnabled (true);
         loadRequestButton.setEnabled (true);
-        chooseFolderButton.setEnabled (true);
+        chooseFolderButton.setEnabled (inventoryItems.empty());
+        inventoryCombo.setEnabled (true);
 
         const auto& take = takes.back();
         const auto peakDb = juce::Decibels::gainToDecibels (take.peak, -100.0f);
@@ -625,6 +886,7 @@ private:
         takes[static_cast<size_t> (selectedRow)].status = status;
         takesList.repaintRow (selectedRow);
         writeManifest();
+        refreshInventory();
         setStatus ("Take " + juce::String (takes[static_cast<size_t> (selectedRow)].number)
                        + " is now " + status + ".",
                    false);
@@ -872,6 +1134,10 @@ private:
     juce::File sessionDirectory;
     std::vector<Take> takes;
     int selectedRow = -1;
+    juce::String inventoryTitle;
+    juce::String inventoryInstructions;
+    std::vector<InventoryItem> inventoryItems;
+    bool updatingInventory = false;
 
     juce::Rectangle<int> devicePanelBounds;
     juce::Label titleLabel;
@@ -880,10 +1146,12 @@ private:
     juce::Label statusLabelComponent;
     juce::Label meterLabel;
     juce::Label takeNotesLabel;
+    juce::Label inventoryProgressLabel;
     juce::TextEditor instructionsEditor;
     juce::TextEditor contextEditor;
     juce::TextEditor takeNotesEditor;
     juce::TextButton loadRequestButton;
+    juce::TextButton loadInventoryButton;
     juce::TextButton chooseFolderButton;
     juce::TextButton recordButton;
     juce::TextButton stopButton;
@@ -893,7 +1161,9 @@ private:
     juce::TextButton candidateButton;
     juce::TextButton saveNotesButton;
     juce::ListBox takesList;
+    juce::ComboBox inventoryCombo;
     std::unique_ptr<juce::FileChooser> requestChooser;
+    std::unique_ptr<juce::FileChooser> inventoryChooser;
     std::unique_ptr<juce::FileChooser> folderChooser;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CaptureComponent)

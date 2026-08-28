@@ -359,6 +359,24 @@ This document defines the basic manual and technical checks needed as the projec
       WAV headers and prints only the approved file with `--approved-paths`.
 - [ ] Record the first ringing/hand-damped/foam-damped Focusrite comparison set;
       do not interpret direct subtraction as a pure isolated pick signal.
+
+## Plan 0100 Capture-Inventory Checks
+
+- [x] Dependency-free inventory generation produces 30 unique, stable request
+      IDs across five ordered phases.
+- [x] The default Windows inventory resolves through the system Documents known
+      folder, including OneDrive-redirection on the current workstation.
+- [x] Launching the app without arguments discovers the default inventory and
+      creates/resumes the first incomplete request session.
+- [x] A runtime smoke test with a seeded approved Phase 0 take advances the app
+      to the first Phase 1 request and preserves the approval.
+- [x] Re-running inventory generation without `--force` refuses to overwrite the
+      current definitions.
+- [ ] The human confirms that the inventory selector, `[done]` labels, current
+      phase, request instructions, and research reason are legible at normal UI
+      size.
+- [ ] Complete only Phase 0 and the six Phase 1 baseline items, then return the
+      approved sessions for analysis before starting Phase 2.
 - [ ] In the DAW, replay the ordinary/deep/phrase material and confirm the plugin
       has the promoted track-2 tone without a level, note-release, or polyphony
       regression.

@@ -8,6 +8,12 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0100, a 30-item phased reference-capture inventory with a seven-item
+  setup/minimum-baseline stopping point, stable request generation, automatic
+  app discovery, first-incomplete selection, and approval-driven progress.
+- Added a human-readable inventory covering noise floor, core pick-contact
+  damping comparisons, direction/dynamics/depth, flexible/stiff picks, and
+  deferred finger/surface gestures.
 - Added Plan 0099 and a JUCE `GuitarAGReferenceCapture` desktop companion for
   Focusrite clean-DI recording, multi-take audition, human approval, live
   headroom metering, resumable external session manifests, and 24-bit mono WAV

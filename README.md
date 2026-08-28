@@ -254,7 +254,9 @@ external mono 24-bit WAVs. The recordings guide synthesized model parameters;
 they are not playback assets for the plugin.
 
 See `docs/reference-capture-tool.md` for the Focusrite setup, request generator,
-approval loop, and muted-versus-ringing comparison method.
+approval loop, and muted-versus-ringing comparison method. The ordered capture
+checklist is in `docs/reference-capture-inventory.md`; complete only its setup
+and minimum-baseline phases before returning for analysis.
 
 ## Development Process
 

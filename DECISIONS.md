@@ -999,3 +999,26 @@ candidate/approved/rejected states. Multiple takes may be approved because
 variation is part of the fitting target. Captures remain analysis evidence, not
 playback assets. Muted and ringing takes may be onset-aligned and compared
 statistically, but their raw difference is not defined as pure pick sound.
+
+## 2026-08-28 — Stage the capture inventory and stop after the baseline
+
+Decision:
+Use a finite five-phase capture inventory, but ask the human to complete only
+Phase 0 and Phase 1 before any later capture work. Inventory completion is driven
+by approved take batches, not merely by files existing.
+
+Reason:
+An exhaustive pick/string/direction/velocity/depth/material/muting factorial
+would consume substantial playing time before proving that the capture method
+produces actionable model evidence. One noise-floor reference plus six low/high
+E ringing/hand-damped/foam-damped conditions is the smallest useful checkpoint.
+
+Status:
+Implemented in Plan 0100.
+
+Consequences:
+The app automatically discovers the default inventory, selects the first
+incomplete request, shows progress, and retains later response-axis, material,
+and finger/surface phases as a visible roadmap. Finish the seven-item starting
+checkpoint, analyze it, and revise or continue the later phases only from that
+evidence.

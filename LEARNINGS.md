@@ -867,3 +867,16 @@ Muted and ringing pick takes are complementary interventions, not two terms in
 a perfect linear null. Different damping changes string boundaries and player
 interaction. Use paired repetitions to estimate distributions and transfer
 traits; treat subtraction only as a diagnostic listening residual.
+
+## 2026-08-28 — A recorder needs a stopping rule, not only request files
+
+Individual structured requests make captures analyzable but do not tell the
+player what to do next or how much work is enough. A useful human-facing capture
+system needs an ordered inventory, visible progress, a short reason for each
+condition, and an explicit point to stop for analysis.
+
+The first inventory therefore avoids a full factorial. It begins with one input
+noise floor and six low/high E damping comparisons under one medium downstroke
+setup. Direction, force, depth, material, and finger gestures remain visible but
+deferred. This makes the first handoff about 7 decisions rather than 30 tasks or
+hundreds of individual strokes with no feedback loop.

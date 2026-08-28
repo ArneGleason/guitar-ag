@@ -6,6 +6,12 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
+- Plan 0100 adds automatic inventory discovery and approval-derived progress.
+  Review inventory/request path handling, first-incomplete selection, status
+  refresh after approval/reset, and behavior when a manifest or WAV is missing.
+- Preserve the explicit human stopping rule: complete Phase 0 and the six Phase
+  1 items, then analyze before expanding to the later 23 requests. Do not turn
+  the visible roadmap into an assumed full capture requirement.
 - Plan 0099 adds a standalone JUCE reference-capture app. Review the audio
   callback/writer lifetime, device restart behavior, take resumption, and
   manifest durability; keep all recording and file I/O outside the VST3.

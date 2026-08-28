@@ -2404,3 +2404,18 @@ excitation iteration evidence-driven: onset-align approved repetitions, compare
 ringing/hand-damped/foam-damped distributions, and fit deterministic stochastic
 contact statistics. Direct subtraction remains a diagnostic residual rather
 than an isolated or reusable pick waveform.
+
+## 2026-08-28 — Plan 0100 Capture Inventory Sampling Strategy
+
+The first real capture checkpoint is intentionally sparse rather than a full
+factorial. Phase 0 captures the connected guitar/interface noise floor. Phase 1
+holds medium downstroke, shallow depth, pick, pickup, gain, and picking location
+fixed while crossing low/high E with ringing, non-harmonic hand damping, and
+foam/cloth damping. One or more approved eight-stroke batches per condition are
+enough for the first analysis.
+
+Only after that checkpoint should Phase 2 vary direction, light/hard force,
+deep pick engagement, and D/B register points; Phase 3 contrasts clearly
+flexible and stiff picks; Phase 4 records flesh/nail attacks and wound-string
+slide/lift gestures. This order lets early onset/band/variation measurements
+change the later inventory before substantial capture time is spent.
