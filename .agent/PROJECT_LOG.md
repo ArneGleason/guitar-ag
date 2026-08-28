@@ -160,3 +160,10 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
   reference-capture target. The Release build contains the ASIO backend, and
   the workstation registers `Focusrite USB ASIO`; a clean human capture remains
   the final gate.
+- Implemented Plan 0102 capture triage: Delete or Backspace discards an active
+  recording, while the same keys permanently erase only a selected rejected
+  take. Candidate/approved takes and non-capture focus contexts are protected.
+- Added an absolute-scale selected-take waveform with peak, RMS, duration,
+  -12 dBFS guides, and hot/possible-clip cues. Disposable ASIO runtime tests
+  verified both abort keys, both rejected-take deletion keys, manifest/file
+  removal, status guards, one-action key edges, and the rendered layout.

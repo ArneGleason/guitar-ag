@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0101 Windows ASIO reference capture",
-  "status": "Enabled JUCE ASIO for the Windows capture companion after confirming a real Windows Audio take contained digital discontinuities and an 8 ms zero-filled gap. Select Focusrite USB ASIO and make one clean diagnostic take before resuming the inventory.",
-  "updatedAt": "2026-08-28T13:00:33-04:00",
-  "lastHandoff": ".agent/handoffs/20260828-codex-plan0101-reference-capture-asio.md",
-  "branch": "codex/0101-reference-capture-asio",
-  "commit": "0a66264",
+  "lastTask": "Plan 0102 capture discard and waveform review",
+  "status": "Added guarded Delete/Backspace abort and rejected-take erasure plus an absolute-scale selected-take waveform. Disposable ASIO runtime tests and the Windows Release build pass; the human should now confirm the shortcuts and visual level calibration on real guitar takes.",
+  "updatedAt": "2026-08-28T13:18:14-04:00",
+  "lastHandoff": ".agent/handoffs/20260828-codex-plan0102-capture-discard-waveform.md",
+  "branch": "codex/0102-capture-discard-waveform",
+  "commit": "e849c13",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "The Windows reference-capture app now compiles JUCE ASIO support and can use the registered Focusrite USB ASIO driver. Close competing audio clients, select ASIO at 48 kHz with a conservative buffer, and validate one clean diagnostic take before continuing the seven-item Phase 0/1 checkpoint."
+    "summary": "The ASIO capture app now supports fast duff-take triage: Delete/Backspace aborts recording without saving or erases a selected rejected take, while candidate/approved takes remain protected. The selected take displays at absolute full scale with level measurements and guides. Confirm this flow on real guitar before continuing Phase 0/1."
   }
 }

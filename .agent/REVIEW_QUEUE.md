@@ -6,6 +6,15 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
+- Plan 0102 adds permanent file deletion. Review the rejected-only gate, direct
+  session-child path check, failed-delete behavior, list reselection, manifest
+  rewrite, and approval-derived inventory refresh. No key repeat should cascade.
+- Review Delete/Backspace focus suppression alongside Space: take-note editing,
+  Audio Settings, file choosers, and background applications must never trigger
+  an abort or saved-take deletion.
+- Review the selected-take `AudioThumbnail` lifecycle when changing requests,
+  deleting its source WAV, playing the same WAV, and closing the app. The
+  waveform must remain absolute-scale rather than normalized per take.
 - Plan 0101 enables `JUCE_ASIO=1` only for the Windows reference-capture target.
   Confirm `ASIO` / `Focusrite USB ASIO` opens at 48 kHz, restores correctly, and
   does not affect the VST3 or offline renderer build definitions.
