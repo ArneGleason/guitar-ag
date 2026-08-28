@@ -3,6 +3,7 @@
 ## Outcome
 
 - Branch: `codex/0098-promote-accepted-tone`
+- Implementation commit: `061be6c`
 - Model: `StringVoice EG-089 ModalFormantTone`
 - The exact human-approved Plan 0097 recipe is now the production VST3 and
   no-flags offline-render default.

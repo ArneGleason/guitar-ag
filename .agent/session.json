@@ -33,7 +33,7 @@
   "updatedAt": "2026-08-27T22:00:11-04:00",
   "lastHandoff": ".agent/handoffs/20260827-codex-plan0098-promoted-tone.md",
   "branch": "codex/0098-promote-accepted-tone",
-  "commit": "Plan 0098 implementation pending commit",
+  "commit": "061be6c",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
     "summary": "EG-089 now uses the exact human-approved modal-pick/formant recipe in the VST3 and default renderer. The previous EG-088 tone remains exactly reproducible with --legacy-tone-recipe previous. Install the built VST3 and verify its identity and tone in the DAW before starting another DSP milestone."
