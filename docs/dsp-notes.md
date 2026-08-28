@@ -2428,6 +2428,10 @@ clipping, writer-overflow flag, or multi-sample zero gap. Ringing fundamental
 medians stay between 83.127 and 83.168 Hz, so the natural performances are much
 more controlled than their timing variation suggests.
 
+The capture chain used the neck humbucker for every take, with the pick halfway
+between bridge and neck. Every damped exercise used fretting-hand damping rather
+than bridge/palm muting. Guitar make/model and exact pick are not documented.
+
 The dominant EG-089 mismatch is inside the modal string, not the additive pick
 layers. In 60 ms attack windows, the real ringing low E places 90.8-95.0% of
 50 Hz-10 kHz energy below 500 Hz and only 0.4-0.7% above 1.5 kHz. EG-089 places

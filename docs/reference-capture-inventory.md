@@ -61,6 +61,10 @@ direction changes on a moving string, long decay, and the ringing-versus-damped
 contrast. The next inventory will be designed only after this set is compared
 against the current model.
 
+Recorded-set context: every completed take used the neck humbucker and a picking
+position halfway between bridge and neck. All damped takes used fretting-hand
+damping.
+
 ## Consistency Rules
 
 - Record clean DI without amp, cabinet, compression, gate, denoiser, or effects.

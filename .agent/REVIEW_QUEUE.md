@@ -17,9 +17,10 @@ Suggested focus:
   empirical modal envelope, slower modal decay, and both. Do not combine
   damping, repick state, or wider human scatter until that 2x2 is measured and
   listened to.
-- Treat absolute spectral targets as specific to the undocumented guitar/
-  pickup/pick used for Plan 0103. Direction, within-set damping, decay, timing,
-  and variation contrasts are the stronger portable evidence.
+- Treat absolute spectral targets as specific to the still-unidentified guitar
+  and pick used for Plan 0103. Neck humbucker, midpoint picking location, and
+  fretting-hand damping are confirmed; within-set contrasts remain stronger
+  portable evidence.
 - Plan 0102 adds permanent file deletion. Review the rejected-only gate, direct
   session-child path check, failed-delete behavior, list reselection, manifest
   rewrite, and approval-derived inventory refresh. No key repeat should cascade.

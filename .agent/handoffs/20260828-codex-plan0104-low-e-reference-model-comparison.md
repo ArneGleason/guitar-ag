@@ -14,6 +14,8 @@ and production EG-089.
   useful deviations and do not require rerecording.
 - Ringing pitch medians remain between 83.127 and 83.168 Hz, about 15 cents
   sharp of standard E2 and extremely stable across the natural performances.
+- The human confirmed neck humbucker for every take, picking halfway between
+  bridge and neck, and fretting-hand damping for every damped exercise.
 
 Implementation/report commit: `3b945b5`.
 

@@ -10,6 +10,8 @@ distributions with the current EG-089 production model before changing DSP.
 
 - two approved 44.1 kHz batches for each of the six low-E exercise requests;
 - two approved connected-input noise-floor takes;
+- neck humbucker throughout, picked halfway between bridge and neck, with all
+  damped exercises muted by the fretting hand;
 - deterministic EG-089 renders matched to the accepted batches' observed six-
   stroke and 12-stroke performance patterns at 44.1 kHz;
 - both normal ringing and the closest current palm-muted/short-note model for

@@ -29,9 +29,11 @@ requested four. The damped alternate batches contain six strong alternating
 events rather than 12. Both deviations add usable examples: the set still has
 six damped alternate downstrokes and six upstrokes across two takes.
 
-The selected-take notes do not identify guitar, pickup, or pick. Absolute tone
-matching therefore applies only to this capture chain. Within-set contrasts
-(direction, damping, decay, repicking, and variation) remain strong evidence.
+The human confirmed that every take used the neck humbucker, with picking
+halfway between bridge and neck. Every damped take used fretting-hand damping,
+not bridge/palm muting. Guitar make/model and exact pick remain unspecified, so
+absolute tone matching is still specific to this instrument and capture chain;
+the pickup, picking position, and damping boundary are now known.
 
 ## Main Measurements
 
@@ -70,8 +72,9 @@ observed low-E range even with `Sustain = 100%`.
 
 ### 3. Fretting-hand damping must preserve the onset and remove the body
 
-The reference damped events retain attack peaks close to ringing peaks, then
-place their 55-255 ms body approximately 24-28 dB below the attack peak.
+The confirmed fretting-hand-damped events retain attack peaks close to ringing
+peaks, then place their 55-255 ms body approximately 24-28 dB below the attack
+peak.
 Production `Palm Mute = 100%` instead drives the body about 85 dB below the peak
 and also reduces the attack heavily. A 95% palm mute approximately matches the
 reference body/peak ratio (-26.8 dB) but attenuates the modeled attack by about
