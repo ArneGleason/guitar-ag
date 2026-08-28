@@ -2301,3 +2301,19 @@ received a written verdict. The next no-code calibration should hold
 harmonic-number decay fixed and compare 0x, 2x, 4x, and 6x restoration, with 6x
 first as the accepted reference and an isolated 6x metal contribution. Select
 the lowest factor that retains the improvement.
+
+## 2026-08-27 — Plan 0096 Metal-Restoration Calibration
+
+Plan 0096 makes no DSP or VST3 changes. It holds the accepted 35% amplitude
+anchor, harmonic-number decay, and medium hybrid pick constant while rendering
+0x, 2x, 4x, and the selected 6x side-mode restoration. The 6x reference is first
+and an isolated `6x - 0x` contribution is included.
+
+All full mixes are within 0.1 dB whole-file mean and 0.2 dB per note. The 6x
+reference exactly reproduces Plan 0095 at
+`D0D4B3E6AFD28CAEAA56CDCF5C27D6CCED6294F7EE7EFEFEDE8C007260F5019F`;
+2x and 4x repeat byte-identically. Every track is stereo 48 kHz and 424,800
+samples. Adding the isolated 6x contribution to the 0x render reconstructs the
+reference with infinite measured audio PSNR. Human listening should select the
+lowest amount that retains the accepted character, including zero if decay alone
+is sufficient.

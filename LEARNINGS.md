@@ -812,3 +812,10 @@ Record the combined success without inventing negative results. A follow-up that
 holds harmonic decay fixed and steps restoration through zero and lower factors
 will determine whether the side-mode addition is necessary and how much is
 enough.
+
+When calibrating a quiet additive detail, match the full mixes by construction
+and isolate the detail separately. Plan 0096's 0x/2x/4x/6x full mixes remain
+within 0.1 dB whole-file mean and 0.2 dB per note, while the isolated 6x metal
+term is -47.8 dB mean. The full mixes therefore test timbre rather than level;
+the isolated track, boosted by A/B matching, identifies whether the contribution
+itself sounds like metal-string behavior or a synthetic layer.

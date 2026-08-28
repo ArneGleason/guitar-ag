@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0095 metal-ring listening verdict",
-  "status": "Human listening accepted the combined harmonic-number-decay plus 6x side-mode restoration candidate as pretty good. It is the provisional offline foundation; the next no-code A/B will calibrate restoration downward at fixed decay.",
-  "updatedAt": "2026-08-27T21:25:00-04:00",
-  "lastHandoff": ".agent/handoffs/20260827-codex-plan0095-metal-ring-listening.md",
-  "branch": "codex/0095-metal-ring-retention",
-  "commit": "Plan 0095 implementation b6d74c3; verdict documentation pending commit",
+  "lastTask": "Plan 0096 metal-restoration calibration",
+  "status": "Plan 0096 is ready for human A/B: selected 6x is compared against 0x, 2x, and 4x at fixed harmonic-number decay, with the isolated 6x metal contribution included.",
+  "updatedAt": "2026-08-27T21:35:00-04:00",
+  "lastHandoff": ".agent/handoffs/20260827-codex-plan0096-metal-calibration-listening.md",
+  "branch": "codex/0096-metal-restoration-calibration",
+  "commit": "Plan 0096 calibration based on Plan 0095 verdict e36b35a; see branch HEAD",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0095 listening accepted the combined 35% amplitude anchor, harmonic-number decay, and 6x side-mode restoration as pretty good. Because 6x was deliberately exaggerated for audibility and the single-axis candidates received no written verdict, the next comparison holds decay fixed and calibrates restoration through 0x/2x/4x/6x. A damped-guitar DI capture protocol is ready; motion-driven finger noise remains later."
+    "summary": "Plan 0096 is a no-code calibration of the positive Plan 0095 corner. It holds the 35% amplitude anchor and harmonic-number decay fixed, compares 0x/2x/4x against the selected 6x reference, and isolates the 6x metal term. Full mixes are level-controlled, deterministic, aligned, and reconstruction-checked. A damped-guitar DI capture protocol is ready; motion-driven finger noise remains later."
   }
 }
