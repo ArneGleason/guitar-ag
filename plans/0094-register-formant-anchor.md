@@ -46,8 +46,9 @@ absolute frequency.
 - [x] Anchored renders repeat byte-identically.
 - [x] Every A/B file is aligned/equal length and the signed-difference residual
       reconstructs its source exactly.
-- [ ] Human decides whether anchoring fixes scale/identity without merely making
-      upper notes dull.
+- [x] Human selected the 35% anchor as much better than the current envelope.
+      It fixes enough scale/identity to continue, but progressively flattens the
+      upper notes and loses metal ring/brightness.
 
 ## Prepared Listening Set — 2026-08-27
 
@@ -70,7 +71,18 @@ infinite measured audio PSNR.
 
 ## Decision Gate
 
-- If a partial anchor improves high strings while retaining low-string identity,
-  use it as the basis for a string/gauge-aware production envelope.
+- The 35% partial anchor passed the scale/identity gate and becomes the fixed
+  offline foundation for the next experiment.
+- Do not promote the combined scalar to production: separate its amplitude-
+  envelope and decay effects, then restore only a narrow fixed-Hz metallic side
+  component instead of broadly undoing the correction.
 - If all anchors merely darken or hollow the notes, reject this scalar correction
   and separate string state from pickup/body observation more fundamentally.
+
+## Human Listening Verdict — 2026-08-27
+
+With loudness matching on, the 35% anchor was "pretty good" and "much better
+than current." The remaining defect was not the original Munchkin/giant scale
+shift: the sound flattened progressively and lost some metal ring and brightness
+as the sequence moved upward. This is a partial success. Preserve 35% envelope
+anchoring while testing decay and metallic side-mode retention independently.

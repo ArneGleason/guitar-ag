@@ -113,3 +113,4 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Created Plan 0094 and an offline absolute-frequency modal-envelope anchor, preserving pitch-relative modes/pickup geometry while progressively fixing material/contact/decay scale to low E2.
 - Added audition-only register level compensation after the literal anchor made high E up to about 14 dB quieter; final per-note levels stay within about 1 dB, low E is effectively unchanged, and default/anchor-zero hashes remain exact.
 - Generated a compact six-open-string register fixture and a reconstruction-checked five-track 35/65/100% anchor A/B.
+- Human loudness-matched listening selected the 35% register anchor as much better than current, while identifying progressive loss of metal ring/brightness; preserve the envelope correction and separate decay from fixed-Hz metallic side-mode retention next.

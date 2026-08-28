@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0094 register/formant envelope anchor",
-  "status": "Plan 0094 is implemented and awaiting human A/B: the accepted 12% hybrid attack is held fixed while the material/contact/decay envelope is anchored 35/65/100% toward absolute frequency with per-register audition normalization.",
-  "updatedAt": "2026-08-27T19:45:00-04:00",
+  "lastTask": "Plan 0094 register/formant listening verdict",
+  "status": "Plan 0094 listening selected 35% anchoring as much better than current, with a remaining progressive loss of metal ring and brightness in the upper register. The next offline test will split decay anchoring from narrow fixed-Hz metallic side-mode retention.",
+  "updatedAt": "2026-08-27T20:50:00-04:00",
   "lastHandoff": ".agent/handoffs/20260827-codex-plan0094-register-formant-listening.md",
   "branch": "codex/0094-register-formant-anchor",
-  "commit": "Plan 0094 implementation based on 6a358af; see branch HEAD",
+  "commit": "Plan 0094 implementation 3060f3b; verdict documentation pending commit",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0094 holds the accepted 12% dense hybrid attack fixed and progressively anchors material/contact/pickup/decay envelopes to absolute frequency across E2–E4. Audition-only register gain prevents quieter high notes from confounding timbre; low E remains effectively unchanged and all outputs are aligned/reconstruction-checked. Human listening now decides whether 35/65/100% restores physical scale. A damped-guitar DI capture protocol is ready; motion-driven finger noise remains later."
+    "summary": "Plan 0094 validated the formant premise: 35% absolute-frequency anchoring sounds much better than the harmonic-number baseline. It also progressively removes upper-register metal ring/brightness, so the next A/B keeps that envelope fixed while independently testing unanchored decay and a restrained fixed-Hz inharmonic side-mode restoration. A damped-guitar DI capture protocol is ready; motion-driven finger noise remains later."
   }
 }

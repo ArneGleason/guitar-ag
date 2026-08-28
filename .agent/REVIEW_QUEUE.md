@@ -6,8 +6,8 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Plan 0094 is awaiting listening. Judge whether 35/65/100% anchoring restores physical scale to B3/E4 without making them dull, hollow, or unnaturally fundamental-heavy; the low E2 tone is effectively unchanged before A/B matching.
-- Treat Plan 0094's register gain as audition normalization only. A positive timbre verdict still requires a principled string/gauge energy model before production promotion.
+- Plan 0094 listening selected 35% anchoring as much better than current, but it progressively flattened upper notes and lost metal ring/brightness. Review a 2x2 split of amplitude anchoring, decay anchoring, and narrow side-mode metal retention next.
+- Treat Plan 0094's register gain as audition normalization only. The positive timbre verdict still requires a principled string/gauge energy model before production promotion.
 - Plan 0093 listening calibrated 12% dense direct texture as medium and 22% as maximum. Preserve these bounds; use 12% as the fixed attack baseline for register/formant review.
 - Plan 0092 listening selected the 1.75x modal-force direction as a useful foundation. Review the next hybrid for whether low-level denser direct texture adds material detail without restoring the sparse woody digital rattle.
 - Keep register/formant correction separate: inspect which harmonic-index envelopes should instead use absolute modal frequency so high notes retain instrument scale without becoming merely darker.

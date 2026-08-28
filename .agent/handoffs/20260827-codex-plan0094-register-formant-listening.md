@@ -36,3 +36,10 @@ are within 0.7 dB after audition-only register compensation.
 - Track 5 — does the changed/removed 65% energy contain the small, glassy,
   pitch-shifted identity, or useful guitar-string character that should remain?
 
+## Human Verdict
+
+With loudness matching on, track 2 (35%) was "pretty good" and "much better
+than current." It also flattened progressively and lost some metal ring and
+brightness in the upper notes. Continue from 35%, but split decay anchoring from
+amplitude anchoring and test a narrow fixed-Hz side-mode restoration rather than
+reducing the whole correction or applying broadband EQ.

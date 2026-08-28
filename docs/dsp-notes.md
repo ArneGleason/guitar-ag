@@ -2255,3 +2255,13 @@ render repeats byte-identically at
 All five A/B files are stereo 48 kHz and 424,800 samples. Adding the signed
 `baseline - 65%` difference to the 65% render reconstructs baseline with infinite
 measured audio PSNR.
+
+Human loudness-matched listening selected 35% as much better than the current
+harmonic-number envelope. The upper notes nevertheless flattened and lost some
+metal ring/brightness as pitch rose. Treat this as evidence for a partial
+fixed-Hz envelope, not permission to promote the scalar unchanged. The next
+offline test should keep 35% amplitude anchoring fixed, independently restore
+harmonic-number modal decay, and optionally blend a small amount of unanchored
+amplitude only into higher-frequency inharmonic side modes. This targets metal
+identity without restoring the broad pitch-shifted body or the rejected attack
+chirp modes.

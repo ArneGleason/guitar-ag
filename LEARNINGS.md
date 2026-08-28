@@ -779,3 +779,13 @@ anchor strengths, even though it preserved low E2. Global A/B loudness matching
 cannot correct each note independently and would make the unchanged low note
 louder. A smooth audition-only register compensation brought per-note levels to
 within about 1 dB, making "less Munchkin-like" separable from "much quieter."
+
+Human listening validated the register/formant premise but exposed why the
+first control cannot be the production control. A 35% absolute-frequency anchor
+was much better than the current harmonic-number envelope, yet the notes
+progressively flattened and lost metal ring/brightness upward. Scale correction
+and metal retention are therefore partly independent. In particular, anchoring
+decay curvature can shorten upper fixed-Hz partial lifetimes, and attenuating the
+same amplitude envelope for main and inharmonic side modes can remove a useful
+metal cue. Test those axes separately instead of backing away from the accepted
+envelope correction or adding a broadband treble boost.

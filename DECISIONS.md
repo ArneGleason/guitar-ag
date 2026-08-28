@@ -873,3 +873,29 @@ the attack verdict is not confounded by a simultaneous body revoice.
 Human listening subsequently calibrated 12% direct mix at 2.5x event density as
 a good medium setting and 22% as a good maximum. Use 12% as the fixed attack
 baseline for the register/formant experiment.
+
+## 2026-08-27 — Keep 35% register anchoring and decouple metal retention
+
+Decision:
+Use the Plan 0094 35% absolute-frequency envelope anchor as the offline
+foundation for the next register experiment. Do not promote the current combined
+control. Split modal decay anchoring from the amplitude envelope and test a
+narrow fixed-Hz restoration of inharmonic side-mode energy.
+
+Reason:
+Loudness-matched human listening found 35% "pretty good" and much better than
+the harmonic-number baseline, establishing that the formant analogy and partial
+absolute-frequency correction are useful. The same candidate flattened as pitch
+rose and lost metal ring/brightness, so the remaining problem is not solved by
+more or less of one scalar. The current control also anchors decay curvature,
+which can shorten upper fixed-Hz mode lifetimes, while the anchored amplitude
+recipe attenuates side modes that can carry a restrained metal-string ring.
+
+Status:
+Accepted for offline A/B.
+
+Consequences:
+Hold the accepted 1.75x modal force, 12% direct texture, 2.5x density, and 35%
+amplitude anchor fixed. Compare anchored versus harmonic-number decay and a
+small plain-string-weighted side-mode restoration as a 2x2 test. Do not restore
+the rejected chirp bank or broadly brighten the full harmonic body.
