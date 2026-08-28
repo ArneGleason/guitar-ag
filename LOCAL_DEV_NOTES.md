@@ -155,6 +155,18 @@ candidate combines `--legacy-pluck-position 0.14`,
 `--legacy-repick-crossfade-ms 1.0`. The two high-register controls remain
 offline-only.
 
+Plan 0108's amplitude-damped endpoint is human-rejected as dark/large/flat.
+Plan 0109 keeps production as the high-E baseline and auditions
+`--legacy-high-register-partial-decay 2.0` with a 1.00x high-E body endpoint,
+while leaving initial modal amplitudes intact. See
+`analysis/transient-preserving-endpoint-20260828.md`. The missing low-E real
+reference gate and revised high-E gate are under:
+
+```text
+build-vs2022-x64\diagnostics\eg0109-transient-preserving-endpoint\listening-low-e
+build-vs2022-x64\diagnostics\eg0109-transient-preserving-endpoint\listening-high-e
+```
+
 The previous checkout at `C:\code\guitar-ag` was clean and at the same GitHub commit when the canonical clone was created. Windows would not move it while the original Codex workspace held the directory open. Remove that duplicate only from a later task after the original workspace is closed and the exact path is re-verified.
 
 On this PC, Git may reject a checkout as dubious ownership. Prefer an explicit per-command override such as:

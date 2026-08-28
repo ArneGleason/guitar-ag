@@ -35,3 +35,10 @@ that cannot be answered from the existing low-E damping evidence.
 
 Stop after the endpoint A/B. Do not request A/D/G/B or high-E damping until the
 human verdict identifies the next useful evidence.
+
+## Human Verdict
+
+Rejected. The candidate's numerical 60 ms match did not survive listening: it
+was dark, large, flat, and less convincing than production. Production remains
+the preferred high-E baseline. Continue with Plan 0109's transient-preserving
+time-domain bracket rather than increasing amplitude damping.

@@ -75,6 +75,7 @@ public:
     void setOfflineBodyDecayTimeScale (float timeScale) noexcept;
     void setOfflineHighRegisterBodyDecayTimeScale (float timeScale) noexcept;
     void setOfflineHighRegisterPartialDamping (float dampingAmount) noexcept;
+    void setOfflineHighRegisterPartialDecay (float decayAmount) noexcept;
     void startOfflineFadeOut (float durationMilliseconds) noexcept;
 #endif
 
@@ -349,6 +350,7 @@ private:
     float offlineBodyDecayTimeScale = 1.0f;
     float offlineHighRegisterBodyDecayTimeScale = -1.0f;
     float offlineHighRegisterPartialDamping = 0.0f;
+    float offlineHighRegisterPartialDecay = 0.0f;
     int offlineFadeOutSamplesRemaining = 0;
     int offlineFadeOutTotalSamples = 0;
 #endif

@@ -44,6 +44,9 @@ def summarized_row(label: str, direction: str, stroke: str, rows: list[dict[str,
         "direction_group": direction,
         "stroke_direction": stroke,
         "events": len(selected),
+        "initial_centroid_hz": median(selected, "initial_centroid_hz"),
+        "initial_above_1500_fraction": median(selected, "initial_band_1500_4000")
+        + median(selected, "initial_band_4000_10000"),
         "attack_centroid_hz": median(selected, "attack_centroid_hz"),
         "attack_below_500_fraction": median(selected, "attack_band_50_150")
         + median(selected, "attack_band_150_500"),
@@ -117,6 +120,8 @@ def main() -> int:
         if row["direction_group"] in ("down", "up"):
             print(
                 f"{row['label']} {row['direction_group']}: "
+                f"initial={row['initial_centroid_hz']:.0f} Hz/"
+                f"{100.0 * row['initial_above_1500_fraction']:.1f}%>1.5k "
                 f"centroid={row['attack_centroid_hz']:.0f} Hz "
                 f"<500={100.0 * row['attack_below_500_fraction']:.1f}% "
                 f">1500={100.0 * row['attack_above_1500_fraction']:.1f}% "

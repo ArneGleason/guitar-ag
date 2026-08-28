@@ -513,6 +513,19 @@ Plan 0103 supersedes this 30-item inventory for current capture work.
 - [x] Windows Release `GuitarAGOfflineRender` and `GuitarAG_VST3` build.
 - [x] Listening tracks are aligned, mono 44.1 kHz/24-bit, RMS-matched, and do
       not clip.
-- [ ] Human listening confirms the endpoint candidate removes the synthetic
-      high-register scale/brightness without making the string dull, hollow, or
-      unnaturally short.
+- [x] Human listening rejects the endpoint candidate because it is dark, large,
+      flat, and less convincing than the preferred production high E.
+
+## Plan 0109 Transient-Preserving Endpoint Checks
+
+- [x] Add a separate 18 ms initial-onset spectrum alongside the 60 ms attack.
+- [x] New upper-partial decay changes modal persistence rather than start
+      amplitude and is smoothly disabled at low E.
+- [x] Transient candidate low-E down/up/alternate renders are byte-identical to
+      the accepted Plan 0105/0106 files.
+- [x] Generate actual-reference versus accepted-candidate low-E listening files.
+- [x] Generate real-reference/production/rejected/transient high-E listening
+      files in both useful orders.
+- [ ] Human judges the low-E accepted candidate against the actual low-E guitar.
+- [ ] Human judges whether the transient candidate reduces glassiness without
+      repeating Plan 0108's dark/flat failure.

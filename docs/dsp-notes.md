@@ -2565,3 +2565,21 @@ values at E2.
 This is modal/string loss, not an additive pick-noise layer. The faster modeled
 alternate tail remains a diagnostic of missing moving-string repick state; the
 1 ms de-click removes the artifact but does not preserve that energy.
+
+Human listening rejected this amplitude-loss direction. It sounded dark, large,
+flat, and less bright than the real guitar; production was preferred despite
+remaining glassiness.
+
+## 2026-08-28 — Plan 0109 Transient-Preserving Upper-Partial Decay
+
+The offline renderer now has an independent high-register partial-decay amount.
+It leaves modal start amplitude untouched and shortens decay only above a fixed
+1.2 kHz hinge, scaled smoothly from no effect at E2 to full effect at E4. The
+first candidate uses amount 2.0, a 1.00x high-E body endpoint, no amplitude
+damping, the accepted 0.14 pluck/1.50x low-E body, and the 1 ms de-click.
+
+Compared with production high-E down, the first 18 ms moves from 1704 Hz/62.3%
+above 1.5 kHz to 1463 Hz/40.5%, while the 60 ms window moves from 1728 Hz/62.6%
+to 1333 Hz/35.1%. This is intentionally brighter than the rejected endpoint's
+966 Hz/12.3% initial window. Listening—not further optimization toward the
+reference aggregate—is the next gate.

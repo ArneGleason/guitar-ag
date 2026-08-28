@@ -226,3 +226,7 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
   decay interpolation plus 0.25 curved upper-partial loss leaves low E exact and
   moves high-E spectrum/decay close to the recording. Prepared an RMS-matched
   reference/control/candidate listening gate; no further capture is requested.
+- Human listening rejected Plan 0108's dark/large/flat endpoint and preferred
+  production high E despite its glassiness. Plan 0109 retains onset amplitude,
+  tests fixed-Hz upper-partial decay instead, and adds the missing real-reference
+  low-E comparison. No further capture is requested.

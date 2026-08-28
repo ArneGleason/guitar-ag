@@ -41,7 +41,13 @@ def excerpt(samples: np.ndarray, sample_rate: int, start_seconds: float, duratio
     return result
 
 
-def build_montage(analyzer, helpers, paths: dict[str, Path]) -> tuple[int, np.ndarray, dict[str, object]]:
+def build_montage(
+    analyzer,
+    helpers,
+    paths: dict[str, Path],
+    independent_distance: float = 0.40,
+    alternate_distance: float = 0.20,
+) -> tuple[int, np.ndarray, dict[str, object]]:
     loaded = {}
     onsets = {}
     for direction, path in paths.items():
@@ -51,7 +57,7 @@ def build_montage(analyzer, helpers, paths: dict[str, Path]) -> tuple[int, np.nd
         loaded[direction] = (rate, samples)
         audio = analyzer.read_audio(path)
         expected = 12 if direction == "alternate" else 6
-        distance = 0.20 if direction == "alternate" else 0.40
+        distance = alternate_distance if direction == "alternate" else independent_distance
         onsets[direction] = analyzer.select_onsets(audio, expected, distance)
 
     sample_rate = loaded["down"][0]

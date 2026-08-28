@@ -8,6 +8,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0109's transient-preserving high-E upper-partial decay experiment
+  and the previously missing real-reference versus accepted-candidate low-E
+  listening gate after the Plan 0108 endpoint was rejected as dark and flat.
 - Added Plan 0108's low/high-E endpoint analyzer, deterministic endpoint MIDI,
   offline high-register partial-loss/decay controls, and a reference-backed
   loudness-matched listening set. The candidate leaves accepted low E exact.

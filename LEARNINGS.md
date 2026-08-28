@@ -1001,3 +1001,17 @@ solve: fixed pluck positions from 0.08 to 0.28 leave 47–74% of modeled high-E
 attack energy above 1.5 kHz, compared with 4–10% in the recording. A smooth
 register-dependent loss above the fundamental closes most of that gap while
 leaving low E exact. Muted high E would not add evidence for this decision.
+
+## 2026-08-28 — A close 60 ms spectrum can still sound flat
+
+Plan 0108 nearly matched high-E centroid, band balance, decay, and level, yet
+human listening preferred the much brighter production model. The real
+reference itself sounded brighter than the matched candidate. A short spectral
+average does not encode pick-contact sharpness, modal buildup, or how brightness
+changes through the attack.
+
+When the complaint is “glassy,” test upper-partial persistence before removing
+initial upper-partial amplitude. Report initial-onset and longer attack windows
+separately, and keep human preference authoritative. Also include the real
+reference in listening gates: production-versus-candidate can establish
+preference without proving reference similarity.

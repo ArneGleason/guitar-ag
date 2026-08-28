@@ -1227,11 +1227,36 @@ String Age cannot independently close the measured 50-point excess above
 while mathematically vanishing at low E.
 
 Status:
-Prepared as an offline human listening gate. No production/VST parameter or
-preset field changes.
+Rejected by human listening. The close aggregate match sounded dark, large,
+flat, and less convincing than production. No production/VST parameter or
+preset field changed.
 
 Consequences:
 The accepted low-E renders remain byte-identical. High-E muting and middle
 strings remain deferred. A later production implementation must derive a
 musically defensible per-string/interpolated model and pass polyphony/MPE/DAW
 checks rather than exposing these research scalars directly.
+
+## 2026-08-28 — Preserve high-E onset amplitude; test upper-partial decay
+
+Decision:
+Retain production as the preferred high-E baseline and replace Plan 0108's
+amplitude damping with an offline-only fixed-Hz upper-partial decay bracket.
+Use amount 2.0 with a 1.2 kHz hinge and a 1.00x high-E body endpoint as the first
+listening candidate. Keep low E at its accepted 1.50x decay, fixed 0.14 pluck,
+and 1 ms de-click.
+
+Reason:
+Human listening found the real guitar brighter than the numerically close Plan
+0108 candidate. The remaining production complaint is glassiness, which is a
+better fit for upper-partial persistence than wholesale onset attenuation.
+Separating the initial 18 ms from the 60 ms aggregate also prevents the metric
+from treating lost contact brightness as success.
+
+Status:
+Prepared as the Plan 0109 offline listening gate. Production remains unchanged.
+
+Consequences:
+Plan 0109 also supplies the missing actual-reference low-E comparison. Reject
+the modal-decay family if the mild candidate is still flat; do not respond by
+blindly increasing measured spectral similarity.

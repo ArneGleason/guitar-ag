@@ -319,6 +319,12 @@ void AudioEngine::setLegacyOfflineHighRegisterPartialDamping (float dampingAmoun
         voice.setOfflineHighRegisterPartialDamping (dampingAmount);
 }
 
+void AudioEngine::setLegacyOfflineHighRegisterPartialDecay (float decayAmount) noexcept
+{
+    for (auto& voice : voices)
+        voice.setOfflineHighRegisterPartialDecay (decayAmount);
+}
+
 void AudioEngine::setLegacyOfflineRepickCrossfadeMilliseconds (float durationMilliseconds) noexcept
 {
     legacyOfflineRepickCrossfadeMilliseconds = juce::jlimit (0.0f, 20.0f, durationMilliseconds);

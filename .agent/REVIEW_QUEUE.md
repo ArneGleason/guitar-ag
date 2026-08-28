@@ -34,10 +34,11 @@ Suggested focus:
 - Plan 0107 must stop after three high-E ringing items. Review that uncertainty
   about likely-.009 strings, qualitative age/grime, and celluloid-style pick is
   preserved rather than silently upgraded to exact specifications.
-- Plan 0108 adds two offline-only endpoint controls. Review the E2/E4 geometric
-  interpolation, exact low-E/default neutrality, the 1.2-power partial-loss
-  curve, and whether a later production model should be per string rather than
-  expose these research scalars. Alternate-tail mismatch remains visible.
+- Plan 0108's amplitude-domain endpoint is human-rejected; do not promote it
+  despite the close aggregate metrics. Plan 0109 adds offline fixed-Hz
+  upper-partial decay. Review that start amplitudes and accepted low E remain
+  exact, that the 1.2 kHz hinge is explicitly experimental, and that the new
+  gate compares against the real guitar rather than production alone.
 - Plan 0102 adds permanent file deletion. Review the rejected-only gate, direct
   session-child path check, failed-delete behavior, list reselection, manifest
   rewrite, and approval-derived inventory refresh. No key repeat should cascade.

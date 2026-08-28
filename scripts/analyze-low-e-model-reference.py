@@ -276,6 +276,7 @@ def event_rows(
         next_onset = onsets[index + 1] if index + 1 < len(onsets) else len(audio.samples) / audio.sample_rate
         pre = window(audio, max(0.0, onset - 0.060), 0.045)
         post = window(audio, onset + 0.015, 0.045)
+        initial = window(audio, onset - 0.003, 0.018)
         attack = window(audio, onset - 0.003, 0.063)
         early = window(audio, onset + 0.055, min(0.20, max(0.05, next_onset - onset - 0.08)))
         pitch_window = window(audio, onset + 0.18, min(0.80, max(0.0, next_onset - onset - 0.25)))
@@ -285,6 +286,7 @@ def event_rows(
         pre_rms = math.sqrt(float(np.mean(pre * pre))) if len(pre) else 0.0
         post_rms = math.sqrt(float(np.mean(post * post))) if len(post) else 0.0
         features = spectrum_features(attack, audio.sample_rate)
+        initial_features = spectrum_features(initial, audio.sample_rate)
         early_features = spectrum_features(early, audio.sample_rate)
         stroke_direction = direction
         if direction == "alternate":
@@ -308,6 +310,8 @@ def event_rows(
             "attack_crest_db": db(peak / max(rms, 1.0e-12)),
             "attack_centroid_hz": features["centroid_hz"],
             "attack_flatness": features["flatness"],
+            "initial_centroid_hz": initial_features["centroid_hz"],
+            "initial_flatness": initial_features["flatness"],
             "early_centroid_hz": early_features["centroid_hz"],
             "fundamental_hz": (
                 estimate_fundamental(pitch_window, audio.sample_rate, fundamental_target_hz)
@@ -321,6 +325,7 @@ def event_rows(
             ),
         }
         for lo, hi in BANDS:
+            row[f"initial_band_{lo}_{hi}"] = initial_features[f"band_{lo}_{hi}"]
             row[f"attack_band_{lo}_{hi}"] = features[f"band_{lo}_{hi}"]
             row[f"early_band_{lo}_{hi}"] = early_features[f"band_{lo}_{hi}"]
         rows.append(row)
@@ -366,10 +371,13 @@ def summarize(rows: list[dict[str, object]]) -> list[dict[str, object]]:
         "attack_crest_db",
         "attack_centroid_hz",
         "attack_flatness",
+        "initial_centroid_hz",
+        "initial_flatness",
         "early_centroid_hz",
         "fundamental_hz",
         "decay_db_per_second",
         *[f"attack_band_{lo}_{hi}" for lo, hi in BANDS],
+        *[f"initial_band_{lo}_{hi}" for lo, hi in BANDS],
         *[f"early_band_{lo}_{hi}" for lo, hi in BANDS],
     ]
     groups: dict[tuple[str, str, str, str], list[dict[str, object]]] = {}

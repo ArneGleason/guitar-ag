@@ -117,3 +117,11 @@ pre-change high-E control at SHA-256
 `7590F5AC36C36E43F7C4E146FEE436C25E5B116741B6968BAE84CAC96C22EDBE`.
 The endpoint candidate's three low-E renders exactly match the accepted Plan
 0105/0106 low-E renders.
+
+## Human Listening Verdict
+
+Rejected. The actual reference sounded brighter and more convincing, while the
+endpoint candidate sounded dark, large, flat, and insufficiently bright.
+Production EG-089 was preferred despite a remaining glassy/new-string quality.
+Plan 0109 therefore replaces amplitude-domain damping with a milder
+transient-preserving upper-partial decay experiment.

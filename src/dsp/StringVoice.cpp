@@ -796,6 +796,13 @@ void StringVoice::start (int midiNoteNumber,
         auto decaySeconds = decayBaseSeconds / (1.0f + decayCurvature * decayEnvelopeIndex * decayEnvelopeIndex);
 #if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
         decaySeconds *= endpointDecayTimeScale;
+        const auto highPartialPosition = juce::jmax (0.0f, (stiffFrequency - 1200.0f) / 1200.0f);
+        decaySeconds = juce::jmax (
+            1.0f / static_cast<float> (sampleRate),
+            decaySeconds
+                * std::exp (-offlineHighRegisterPartialDecay
+                            * endpointRegisterBlend
+                            * highPartialPosition));
 #endif
         const auto decay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * decaySeconds));
         const auto tiltStart = 1.00f + (0.92f - 1.00f) * woundAmount;
@@ -1084,6 +1091,11 @@ void StringVoice::setOfflineHighRegisterBodyDecayTimeScale (float timeScale) noe
 void StringVoice::setOfflineHighRegisterPartialDamping (float dampingAmount) noexcept
 {
     offlineHighRegisterPartialDamping = juce::jlimit (0.0f, 2.0f, dampingAmount);
+}
+
+void StringVoice::setOfflineHighRegisterPartialDecay (float decayAmount) noexcept
+{
+    offlineHighRegisterPartialDecay = juce::jlimit (0.0f, 8.0f, decayAmount);
 }
 
 void StringVoice::startOfflineFadeOut (float durationMilliseconds) noexcept
