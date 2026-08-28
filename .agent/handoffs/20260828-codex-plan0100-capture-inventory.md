@@ -14,6 +14,7 @@ conditions. Stop there for analysis before collecting direction, force, depth,
 pick-material, or finger/surface phases.
 
 Implementation commit: `3566523`.
+Space-transport follow-up: `95bce64`.
 
 ## Verification Completed
 
