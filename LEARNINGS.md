@@ -963,3 +963,16 @@ reference decay without stretching the short attack chirps. It also showed why
 one tail is not a universal target: the human independent down, independent up,
 and alternate tails differed substantially. A cross-context compromise is safer
 than fitting the longest note exactly.
+
+## 2026-08-28 — A restart click can occur after a continuous boundary sample
+
+The accepted low-E alternate render did not have its largest derivative on the
+exact MIDI note-on sample. The output tone filter carried state across that
+sample, while reconstructing the modal bank produced abnormal slopes 0.6-3 ms
+later. Inspecting only `sample[n] - sample[n-1]` would therefore have falsely
+cleared the human-reported tick.
+
+Attack-mode, contact-layer, pick-transient, and all-direct-layer ablations left
+the spike unchanged. A 1 ms continuation of the outgoing modal phase suppressed
+it as well as 3-8 ms fades. Use the shortest effective transition: longer fades
+do not become more physical merely because they are smoother.

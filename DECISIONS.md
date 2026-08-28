@@ -1149,10 +1149,36 @@ production claim. Plan 0104 also showed that direct pick/contact layers are too
 quiet to explain the discrepancy.
 
 Status:
-Implemented as an offline Plan 0105 A/B; awaiting human verdict.
+Accepted by human listening as better. Production promotion is deferred until
+the alternate-picking restart tick passes Plan 0106.
 
 Consequences:
 The new controls compile only into `GuitarAGOfflineRender`; the rebuilt Windows
 VST3 has no corresponding code path or parameter. More capture work, fretting-
 hand damping, moving-string repicks, and contextual variation remain deferred
 until the candidate is audibly better through the intended listening chain.
+
+## 2026-08-28 — De-click legacy repicks with the shortest modal-tail transition
+
+Decision:
+Use a 1 ms outgoing-modal-tail crossfade as the Plan 0106 offline candidate for
+same-string picked restarts. Do not promote it until the human confirms that it
+removes the tick without softening, doubling, or flamming the real pick attack.
+
+Reason:
+The exact note-on boundary is not the largest jump; a modal-onset derivative
+spike appears 0.6-3 ms later and reaches a median 9.2 dB above the preceding
+waveform's 99th-percentile slope. Disabling direct attack/contact layers does
+not change it. Continuing the outgoing modal phase for 1 ms moves the median
+spike to -3.6 dB and the maximum to +1.8 dB. Fades of 3-8 ms provide no further
+benefit and overlap the reset voice longer.
+
+Status:
+Implemented as an offline Plan 0106 listening gate.
+
+Consequences:
+Dedicated tail voices are allocated during offline-engine preparation, never on
+the audio thread; the note event copies one already-allocated voice state. This
+removes a restart artifact but is not a full physical moving-string repick. A
+later production implementation must retain the accepted 1 ms behavior under
+six-string polyphony and host/MPE regression tests.

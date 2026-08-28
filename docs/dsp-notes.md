@@ -2506,3 +2506,26 @@ These are hypothesis controls, not parameters or production constants. The VST3
 has no corresponding fields or setters, and its Release target builds with the
 offline compile definition absent. Human listening must distinguish a more
 guitar-like result from one that is merely darker and longer before promotion.
+
+Human listening accepted the Plan 0105 candidate as better. Its regular
+alternate-picking tick is handled as the separate Plan 0106 gate before any
+production promotion.
+
+## 2026-08-28 — Plan 0106 Legacy Repick De-click
+
+The legacy engine reuses the active voice assigned to a string and calls
+`StringVoice::start()`, rebuilding modal phase and amplitude. In the accepted
+alternate render, the exact boundary derivative is modest but the reconstructed
+onset creates a 5 ms-window derivative spike: median +9.2 dB and p90 +15.0 dB
+relative to the preceding 50 ms waveform's 99th-percentile derivative.
+
+The offline `--legacy-repick-crossfade-ms` experiment copies the outgoing picked
+voice into a per-string tail slot allocated during `prepare()`. A smooth envelope
+lets the copied modal state continue from its real phase while the main voice
+restarts normally. One millisecond reduces the median spike to -3.6 dB and the
+maximum to +1.8 dB; 3, 5, and 8 ms do not improve it.
+
+This path is compiled only with `GUITAR_AG_ENABLE_OFFLINE_ABLATION`. Copying a
+full modal voice on the audio thread is acceptable for a bounded offline
+hypothesis but must be reviewed carefully before production. The technique is a
+short de-click bridge, not preserved-state physical repicking.

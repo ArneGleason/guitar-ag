@@ -37,5 +37,8 @@ gain with one deliberately narrow candidate before asking for more captures.
 - [x] Parameter-grid measurements and candidate choice are recorded.
 - [x] Current and candidate listening files use identical source MIDI and
       pickup settings and are loudness matched without clipping.
-- [ ] The human decides whether the change is perceptible and useful before the
+- [x] The human decides whether the change is perceptible and useful before the
       candidate is promoted or the inventory expands.
+
+Human verdict: the candidate is better. Its alternate-picking restart tick must
+pass Plan 0106 before a separate production promotion.

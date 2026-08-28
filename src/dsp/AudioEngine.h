@@ -11,6 +11,7 @@
 #include <array>
 #include <atomic>
 #include <cstdint>
+#include <memory>
 
 namespace guitar_ag
 {
@@ -118,6 +119,7 @@ public:
     void setLegacyOfflineRegisterMetalRestoration (float restorationFactor) noexcept;
     void setLegacyOfflinePluckPosition (float normalizedPosition) noexcept;
     void setLegacyOfflineBodyDecayTimeScale (float timeScale) noexcept;
+    void setLegacyOfflineRepickCrossfadeMilliseconds (float durationMilliseconds) noexcept;
 #endif
     void setTailSustain (float newTailSustain) noexcept;
     void setInputTransposeSemitones (int newInputTransposeSemitones) noexcept;
@@ -372,6 +374,10 @@ private:
     };
 
     std::array<StringVoice, maxVoices> voices;
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    std::unique_ptr<std::array<StringVoice, stringCount>> offlineRestartTailVoices;
+    float legacyOfflineRepickCrossfadeMilliseconds = 0.0f;
+#endif
 #if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
     std::array<StatefulStringVoice, maxVoices> statefulVoices;
 #endif

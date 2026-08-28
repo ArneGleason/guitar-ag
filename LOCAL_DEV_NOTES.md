@@ -115,8 +115,26 @@ python scripts\create-low-e-candidate-listening-set.py `
 The selected candidate adds
 `--legacy-pluck-position 0.14 --legacy-body-decay-time-scale 1.50` to an
 otherwise identical EG-089 humbucker/neck render. See
-`analysis/low-e-reference-candidate-20260828.md`; do not promote it before the
-human listening verdict.
+`analysis/low-e-reference-candidate-20260828.md`. Human listening accepted it as
+better; production promotion now waits on the Plan 0106 restart-click gate.
+
+Plan 0106 diagnoses and auditions the accepted candidate's alternate-picking
+restart tick. After rendering `control.wav`, layer ablations, and 1/3/5/8 ms
+crossfade candidates into the Plan 0106 diagnostic directory, run:
+
+```powershell
+python scripts\analyze-repick-discontinuities.py `
+  --render-directory build-vs2022-x64\diagnostics\eg0106-legacy-repick-declick `
+  --output build-vs2022-x64\diagnostics\eg0106-legacy-repick-declick\discontinuities.json
+
+python scripts\create-repick-declick-listening-set.py `
+  --render-directory build-vs2022-x64\diagnostics\eg0106-legacy-repick-declick `
+  --output-directory build-vs2022-x64\diagnostics\eg0106-legacy-repick-declick\listening
+```
+
+The selected offline flag is `--legacy-repick-crossfade-ms 1`. See
+`analysis/legacy-repick-declick-20260828.md`. It remains a human-gated de-click
+prototype, not the production moving-string repick model.
 
 The previous checkout at `C:\code\guitar-ag` was clean and at the same GitHub commit when the canonical clone was created. Windows would not move it while the original Codex workspace held the directory open. Remove that duplicate only from a later task after the original workspace is closed and the exact path is re-verified.
 

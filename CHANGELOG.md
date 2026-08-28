@@ -8,6 +8,10 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0106's offline legacy-repick de-click experiment, derivative-spike
+  analyzer, 1/3/5/8 ms modal-tail bracket, and order-balanced 1 ms listening
+  gate after the human accepted the Plan 0105 low-E candidate but identified a
+  repeatable alternate-picking restart tick.
 - Added Plan 0105's offline-only fixed pluck-position and harmonic-body decay-
   time controls, a measured low-E parameter bracket, and an RMS-matched current-
   versus-candidate listening gate. The candidate improves the pickup-matched

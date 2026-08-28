@@ -156,6 +156,10 @@ void StringVoice::reset()
     modalPickRandomState = 0x9e3779b9u;
     modalPickReplacesDirectLayers = false;
     registerLevelCompensation = 1.0f;
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    offlineFadeOutSamplesRemaining = 0;
+    offlineFadeOutTotalSamples = 0;
+#endif
     active = false;
     releasing = false;
     woundString = false;
@@ -1040,6 +1044,17 @@ void StringVoice::setOfflineBodyDecayTimeScale (float timeScale) noexcept
 {
     offlineBodyDecayTimeScale = juce::jlimit (0.50f, 4.00f, timeScale);
 }
+
+void StringVoice::startOfflineFadeOut (float durationMilliseconds) noexcept
+{
+    if (! active)
+        return;
+
+    offlineFadeOutTotalSamples = juce::jmax (
+        1,
+        juce::roundToInt (static_cast<float> (sampleRate) * durationMilliseconds * 0.001f));
+    offlineFadeOutSamplesRemaining = offlineFadeOutTotalSamples;
+}
 #endif
 
 float StringVoice::getFeedbackCouplingScore (float loopFrequency) const noexcept
@@ -1212,7 +1227,23 @@ float StringVoice::renderSample (float tailSustain,
     modalOutput += contactOutput;
 
     ++samplesSinceStart;
-    const auto voiceOutput = modalOutput * registerLevelCompensation;
+    auto voiceOutput = modalOutput * registerLevelCompensation;
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    if (offlineFadeOutSamplesRemaining > 0)
+    {
+        const auto fade = static_cast<float> (offlineFadeOutSamplesRemaining)
+                        / static_cast<float> (juce::jmax (1, offlineFadeOutTotalSamples));
+        voiceOutput *= fade * fade * (3.0f - 2.0f * fade);
+        --offlineFadeOutSamplesRemaining;
+
+        if (offlineFadeOutSamplesRemaining == 0)
+        {
+            const auto finalOutput = voiceOutput * outputGain;
+            reset();
+            return finalOutput;
+        }
+    }
+#endif
     energy = 0.9994f * energy + 0.0006f * std::abs (voiceOutput);
 
     const auto feedbackHold = 1.0f - 0.78f * feedbackRise * cachedFeedbackHowl - 0.58f * loopAmount;

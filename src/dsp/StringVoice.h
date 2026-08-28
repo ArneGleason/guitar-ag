@@ -73,6 +73,7 @@ public:
     void setOfflineRegisterMetalRestoration (float restorationFactor) noexcept;
     void setOfflinePluckPosition (float normalizedPosition) noexcept;
     void setOfflineBodyDecayTimeScale (float timeScale) noexcept;
+    void startOfflineFadeOut (float durationMilliseconds) noexcept;
 #endif
 
     float renderSample (float tailSustain,
@@ -344,6 +345,8 @@ private:
     bool offlineContactLayerEnabled = true;
     float offlinePluckPosition = -1.0f;
     float offlineBodyDecayTimeScale = 1.0f;
+    int offlineFadeOutSamplesRemaining = 0;
+    int offlineFadeOutTotalSamples = 0;
 #endif
 };
 

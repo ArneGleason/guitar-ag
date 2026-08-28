@@ -48,6 +48,14 @@ void AudioEngine::prepare (double newSampleRate, int, int)
     for (auto& voice : voices)
         voice.prepare (sampleRate);
 
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    if (offlineRestartTailVoices == nullptr)
+        offlineRestartTailVoices = std::make_unique<std::array<StringVoice, stringCount>>();
+
+    for (auto& voice : *offlineRestartTailVoices)
+        voice.prepare (sampleRate);
+#endif
+
 #if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
     for (auto& voice : statefulVoices)
         voice.prepare (sampleRate);
@@ -131,6 +139,14 @@ void AudioEngine::reset()
 {
     for (auto& voice : voices)
         voice.reset();
+
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    if (offlineRestartTailVoices != nullptr)
+    {
+        for (auto& voice : *offlineRestartTailVoices)
+            voice.reset();
+    }
+#endif
 
 #if defined (GUITAR_AG_ENABLE_STATEFUL_ENGINE)
     for (auto& voice : statefulVoices)
@@ -289,6 +305,11 @@ void AudioEngine::setLegacyOfflineBodyDecayTimeScale (float timeScale) noexcept
 {
     for (auto& voice : voices)
         voice.setOfflineBodyDecayTimeScale (timeScale);
+}
+
+void AudioEngine::setLegacyOfflineRepickCrossfadeMilliseconds (float durationMilliseconds) noexcept
+{
+    legacyOfflineRepickCrossfadeMilliseconds = juce::jlimit (0.0f, 20.0f, durationMilliseconds);
 }
 #endif
 
@@ -874,6 +895,35 @@ void AudioEngine::renderRange (juce::AudioBuffer<float>& audio, int startSample,
                                                    slideLiftAmount,
                                                    slideSqueakAmount,
                                                    slideSqueakDownAmount);
+
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+            if (offlineRestartTailVoices != nullptr)
+            {
+                for (auto& voice : *offlineRestartTailVoices)
+                    mixedSample += voice.renderSample (sustainAmount,
+                                                       palmMuteAmount,
+                                                       vibratoDepthAmount,
+                                                       vibratoSpeedAmount,
+                                                       vibratoDelaySeconds,
+                                                       whammySemitones,
+                                                       whammySpreadAmount,
+                                                       ampFeedbackAmount,
+                                                       feedbackLoopFrequencyForVoices,
+                                                       feedbackLoopAmountForVoices,
+                                                       feedbackLoopSignalForVoices,
+                                                       feedbackDominantString,
+                                                       feedbackStringFocus,
+                                                       aftertouchBendAmount,
+                                                       mpePressureAmountValue,
+                                                       mpeTimbreAmountValue,
+                                                       mpePitchBendRangeAmount,
+                                                       neckSlideAmount,
+                                                       slideFretStepsAmount,
+                                                       slideLiftAmount,
+                                                       slideSqueakAmount,
+                                                       slideSqueakDownAmount);
+            }
+#endif
 
             mixedSample += renderFingerNoiseSample() * fingerNoiseAmount;
         }
@@ -2090,6 +2140,20 @@ void AudioEngine::noteOn (int noteNumber, int channel, float velocity)
         auto& voice = selectVoiceForAssignment (assignment);
         stolenString = voice.isActive() ? voice.getStringIndex() : -1;
         stolenNoteNumber = voice.isActive() ? voice.getNoteNumber() : -1;
+
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+        if (gesture == PlayerGesture::Picked
+            && voice.isActive()
+            && voice.getStringIndex() == assignment.stringIndex
+            && offlineRestartTailVoices != nullptr
+            && legacyOfflineRepickCrossfadeMilliseconds > 0.0f)
+        {
+            auto& tailVoice = (*offlineRestartTailVoices)[static_cast<size_t> (
+                juce::jlimit (0, stringCount - 1, voice.getStringIndex()))];
+            tailVoice = voice;
+            tailVoice.startOfflineFadeOut (legacyOfflineRepickCrossfadeMilliseconds);
+        }
+#endif
 
         if (voice.isActive())
         {

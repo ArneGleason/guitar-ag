@@ -466,6 +466,23 @@ Plan 0103 supersedes this 30-item inventory for current capture work.
       compromise.
 - [x] Current and candidate A/Bs use identical MIDI and humbucker/neck settings,
       are 18.9 seconds each, RMS-matched to -18 dBFS, and do not clip.
-- [ ] Human listening confirms whether the candidate is materially more guitar-
+- [x] Human listening confirms whether the candidate is materially more guitar-
       like rather than only darker and longer.
-- [ ] Promote nothing and request no next-string capture until that verdict.
+- [x] Promote nothing and request no next-string capture until that verdict.
+
+## Plan 0106 Legacy Repick De-click Checks
+
+- [x] Measure the exact note-on boundary and the following 5 ms rather than
+      assuming the largest discontinuity occurs on the MIDI event sample.
+- [x] Direct-layer ablations leave the restart spike unchanged.
+- [x] Bracket 1, 3, 5, and 8 ms outgoing-modal-tail transitions and select the
+      shortest equally effective value, 1 ms.
+- [x] Default/neutral renderer output remains byte-identical with the new flag
+      omitted.
+- [x] The 1 ms render repeats byte-identically.
+- [x] Windows Release VST3 and offline renderer build; the VST3 excludes the
+      offline tail storage and flag.
+- [x] The 5.85-second control/candidate pair is RMS-matched to -18 dBFS with
+      less than 0.001 dB gain difference and no clipping.
+- [ ] Human listening confirms tick removal without a soft, doubled, or flammed
+      legitimate pick attack.

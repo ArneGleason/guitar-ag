@@ -3,8 +3,8 @@
 ## Outcome
 
 The first small reference-driven candidate is measurably closer to the approved
-low-E captures, but it remains offline-only until human listening decides whether
-the gain is musically worthwhile.
+low-E captures. Human listening judged it better; it remains offline only while
+Plan 0106 removes the alternate-picking restart tick before promotion.
 
 The candidate fixes physical pluck position at 0.14 of speaking length and
 multiplies the long-lived harmonic-body decay time by 1.50. It keeps EG-089's
@@ -75,8 +75,10 @@ The two tracks are RMS-matched to -18 dBFS; neither clips. Listen through the
 same clean-DI or amp-sim chain and judge attack identity, low-E body, tail, and
 whether the candidate merely sounds darker/longer.
 
-Do not promote the candidate or request the next string until that A/B receives
-an explicit human verdict.
+Human verdict: the candidate is better. The regular alternate-picking tick is a
+separate legacy restart artifact diagnosed in
+`analysis/legacy-repick-declick-20260828.md`; production promotion waits on that
+de-click listening gate.
 
 ## Reproduction
 

@@ -28,6 +28,13 @@ Suggested focus:
   Upstroke high-band energy remains slightly worse than current even though its
   decay and sub-500 Hz balance improve; do not broaden capture or promote the
   constants until this limitation is heard in context.
+- Plan 0105 is now human-accepted, but Plan 0106 must clear its restart tick
+  before production promotion. Review the distinction between the exact
+  boundary derivative and the larger modal-onset spike within the next 5 ms.
+- Plan 0106 copies a full `StringVoice` into storage allocated at `prepare()`;
+  no allocation occurs on the audio thread, but the bounded state copy is still
+  an offline prototype. A production design must prove polyphonic cost and avoid
+  stale MPE/feedback state while preserving the accepted 1 ms sound.
 - Plan 0102 adds permanent file deletion. Review the rejected-only gate, direct
   session-child path check, failed-delete behavior, list reselection, manifest
   rewrite, and approval-derived inventory refresh. No key repeat should cascade.

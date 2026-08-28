@@ -205,3 +205,12 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Selected 1.50x body decay as the cross-context compromise, then built an
   18.9-second, -18 dBFS RMS-matched, order-balanced current/candidate listening
   set. The candidate remains offline pending the human realism verdict.
+- Human listening accepted the Plan 0105 candidate as better and identified a
+  regular tick in the alternate-picking section consistent with legacy modal
+  voice reconstruction on every repeated note-on.
+- Plan 0106 measured the exact boundary as modest but found median +9.2 dB and
+  p90 +15.0 dB derivative spikes 0.6-3 ms after repicks. Direct attack/contact
+  ablations did not change them.
+- Added an offline-only outgoing-modal-tail crossfade. One millisecond reduces
+  the median spike to -3.6 dB and performs as well as 3-8 ms, so a compact,
+  order-balanced 1 ms A/B is the next human gate before production promotion.
