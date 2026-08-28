@@ -333,6 +333,27 @@ Omitting `--legacy-register-decay-anchor` intentionally makes it follow the
 register envelope anchor. `--legacy-register-metal-restore 1.0` is literal
 lost-side-energy restoration; 6.0 is an audible diagnostic exaggeration.
 
+## Plan 0097 Production Tone Promotion Phrase
+
+Generate the compact phrase fixture with:
+
+```powershell
+python scripts\create-tone-promotion-audition-midi.py
+```
+
+`tests/midi/tone-promotion-phrase.mid` lasts 7.2 seconds before the renderer
+tail and contains:
+
+- `0.00–1.46` — wound-string picked riff
+- `1.75–3.39` — cross-string E-minor arpeggio
+- `3.75–5.72` — upper-register melodic phrase
+- `6.00–7.20` — held E-minor chord
+
+Plan 0097 renders this phrase and the register sweep through both the current
+production-equivalent path and the accepted offline candidate, then concatenates
+ordinary sweep, deep-pick sweep, and phrase in that order. Do not reorder or trim
+one side independently; the A/B files depend on exact sample alignment.
+
 The legacy and stateful renders are peak matched closely enough to compare attack character directly. The stateful body is currently less dense, so do not loudness-normalize away that difference before deciding whether it is a strength or a weakness. Compare clean DI first, then the normal amp-sim chain.
 
 `--stateful-repick 0` clears the delay state at every note start. It exists only to isolate residual-state continuity in offline research and is not a proposed user control.

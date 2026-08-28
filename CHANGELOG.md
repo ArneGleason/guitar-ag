@@ -8,6 +8,8 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0097, a stitched current-versus-candidate production-tone promotion gate spanning ordinary and deep open-string sweeps plus a compact phrase, with an exactly reconstructing signed difference.
+- Added a compact promotion phrase MIDI generator and fixture covering a wound-string riff, cross-string arpeggio, upper-register melody, and held chord.
 - Added Plan 0096, a no-code 0x/2x/4x/6x calibration of the accepted metal-restoration direction with an isolated 6x contribution and exact reconstruction checks.
 - Added Plan 0095 with offline-only independent register-decay anchoring and fixed-Hz, plain-string-weighted inharmonic side-mode restoration controls, plus a reconstruction-checked 2x2 listening set.
 - Added Plan 0094, an offline absolute-frequency register/formant envelope anchor with audition-only level compensation and progressive 35/65/100% A/B candidates.

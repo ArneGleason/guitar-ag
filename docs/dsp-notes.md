@@ -2333,3 +2333,24 @@ These remain offline research controls. Before production promotion, compare the
 consolidated recipe against the current VST3-equivalent legacy path over normal
 and deep pick gestures, wound/plain registers, and at least one phrase rather
 than inferring generality from the six-open-string calibration alone.
+
+## 2026-08-27 — Plan 0097 Production-Tone Promotion Gate
+
+Plan 0097 makes no production DSP change. It compares the current
+production-equivalent legacy path against the complete accepted offline recipe
+in one 26.9-second aligned program:
+
+- ordinary-pick open strings across E2–E4
+- the deep/flexible/textured failure regime across the same register
+- a compact wound-string riff, cross-string arpeggio, upper melody, and chord
+
+The candidate uses 1.75x modal force, 12% direct texture at 2.5x density, 35%
+amplitude/formant anchoring, harmonic-number decay, and 2x side-mode restoration.
+All other renderer settings and MIDI are identical. Candidate level is about
+1 dB above current in each of the three sections, allowing the A/B tool's global
+loudness match to remain meaningful.
+
+Current plus the signed `candidate - current` track reconstructs the candidate
+with infinite measured audio PSNR. All tracks are stereo 48 kHz and 1,291,200
+samples. Human listening across all three sections is the gate for a later,
+separate production implementation; the VST3 remains unchanged here.

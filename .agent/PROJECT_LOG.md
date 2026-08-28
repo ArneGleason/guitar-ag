@@ -120,3 +120,5 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Created no-code Plan 0096 and prepared a 0x/2x/4x/6x restoration calibration at fixed harmonic-number decay, with the selected 6x file first and its isolated metal contribution included.
 - Verified the 6x reference exactly reproduces Plan 0095, 2x/4x repeat byte-identically, all full mixes stay within 0.1 dB mean, and 0x plus the isolated contribution reconstructs 6x exactly.
 - Human loudness-matched calibration selected 2x side-mode restoration as good. Replace the 6x audibility probe with 2x in the consolidated offline recipe and require a broader end-to-end gate before VST3/default promotion.
+- Created Plan 0097 and a compact promotion phrase, then stitched current-versus-candidate ordinary sweep, deep-pick sweep, and phrase sections into a 26.9-second production-tone gate.
+- Verified deterministic sections, consistent candidate level offset of about +1 dB across all contexts, equal 1,291,200-sample files, and exact reconstruction from the signed candidate-minus-current difference.

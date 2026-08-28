@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0096 metal-restoration listening verdict",
-  "status": "Human listening selected 2x side-mode restoration as good. The consolidated offline recipe is calibrated and now needs a broader current-versus-candidate promotion gate before any VST3/default change.",
-  "updatedAt": "2026-08-27T21:45:00-04:00",
-  "lastHandoff": ".agent/handoffs/20260827-codex-plan0096-metal-calibration-listening.md",
-  "branch": "codex/0096-metal-restoration-calibration",
-  "commit": "Plan 0096 calibration d41f179; verdict documentation pending commit",
+  "lastTask": "Plan 0097 production-tone promotion gate",
+  "status": "Plan 0097 is ready for human A/B: current production-equivalent tone is compared against the full accepted offline recipe across ordinary and deep open-string sweeps plus a compact phrase, with a signed difference included.",
+  "updatedAt": "2026-08-27T22:05:00-04:00",
+  "lastHandoff": ".agent/handoffs/20260827-codex-plan0097-production-tone-gate.md",
+  "branch": "codex/0097-production-tone-promotion-gate",
+  "commit": "Plan 0097 promotion gate based on Plan 0096 verdict e9a28ae; see branch HEAD",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0096 listening selected 2x side-mode restoration as good, replacing the 6x audibility probe. The consolidated offline recipe is now 1.75x modal force, 12% dense direct texture, 35% amplitude/formant anchoring, harmonic-number decay, and 2x restoration. A broader ordinary/deep-pick and wound/plain promotion gate is required before the VST3/default changes."
+    "summary": "Plan 0097 provides the production-tone gate for the calibrated offline recipe. A 26.9-second aligned comparison covers ordinary and deep E2–E4 sweeps plus a compact riff/arpeggio/melody/chord phrase, with current first and an exact signed difference. The VST3 remains unchanged pending the human verdict."
   }
 }

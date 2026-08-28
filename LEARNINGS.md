@@ -825,3 +825,11 @@ the positive result: human listening selected 2x as good, down from the 6x probe
 This is exactly why audible ablations and production values should be separate.
 Use enough exaggeration to identify a mechanism, then explicitly calibrate back
 to the lowest accepted amount before treating it as part of the model.
+
+A promotion gate should test whether calibrated improvements compose outside the
+fixtures that selected them. Plan 0097 stitches ordinary and deep versions of
+the open-string register sweep with a compact picked phrase, keeping current and
+candidate aligned through identical MIDI and performance settings. The candidate
+is about 1 dB louder in every section, so whole-file loudness matching remains
+interpretable; an inconsistent section-by-section offset would have required
+separate comparisons instead of one stitched verdict.
