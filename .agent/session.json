@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0104 low-E reference/model comparison",
-  "status": "Validated and onset-aligned 84 human low-E strokes. After the human identified neck humbucker and midpoint picking, pickup-matched EG-089 removed most of the initial discrepancy; the remaining gap should be tested with an offline fixed-pluck-position bracket before modal retuning.",
-  "updatedAt": "2026-08-28T14:28:00-04:00",
-  "lastHandoff": ".agent/handoffs/20260828-codex-plan0104-low-e-reference-model-comparison.md",
-  "branch": "codex/0103-low-e-capture-exercise",
-  "commit": "21e4c97",
+  "lastTask": "Plan 0105 low-E reference candidate",
+  "status": "Built an offline-only 0.14 pluck-position / 1.50x body-decay candidate and a compact RMS-matched current-versus-candidate listening gate. Measurements improve, but promotion and further capture are paused for the human realism verdict.",
+  "updatedAt": "2026-08-28T14:57:24-04:00",
+  "lastHandoff": ".agent/handoffs/20260828-codex-plan0105-low-e-reference-candidate.md",
+  "branch": "codex/0105-low-e-reference-candidate",
+  "commit": "1d0a99ed3b41614f2fbd591d7d0606a5c60ba725",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0104's authoritative pickup-matched result is narrower than the initial default-pickup comparison: EG-089 Humbucker/neck reaches 486-537 Hz attack centroid versus 220-262 Hz reference, 3.5-9.0% versus under 1% above 1.5 kHz, and about -2.7 dB/s decay versus -1 to -2.1. Direct pick layers remain negligible. Bracket fixed pluck positions near 0.10-0.22 before modal or pickup retuning."
+    "summary": "Plan 0105 selects an offline-only fixed pluck position of 0.14 and 1.50x harmonic-body decay. At Humbucker/neck, downstroke centroid improves 537 to 367 Hz and sub-500 Hz energy 64.0% to 82.3% versus 262 Hz / 90.8% reference; decay improves -2.75 to -1.68 dB/s. Alternate improves, upstroke less so. Listen before promotion or more capture."
   }
 }
