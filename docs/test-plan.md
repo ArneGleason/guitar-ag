@@ -443,9 +443,11 @@ Plan 0103 supersedes this 30-item inventory for current capture work.
 - [x] Compare attack spectrum, early body, long decay, direction balance,
       variation, and damping contrast at event level.
 - [x] Ablate the direct pick mix, attack modes, pick transient, and contact layer
-      before attributing the mismatch to the modal core.
-- [ ] Build the recommended offline 2x2 modal-envelope/decay fixture and require
-      human listening before any production promotion.
+      to confirm that the residual is not an exposed additive pick-click layer.
+- [x] Re-render with the confirmed neck humbucker using the virtual Humbucker /
+      neck-side pickup and revise conclusions from the matched evidence.
+- [ ] Add an offline fixed-pluck-position bracket, then test slower decay and
+      require human listening before any production promotion.
 - [ ] In the DAW, replay the ordinary/deep/phrase material and confirm the plugin
       has the promoted track-2 tone without a level, note-release, or polyphony
       regression.

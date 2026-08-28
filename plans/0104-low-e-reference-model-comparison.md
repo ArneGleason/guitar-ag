@@ -27,6 +27,8 @@ distributions with the current EG-089 production model before changing DSP.
   perfectly isolated pick sample.
 - Explicitly test the known production limitation that repeated legacy-engine
   note-ons restart the string instead of re-exciting preserved vibration.
+- Match the confirmed neck humbucker in the virtual pickup model and treat the
+  confirmed midpoint picking location as a geometry variable, not metadata only.
 - Preserve the useful observed performance: the independent ringing batches
   contain six clear strokes rather than the requested four, while the damped
   alternate batches contain six strong alternating events rather than 12.

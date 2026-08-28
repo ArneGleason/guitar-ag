@@ -49,6 +49,16 @@ MODEL_SPECS = {
     "control-palm-095.wav": ("control_palm_095", "damped", "down", 6, 0.30),
     "control-palm-0975.wav": ("control_palm_0975", "damped", "down", 6, 0.30),
     "control-player-feel-one.wav": ("control_player_feel_one", "ringing", "down", 6, 0.75),
+    "matched-ringing-down.wav": ("matched_model", "ringing", "down", 6, 0.75),
+    "matched-ringing-up.wav": ("matched_model", "ringing", "up", 6, 0.75),
+    "matched-ringing-alternate.wav": ("matched_model", "ringing", "alternate", 12, 0.25),
+    "matched-damped-down.wav": ("matched_model", "damped", "down", 6, 0.30),
+    "matched-damped-up.wav": ("matched_model", "damped", "up", 6, 0.30),
+    "matched-damped-alternate.wav": ("matched_model", "damped", "alternate", 6, 0.30),
+    "matched-neck-070.wav": ("matched_neck_070", "ringing", "down", 6, 0.75),
+    "matched-neck-085.wav": ("matched_neck_085", "ringing", "down", 6, 0.75),
+    "matched-ablate-all-direct.wav": ("matched_ablate_all_direct", "ringing", "down", 6, 0.75),
+    "matched-old-string.wav": ("matched_old_string", "ringing", "down", 6, 0.75),
 }
 
 BANDS = ((50, 150), (150, 500), (500, 1500), (1500, 4000), (4000, 10000))

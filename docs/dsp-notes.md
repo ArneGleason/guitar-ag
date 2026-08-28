@@ -2432,36 +2432,53 @@ The capture chain used the neck humbucker for every take, with the pick halfway
 between bridge and neck. Every damped exercise used fretting-hand damping rather
 than bridge/palm muting. Guitar make/model and exact pick are not documented.
 
-The dominant EG-089 mismatch is inside the modal string, not the additive pick
-layers. In 60 ms attack windows, the real ringing low E places 90.8-95.0% of
-50 Hz-10 kHz energy below 500 Hz and only 0.4-0.7% above 1.5 kHz. EG-089 places
-only 3.7-4.7% below 500 Hz and 45.0-62.3% above 1.5 kHz. Its attack centroid is
-1.59-1.63 kHz versus 220-262 Hz in the reference; its 55-255 ms body remains
-1.41-1.48 kHz versus 190-221 Hz.
+Pickup matching explains most of the initial apparent mismatch. In 60 ms attack
+windows, the real ringing low E places 90.8-95.0% of 50 Hz-10 kHz energy below
+500 Hz and only 0.4-0.7% above 1.5 kHz. EG-089's default single-coil/39% pickup
+places only 3.7-4.7% below 500 Hz and 45.0-62.3% above 1.5 kHz, with a
+1.59-1.63 kHz centroid. Matching the confirmed neck humbucker with the virtual
+Humbucker/100% neck setting moves those values to 64.0-78.3%, 3.5-9.0%, and
+486-537 Hz respectively. A smaller spectral mismatch remains, but it is not the
+dramatic universal modal failure implied by the default-pickup comparison.
 
 Offline ablations of direct pick mix, attack modes, pick transient, and contact
 layer leave their signed residuals 51-77 dB below the full model and do not
-move the aggregate spectrum. Even `String Age = 100%` only lowers the centroid
-to 1.20 kHz with 19.8% of energy above 1.5 kHz. The next experiment must change
-modal amplitudes/excitation rather than retune an exposed pick-click layer.
+move the aggregate spectrum. With the pickup matched, disabling all four is
+51.7 dB below its control. The residual is not an exposed pick-click layer.
+Matched `String Age = 100%` reaches a 316 Hz centroid and 1.1% above 1.5 kHz,
+but leaves too little sub-500 Hz energy and shortens decay. This is evidence that
+source damping can reach the target region, not evidence that the recorded
+string was old.
+
+At MIDI velocity 100, the model derives a pluck position near 0.10 of speaking
+length. The confirmed real picking location halfway between bridge and neck
+pickups is plausibly farther from the bridge. Exact normalized position depends
+on the unknown guitar geometry, so the next offline experiment should bracket
+fixed pluck positions before changing universal modal amplitudes or pickup
+electrical response.
 
 The human long decay is also slower: approximately -1.02 dB/s for independent
 down, -2.06 dB/s for independent up, and -1.72 dB/s after alternate repicking.
-EG-089 measures -4.30, -4.84, and -4.67 dB/s respectively at maximum Sustain.
+Default-pickup EG-089 measures -4.30, -4.84, and -4.67 dB/s respectively at
+maximum Sustain. With the neck humbucker matched it measures -2.75, -2.72, and
+-2.66 dB/s. The remaining tail is still faster, but the gap is about 1.3-2.7x,
+not 2-4x. Its pickup-matched ringing early-body/attack ratios also closely match
+the reference.
 
 Fretting-hand damping preserves the reference attack peak and then places the
 55-255 ms body about 24-28 dB below it. `Palm Mute = 100%` over-damps the body
-to roughly -85 dB relative to attack. A 95% palm mute reaches the right body
-ratio but also removes about 6.6 dB too much modeled attack and retains the
-modal brightness. Fretting-hand damping therefore needs a distinct boundary-
-loss intervention that preserves contact onset before imposing strong modal
-loss.
+to roughly -85 dB relative to attack. At the matched pickup setting, a 95% palm
+mute reaches the right body ratio (-25.2 to -25.6 dB versus -24.4 to -27.5 dB)
+but makes the damped attack about 4.0-4.6 dB quieter than modeled ringing. The
+real damped median ranges from 1.9 dB quieter to 1.2 dB louder. Fretting-hand
+damping therefore still needs a distinct boundary-loss intervention that
+preserves contact onset before imposing strong modal loss.
 
 Reference attack variation spans 2.9-6.0 dB from the 10th to 90th percentile,
 depending on direction and independent/alternate context. Matching EG-089
-groups span only 0.3-1.9 dB; maximum Player Feel reaches 2.47 dB for independent
-downstrokes. Preserve this capture distribution for a later contextual human
-profile, but fix the modal envelope and decay before widening scatter.
+pickup-matched groups span only 0.2-1.3 dB. Preserve this capture distribution
+for a later contextual human profile, but match pluck geometry and decay before
+widening scatter.
 
 The production legacy voice also restarts on every repeated note-on. It cannot
 represent the alternate captures' defining state transition: re-excitation of

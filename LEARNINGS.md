@@ -938,10 +938,13 @@ damping. A believable player model should condition its distributions on
 direction, string state, and articulation rather than multiply every onset by
 the same noise source.
 
-## 2026-08-28 — A pick mismatch may live in the modal string
+## 2026-08-28 — Match pickup and pluck geometry before blaming pick noise
 
 Real pick-contact references do not imply that the fix is a louder, quieter, or
 darker independent pick-noise layer. In Plan 0104, removing every existing
 additive pick/contact component barely changed the production attack metrics;
-the excessive high-frequency energy remained in the modal bank. Always ablate
-the suspected layer before fitting it to a diagnostic residual.
+the excessive high-frequency energy remained in the string/pickup path. But
+switching the comparison render from its default single coil to the confirmed
+neck humbucker removed most of the apparent discrepancy. Always match pickup
+type, pickup position, and physical plucking location—and ablate the suspected
+layer—before fitting a diagnostic residual or retuning modal amplitudes.

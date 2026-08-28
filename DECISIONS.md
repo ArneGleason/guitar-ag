@@ -1103,26 +1103,30 @@ sessions as evidence without letting their approvals complete the new exercise.
 Once the six items are approved, capture stops and the next action is model
 comparison—not automatic inventory expansion.
 
-## 2026-08-28 — Correct the low-E modal core before adding pick noise or human scatter
+## 2026-08-28 — Match pickup and pluck geometry before retuning the low-E modal core
 
 Decision:
-Use Plan 0104's real low-E evidence to test modal-envelope and modal-decay
-corrections before tuning additive pick layers, widening attack randomness, or
-expanding the capture inventory.
+Use Plan 0104's real low-E evidence to test capture-matched pickup and pluck
+geometry first, then bracket low-E decay before tuning additive pick layers,
+widening attack randomness, or changing the universal modal envelope.
 
 Reason:
 The reference/model mismatch remains essentially unchanged when direct pick
-mix, attack modes, pick transient, or contact layers are disabled. The real DI
-attack is centered around 220-262 Hz with less than 1% of measured energy above
-1.5 kHz, while EG-089 is centered around 1.6 kHz with 45-62% above 1.5 kHz. The
-model also decays two to four times faster. Random variation around that modal
-foundation would vary the wrong sound rather than improve realism.
+mix, attack modes, pick transient, or contact layers are disabled. But the human
+then confirmed neck humbucker and midpoint picking: matching EG-089 to its
+Humbucker/neck setting moved attack centroid from roughly 1.6 kHz to 0.5 kHz,
+high-band energy from 45-62% to 3.5-9.0%, and decay from about -4.3/-4.8 dB/s to
+-2.7 dB/s. The remaining reference is still darker and longer, but the current
+model also plucks near 0.10 speaking length at velocity 100, plausibly closer to
+the bridge than the recorded performance. Geometry must be matched before
+attributing the residual to modal amplitudes.
 
 Status:
 Accepted as the next offline research direction after Plan 0104.
 
 Consequences:
-The next A/B should preserve production EG-089 and independently bracket an
-empirical low-E modal envelope and slower decay in a 2x2 fixture. Fretting-hand
-damping follows as a separate onset-preserving loss model. Preserved-state
-alternate repicking and context-dependent human scatter remain later work.
+The next A/B should preserve production EG-089, use its humbucker/neck pickup,
+and bracket fixed offline pluck positions near 0.10-0.22 speaking length. After
+geometry selection, bracket slower decay. Fretting-hand damping follows as a
+separate onset-preserving loss model. Preserved-state alternate repicking and
+context-dependent human scatter remain later work.
