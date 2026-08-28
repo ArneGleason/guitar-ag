@@ -8,6 +8,11 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added guarded Delete/Backspace capture controls: either key discards an active
+  recording without saving, or permanently deletes a selected rejected take
+  while protecting candidate and approved takes.
+- Added an absolute-scale selected-take waveform with peak/RMS/duration readout,
+  a -12 dBFS guide, and hot/possible-clipping cues.
 - Enabled JUCE ASIO support in the Windows reference-capture executable so the
   installed `Focusrite USB ASIO` driver can be selected instead of the shared
   or exclusive Windows Audio backends.

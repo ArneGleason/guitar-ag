@@ -122,17 +122,28 @@ C:\Users\name\OneDrive\Documents\Guitar AG Reference Captures\
   while the capture app is foreground, but is deliberately disabled while the
   take-notes editor or Audio Settings has keyboard focus. Clicking `Record take`
   once returns focus to the main capture surface.
+- During recording, press Delete or Backspace to stop immediately and discard
+  the partial WAV. The aborted recording is not added to the take list or
+  `session.json`.
 - Record as many takes as useful; one WAV is created per take.
 - `Stop` flushes the file and adds peak, RMS, duration, device, sample-rate, and
   overflow evidence to the session.
 - Select any take and use `Play selected` to audition it.
+- The selected take's waveform is drawn at an absolute full-scale amplitude,
+  not normalized to fill the panel. It includes peak, RMS, duration, a -12 dBFS
+  guide, and `HOT`/`POSSIBLE CLIP` cues so levels can be compared visually.
 - Mark useful takes `Approved`. More than one take may be approved because
   repeat-to-repeat distribution is part of the model target.
-- Mark unusable performances `Rejected`; the app retains their audio so a
-  mistaken decision is recoverable and rejected artifacts remain explainable.
+- Mark an unusable performance `Rejected` to retain it with that verdict. With
+  the rejected take selected, press Delete or Backspace to permanently erase
+  its WAV and remove it from the take list and manifest. Candidate and approved
+  takes are protected from deletion until explicitly rejected.
 - Use `Reset candidate` when a verdict is not settled.
 - Reopening the same request restores existing takes, statuses, and notes.
 - Inventory progress refreshes immediately when a take is approved or reset.
+- Delete, Backspace, and Space never trigger capture actions while editing take
+  notes, using Audio Settings or a file chooser, or while another application is
+  foreground.
 
 Validate and summarize a completed session:
 

@@ -893,3 +893,17 @@ For Windows Focusrite diagnosis, verify the recorded waveform as well as the
 writer flag, close competing microphone/ASIO clients, and prefer the native
 Focusrite ASIO device. A future diagnostics pass should add callback timing or
 sample-discontinuity evidence rather than overloading the disk-writer warning.
+
+## 2026-08-28 — Capture review needs an honest amplitude picture
+
+A waveform preview intended for gain calibration should not normalize every
+take to the panel height. Drawing the full file at absolute digital full scale
+makes low-level recordings remain small, puts the -12 dBFS target in context,
+and makes a near-zero-headroom take visibly approach the edges. Peak, RMS, and
+duration beside the waveform remove guesswork that shape alone cannot answer.
+
+Fast deletion is compatible with durable human judgment when Reject and Delete
+remain separate. The rejected state is a reversible annotation; a second,
+explicit Delete/Backspace action erases only that rejected session child. Edge
+detection is also important: polling the physical key state must turn a held key
+into one action rather than cascading through the remaining take list.

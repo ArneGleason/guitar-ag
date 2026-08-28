@@ -996,9 +996,11 @@ Consequences:
 Agent/human interaction uses a schema-versioned request JSON and a resumable
 `session.json` containing external WAV filenames, measurements, notes, and
 candidate/approved/rejected states. Multiple takes may be approved because
-variation is part of the fitting target. Captures remain analysis evidence, not
-playback assets. Muted and ringing takes may be onset-aligned and compared
-statistically, but their raw difference is not defined as pure pick sound.
+variation is part of the fitting target. Rejected takes remain recoverable by
+default, but the human may explicitly erase one after rejecting it. Captures
+remain analysis evidence, not playback assets. Muted and ringing takes may be
+onset-aligned and compared statistically, but their raw difference is not
+defined as pure pick sound.
 
 ## 2026-08-28 — Stage the capture inventory and stop after the baseline
 
@@ -1046,3 +1048,29 @@ The Windows capture executable depends on the user installing the Focusrite
 driver and on the applicable terms for JUCE's bundled ASIO SDK-derived headers.
 Other ASIO clients, including DAWs, should be closed for controlled capture.
 The VST3 and offline renderer compile definitions are unchanged.
+
+## 2026-08-28 — Make capture deletion explicit and waveform levels absolute
+
+Decision:
+Treat Reject and Delete as separate actions. Reject preserves the take and its
+judgment; Delete or Backspace may permanently erase only a selected rejected
+take. During recording, those keys abort the take before it enters the manifest.
+Show selected WAVs at a fixed full-scale amplitude rather than normalizing each
+waveform for display.
+
+Reason:
+Repeated reference playing naturally produces obvious duffs that are not worth
+retaining, but a single accidental key press must not erase a candidate or
+approved reference. Absolute-scale waveforms let the human compare headroom and
+spot near-full-scale or unusually quiet captures; normalized previews would make
+all takes look equally loud and defeat that calibration purpose.
+
+Status:
+Implemented in Plan 0102.
+
+Consequences:
+Permanent saved-take deletion requires the take already be rejected and the WAV
+be a direct child of the active session directory. Notes, device settings, file
+choosers, and background apps suppress capture shortcuts. The waveform shows
+peak, RMS, duration, a -12 dBFS guide, and hot/possible-clip cues, but visual
+inspection complements rather than replaces listening.

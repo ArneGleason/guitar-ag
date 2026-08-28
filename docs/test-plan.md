@@ -397,6 +397,23 @@ This document defines the basic manual and technical checks needed as the projec
       are no audible clicks, zero-filled gaps, or writer-overflow warnings.
 - [ ] Restart the capture app and confirm the Focusrite ASIO device, sample
       rate, buffer size, and enabled channel are restored.
+
+## Plan 0102 Capture Discard and Waveform Checks
+
+- [x] Windows Release `GuitarAGReferenceCapture` builds with the discard and
+      waveform changes.
+- [x] In a disposable session, Delete and Backspace each erase one selected
+      rejected WAV and remove exactly that take from `session.json`.
+- [x] Candidate and approved disposable takes survive Delete/Backspace.
+- [x] Delete and Backspace each abort an active disposable ASIO recording,
+      remove the partial WAV, and leave the manifest take count unchanged.
+- [x] A selected valid WAV renders across its full duration at absolute scale
+      with peak, RMS, duration, and -12 dBFS guide visible.
+- [ ] Confirm Delete/Backspace edit selected-take notes normally and do not fire
+      while Audio Settings, a file chooser, or another app has focus.
+- [ ] With a real guitar ASIO take, compare the waveform against the audible
+      result and confirm quiet, target-level, hot, and clipped-looking examples
+      are visually useful.
 - [ ] In the DAW, replay the ordinary/deep/phrase material and confirm the plugin
       has the promoted track-2 tone without a level, note-release, or polyphony
       regression.

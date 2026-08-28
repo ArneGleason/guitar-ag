@@ -69,6 +69,132 @@ struct InventoryItem
     int requiredApprovedTakes = 1;
 };
 
+class TakeWaveformDisplay final : public juce::Component,
+                                  private juce::ChangeListener
+{
+public:
+    explicit TakeWaveformDisplay (juce::AudioFormatManager& formatManager)
+        : thumbnail (512, formatManager, thumbnailCache)
+    {
+        thumbnail.addChangeListener (this);
+    }
+
+    ~TakeWaveformDisplay() override
+    {
+        thumbnail.removeChangeListener (this);
+    }
+
+    void showTake (const Take& take)
+    {
+        takeNumber = take.number;
+        peak = take.peak;
+        rms = take.rms;
+        durationSeconds = take.sampleRate > 0.0
+                              ? static_cast<double> (take.samples) / take.sampleRate
+                              : 0.0;
+        thumbnail.clear();
+        hasFile = take.file.existsAsFile()
+                  && thumbnail.setSource (new juce::FileInputSource (take.file));
+        repaint();
+    }
+
+    void clearTake()
+    {
+        thumbnail.clear();
+        takeNumber = 0;
+        peak = 0.0f;
+        rms = 0.0;
+        durationSeconds = 0.0;
+        hasFile = false;
+        repaint();
+    }
+
+    void paint (juce::Graphics& g) override
+    {
+        const auto bounds = getLocalBounds().toFloat();
+        g.setColour (juce::Colour::fromRGB (14, 17, 20));
+        g.fillRoundedRectangle (bounds, 5.0f);
+        g.setColour (juce::Colour::fromRGB (70, 77, 86));
+        g.drawRoundedRectangle (bounds.reduced (0.5f), 5.0f, 1.0f);
+
+        auto plot = getLocalBounds().reduced (8);
+        const auto summaryArea = plot.removeFromTop (20);
+        if (! hasFile)
+        {
+            g.setColour (juce::Colours::lightgrey);
+            g.setFont (juce::FontOptions (13.0f));
+            g.drawText (takeNumber > 0 ? "Selected WAV is missing."
+                                       : "Select a take to inspect its waveform.",
+                        getLocalBounds().reduced (10), juce::Justification::centred, true);
+            return;
+        }
+
+        const auto peakDb = juce::Decibels::gainToDecibels (peak, -100.0f);
+        const auto rmsDb = juce::Decibels::gainToDecibels (rms, -100.0);
+        const auto clipThreshold = juce::Decibels::decibelsToGain (-0.1f);
+        const auto targetGain = juce::Decibels::decibelsToGain (
+            static_cast<float> (targetPeakDb));
+        const auto possibleClip = peak >= clipThreshold;
+        const auto hotterThanTarget = peak > targetGain;
+
+        auto summary = "Take " + juce::String (takeNumber)
+                     + "   Peak " + juce::String (peakDb, 1) + " dBFS"
+                     + "   RMS " + juce::String (rmsDb, 1) + " dBFS"
+                     + "   " + juce::String (durationSeconds, 2) + " s";
+        if (possibleClip)
+            summary += "   POSSIBLE CLIP";
+        else if (hotterThanTarget)
+            summary += "   HOT";
+
+        g.setColour (possibleClip ? juce::Colours::red
+                                  : hotterThanTarget ? juce::Colours::orange
+                                                     : juce::Colours::lightgreen);
+        g.setFont (juce::FontOptions (12.5f));
+        g.drawText (summary, summaryArea, juce::Justification::centredLeft, true);
+
+        plot.removeFromTop (2);
+        const auto centreY = static_cast<float> (plot.getCentreY());
+        const auto halfHeight = 0.5f * static_cast<float> (plot.getHeight());
+        const auto targetOffset = targetGain * halfHeight;
+
+        g.setColour (juce::Colour::fromRGB (57, 63, 71));
+        g.drawHorizontalLine (plot.getCentreY(), static_cast<float> (plot.getX()),
+                              static_cast<float> (plot.getRight()));
+        g.setColour (juce::Colour::fromRGBA (255, 165, 0, 105));
+        g.drawHorizontalLine (juce::roundToInt (centreY - targetOffset),
+                              static_cast<float> (plot.getX()),
+                              static_cast<float> (plot.getRight()));
+        g.drawHorizontalLine (juce::roundToInt (centreY + targetOffset),
+                              static_cast<float> (plot.getX()),
+                              static_cast<float> (plot.getRight()));
+
+        g.setColour (possibleClip ? juce::Colours::red.withAlpha (0.9f)
+                                  : hotterThanTarget ? juce::Colours::orange.withAlpha (0.9f)
+                                                     : juce::Colours::lightgreen.withAlpha (0.9f));
+        thumbnail.drawChannels (g, plot, 0.0, thumbnail.getTotalLength(), 1.0f);
+
+        g.setColour (juce::Colours::orange.withAlpha (0.8f));
+        g.setFont (juce::FontOptions (10.0f));
+        g.drawText ("-12", plot.getX() + 2,
+                    juce::roundToInt (centreY - targetOffset) - 11, 32, 11,
+                    juce::Justification::centredLeft, false);
+    }
+
+private:
+    void changeListenerCallback (juce::ChangeBroadcaster*) override
+    {
+        repaint();
+    }
+
+    juce::AudioThumbnailCache thumbnailCache { 5 };
+    juce::AudioThumbnail thumbnail;
+    int takeNumber = 0;
+    float peak = 0.0f;
+    double rms = 0.0;
+    double durationSeconds = 0.0;
+    bool hasFile = false;
+};
+
 class CaptureComponent final : public juce::Component,
                                private juce::AudioIODeviceCallback,
                                private juce::ListBoxModel,
@@ -77,6 +203,7 @@ class CaptureComponent final : public juce::Component,
 public:
     explicit CaptureComponent (const juce::StringArray& commandLine)
         : deviceSelector (deviceManager, 1, 2, 0, 2, false, false, false, false),
+          waveformDisplay (formatManager),
           writerThread ("reference capture writer")
     {
         properties.setStorageParameters (makePropertiesOptions());
@@ -99,7 +226,9 @@ public:
         configureLabel (statusLabelComponent, {}, 14.0f, true);
         configureLabel (meterLabel, "Input: -- dBFS", 15.0f, true);
         configureLabel (takeNotesLabel, "Selected-take notes", 13.0f, false);
+        configureLabel (waveformLabel, "Selected take - absolute-scale waveform", 13.0f, false);
         configureLabel (inventoryProgressLabel, "No capture inventory loaded", 14.0f, true);
+        addAndMakeVisible (waveformDisplay);
 
         instructionsEditor.setMultiLine (true);
         instructionsEditor.setReadOnly (true);
@@ -139,6 +268,7 @@ public:
         configureButton (rejectButton, "Reject", [this] { setSelectedStatus ("rejected"); });
         configureButton (candidateButton, "Reset candidate", [this] { setSelectedStatus ("candidate"); });
         configureButton (saveNotesButton, "Save notes", [this] { saveSelectedNotes(); });
+        stopButton.setEnabled (false);
 
         inventoryCombo.setTextWhenNothingSelected ("Choose the next capture item");
         inventoryCombo.setWantsKeyboardFocus (false);
@@ -262,6 +392,9 @@ public:
         area.removeFromTop (8);
         auto lower = area;
         auto listArea = lower.removeFromLeft (lower.getWidth() / 2);
+        waveformLabel.setBounds (listArea.removeFromTop (22));
+        waveformDisplay.setBounds (listArea.removeFromTop (116));
+        listArea.removeFromTop (8);
         takesList.setBounds (listArea);
         lower.removeFromLeft (12);
 
@@ -668,11 +801,12 @@ private:
         writeRequestCopy();
         writeManifest();
         takesList.updateContent();
+        takesList.deselectAllRows();
         if (takes.empty())
         {
             selectedRow = -1;
             takeNotesEditor.clear();
-            takesList.deselectAllRows();
+            waveformDisplay.clearTake();
             setStatus ("Request loaded. Record several takes and approve the useful ones.", false);
         }
         else
@@ -791,14 +925,9 @@ private:
             activeWriter = threadedWriter.get();
         }
 
-        recordButton.setEnabled (false);
-        playButton.setEnabled (false);
-        loadInventoryButton.setEnabled (false);
-        loadRequestButton.setEnabled (false);
-        chooseFolderButton.setEnabled (false);
-        inventoryCombo.setEnabled (false);
+        setRecordingControls (true);
         setStatus ("Recording take " + juce::String (currentTakeNumber)
-                       + "... Press Space to stop.",
+                       + "... Space saves; Delete/Backspace discards.",
                    false);
     }
 
@@ -844,12 +973,7 @@ private:
         takesList.selectRow (selectedRow);
         writeManifest();
 
-        recordButton.setEnabled (true);
-        playButton.setEnabled (true);
-        loadInventoryButton.setEnabled (true);
-        loadRequestButton.setEnabled (true);
-        chooseFolderButton.setEnabled (inventoryItems.empty());
-        inventoryCombo.setEnabled (true);
+        setRecordingControls (false);
 
         const auto& take = takes.back();
         const auto peakDb = juce::Decibels::gainToDecibels (take.peak, -100.0f);
@@ -862,6 +986,44 @@ private:
         if (take.sampleRate != 48000.0 && take.sampleRate != 96000.0)
             message += " Prefer 48 or 96 kHz for the reference set.";
         setStatus (message, take.droppedAudio);
+    }
+
+    void discardRecording()
+    {
+        std::unique_ptr<juce::AudioFormatWriter::ThreadedWriter> writerToClose;
+        juce::File discardedFile;
+        int discardedTakeNumber = 0;
+
+        {
+            const juce::ScopedLock lock (writerLock);
+            if (activeWriter == nullptr)
+                return;
+
+            activeWriter = nullptr;
+            writerToClose = std::move (threadedWriter);
+            discardedFile = currentFile;
+            discardedTakeNumber = currentTakeNumber;
+            currentFile = {};
+            currentTakeNumber = 0;
+        }
+
+        writerToClose.reset();
+        setRecordingControls (false);
+
+        if (! isSafeSessionTakeFile (discardedFile))
+        {
+            setStatus ("Recording stopped, but the partial WAV path was not safe to delete: "
+                           + discardedFile.getFullPathName(),
+                       true);
+            return;
+        }
+
+        const auto deleted = ! discardedFile.existsAsFile() || discardedFile.deleteFile();
+        setStatus (deleted ? "Discarded take " + juce::String (discardedTakeNumber)
+                                 + "; no WAV was kept."
+                           : "Recording stopped, but Windows could not delete the partial WAV: "
+                                 + discardedFile.getFullPathName(),
+                   ! deleted);
     }
 
     bool isRecording() const
@@ -903,6 +1065,76 @@ private:
         readerSource.reset();
     }
 
+    bool isSafeSessionTakeFile (const juce::File& file) const
+    {
+        return file.hasFileExtension (".wav")
+               && file.getParentDirectory() == sessionDirectory;
+    }
+
+    void deleteSelectedRejectedTake()
+    {
+        if (selectedRow < 0 || selectedRow >= static_cast<int> (takes.size()))
+        {
+            setStatus ("Select a rejected take to delete.", true);
+            return;
+        }
+
+        const auto rowToDelete = selectedRow;
+        const auto index = static_cast<size_t> (rowToDelete);
+        const auto takeNumber = takes[index].number;
+        const auto file = takes[index].file;
+        if (takes[index].status != "rejected")
+        {
+            setStatus ("Take " + juce::String (takeNumber)
+                           + " is not rejected. Reject it before permanently deleting it.",
+                       true);
+            return;
+        }
+
+        if (! isSafeSessionTakeFile (file))
+        {
+            setStatus ("Refused to delete a WAV outside the current session folder.", true);
+            return;
+        }
+
+        stopPlayback();
+        if (file.existsAsFile() && ! file.deleteFile())
+        {
+            setStatus ("Windows could not delete " + file.getFullPathName(), true);
+            return;
+        }
+
+        const auto nextRow = juce::jmin (rowToDelete,
+                                         static_cast<int> (takes.size()) - 2);
+        takesList.deselectAllRows();
+        takes.erase (takes.begin() + rowToDelete);
+        takesList.updateContent();
+        selectedRow = -1;
+        if (nextRow >= 0)
+            takesList.selectRow (nextRow);
+        else
+        {
+            takeNotesEditor.clear();
+            waveformDisplay.clearTake();
+        }
+
+        writeManifest();
+        refreshInventory();
+        setStatus ("Permanently deleted rejected take " + juce::String (takeNumber) + ".",
+                   false);
+    }
+
+    void setRecordingControls (bool recording)
+    {
+        recordButton.setEnabled (! recording);
+        stopButton.setEnabled (recording);
+        playButton.setEnabled (! recording);
+        loadInventoryButton.setEnabled (! recording);
+        loadRequestButton.setEnabled (! recording);
+        chooseFolderButton.setEnabled (! recording && inventoryItems.empty());
+        inventoryCombo.setEnabled (! recording);
+    }
+
     void setSelectedStatus (const juce::String& status)
     {
         if (selectedRow < 0 || selectedRow >= static_cast<int> (takes.size()))
@@ -916,8 +1148,11 @@ private:
         takesList.repaintRow (selectedRow);
         writeManifest();
         refreshInventory();
-        setStatus ("Take " + juce::String (takes[static_cast<size_t> (selectedRow)].number)
-                       + " is now " + status + ".",
+        auto message = "Take " + juce::String (takes[static_cast<size_t> (selectedRow)].number)
+                     + " is now " + status + ".";
+        if (status == "rejected")
+            message += " Press Delete or Backspace to erase it permanently.";
+        setStatus (message,
                    false);
     }
 
@@ -1044,14 +1279,20 @@ private:
     {
         selectedRow = lastRowSelected;
         if (selectedRow >= 0 && selectedRow < static_cast<int> (takes.size()))
+        {
             takeNotesEditor.setText (takes[static_cast<size_t> (selectedRow)].notes, false);
+            waveformDisplay.showTake (takes[static_cast<size_t> (selectedRow)]);
+        }
         else
+        {
             takeNotesEditor.clear();
+            waveformDisplay.clearTake();
+        }
     }
 
     void timerCallback() override
     {
-        updateSpaceShortcut();
+        updateKeyboardShortcuts();
 
         const auto peak = inputPeak.exchange (0.0f);
         const auto db = juce::Decibels::gainToDecibels (peak, -100.0f);
@@ -1065,18 +1306,27 @@ private:
             stopPlayback();
     }
 
-    void updateSpaceShortcut()
+    void updateKeyboardShortcuts()
     {
         const auto spaceIsDown = juce::KeyPress::isKeyCurrentlyDown (
             juce::KeyPress::spaceKey);
+        const auto deleteIsDown = juce::KeyPress::isKeyCurrentlyDown (
+            juce::KeyPress::deleteKey);
+        const auto backspaceIsDown = juce::KeyPress::isKeyCurrentlyDown (
+            juce::KeyPress::backspaceKey);
 
         if (! juce::Process::isForegroundProcess())
         {
             spaceWasDown = spaceIsDown;
+            deleteWasDown = deleteIsDown;
+            backspaceWasDown = backspaceIsDown;
             return;
         }
 
-        if (spaceIsDown && ! spaceWasDown)
+        const auto discardPressed = (deleteIsDown && ! deleteWasDown)
+                                    || (backspaceIsDown && ! backspaceWasDown);
+        const auto spacePressed = spaceIsDown && ! spaceWasDown;
+        if (discardPressed || spacePressed)
         {
             auto* focused = juce::Component::getCurrentlyFocusedComponent();
             const auto editingNotes = focused != nullptr
@@ -1088,14 +1338,27 @@ private:
 
             if (! editingNotes && ! editingDevice && ! fileChooserOpen)
             {
-                if (isRecording())
+                if (discardPressed)
+                {
+                    if (isRecording())
+                        discardRecording();
+                    else
+                        deleteSelectedRejectedTake();
+                }
+                else if (isRecording())
+                {
                     stopRecording();
+                }
                 else
+                {
                     startRecording();
+                }
             }
         }
 
         spaceWasDown = spaceIsDown;
+        deleteWasDown = deleteIsDown;
+        backspaceWasDown = backspaceIsDown;
     }
 
     void audioDeviceAboutToStart (juce::AudioIODevice* device) override
@@ -1175,6 +1438,7 @@ private:
     juce::AudioDeviceManager deviceManager;
     juce::AudioDeviceSelectorComponent deviceSelector;
     juce::AudioFormatManager formatManager;
+    TakeWaveformDisplay waveformDisplay;
     juce::AudioTransportSource transport;
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
     juce::AudioBuffer<float> playbackBuffer;
@@ -1203,6 +1467,8 @@ private:
     std::vector<InventoryItem> inventoryItems;
     bool updatingInventory = false;
     bool spaceWasDown = false;
+    bool deleteWasDown = false;
+    bool backspaceWasDown = false;
     bool fileChooserOpen = false;
 
     juce::Rectangle<int> devicePanelBounds;
@@ -1212,6 +1478,7 @@ private:
     juce::Label statusLabelComponent;
     juce::Label meterLabel;
     juce::Label takeNotesLabel;
+    juce::Label waveformLabel;
     juce::Label inventoryProgressLabel;
     juce::TextEditor instructionsEditor;
     juce::TextEditor contextEditor;
