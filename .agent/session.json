@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0095 upper-register metal-ring retention",
-  "status": "Plan 0095 is implemented and ready for human A/B: the accepted 35% amplitude envelope is fixed while decay anchoring and an audible 6x diagnostic restoration of lost inharmonic side-mode energy are crossed independently.",
-  "updatedAt": "2026-08-27T21:20:00-04:00",
+  "lastTask": "Plan 0095 metal-ring listening verdict",
+  "status": "Human listening accepted the combined harmonic-number-decay plus 6x side-mode restoration candidate as pretty good. It is the provisional offline foundation; the next no-code A/B will calibrate restoration downward at fixed decay.",
+  "updatedAt": "2026-08-27T21:25:00-04:00",
   "lastHandoff": ".agent/handoffs/20260827-codex-plan0095-metal-ring-listening.md",
   "branch": "codex/0095-metal-ring-retention",
-  "commit": "Plan 0095 implementation based on Plan 0094 verdict 40dd831; see branch HEAD",
+  "commit": "Plan 0095 implementation b6d74c3; verdict documentation pending commit",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0095 keeps the human-selected 35% amplitude/formant envelope fixed and separates its decay effect from existing inharmonic side-mode energy. The ready 2x2 A/B compares anchored versus harmonic-number decay with zero or a labelled 6x audible restoration diagnostic; default and Plan 0094 renders remain byte-exact. A damped-guitar DI capture protocol is ready; motion-driven finger noise remains later."
+    "summary": "Plan 0095 listening accepted the combined 35% amplitude anchor, harmonic-number decay, and 6x side-mode restoration as pretty good. Because 6x was deliberately exaggerated for audibility and the single-axis candidates received no written verdict, the next comparison holds decay fixed and calibrates restoration through 0x/2x/4x/6x. A damped-guitar DI capture protocol is ready; motion-driven finger noise remains later."
   }
 }

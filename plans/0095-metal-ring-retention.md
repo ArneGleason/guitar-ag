@@ -44,8 +44,9 @@ progressively loses metal ring and brightness on the upper strings.
 - [x] Candidate renders repeat byte-identically.
 - [x] Every A/B file is aligned/equal length and the signed contribution
       reconstructs the combined candidate exactly.
-- [ ] Human identifies whether decay, side-mode retention, or both restore metal
-      ring without reintroducing the pitch-shifted body.
+- [x] Human selected the combined harmonic-decay plus 6x side-mode candidate as
+      "pretty good." No separate verdict was recorded for the two single-axis
+      candidates, so their individual necessity remains unproven.
 
 ## Decision Gate
 
@@ -80,3 +81,12 @@ combined candidate repeats at SHA-256
 Track 1 exactly reproduces Plan 0094's accepted render at
 `94BA731900865E612887B9FE3CE6FB533323C14302D878418FD518F9C5CEBEF7`,
 and track 1 plus track 5 reconstructs track 4 with infinite measured audio PSNR.
+
+## Human Listening Verdict — 2026-08-27
+
+With loudness matching on, the combined track 4 was "pretty good." This passes
+the combined direction as the next offline tone foundation. Because 6x was an
+audibility probe rather than a physical calibration, hold harmonic-number decay
+fixed and compare 0x/2x/4x/6x restoration next. Choose the lowest factor that
+preserves the improvement. Do not infer from the single combined verdict that
+decay-only or metal-only was independently rejected.

@@ -899,3 +899,27 @@ Hold the accepted 1.75x modal force, 12% direct texture, 2.5x density, and 35%
 amplitude anchor fixed. Compare anchored versus harmonic-number decay and a
 small plain-string-weighted side-mode restoration as a 2x2 test. Do not restore
 the rejected chirp bank or broadly brighten the full harmonic body.
+
+## 2026-08-27 — Keep the combined Plan 0095 direction and calibrate restoration down
+
+Decision:
+Use harmonic-number modal decay plus the 6x fixed-Hz side-mode restoration as
+the provisional offline tone foundation. Before any production proposal, hold
+decay fixed and find the lowest restoration factor that preserves the listening
+improvement.
+
+Reason:
+Human loudness-matched listening called the combined Plan 0095 candidate
+"pretty good." The 6x amount was deliberately chosen to make a literal -60.6 dB
+E4 contribution audible, not because sixfold restoration is physically
+calibrated. The next decision should therefore minimize that exaggeration rather
+than add another synthesis mechanism.
+
+Status:
+Accepted for offline calibration.
+
+Consequences:
+Compare the selected 6x version against 0x, 2x, and 4x while keeping the 35%
+amplitude anchor, harmonic-number decay, and accepted pick attack unchanged.
+Include the isolated 6x metal contribution. The single combined verdict does
+not by itself prove that either single-axis Plan 0095 candidate was rejected.

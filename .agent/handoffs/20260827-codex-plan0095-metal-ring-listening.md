@@ -48,3 +48,11 @@ use the A/B tool's default loudness matching.
   restoring brightness and a clean metal-string identity?
 - Track 5 — the total energy added by track 4. Does it sound like useful string
   persistence/ring, or like a synthesized layer that should be rejected?
+
+## Human Verdict
+
+With loudness matching on, track 4 (harmonic-number decay plus 6x side-mode
+restoration) was "pretty good." No separate verdict was recorded for tracks 2
+or 3, so do not claim either axis was independently necessary or rejected. Use
+track 4 as the provisional offline foundation and calibrate restoration down at
+fixed harmonic-number decay.

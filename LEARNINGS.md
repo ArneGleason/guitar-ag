@@ -804,3 +804,11 @@ made a later byte-regression check appear to fail when extra `player-feel` and
 `finger-noise` overrides were guessed. Recovering the original command showed
 the new default-follow path was byte-identical. Preserve commands alongside
 hashes so a regression failure distinguishes changed DSP from changed inputs.
+
+A positive factorial corner does not establish that both axes are independently
+necessary. Plan 0095 listening called the harmonic-decay plus 6x side-mode
+corner "pretty good," but supplied no verdict for decay-only or side-mode-only.
+Record the combined success without inventing negative results. A follow-up that
+holds harmonic decay fixed and steps restoration through zero and lower factors
+will determine whether the side-mode addition is necessary and how much is
+enough.

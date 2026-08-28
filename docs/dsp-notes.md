@@ -2293,3 +2293,11 @@ and the default-follow 35% render exactly reproduces Plan 0094 at
 All five review tracks are 424,800 samples, the combined candidate repeats
 byte-identically, and its signed added contribution reconstructs it from the
 accepted baseline with infinite measured audio PSNR.
+
+Human loudness-matched listening called the combined harmonic-number-decay plus
+6x side-mode candidate "pretty good." Treat that as a positive combined result,
+not proof that both single-axis candidates were individually necessary: neither
+received a written verdict. The next no-code calibration should hold
+harmonic-number decay fixed and compare 0x, 2x, 4x, and 6x restoration, with 6x
+first as the accepted reference and an isolated 6x metal contribution. Select
+the lowest factor that retains the improvement.

@@ -6,7 +6,8 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Plan 0095 is awaiting listening. Compare track 1 vs 2 for decay persistence, 1 vs 3 for the existing inharmonic side-mode character, and 2 vs 4 for their interaction. Reject the 6x diagnostic if it sounds buzzy/chime-like rather than metallic; it is deliberately exaggerated for audibility.
+- Plan 0095 listening accepted the combined harmonic-number-decay plus 6x side-mode candidate as "pretty good." Do not over-attribute the result: decay-only and side-mode-only received no written verdict.
+- Calibrate the selected 6x restoration downward at fixed harmonic-number decay. Compare 0x/2x/4x/6x and choose the lowest amount that preserves the improvement; include the isolated 6x metal contribution.
 - Plan 0094 listening selected 35% amplitude anchoring as much better than current, but it progressively flattened upper notes and lost metal ring/brightness. Keep that amplitude envelope fixed during Plan 0095 review.
 - Treat Plan 0094's register gain as audition normalization only. The positive timbre verdict still requires a principled string/gauge energy model before production promotion.
 - Plan 0093 listening calibrated 12% dense direct texture as medium and 22% as maximum. Preserve these bounds; use 12% as the fixed attack baseline for register/formant review.
