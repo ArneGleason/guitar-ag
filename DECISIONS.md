@@ -1102,3 +1102,27 @@ no metronome is required. Foam damping is removed. New request IDs preserve old
 sessions as evidence without letting their approvals complete the new exercise.
 Once the six items are approved, capture stops and the next action is model
 comparison—not automatic inventory expansion.
+
+## 2026-08-28 — Correct the low-E modal core before adding pick noise or human scatter
+
+Decision:
+Use Plan 0104's real low-E evidence to test modal-envelope and modal-decay
+corrections before tuning additive pick layers, widening attack randomness, or
+expanding the capture inventory.
+
+Reason:
+The reference/model mismatch remains essentially unchanged when direct pick
+mix, attack modes, pick transient, or contact layers are disabled. The real DI
+attack is centered around 220-262 Hz with less than 1% of measured energy above
+1.5 kHz, while EG-089 is centered around 1.6 kHz with 45-62% above 1.5 kHz. The
+model also decays two to four times faster. Random variation around that modal
+foundation would vary the wrong sound rather than improve realism.
+
+Status:
+Accepted as the next offline research direction after Plan 0104.
+
+Consequences:
+The next A/B should preserve production EG-089 and independently bracket an
+empirical low-E modal envelope and slower decay in a 2x2 fixture. Fretting-hand
+damping follows as a separate onset-preserving loss model. Preserved-state
+alternate repicking and context-dependent human scatter remain later work.

@@ -922,3 +922,26 @@ separation. Onset detection can recover event timing, while natural performance
 better preserves the pick-angle and hand-motion differences the model needs.
 The request must still state the stroke order so down and up events are not
 averaged together blindly.
+
+## 2026-08-28 — Natural takes can be controlled evidence without being metronomic
+
+The Plan 0103 player described the performances as sloppy, but objective checks
+showed stable pitch and useful repeatability: the ringing fundamental medians
+varied by only about 0.04 Hz across direction groups, damped independent timing
+clustered tightly within each take, and all 84 detected attacks were cleanly
+separable. Natural timing variation and measurement quality are not opposites.
+
+The useful human profile is contextual rather than one global random amount.
+Attack-level spread was narrower for independent downstrokes and wider for
+upstrokes and alternate repicking. Up/down level balance also changed under
+damping. A believable player model should condition its distributions on
+direction, string state, and articulation rather than multiply every onset by
+the same noise source.
+
+## 2026-08-28 — A pick mismatch may live in the modal string
+
+Real pick-contact references do not imply that the fix is a louder, quieter, or
+darker independent pick-noise layer. In Plan 0104, removing every existing
+additive pick/contact component barely changed the production attack metrics;
+the excessive high-frequency energy remained in the modal bank. Always ablate
+the suspected layer before fitting it to a diagnostic residual.

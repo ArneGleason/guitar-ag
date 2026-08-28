@@ -43,4 +43,5 @@ matches the approved noise-floor reference.
 - [x] Existing noise/ringing/hand-damped session WAVs remain untouched.
 - [x] Default inventory routes to the first new incomplete low-E exercise.
 - [x] Active low-E requests preserve the existing 44.1 kHz capture rate.
-- [ ] Human completes the six new exercise items, then stops for model analysis.
+- [x] Human completed two approved batches for all six exercise items and
+      stopped for Plan 0104 model analysis.

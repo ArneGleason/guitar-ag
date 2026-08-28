@@ -8,6 +8,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0104's reproducible low-E reference/model analysis, matching MIDI
+  fixtures, event-level onset/spectrum/decay measurements, and an evidence-
+  backed next experiment separating modal-envelope and decay corrections.
 - Replaced the broad 30-item starter inventory with a seven-item low-E model-
   evaluation gate: existing noise floor plus ringing down/up/alternate and
   hand-damped down/up/alternate exercises using natural timing and explicit

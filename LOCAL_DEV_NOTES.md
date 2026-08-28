@@ -79,6 +79,23 @@ approval when capture settings are unchanged, complete the six Phase 1 low-E
 exercise items, then stop for a model comparison. Later strings, dynamics,
 depths, and pick materials are deliberately excluded until that evaluation.
 
+Reproduce the Plan 0104 low-E analysis after rendering the matching MIDI into a
+diagnostic directory:
+
+```powershell
+python scripts\create-low-e-model-evaluation-midi.py `
+  --output-directory build-vs2022-x64\diagnostics\eg0104-low-e-reference-model
+
+python scripts\analyze-low-e-model-reference.py `
+  --capture-root "$([Environment]::GetFolderPath('MyDocuments'))\Guitar AG Reference Captures" `
+  --model-directory build-vs2022-x64\diagnostics\eg0104-low-e-reference-model `
+  --output-directory build-vs2022-x64\diagnostics\eg0104-low-e-reference-model
+```
+
+The analyzer is research tooling and requires NumPy and SciPy. See
+`analysis/low-e-reference-model-comparison-20260828.md` for the rendered control
+and ablation set and the interpreted results.
+
 The previous checkout at `C:\code\guitar-ag` was clean and at the same GitHub commit when the canonical clone was created. Windows would not move it while the original Codex workspace held the directory open. Remove that duplicate only from a later task after the original workspace is closed and the exact path is re-verified.
 
 On this PC, Git may reject a checkout as dubious ownership. Prefer an explicit per-command override such as:

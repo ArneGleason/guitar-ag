@@ -429,8 +429,23 @@ Plan 0103 supersedes this 30-item inventory for current capture work.
 - [x] `--force` regeneration changed zero of the 19 existing session files.
 - [x] The regenerated default inventory routes first to
       `low-e-eval-ringing-down` after the approved noise floor.
-- [ ] Complete all six low-E exercise items, then stop for the current-model
+- [x] Complete all six low-E exercise items, then stop for the current-model
       comparison before expanding the inventory.
+
+## Plan 0104 Low-E Reference/Model Comparison Checks
+
+- [x] Validate all 12 approved exercise WAVs as mono 24-bit/44.1 kHz with no
+      clips, writer-overflow flags, or multi-sample exact-zero gaps.
+- [x] Detect and visually verify all 84 usable reference attacks, preserving
+      the performed six-stroke ringing and six-event damped-alternate batches.
+- [x] Render matching production EG-089 down/up/alternate and damped exercises
+      at 44.1 kHz.
+- [x] Compare attack spectrum, early body, long decay, direction balance,
+      variation, and damping contrast at event level.
+- [x] Ablate the direct pick mix, attack modes, pick transient, and contact layer
+      before attributing the mismatch to the modal core.
+- [ ] Build the recommended offline 2x2 modal-envelope/decay fixture and require
+      human listening before any production promotion.
 - [ ] In the DAW, replay the ordinary/deep/phrase material and confirm the plugin
       has the promoted track-2 tone without a level, note-release, or polyphony
       regression.

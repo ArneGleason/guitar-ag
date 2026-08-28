@@ -2419,3 +2419,47 @@ deep pick engagement, and D/B register points; Phase 3 contrasts clearly
 flexible and stiff picks; Phase 4 records flesh/nail attacks and wound-string
 slide/lift gestures. This order lets early onset/band/variation measurements
 change the later inventory before substantial capture time is spent.
+
+## 2026-08-28 — Plan 0104 Real Low-E Model Diagnosis
+
+The focused Plan 0103 set supplied 84 onset-aligned low-E strokes across two
+approved batches per condition. Every reference is mono 24-bit/44.1 kHz with no
+clipping, writer-overflow flag, or multi-sample zero gap. Ringing fundamental
+medians stay between 83.127 and 83.168 Hz, so the natural performances are much
+more controlled than their timing variation suggests.
+
+The dominant EG-089 mismatch is inside the modal string, not the additive pick
+layers. In 60 ms attack windows, the real ringing low E places 90.8-95.0% of
+50 Hz-10 kHz energy below 500 Hz and only 0.4-0.7% above 1.5 kHz. EG-089 places
+only 3.7-4.7% below 500 Hz and 45.0-62.3% above 1.5 kHz. Its attack centroid is
+1.59-1.63 kHz versus 220-262 Hz in the reference; its 55-255 ms body remains
+1.41-1.48 kHz versus 190-221 Hz.
+
+Offline ablations of direct pick mix, attack modes, pick transient, and contact
+layer leave their signed residuals 51-77 dB below the full model and do not
+move the aggregate spectrum. Even `String Age = 100%` only lowers the centroid
+to 1.20 kHz with 19.8% of energy above 1.5 kHz. The next experiment must change
+modal amplitudes/excitation rather than retune an exposed pick-click layer.
+
+The human long decay is also slower: approximately -1.02 dB/s for independent
+down, -2.06 dB/s for independent up, and -1.72 dB/s after alternate repicking.
+EG-089 measures -4.30, -4.84, and -4.67 dB/s respectively at maximum Sustain.
+
+Fretting-hand damping preserves the reference attack peak and then places the
+55-255 ms body about 24-28 dB below it. `Palm Mute = 100%` over-damps the body
+to roughly -85 dB relative to attack. A 95% palm mute reaches the right body
+ratio but also removes about 6.6 dB too much modeled attack and retains the
+modal brightness. Fretting-hand damping therefore needs a distinct boundary-
+loss intervention that preserves contact onset before imposing strong modal
+loss.
+
+Reference attack variation spans 2.9-6.0 dB from the 10th to 90th percentile,
+depending on direction and independent/alternate context. Matching EG-089
+groups span only 0.3-1.9 dB; maximum Player Feel reaches 2.47 dB for independent
+downstrokes. Preserve this capture distribution for a later contextual human
+profile, but fix the modal envelope and decay before widening scatter.
+
+The production legacy voice also restarts on every repeated note-on. It cannot
+represent the alternate captures' defining state transition: re-excitation of
+an already moving string. Use the alternate set later to calibrate preserved-
+state modal repicking rather than approximating it with random attack changes.

@@ -28,7 +28,7 @@ take. It opens the first unfinished item on launch.
 
 ## Phase 0 — Setup Reference
 
-- [ ] Input noise floor: two opportunities to capture 10 untouched seconds;
+- [x] Input noise floor: two opportunities to capture 10 untouched seconds;
       approve one clean take with the guitar connected and settings fixed.
 
 ## Phase 1 — Low-E Model-Evaluation Exercise
@@ -38,11 +38,11 @@ depth, and fixed guitar/pickup/interface settings throughout.
 
 ### Ringing
 
-- [ ] Independent downstrokes: four strokes. Let each of the first three ring
+- [x] Independent downstrokes: four strokes. Let each of the first three ring
       for 1.5–2 seconds, deliberately stop it, then leave about 0.5 seconds of
       quiet reset time. Let the fourth ring naturally for 6–8 seconds.
-- [ ] Independent upstrokes: use the same four-stroke/reset/final-decay pattern.
-- [ ] Alternate repicking: play 12 continuous strokes at a comfortable natural
+- [x] Independent upstrokes: use the same four-stroke/reset/final-decay pattern.
+- [x] Alternate repicking: play 12 continuous strokes at a comfortable natural
       tempo, starting down (`D U D U D U D U D U D U`). Do not stop the string
       between strokes. Let the final event ring for 4–6 seconds.
 
@@ -51,9 +51,9 @@ depth, and fixed guitar/pickup/interface settings throughout.
 Touch the string at stable non-harmonic fretting-hand positions, away from the
 pick, so sustained pitch is suppressed without moving the picking location.
 
-- [ ] Downstrokes: six strokes, roughly 0.6–0.8 seconds apart.
-- [ ] Upstrokes: six strokes, roughly 0.6–0.8 seconds apart.
-- [ ] Alternate picking: 12 continuous strokes at a comfortable natural tempo,
+- [x] Downstrokes: six strokes, roughly 0.6-0.8 seconds apart.
+- [x] Upstrokes: six strokes, roughly 0.6-0.8 seconds apart.
+- [x] Alternate picking: 12 continuous strokes at a comfortable natural tempo,
       starting down (`D U D U D U D U D U D U`).
 
 Stop here. These six files provide independent down/up attacks, natural
