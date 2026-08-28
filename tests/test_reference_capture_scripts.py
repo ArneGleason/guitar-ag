@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import csv
 import json
 import subprocess
 import sys
@@ -16,6 +17,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CREATE_SCRIPT = REPO_ROOT / "scripts" / "create-reference-capture-request.py"
 SUMMARY_SCRIPT = REPO_ROOT / "scripts" / "summarize-reference-capture-session.py"
 INVENTORY_SCRIPT = REPO_ROOT / "scripts" / "create-reference-capture-inventory.py"
+ENDPOINT_MIDI_SCRIPT = REPO_ROOT / "scripts" / "create-endpoint-model-evaluation-midi.py"
+EXTRACT_MIDI_SCRIPT = REPO_ROOT / "scripts" / "extract-midi-notes.py"
 
 
 class ReferenceCaptureScriptsTest(unittest.TestCase):
@@ -220,6 +223,46 @@ class ReferenceCaptureScriptsTest(unittest.TestCase):
             )
             self.assertNotEqual(duplicate.returncode, 0)
             self.assertIn("inventory already exists", duplicate.stderr)
+
+    def test_endpoint_midi_contains_expected_high_e_patterns(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(ENDPOINT_MIDI_SCRIPT),
+                    "--output-directory",
+                    str(root),
+                    "--midi-note",
+                    "64",
+                    "--label",
+                    "High E",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            expected = {"ringing-independent.mid": 6, "ringing-alternate.mid": 12}
+            for filename, note_count in expected.items():
+                csv_path = root / f"{Path(filename).stem}.csv"
+                subprocess.run(
+                    [
+                        sys.executable,
+                        str(EXTRACT_MIDI_SCRIPT),
+                        str(root / filename),
+                        "--output",
+                        str(csv_path),
+                    ],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+                with csv_path.open(newline="", encoding="utf-8") as handle:
+                    rows = list(csv.DictReader(handle))
+                self.assertEqual(len(rows), note_count)
+                self.assertTrue(all(row["note"] == "64" for row in rows))
+                self.assertTrue(all(row["note_name"] == "E4" for row in rows))
 
 
 if __name__ == "__main__":

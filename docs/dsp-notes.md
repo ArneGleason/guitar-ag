@@ -2537,3 +2537,31 @@ Human listening accepted the 1 ms candidate as an excellent de-click. This
 clears the Plan 0106 listening gate but does not promote the offline-only
 implementation into the VST3; that remains a separate real-time/polyphony/MPE
 review.
+
+## 2026-08-28 — Plan 0108 Low/High-E Endpoint Candidate
+
+The high-E reference reverses Plan 0105's decay conclusion: independent high E
+decays near -7.1 dB/s, while the pickup-matched production model is about
+-3.7 to -3.9 dB/s and the uniform 1.50x low-E candidate slows further to about
+-2.3 dB/s. The offline renderer now permits a separate high-register body-decay
+endpoint, interpolated geometrically from the existing low endpoint across E2
+to E4. The selected listening value is 0.50x at E4 while retaining 1.50x at E2.
+
+The production high-E onset also places approximately 54–63% of energy above
+1.5 kHz versus 4–10% in the recording. Neither fixed pluck position, maximum
+existing register anchoring, metal-restoration removal, nor String Age closes
+that gap. An offline-only loss term therefore multiplies modal amplitude by:
+
+```text
+exp(-amount * registerBlend * (harmonicIndex - 1)^1.2)
+```
+
+where `registerBlend` is zero at E2 and one at E4. At amount 0.25, high-E
+down/up centroids become 960/849 Hz versus reference 1015/838 Hz; energy above
+1.5 kHz becomes 12.1/8.7% versus 9.7/4.3%. The accepted low-E render is exact
+because both endpoint interventions vanish or resolve directly to its existing
+values at E2.
+
+This is modal/string loss, not an additive pick-noise layer. The faster modeled
+alternate tail remains a diagnostic of missing moving-string repick state; the
+1 ms de-click removes the artifact but does not preserve that energy.

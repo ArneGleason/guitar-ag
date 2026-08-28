@@ -30,7 +30,8 @@ void printUsage()
                  "[--legacy-additive-pick-mix 0.12] [--legacy-pick-texture-density 2.5] "
                  "[--legacy-register-anchor 0.35] [--legacy-register-decay-anchor 0.0] "
                  "[--legacy-register-metal-restore 2.0] [--legacy-pluck-position auto|0.18] "
-                 "[--legacy-body-decay-time-scale 1.0] [--legacy-repick-crossfade-ms 0.0] "
+                 "[--legacy-body-decay-time-scale 1.0] [--legacy-high-register-body-decay-time-scale auto|0.5] "
+                 "[--legacy-high-register-partial-damping 0.0] [--legacy-repick-crossfade-ms 0.0] "
                  "[--input-octave midi|daw] [--input-transpose 0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.25] [--pick-bite 0.5] "
                  "[--pick-stroke alternate] [--strum-speed 0.10] [--strum-balance -0.13] "
@@ -156,6 +157,8 @@ int main (int argc, char* argv[])
     auto legacyRegisterMetalRestoration = 2.0f;
     auto legacyPluckPosition = -1.0f;
     auto legacyBodyDecayTimeScale = 1.0f;
+    auto legacyHighRegisterBodyDecayTimeScale = -1.0f;
+    auto legacyHighRegisterPartialDamping = 0.0f;
     auto legacyRepickCrossfadeMilliseconds = 0.0f;
     auto inputTransposeSemitones = 0;
     auto sustain = 1.0f;
@@ -341,6 +344,17 @@ int main (int argc, char* argv[])
         else if (argument == "--legacy-body-decay-time-scale" && hasValue)
         {
             legacyBodyDecayTimeScale = juce::jlimit (0.50f, 4.00f, juce::String (argv[++i]).getFloatValue());
+        }
+        else if (argument == "--legacy-high-register-body-decay-time-scale" && hasValue)
+        {
+            const auto value = juce::String (argv[++i]).toLowerCase();
+            legacyHighRegisterBodyDecayTimeScale = value == "auto" || value == "default"
+                                                  ? -1.0f
+                                                  : juce::jlimit (0.25f, 4.00f, value.getFloatValue());
+        }
+        else if (argument == "--legacy-high-register-partial-damping" && hasValue)
+        {
+            legacyHighRegisterPartialDamping = juce::jlimit (0.0f, 2.0f, juce::String (argv[++i]).getFloatValue());
         }
         else if (argument == "--legacy-repick-crossfade-ms" && hasValue)
         {
@@ -653,6 +667,8 @@ int main (int argc, char* argv[])
     engine.setLegacyOfflineRegisterMetalRestoration (legacyRegisterMetalRestoration);
     engine.setLegacyOfflinePluckPosition (legacyPluckPosition);
     engine.setLegacyOfflineBodyDecayTimeScale (legacyBodyDecayTimeScale);
+    engine.setLegacyOfflineHighRegisterBodyDecayTimeScale (legacyHighRegisterBodyDecayTimeScale);
+    engine.setLegacyOfflineHighRegisterPartialDamping (legacyHighRegisterPartialDamping);
     engine.setLegacyOfflineRepickCrossfadeMilliseconds (legacyRepickCrossfadeMilliseconds);
 #endif
     engine.setInputTransposeSemitones (inputTransposeSemitones);

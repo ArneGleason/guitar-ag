@@ -699,6 +699,26 @@ void StringVoice::start (int midiNoteNumber,
                               * (0.30f + 0.90f * pickBiteAmount)
                               * (0.94f + 0.08f * pickDepthScatter);
 
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    constexpr auto lowEReferenceHz = 82.40689f;
+    constexpr auto highEReferenceHz = 329.62756f;
+    const auto endpointRegisterBlend = juce::jlimit (
+        0.0f,
+        1.0f,
+        std::log (juce::jmax (lowEReferenceHz, static_cast<float> (frequency)) / lowEReferenceHz)
+            / std::log (highEReferenceHz / lowEReferenceHz));
+    auto endpointDecayTimeScale = offlineBodyDecayTimeScale;
+
+    if (offlineHighRegisterBodyDecayTimeScale > 0.0f && endpointRegisterBlend > 0.000001f)
+    {
+        endpointDecayTimeScale = std::exp (
+            std::log (offlineBodyDecayTimeScale)
+            + endpointRegisterBlend
+                * (std::log (offlineHighRegisterBodyDecayTimeScale)
+                   - std::log (offlineBodyDecayTimeScale)));
+    }
+#endif
+
     for (auto harmonic = 1; harmonic <= 32 && modeIndex < modalCount; ++harmonic)
     {
         const auto harmonicFloat = static_cast<float> (harmonic);
@@ -775,7 +795,7 @@ void StringVoice::start (int midiNoteNumber,
         const auto decayCurvature = (0.0090f + (0.0065f - 0.0090f) * woundAmount) * (1.0f + 1.55f * stringAgeAmount);
         auto decaySeconds = decayBaseSeconds / (1.0f + decayCurvature * decayEnvelopeIndex * decayEnvelopeIndex);
 #if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
-        decaySeconds *= offlineBodyDecayTimeScale;
+        decaySeconds *= endpointDecayTimeScale;
 #endif
         const auto decay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * decaySeconds));
         const auto tiltStart = 1.00f + (0.92f - 1.00f) * woundAmount;
@@ -784,14 +804,22 @@ void StringVoice::start (int midiNoteNumber,
         const auto contactFilter = std::exp (-contactWidth * relativeEnvelopeIndex);
         const auto agePartialDamping = std::exp (-0.026f * stringAgeAmount
                                                * juce::jmax (0.0f, relativeEnvelopeIndex - 1.0f));
-        const auto partialTilt = contactFilter * agePartialDamping / std::pow (relativeEnvelopeIndex, tiltExponent);
+        auto endpointPartialDamping = 1.0f;
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+        endpointPartialDamping = std::exp (
+            -offlineHighRegisterPartialDamping * endpointRegisterBlend
+            * std::pow (juce::jmax (0.0f, harmonicFloat - 1.0f), 1.20f));
+#endif
+        const auto partialTilt = contactFilter * agePartialDamping
+                               / std::pow (relativeEnvelopeIndex, tiltExponent);
         const auto velocityScale = juce::jlimit (0.12f, 4.0f, stiffFrequency / 470.0f);
         const auto attackEmphasis = 1.0f
                                   + strikeAmount * juce::jlimit (0.0f, 3.0f, (harmonicFloat - 1.0f) / 8.0f)
                                   + hardStrike * juce::jlimit (0.0f, 4.0f, (harmonicFloat - 4.0f) / 8.0f);
         const auto touchMask = getHarmonicTouchMask (harmonic, harmonicDivision, harmonicAccuracy);
         const auto amplitude = modalGain * pluckShape * pickupModelShape * aperture * pickupElectricalTilt
-                             * partialTilt * velocityScale * attackEmphasis * touchMask * harmonicEnergyScale;
+                             * partialTilt * endpointPartialDamping * velocityScale * attackEmphasis
+                             * touchMask * harmonicEnergyScale;
         const auto phase = (harmonic % 2 == 0 ? 0.18f : -0.11f) * harmonicFloat;
         const auto tailDampingScale = juce::jlimit (0.14f, 0.62f, 0.11f + 0.012f * harmonicFloat);
 
@@ -820,7 +848,8 @@ void StringVoice::start (int midiNoteNumber,
                                                  / std::pow (harmonicFloat, tiltExponent);
                 const auto unanchoredAmplitude = modalGain * pluckShape * pickupModelShape * aperture
                                                * unanchoredPickupElectricalTilt * unanchoredPartialTilt
-                                               * velocityScale * attackEmphasis * touchMask * harmonicEnergyScale;
+                                               * endpointPartialDamping * velocityScale * attackEmphasis
+                                               * touchMask * harmonicEnergyScale;
                 const auto unanchoredSideModeAmplitude = unanchoredAmplitude * sideRegime * sideAmount
                                                        * sideTouchScale * unanchoredAgePartialDamping;
                 const auto fixedHzGatePosition = juce::jlimit (0.0f, 1.0f, (sideFrequency - 650.0f) / 1850.0f);
@@ -1043,6 +1072,18 @@ void StringVoice::setOfflinePluckPosition (float normalizedPosition) noexcept
 void StringVoice::setOfflineBodyDecayTimeScale (float timeScale) noexcept
 {
     offlineBodyDecayTimeScale = juce::jlimit (0.50f, 4.00f, timeScale);
+}
+
+void StringVoice::setOfflineHighRegisterBodyDecayTimeScale (float timeScale) noexcept
+{
+    offlineHighRegisterBodyDecayTimeScale = timeScale < 0.0f
+                                          ? -1.0f
+                                          : juce::jlimit (0.25f, 4.00f, timeScale);
+}
+
+void StringVoice::setOfflineHighRegisterPartialDamping (float dampingAmount) noexcept
+{
+    offlineHighRegisterPartialDamping = juce::jlimit (0.0f, 2.0f, dampingAmount);
 }
 
 void StringVoice::startOfflineFadeOut (float durationMilliseconds) noexcept

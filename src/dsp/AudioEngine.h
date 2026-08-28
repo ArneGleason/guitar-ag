@@ -119,6 +119,8 @@ public:
     void setLegacyOfflineRegisterMetalRestoration (float restorationFactor) noexcept;
     void setLegacyOfflinePluckPosition (float normalizedPosition) noexcept;
     void setLegacyOfflineBodyDecayTimeScale (float timeScale) noexcept;
+    void setLegacyOfflineHighRegisterBodyDecayTimeScale (float timeScale) noexcept;
+    void setLegacyOfflineHighRegisterPartialDamping (float dampingAmount) noexcept;
     void setLegacyOfflineRepickCrossfadeMilliseconds (float durationMilliseconds) noexcept;
 #endif
     void setTailSustain (float newTailSustain) noexcept;

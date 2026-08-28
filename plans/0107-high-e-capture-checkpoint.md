@@ -41,4 +41,4 @@ specification.
       files.
 - [x] Existing approvals resolve the first incomplete item to high-E ringing
       independent downstrokes.
-- [ ] Complete the three high-E items, then stop for endpoint model comparison.
+- [x] Complete the three high-E items, then stop for endpoint model comparison.

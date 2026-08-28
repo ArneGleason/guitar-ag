@@ -499,5 +499,20 @@ Plan 0103 supersedes this 30-item inventory for current capture work.
 - [x] Forced regeneration preserves all 43 existing session files byte-for-byte.
 - [x] Existing approvals make `high-e-eval-ringing-down` the first incomplete
       inventory item.
-- [ ] Complete all three high-E items, then stop before A/D/G/B capture for the
+- [x] Complete all three high-E items, then stop before A/D/G/B capture for the
       endpoint model comparison.
+
+## Plan 0108 Low/High-E Endpoint Candidate Checks
+
+- [x] All six high-E WAVs validate as 44.1 kHz/24-bit with no clipping or
+      dropped-audio flag; each contains the expected 6/6/12 attacks.
+- [x] Default and explicit-neutral new renderer controls reproduce the prior
+      high-E production render byte-for-byte.
+- [x] Candidate low-E down/up/alternate renders reproduce the accepted Plan
+      0105/0106 low-E renders byte-for-byte.
+- [x] Windows Release `GuitarAGOfflineRender` and `GuitarAG_VST3` build.
+- [x] Listening tracks are aligned, mono 44.1 kHz/24-bit, RMS-matched, and do
+      not clip.
+- [ ] Human listening confirms the endpoint candidate removes the synthetic
+      high-register scale/brightness without making the string dull, hollow, or
+      unnaturally short.

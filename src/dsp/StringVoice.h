@@ -73,6 +73,8 @@ public:
     void setOfflineRegisterMetalRestoration (float restorationFactor) noexcept;
     void setOfflinePluckPosition (float normalizedPosition) noexcept;
     void setOfflineBodyDecayTimeScale (float timeScale) noexcept;
+    void setOfflineHighRegisterBodyDecayTimeScale (float timeScale) noexcept;
+    void setOfflineHighRegisterPartialDamping (float dampingAmount) noexcept;
     void startOfflineFadeOut (float durationMilliseconds) noexcept;
 #endif
 
@@ -345,6 +347,8 @@ private:
     bool offlineContactLayerEnabled = true;
     float offlinePluckPosition = -1.0f;
     float offlineBodyDecayTimeScale = 1.0f;
+    float offlineHighRegisterBodyDecayTimeScale = -1.0f;
+    float offlineHighRegisterPartialDamping = 0.0f;
     int offlineFadeOutSamplesRemaining = 0;
     int offlineFadeOutTotalSamples = 0;
 #endif

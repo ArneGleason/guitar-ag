@@ -1209,3 +1209,29 @@ No damping is requested. The setup is recorded as an EVH Wolfgang Special with
 neck humbucker, likely-.009 long-installed/grimy strings without a claim of
 fatigue, and a worn generic medium celluloid-style pick, with every uncertain
 detail explicitly labeled as such.
+
+## 2026-08-28 — Split low/high-E decay and modal loss before production
+
+Decision:
+Keep Plan 0108's endpoint correction offline. Test a geometric body-decay scale
+from 1.50x at E2 to 0.50x at E4 and a smooth high-register upper-partial loss
+with amount 0.25 and harmonic exponent 1.2. Preserve the accepted 0.14 pluck
+position and 1 ms de-click.
+
+Reason:
+The real high E decays about three to seven times faster than the low-E tails,
+so Plan 0105's uniform 1.50x decay is directionally wrong at the opposite
+endpoint. Pluck position, the existing register anchor, metal restoration, and
+String Age cannot independently close the measured 50-point excess above
+1.5 kHz. The endpoint loss term brings high-E centroid and band balance close
+while mathematically vanishing at low E.
+
+Status:
+Prepared as an offline human listening gate. No production/VST parameter or
+preset field changes.
+
+Consequences:
+The accepted low-E renders remain byte-identical. High-E muting and middle
+strings remain deferred. A later production implementation must derive a
+musically defensible per-string/interpolated model and pass polyphony/MPE/DAW
+checks rather than exposing these research scalars directly.

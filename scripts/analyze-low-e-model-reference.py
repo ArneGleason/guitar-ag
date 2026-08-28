@@ -216,14 +216,16 @@ def spectrum_features(samples: np.ndarray, sample_rate: int) -> dict[str, float]
     return result
 
 
-def estimate_fundamental(samples: np.ndarray, sample_rate: int) -> float:
+def estimate_fundamental(
+    samples: np.ndarray, sample_rate: int, target_hz: float = 82.4069
+) -> float:
     if len(samples) < round(0.25 * sample_rate):
         return 0.0
     samples = samples - np.mean(samples)
     size = 1 << (len(samples) - 1).bit_length()
     powers = np.abs(np.fft.rfft(samples * np.hanning(len(samples)), n=size)) ** 2
     frequencies = np.fft.rfftfreq(size, 1.0 / sample_rate)
-    use = (frequencies >= 72.0) & (frequencies <= 94.0)
+    use = (frequencies >= target_hz * 0.87) & (frequencies <= target_hz * 1.14)
     indices = np.flatnonzero(use)
     if len(indices) == 0:
         return 0.0
@@ -267,6 +269,7 @@ def event_rows(
     direction: str,
     take: str,
     onsets: list[float],
+    fundamental_target_hz: float = 82.4069,
 ) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     for index, onset in enumerate(onsets):
@@ -307,7 +310,7 @@ def event_rows(
             "attack_flatness": features["flatness"],
             "early_centroid_hz": early_features["centroid_hz"],
             "fundamental_hz": (
-                estimate_fundamental(pitch_window, audio.sample_rate)
+                estimate_fundamental(pitch_window, audio.sample_rate, fundamental_target_hz)
                 if condition == "ringing"
                 else 0.0
             ),

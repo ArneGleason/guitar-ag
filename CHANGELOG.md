@@ -8,6 +8,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0108's low/high-E endpoint analyzer, deterministic endpoint MIDI,
+  offline high-register partial-loss/decay controls, and a reference-backed
+  loudness-matched listening set. The candidate leaves accepted low E exact.
 - Added Plan 0107's three-item open-high-E endpoint checkpoint and embedded the
   described EVH Wolfgang Special, neck-humbucker, likely-.009 long-installed/
   grimy-string, and worn medium celluloid-style pick context without overstating

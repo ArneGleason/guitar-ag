@@ -221,3 +221,8 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Replaced the active stop point with Plan 0107's high-E endpoint only: ringing
   down/up/alternate at 6/6/12 strokes. Forced regeneration preserved all 43
   existing session files byte-for-byte and routes next to high-E downstrokes.
+- Completed Plan 0108 endpoint analysis from two approved 6/6/12 high-E batches.
+  The uniform low-E decay correction fails at high E; an offline 1.50x-to-0.50x
+  decay interpolation plus 0.25 curved upper-partial loss leaves low E exact and
+  moves high-E spectrum/decay close to the recording. Prepared an RMS-matched
+  reference/control/candidate listening gate; no further capture is requested.

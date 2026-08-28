@@ -988,3 +988,16 @@ look more controlled than they really are.
 Endpoint-first capture also limits wasted performance effort. Low E plus high E
 can test whether register scaling is coherent before D/G probe the wound/plain
 boundary and A/B serve as interpolation checks.
+
+## 2026-08-28 — Low-E decay does not generalize to plain high E
+
+The high-E reference's independent tail is roughly -7.1 dB/s, versus about
+-1.0 to -2.1 dB/s for low E. Applying the accepted low-E 1.50x body-decay scale
+uniformly slows the modeled high E to roughly -2.3 dB/s and makes the endpoint
+worse. Register/string decay must interpolate or use physical per-string state.
+
+The same endpoint isolates a modal-envelope problem that pluck geometry cannot
+solve: fixed pluck positions from 0.08 to 0.28 leave 47–74% of modeled high-E
+attack energy above 1.5 kHz, compared with 4–10% in the recording. A smooth
+register-dependent loss above the fundamental closes most of that gap while
+leaving low E exact. Muted high E would not add evidence for this decision.
