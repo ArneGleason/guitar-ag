@@ -177,3 +177,16 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
   existing session files, rebuilt the Windows Release capture app, and opened
   it on `low-e-eval-ringing-down`. The next action is human capture of all six
   items followed by a full current-model comparison.
+- Completed Plan 0104 against two approved batches for every low-E condition:
+  84 onset-aligned reference strokes, stable 83.13-83.17 Hz pitch, no clips,
+  writer-overflow flags, or multi-sample exact-zero gaps.
+- Measured a dominant modal-core mismatch: reference ringing attacks center at
+  220-262 Hz with under 1% above 1.5 kHz, while EG-089 centers near 1.6 kHz with
+  45-62% above 1.5 kHz. Direct pick/contact ablations are 51-77 dB below the
+  control and do not move the aggregate result.
+- Measured reference decay around -1 to -2 dB/s versus EG-089 around -4.3 to
+  -4.8 dB/s, demonstrated that palm mute couples attack/body damping unlike the
+  fretting-hand reference, and quantified wider contextual human variation.
+- Added reproducible MIDI/analysis tooling and documented the next offline gate:
+  a 2x2 low-E modal-envelope/decay experiment before damping, preserved-state
+  repicking, or wider human scatter.

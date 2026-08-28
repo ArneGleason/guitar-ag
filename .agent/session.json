@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0103 focused low-E capture exercise",
-  "status": "Replaced the broad active inventory with six low-E performance exercises plus the existing noise floor. The real inventory is regenerated at 44.1 kHz, the Release capture app is open on the first new request, and the human should approve all six batches before model comparison.",
-  "updatedAt": "2026-08-28T13:49:17-04:00",
-  "lastHandoff": ".agent/handoffs/20260828-codex-plan0103-low-e-capture-exercise.md",
+  "lastTask": "Plan 0104 low-E reference/model comparison",
+  "status": "Validated and onset-aligned 84 human low-E strokes, rendered matching EG-089 controls and ablations, and attributed the main mismatch to an overly bright, fast-decaying modal core rather than additive pick layers. The next gate is an offline 2x2 modal-envelope/decay experiment.",
+  "updatedAt": "2026-08-28T14:16:35-04:00",
+  "lastHandoff": ".agent/handoffs/20260828-codex-plan0104-low-e-reference-model-comparison.md",
   "branch": "codex/0103-low-e-capture-exercise",
-  "commit": "1075fdd",
+  "commit": "3b945b5",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "The ASIO capture app is ready on the first of six focused low-E exercises. Capture one approved 44.1 kHz WAV batch for ringing down, ringing up, ringing alternate, hand-damped down, hand-damped up, and hand-damped alternate; then stop and compare the complete reference set with the current physical model."
+    "summary": "Plan 0104 shows that EG-089's real low-E gap is modal: about 1.6 kHz attack centroid versus 220-262 Hz in the captured DI, 45-62% versus under 1% above 1.5 kHz, and decay two to four times too fast. Direct pick-layer ablations are negligible. Build an offline current/envelope/decay/both fixture next, then require human listening."
   }
 }

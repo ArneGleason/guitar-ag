@@ -6,14 +6,20 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Plan 0103 replaces the active 30-item inventory with six low-E exercises.
-  Review the exact 4/4/12 ringing and 6/6/12 hand-damped stroke semantics,
-  one-approved-batch rule, natural-timing guidance, new request IDs, and 44.1
-  kHz acquisition constraint. Do not expand the inventory before analysis.
-- After all six Plan 0103 sessions are approved, compare onset-aligned
-  down/up distributions, alternate repicking on a moving string, long decay,
-  and ringing-versus-damped residuals against the current model. Treat the
-  residual as diagnostic evidence, not a pure isolated pick sample.
+- Review Plan 0104's onset selection and aggregate measurements against the
+  plotted envelopes, especially the observed six-event deviations from the
+  written ringing/damped-alternate counts. Preserve all accepted source WAVs.
+- Challenge the attribution that EG-089's excess high-frequency energy is in
+  the modal core: direct-pick/contact ablations are 51-77 dB below control,
+  String Age cannot approach the reference, and both attack and early-body
+  centroids remain far above the real low E.
+- Keep the recommended next gate offline and two-dimensional: current,
+  empirical modal envelope, slower modal decay, and both. Do not combine
+  damping, repick state, or wider human scatter until that 2x2 is measured and
+  listened to.
+- Treat absolute spectral targets as specific to the undocumented guitar/
+  pickup/pick used for Plan 0103. Direction, within-set damping, decay, timing,
+  and variation contrasts are the stronger portable evidence.
 - Plan 0102 adds permanent file deletion. Review the rejected-only gate, direct
   session-child path check, failed-delete behavior, list reselection, manifest
   rewrite, and approval-derived inventory refresh. No key repeat should cascade.
@@ -24,7 +30,7 @@ Suggested focus:
   deleting its source WAV, playing the same WAV, and closing the app. The
   waveform must remain absolute-scale rather than normalized per take.
 - Plan 0101 enables `JUCE_ASIO=1` only for the Windows reference-capture target.
-  Confirm `ASIO` / `Focusrite USB ASIO` opens at 48 kHz, restores correctly, and
+  Confirm `ASIO` / `Focusrite USB ASIO` opens at 44.1 kHz, restores correctly, and
   does not affect the VST3 or offline renderer build definitions.
 - The existing `dropped_audio` manifest field covers only threaded-writer FIFO
   failure. Do not interpret it as proof that device callbacks were continuous;
