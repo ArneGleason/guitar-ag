@@ -907,3 +907,18 @@ remain separate. The rejected state is a reversible annotation; a second,
 explicit Delete/Backspace action erases only that rejected session child. Edge
 detection is also important: polling the physical key state must turn a held key
 into one action rather than cascading through the remaining take list.
+
+## 2026-08-28 — Separate attack reset, long decay, and alternate repicking
+
+One WAV can efficiently answer more than one controlled question without asking
+the player to wait through four complete low-E decays. For independent ringing
+attacks, short 1.5–2 second observation windows followed by deliberate stops
+provide repeat variation, while the final stroke supplies the long decay. That
+is different from continuous alternate picking, where an already-moving string
+and the natural down/up hand path are the phenomenon being measured.
+
+Exact metronomic spacing is unnecessary when files contain clean lead-in and
+separation. Onset detection can recover event timing, while natural performance
+better preserves the pick-angle and hand-motion differences the model needs.
+The request must still state the stroke order so down and up events are not
+averaged together blindly.

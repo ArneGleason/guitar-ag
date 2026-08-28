@@ -8,6 +8,11 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Replaced the broad 30-item starter inventory with a seven-item low-E model-
+  evaluation gate: existing noise floor plus ringing down/up/alternate and
+  hand-damped down/up/alternate exercises using natural timing and explicit
+  stroke sequences, one approved batch per exercise, and a fixed 44.1 kHz rate
+  matching the existing noise-floor reference.
 - Added guarded Delete/Backspace capture controls: either key discards an active
   recording without saving, or permanently deletes a selected rejected take
   while protecting candidate and approved takes.

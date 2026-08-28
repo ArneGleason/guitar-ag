@@ -1016,7 +1016,7 @@ produces actionable model evidence. One noise-floor reference plus six low/high
 E ringing/hand-damped/foam-damped conditions is the smallest useful checkpoint.
 
 Status:
-Implemented in Plan 0100.
+Implemented in Plan 0100 and superseded for current capture work by Plan 0103.
 
 Consequences:
 The app automatically discovers the default inventory, selects the first
@@ -1074,3 +1074,31 @@ be a direct child of the active session directory. Notes, device settings, file
 choosers, and background apps suppress capture shortcuts. The waveform shows
 peak, RMS, duration, a -12 dBFS guide, and hot/possible-clip cues, but visual
 inspection complements rather than replaces listening.
+
+## 2026-08-28 — Gate model work on one complete low-E performance exercise
+
+Decision:
+Replace the active broad inventory with an existing noise-floor reference plus
+six new low-E requests: ringing independent down, ringing independent up,
+ringing alternate, hand-damped down, hand-damped up, and hand-damped alternate.
+Do not ask for other strings, pick forces, depths, or materials until this set is
+compared with the current model.
+
+Reason:
+The original eight-isolated-strokes wording blurred independent fresh-string
+attacks, long decay, and natural alternate repicking. It also asked the human to
+collect speculative breadth before proving that one complete controlled exercise
+changes the model usefully. Four reset ringing strokes can include variation and
+a long final decay; six damped strokes provide repeat statistics; 12 down-first
+alternates capture direction changes and re-excitation on a moving string.
+
+Status:
+Implemented in Plan 0103.
+
+Consequences:
+The active inventory has seven items across only two phases. Natural timing and
+extra hand-transition silence are accepted because analysis will detect onsets;
+no metronome is required. Foam damping is removed. New request IDs preserve old
+sessions as evidence without letting their approvals complete the new exercise.
+Once the six items are approved, capture stops and the next action is model
+comparison—not automatic inventory expansion.

@@ -63,14 +63,15 @@ Focusrite driver.
 
 ## Guided Inventory
 
-The app automatically loads the default phased inventory from
+The app automatically loads the focused low-E evaluation inventory from
 `Documents\Guitar AG Reference Captures\capture-inventory.json`. Its selector
 shows every requested sound in order, marks items `[done]` after the required
 approved take count, and opens the first unfinished item on launch.
 
-Complete Phase 0 and Phase 1 first, then stop for analysis. See
-`docs/reference-capture-inventory.md` for the human-readable checklist and why
-the later phases are intentionally deferred.
+Reuse the approved Phase 0 noise floor when settings are unchanged, complete the
+six Phase 1 low-E exercise items, then stop for a full current-model comparison.
+See `docs/reference-capture-inventory.md` for the exact stroke order, natural-
+timing guidance, reset timing, and final-decay instructions.
 
 Generate or deliberately refresh the inventory definitions with:
 
@@ -90,7 +91,7 @@ The dependency-free request generator keeps agent briefs consistent:
 ```powershell
 python scripts\create-reference-capture-request.py `
   --title "Low E medium downstroke ringing" `
-  --instructions "Record eight isolated medium downstrokes on open low E, shallow depth, with about half a second between strokes." `
+  --instructions "Record four independent medium downstrokes in one WAV batch, using the documented ring/stop/reset pattern." `
   --string "low E" `
   --direction down `
   --dynamics medium `
@@ -98,8 +99,11 @@ python scripts\create-reference-capture-request.py `
   --pick "medium plastic" `
   --muting ringing `
   --comparison-group "pick-contact-low-e-medium" `
-  --takes 8
+  --takes 2
 ```
+
+`--takes` is the suggested maximum number of WAV batches, not the number of
+strokes inside one WAV. Put the stroke count and order in `--instructions`.
 
 The script prints the request path. Load it with the app's `Load request...`
 button when doing an ad-hoc capture outside the inventory, or start the app with:
@@ -158,13 +162,15 @@ Do not treat a damped recording as pure pick noise and do not expect a direct
 waveform null. Muting changes boundary conditions, pickup-visible string
 motion, timing, and the act of picking itself.
 
-For the first pick-contact comparison, keep guitar, pickup, controls, pick,
-string, direction, dynamics, depth, interface gain, and physical picking
-location fixed, then create three requests sharing one `comparison_group`:
+For the active low-E pick-contact comparison, keep guitar, pickup, controls,
+pick, string, direction, dynamics, depth, interface gain, and physical picking
+location fixed, then compare requests sharing one `comparison_group`:
 
 1. normal ringing;
-2. fretting-hand damping at non-harmonic touch points;
-3. soft foam/cloth damping near the fretboard, away from the pick.
+2. fretting-hand damping at non-harmonic touch points.
+
+Foam or cloth damping can remain a later optional intervention, but it is not
+required by the active inventory.
 
 Analysis should onset-align repetitions and compare distributions: contact
 duration, crest factor, zero-crossing/event density, fixed-Hz band energy and

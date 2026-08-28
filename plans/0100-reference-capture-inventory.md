@@ -1,5 +1,8 @@
 # Plan 0100 — Guided Reference Capture Inventory
 
+> Superseded for current capture work by Plan 0103's focused low-E evaluation
+> exercise. This file preserves the original inventory decision and history.
+
 ## Goal
 
 Turn the single-request recorder into a guided checklist so the human always

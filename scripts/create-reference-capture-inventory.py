@@ -34,7 +34,10 @@ def request(
     pick_depth: str = "",
     pick: str = "",
     muting: str = "",
-    takes: int = 3,
+    performance_pattern: str = "",
+    stroke_count: int = 0,
+    timing: str = "",
+    takes: int = 2,
 ) -> dict[str, object]:
     return {
         "request_id": request_id,
@@ -52,6 +55,9 @@ def request(
             "pick_depth": pick_depth,
             "pick": pick,
             "muting": muting,
+            "performance_pattern": performance_pattern,
+            "stroke_count": stroke_count,
+            "timing": timing,
             "guitar": "identify the guitar in take notes",
             "pickup": "keep one pickup/settings combination fixed; identify it in notes",
             "comparison_group": phase_id,
@@ -59,34 +65,58 @@ def request(
     }
 
 
-def pick_instructions(
-    string_name: str,
-    direction: str,
-    dynamics: str,
-    depth: str,
-    muting: str,
-    pick: str,
-) -> str:
-    mute_text = {
-        "ringing": "Let the string ring normally.",
-        "hand-damped": (
-            "Lightly touch the string at several non-harmonic fretting-hand positions, "
-            "away from the pick, so sustained pitch is suppressed."
-        ),
-        "foam-damped": (
-            "Weave soft foam or cloth through the strings near the fretboard, away "
-            "from the pick, to damp propagation."
-        ),
-    }[muting]
-    return (
-        "Keep guitar, pickup, controls, interface gain, picking location, and the "
-        f"specified pick fixed within the comparison group. {mute_text} For each take, "
-        f"leave about one second of untouched input, then play eight isolated {dynamics} "
-        f"{direction}strokes on {string_name} with {depth} pick depth and about half a "
-        "second between strokes. Let the final event decay. Record up to three batches "
-        "and approve at least one consistent, representative batch. Note the exact guitar, "
-        f"pickup setting, and {pick} in the selected-take notes."
+def low_e_exercise_instructions(muting: str, pattern: str) -> str:
+    common = (
+        "Use open low E with one ordinary medium plastic pick, medium force, and shallow "
+        "pick depth. Keep guitar, pickup, volume/tone controls, interface gain, picking "
+        "location, and pick fixed for the entire low-E exercise. Leave about one second "
+        "of untouched input before the first stroke. Natural timing is wanted; do not use "
+        "a metronome. Long hand movement before starting and extra silence are fine. "
     )
+    notes = (
+        "Approve one representative batch. Record a second batch only if the first has a "
+        "duff, handling noise, or obviously inconsistent force. Note the exact guitar, "
+        "pickup setting, control settings, and pick brand/material/thickness in the "
+        "selected-take notes."
+    )
+
+    if muting == "ringing" and pattern in ("independent_down", "independent_up"):
+        direction = "downstroke" if pattern == "independent_down" else "upstroke"
+        return common + (
+            f"Play four independent {direction}s. After each of the first three strokes, "
+            "let the string ring for 1.5 to 2 seconds, deliberately stop it, then leave "
+            "about half a second of quiet reset time. After the fourth stroke, let the "
+            "string ring naturally for 6 to 8 seconds before stopping it. "
+        ) + notes
+
+    if muting == "ringing" and pattern == "alternate_down_first":
+        return common + (
+            "Let the string keep ringing while you play 12 continuous alternate-picked "
+            "strokes at a comfortable natural tempo, starting with down: D U D U D U D U "
+            "D U D U. Do not stop the string between strokes. After the final upstroke, "
+            "let the string ring for 4 to 6 seconds before stopping it. "
+        ) + notes
+
+    damping = (
+        "Lightly touch the string at stable non-harmonic fretting-hand positions, away "
+        "from the pick, so sustained pitch is suppressed without changing the picking "
+        "location. "
+    )
+    if muting == "hand-damped" and pattern in ("independent_down", "independent_up"):
+        direction = "downstrokes" if pattern == "independent_down" else "upstrokes"
+        return common + damping + (
+            f"Play six {direction}, allowing each short damped event to finish and leaving "
+            "roughly 0.6 to 0.8 seconds between strokes. Comfortable consistency matters "
+            "more than exact spacing. "
+        ) + notes
+
+    if muting == "hand-damped" and pattern == "alternate_down_first":
+        return common + damping + (
+            "Play 12 continuous alternate-picked strokes at a comfortable natural tempo, "
+            "starting with down: D U D U D U D U D U D U. "
+        ) + notes
+
+    raise ValueError(f"unsupported low-E exercise: {muting}/{pattern}")
 
 
 def build_items() -> list[dict[str, object]]:
@@ -107,173 +137,103 @@ def build_items() -> list[dict[str, object]]:
         )
     )
 
-    phase_1 = "phase-1-pick-contact-baseline"
-    phase_1_title = "Phase 1 — Minimum pick-contact baseline"
+    phase_1 = "phase-1-low-e-model-evaluation"
+    phase_1_title = "Phase 1 — Low-E model-evaluation exercise"
     phase_1_why = (
-        "Separates register and damping effects before expanding direction, force, or material."
+        "Measures independent down/up attacks, natural alternate repicking, and the "
+        "ringing-versus-hand-damped contrast before changing the physical model."
     )
     baseline_pick = "one ordinary medium plastic pick"
-    for prefix, string_name in (("low-e", "open low E"), ("high-e", "open high E")):
-        for muting in ("ringing", "hand-damped", "foam-damped"):
-            items.append(
-                request(
-                    f"pick-baseline-{prefix}-{muting}",
-                    f"{string_name.title()} medium downstroke — {muting}",
-                    phase_1,
-                    phase_1_title,
-                    phase_1_why,
-                    pick_instructions(
-                        string_name, "down", "medium", "shallow", muting, baseline_pick
-                    ),
-                    technique="pick_contact",
-                    string_name=string_name,
-                    direction="down",
-                    dynamics="medium",
-                    pick_depth="shallow",
-                    pick=baseline_pick,
-                    muting=muting,
-                )
-            )
-
-    phase_2 = "phase-2-pick-response-axes"
-    phase_2_title = "Phase 2 — Direction, force, depth, and middle strings"
-    phase_2_why = "Measures the smallest response axes needed to scale one believable pick model."
-    phase_2_specs = [
-        ("d-string", "open D", "down", "medium", "shallow"),
-        ("b-string", "open B", "down", "medium", "shallow"),
-        ("low-e-up", "open low E", "up", "medium", "shallow"),
-        ("high-e-up", "open high E", "up", "medium", "shallow"),
-        ("low-e-light", "open low E", "down", "light", "shallow"),
-        ("low-e-hard", "open low E", "down", "hard", "shallow"),
-        ("high-e-light", "open high E", "down", "light", "shallow"),
-        ("high-e-hard", "open high E", "down", "hard", "shallow"),
-        ("low-e-deep", "open low E", "down", "medium", "deep"),
-        ("high-e-deep", "open high E", "down", "medium", "deep"),
+    exercise_specs = [
+        (
+            "low-e-eval-ringing-down",
+            "Open Low E - ringing independent downstrokes",
+            "ringing",
+            "down",
+            "independent_down",
+            4,
+            "1.5-2 s ring, deliberate stop, 0.5 s reset; final stroke rings 6-8 s",
+        ),
+        (
+            "low-e-eval-ringing-up",
+            "Open Low E - ringing independent upstrokes",
+            "ringing",
+            "up",
+            "independent_up",
+            4,
+            "1.5-2 s ring, deliberate stop, 0.5 s reset; final stroke rings 6-8 s",
+        ),
+        (
+            "low-e-eval-ringing-alternate",
+            "Open Low E - ringing alternate repicking",
+            "ringing",
+            "alternate_down_first",
+            "alternate_down_first",
+            12,
+            "comfortable natural tempo; continuous D U sequence; final ring 4-6 s",
+        ),
+        (
+            "low-e-eval-hand-damped-down",
+            "Open Low E - hand-damped downstrokes",
+            "hand-damped",
+            "down",
+            "independent_down",
+            6,
+            "roughly 0.6-0.8 s between strokes; natural timing",
+        ),
+        (
+            "low-e-eval-hand-damped-up",
+            "Open Low E - hand-damped upstrokes",
+            "hand-damped",
+            "up",
+            "independent_up",
+            6,
+            "roughly 0.6-0.8 s between strokes; natural timing",
+        ),
+        (
+            "low-e-eval-hand-damped-alternate",
+            "Open Low E - hand-damped alternate picking",
+            "hand-damped",
+            "alternate_down_first",
+            "alternate_down_first",
+            12,
+            "comfortable natural tempo; continuous D U sequence",
+        ),
     ]
-    for slug, string_name, direction, dynamics, depth in phase_2_specs:
+    for (
+        request_id,
+        title,
+        muting,
+        direction,
+        pattern,
+        stroke_count,
+        timing,
+    ) in exercise_specs:
         items.append(
             request(
-                f"pick-response-{slug}",
-                f"{string_name.title()} {dynamics} {direction}stroke — {depth}",
-                phase_2,
-                phase_2_title,
-                phase_2_why,
-                pick_instructions(
-                    string_name, direction, dynamics, depth, "ringing", baseline_pick
+                request_id,
+                title,
+                phase_1,
+                phase_1_title,
+                phase_1_why,
+                low_e_exercise_instructions(muting, pattern),
+                technique=(
+                    "pick_contact"
+                    if pattern != "alternate_down_first"
+                    else "alternate_repicking"
                 ),
-                technique="pick_contact",
-                string_name=string_name,
-                direction=direction,
-                dynamics=dynamics,
-                pick_depth=depth,
-                pick=baseline_pick,
-                muting="ringing",
-            )
-        )
-
-    phase_3 = "phase-3-pick-material"
-    phase_3_title = "Phase 3 — Flexible versus stiff pick material"
-    phase_3_why = "Tests whether compliance and edge texture need separable model controls."
-    for pick_slug, pick_name in (
-        ("flexible", "one clearly flexible/thin pick"),
-        ("stiff", "one clearly stiff/thick pick"),
-    ):
-        for prefix, string_name in (("low-e", "open low E"), ("high-e", "open high E")):
-            items.append(
-                request(
-                    f"pick-material-{pick_slug}-{prefix}-ringing",
-                    f"{string_name.title()} — {pick_slug} pick ringing",
-                    phase_3,
-                    phase_3_title,
-                    phase_3_why,
-                    pick_instructions(
-                        string_name, "down", "medium", "shallow", "ringing", pick_name
-                    ),
-                    technique="pick_contact",
-                    string_name=string_name,
-                    direction="down",
-                    dynamics="medium",
-                    pick_depth="shallow",
-                    pick=pick_name,
-                    muting="ringing",
-                )
-            )
-        items.append(
-            request(
-                f"pick-material-{pick_slug}-low-e-hand-damped",
-                f"Open Low E — {pick_slug} pick hand-damped",
-                phase_3,
-                phase_3_title,
-                phase_3_why,
-                pick_instructions(
-                    "open low E", "down", "medium", "shallow", "hand-damped", pick_name
-                ),
-                technique="pick_contact",
                 string_name="open low E",
-                direction="down",
+                direction=direction,
                 dynamics="medium",
                 pick_depth="shallow",
-                pick=pick_name,
-                muting="hand-damped",
+                pick=baseline_pick,
+                muting=muting,
+                performance_pattern=pattern,
+                stroke_count=stroke_count,
+                timing=timing,
+                takes=2,
             )
         )
-
-    phase_4 = "phase-4-finger-and-surface"
-    phase_4_title = "Phase 4 — Finger, nail, lift, and slide references"
-    phase_4_why = "Seeds later motion-driven finger and fret-contact models after pick contact is calibrated."
-    for attack, title_part in (("finger_flesh", "Finger flesh"), ("fingernail", "Fingernail")):
-        for prefix, string_name in (("low-e", "open low E"), ("high-e", "open high E")):
-            items.append(
-                request(
-                    f"finger-attack-{attack}-{prefix}",
-                    f"{title_part} attack — {string_name}",
-                    phase_4,
-                    phase_4_title,
-                    phase_4_why,
-                    f"Keep the guitar, pickup, controls, interface gain, and plucking location fixed. "
-                    f"For each take, leave about one second of untouched input, then make eight isolated "
-                    f"medium attacks on {string_name} using {title_part.lower()} only, with about half a "
-                    "second between attacks. Record up to three batches and approve at least one consistent batch.",
-                    technique=attack,
-                    string_name=string_name,
-                    dynamics="medium",
-                    muting="ringing",
-                )
-            )
-
-    for direction in ("up", "down"):
-        items.append(
-            request(
-                f"finger-slide-d-string-{direction}",
-                f"Wound D-string finger slide — {direction}",
-                phase_4,
-                phase_4_title,
-                phase_4_why,
-                "Use the wound D string with the normal fretting finger pressure used in playing. "
-                f"Make six isolated five-fret slides {direction}, allowing silence between gestures. "
-                "Keep slide distance and speed as consistent as practical, then approve at least one representative batch.",
-                technique="finger_slide",
-                string_name="D string, five-fret span",
-                direction=direction,
-                dynamics="medium",
-            )
-        )
-
-    items.append(
-        request(
-            "finger-lift-d-string",
-            "Wound D-string finger lift",
-            phase_4,
-            phase_4_title,
-            phase_4_why,
-            "Fret one mid-neck note on the wound D string, pick it normally, then release the fretting "
-            "finger with a natural lift after about one second. Make six isolated gestures per take. "
-            "Keep the fret, pressure, and timing consistent and approve at least one representative batch.",
-            technique="finger_lift",
-            string_name="D string, one documented mid-neck fret",
-            dynamics="medium",
-        )
-    )
 
     return items
 
@@ -319,7 +279,7 @@ def main() -> int:
             "capture_requirements": {
                 "signal": "clean electric-guitar DI",
                 "format": "mono 24-bit WAV",
-                "preferred_sample_rates_hz": [48000, 96000],
+                "preferred_sample_rates_hz": [44100],
                 "target_peak_dbfs_at_most": -12.0,
                 "processing": "none",
             },
@@ -346,12 +306,13 @@ def main() -> int:
 
     inventory = {
         "schema_version": 1,
-        "inventory_id": "guitar-ag-reference-inventory-v1",
+        "inventory_id": "guitar-ag-reference-inventory-v2-low-e-evaluation",
         "created_at": created_at,
-        "title": "Guitar AG Reference Capture Inventory",
+        "title": "Guitar AG Low-E Model Evaluation Inventory",
         "instructions": (
-            "Complete Phase 0 and Phase 1 first, then stop and ask Codex to analyze the "
-            "approved sessions before proceeding. Later phases are a roadmap, not homework."
+            "Keep an existing approved Phase 0 noise floor if settings are unchanged. "
+            "Complete the six Phase 1 low-E exercise items, then stop for a full model "
+            "comparison. Do not expand to other strings or pick materials yet."
         ),
         "phases": phase_order,
         "items": inventory_items,

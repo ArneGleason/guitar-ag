@@ -357,10 +357,12 @@ This document defines the basic manual and technical checks needed as the projec
       same request, and confirm all states return.
 - [ ] Run `summarize-reference-capture-session.py` and confirm it validates the
       WAV headers and prints only the approved file with `--approved-paths`.
-- [ ] Record the first ringing/hand-damped/foam-damped Focusrite comparison set;
+- [ ] Record the first ringing/hand-damped Focusrite comparison set;
       do not interpret direct subtraction as a pure isolated pick signal.
 
-## Plan 0100 Capture-Inventory Checks
+## Plan 0100 Capture-Inventory Checks (Historical)
+
+Plan 0103 supersedes this 30-item inventory for current capture work.
 
 - [x] Dependency-free inventory generation produces 30 unique, stable request
       IDs across five ordered phases.
@@ -381,8 +383,8 @@ This document defines the basic manual and technical checks needed as the projec
       while Audio Settings has keyboard focus.
 - [ ] Pressing Space in another foreground application does not control the
       background capture app.
-- [ ] Complete only Phase 0 and the six Phase 1 baseline items, then return the
-      approved sessions for analysis before starting Phase 2.
+- [x] Preserve the Plan 0100 generator/history while replacing the active
+      inventory with Plan 0103's focused low-E gate.
 
 ## Plan 0101 Reference-Capture ASIO Checks
 
@@ -414,6 +416,21 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] With a real guitar ASIO take, compare the waveform against the audible
       result and confirm quiet, target-level, hot, and clipped-looking examples
       are visually useful.
+
+## Plan 0103 Low-E Capture Exercise Checks
+
+- [x] Generator emits seven items across Phase 0 and Phase 1.
+- [x] The six Phase 1 stroke counts are 4, 4, 12, 6, 6, and 12.
+- [x] Every Phase 1 request requires natural timing without a metronome and only
+      one approved batch; a second batch is optional.
+- [x] No active inventory request requires foam or cloth.
+- [x] Fresh request IDs prevent earlier single-event ringing/hand-damped
+      approvals from completing the revised exercise.
+- [x] `--force` regeneration changed zero of the 19 existing session files.
+- [x] The regenerated default inventory routes first to
+      `low-e-eval-ringing-down` after the approved noise floor.
+- [ ] Complete all six low-E exercise items, then stop for the current-model
+      comparison before expanding the inventory.
 - [ ] In the DAW, replay the ordinary/deep/phrase material and confirm the plugin
       has the promoted track-2 tone without a level, note-release, or polyphony
       regression.

@@ -30,7 +30,7 @@ class ReferenceCaptureScriptsTest(unittest.TestCase):
                     "--title",
                     "Low E ringing",
                     "--instructions",
-                    "Record eight isolated strokes.",
+                    "Record four independent strokes in one WAV batch.",
                     "--string",
                     "low E",
                     "--direction",
@@ -40,7 +40,7 @@ class ReferenceCaptureScriptsTest(unittest.TestCase):
                     "--muting",
                     "ringing",
                     "--takes",
-                    "8",
+                    "2",
                     "--capture-root",
                     str(root / "captures"),
                     "--output",
@@ -54,7 +54,7 @@ class ReferenceCaptureScriptsTest(unittest.TestCase):
 
             request = json.loads(request_path.read_text(encoding="utf-8"))
             self.assertEqual(request["schema_version"], 1)
-            self.assertEqual(request["requested_take_count"], 8)
+            self.assertEqual(request["requested_take_count"], 2)
             self.assertEqual(request["context"]["string"], "low E")
             self.assertEqual(request["context"]["muting"], "ringing")
 
@@ -138,30 +138,52 @@ class ReferenceCaptureScriptsTest(unittest.TestCase):
                 capture_output=True,
                 text=True,
             )
-            self.assertIn("items=30", result.stdout)
+            self.assertIn("items=7", result.stdout)
 
             inventory_path = root / "capture-inventory.json"
             inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
             self.assertEqual(inventory["schema_version"], 1)
-            self.assertEqual(len(inventory["items"]), 30)
-            self.assertEqual(len(inventory["phases"]), 5)
-            self.assertIn("Phase 0 and Phase 1 first", inventory["instructions"])
+            self.assertEqual(len(inventory["items"]), 7)
+            self.assertEqual(len(inventory["phases"]), 2)
+            self.assertIn("six Phase 1 low-E exercise items", inventory["instructions"])
 
             phase_one = [
                 item
                 for item in inventory["items"]
-                if item["phase_id"] == "phase-1-pick-contact-baseline"
+                if item["phase_id"] == "phase-1-low-e-model-evaluation"
             ]
             self.assertEqual(len(phase_one), 6)
             self.assertTrue(all(item["required_approved_takes"] == 1 for item in phase_one))
 
+            expected_ids = [
+                "low-e-eval-ringing-down",
+                "low-e-eval-ringing-up",
+                "low-e-eval-ringing-alternate",
+                "low-e-eval-hand-damped-down",
+                "low-e-eval-hand-damped-up",
+                "low-e-eval-hand-damped-alternate",
+            ]
+            self.assertEqual([item["request_id"] for item in phase_one], expected_ids)
+
             request_ids = [item["request_id"] for item in inventory["items"]]
             self.assertEqual(len(request_ids), len(set(request_ids)))
+            stroke_counts = []
             for item in inventory["items"]:
                 request_path = Path(item["request_file"])
                 request = json.loads(request_path.read_text(encoding="utf-8"))
                 self.assertEqual(request["request_id"], item["request_id"])
                 self.assertEqual(request["research_reason"], item["why"])
+                self.assertNotIn("foam", request["instructions"].lower())
+                if item["phase_id"] == "phase-1-low-e-model-evaluation":
+                    self.assertEqual(request["requested_take_count"], 2)
+                    self.assertEqual(
+                        request["capture_requirements"]["preferred_sample_rates_hz"],
+                        [44100],
+                    )
+                    self.assertIn("do not use a metronome", request["instructions"])
+                    stroke_counts.append(request["context"]["stroke_count"])
+
+            self.assertEqual(stroke_counts, [4, 4, 12, 6, 6, 12])
 
             duplicate = subprocess.run(
                 [sys.executable, str(INVENTORY_SCRIPT), "--capture-root", str(root)],

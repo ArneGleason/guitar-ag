@@ -67,15 +67,17 @@ prefer `ASIO` / `Focusrite USB ASIO` and close other ASIO clients before opening
 the device. The Focusrite driver is an external machine dependency and is not
 bundled with the application.
 
-Create the guided 30-item inventory and stable request files in the operating
-system's Documents known folder:
+Create the guided low-E model-evaluation inventory and stable request files in
+the operating system's Documents known folder:
 
 ```powershell
 python scripts\create-reference-capture-inventory.py
 ```
 
-The app discovers that inventory automatically. Complete only Phase 0 plus the
-six Phase 1 items before analysis; later phases are deliberately deferred.
+The app discovers that inventory automatically. Keep the existing noise-floor
+approval when capture settings are unchanged, complete the six Phase 1 low-E
+exercise items, then stop for a model comparison. Later strings, dynamics,
+depths, and pick materials are deliberately excluded until that evaluation.
 
 The previous checkout at `C:\code\guitar-ag` was clean and at the same GitHub commit when the canonical clone was created. Windows would not move it while the original Codex workspace held the directory open. Remove that duplicate only from a later task after the original workspace is closed and the exact path is re-verified.
 

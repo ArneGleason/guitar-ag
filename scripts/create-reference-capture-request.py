@@ -49,7 +49,12 @@ def main() -> int:
     parser.add_argument("--guitar", default="")
     parser.add_argument("--pickup", default="")
     parser.add_argument("--comparison-group", default="")
-    parser.add_argument("--takes", type=int, default=8)
+    parser.add_argument(
+        "--takes",
+        type=int,
+        default=2,
+        help="maximum suggested WAV take batches; repetitions inside a batch belong in instructions",
+    )
     parser.add_argument(
         "--capture-root",
         type=Path,
