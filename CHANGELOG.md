@@ -8,6 +8,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0095 with offline-only independent register-decay anchoring and fixed-Hz, plain-string-weighted inharmonic side-mode restoration controls, plus a reconstruction-checked 2x2 listening set.
 - Added Plan 0094, an offline absolute-frequency register/formant envelope anchor with audition-only level compensation and progressive 35/65/100% A/B candidates.
 - Added a compact E2-to-E4 open-string register audition MIDI generator and fixture.
 - Added Plan 0093 with offline modal/direct pick blending and texture-event density controls, plus a five-track hybrid A/B that separates mix amount from density and isolates the added direct contribution.

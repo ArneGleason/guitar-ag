@@ -709,6 +709,7 @@ void StringVoice::start (int midiNoteNumber,
 #if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
         auto envelopeIndex = harmonicFloat;
         auto relativeEnvelopeIndex = harmonicFloat;
+        auto decayEnvelopeIndex = harmonicFloat;
 
         if (offlineRegisterEnvelopeAnchor > 0.000001f)
         {
@@ -726,9 +727,32 @@ void StringVoice::start (int midiNoteNumber,
                                         * (std::log (absoluteFrequencyIndex) - std::log (harmonicFloat)));
             relativeEnvelopeIndex = 1.0f + juce::jmax (0.0f, envelopeIndex - fundamentalEnvelopeIndex);
         }
+
+        decayEnvelopeIndex = envelopeIndex;
+
+        if (std::abs (offlineRegisterDecayAnchor - offlineRegisterEnvelopeAnchor) > 0.000001f)
+        {
+            const auto decayAnchorAmount = juce::jlimit (0.0f, 1.0f, offlineRegisterDecayAnchor);
+
+            if (decayAnchorAmount <= 0.000001f)
+            {
+                decayEnvelopeIndex = harmonicFloat;
+            }
+            else
+            {
+                constexpr auto lowEReferenceHz = 82.40689f;
+                const auto absoluteFrequencyIndex = juce::jmax (1.0f,
+                                                                static_cast<float> (frequency) * harmonicFloat
+                                                                    / lowEReferenceHz);
+                decayEnvelopeIndex = std::exp (std::log (harmonicFloat)
+                                             + decayAnchorAmount
+                                                 * (std::log (absoluteFrequencyIndex) - std::log (harmonicFloat)));
+            }
+        }
 #else
         const auto envelopeIndex = harmonicFloat;
         const auto relativeEnvelopeIndex = harmonicFloat;
+        const auto decayEnvelopeIndex = harmonicFloat;
 #endif
 
         const auto pluckShape = std::sin (twoPi * 0.5f * harmonicFloat * pluckPosition);
@@ -754,7 +778,7 @@ void StringVoice::start (int midiNoteNumber,
                                 / (twoPi * 0.5f * harmonicFloat * pickupWidth);
         const auto decayBaseSeconds = (6.4f + (8.2f - 6.4f) * woundAmount) * (1.0f - 0.16f * stringAgeAmount);
         const auto decayCurvature = (0.0090f + (0.0065f - 0.0090f) * woundAmount) * (1.0f + 1.55f * stringAgeAmount);
-        const auto decaySeconds = decayBaseSeconds / (1.0f + decayCurvature * envelopeIndex * envelopeIndex);
+        const auto decaySeconds = decayBaseSeconds / (1.0f + decayCurvature * decayEnvelopeIndex * decayEnvelopeIndex);
         const auto decay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * decaySeconds));
         const auto tiltStart = 1.00f + (0.92f - 1.00f) * woundAmount;
         const auto tiltEnd = 0.48f + (0.34f - 0.48f) * woundAmount;
@@ -783,9 +807,39 @@ void StringVoice::start (int midiNoteNumber,
             const auto woundSideRegime = juce::jmap (strikeAmount, 0.45f, 2.20f) + hardStrike * 0.95f;
             const auto sideRegime = plainSideRegime + (woundSideRegime - plainSideRegime) * woundAmount;
             const auto sideAmount = 0.045f + ((0.12f + 0.014f * harmonicFloat) - 0.045f) * woundAmount;
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+            const auto sideTouchScale = 0.45f + 0.55f * touchMask;
+            auto sideModeAmplitude = amplitude * sideRegime * sideAmount * sideTouchScale * agePartialDamping;
+
+            if (offlineRegisterMetalRestoration > 0.000001f)
+            {
+                const auto unanchoredPickupElectricalTilt = pickupModelIndex == 1
+                                                          ? std::exp (-0.010f * harmonicFloat)
+                                                          : 1.0f;
+                const auto unanchoredContactFilter = std::exp (-contactWidth * harmonicFloat);
+                const auto unanchoredAgePartialDamping = std::exp (-0.026f * stringAgeAmount
+                                                                  * juce::jmax (0.0f, harmonicFloat - 1.0f));
+                const auto unanchoredPartialTilt = unanchoredContactFilter * unanchoredAgePartialDamping
+                                                 / std::pow (harmonicFloat, tiltExponent);
+                const auto unanchoredAmplitude = modalGain * pluckShape * pickupModelShape * aperture
+                                               * unanchoredPickupElectricalTilt * unanchoredPartialTilt
+                                               * velocityScale * attackEmphasis * touchMask * harmonicEnergyScale;
+                const auto unanchoredSideModeAmplitude = unanchoredAmplitude * sideRegime * sideAmount
+                                                       * sideTouchScale * unanchoredAgePartialDamping;
+                const auto fixedHzGatePosition = juce::jlimit (0.0f, 1.0f, (sideFrequency - 650.0f) / 1850.0f);
+                const auto fixedHzGate = fixedHzGatePosition * fixedHzGatePosition
+                                       * (3.0f - 2.0f * fixedHzGatePosition);
+                const auto plainStringWeight = 1.0f - 0.72f * woundAmount;
+                const auto restoration = offlineRegisterMetalRestoration * fixedHzGate * plainStringWeight;
+                sideModeAmplitude += (unanchoredSideModeAmplitude - sideModeAmplitude) * restoration;
+            }
+#else
+            const auto sideModeAmplitude = amplitude * sideRegime * sideAmount
+                                         * (0.45f + 0.55f * touchMask) * agePartialDamping;
+#endif
             configureMode (modeIndex++,
                            sideFrequency,
-                           amplitude * sideRegime * sideAmount * (0.45f + 0.55f * touchMask) * agePartialDamping,
+                           sideModeAmplitude,
                            sideDecay,
                            phase + 1.7f,
                            juce::jlimit (0.28f, 0.76f, tailDampingScale + 0.14f));
@@ -976,6 +1030,17 @@ void StringVoice::setOfflinePickTextureDensity (float textureDensity) noexcept
 void StringVoice::setOfflineRegisterEnvelopeAnchor (float anchorAmount) noexcept
 {
     offlineRegisterEnvelopeAnchor = juce::jlimit (0.0f, 1.0f, anchorAmount);
+    offlineRegisterDecayAnchor = offlineRegisterEnvelopeAnchor;
+}
+
+void StringVoice::setOfflineRegisterDecayAnchor (float anchorAmount) noexcept
+{
+    offlineRegisterDecayAnchor = juce::jlimit (0.0f, 1.0f, anchorAmount);
+}
+
+void StringVoice::setOfflineRegisterMetalRestoration (float restorationFactor) noexcept
+{
+    offlineRegisterMetalRestoration = juce::jlimit (0.0f, 8.0f, restorationFactor);
 }
 #endif
 

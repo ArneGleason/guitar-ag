@@ -69,6 +69,8 @@ public:
     void setOfflineModalPickDirectMix (float directMix) noexcept;
     void setOfflinePickTextureDensity (float textureDensity) noexcept;
     void setOfflineRegisterEnvelopeAnchor (float anchorAmount) noexcept;
+    void setOfflineRegisterDecayAnchor (float anchorAmount) noexcept;
+    void setOfflineRegisterMetalRestoration (float restorationFactor) noexcept;
 #endif
 
     float renderSample (float tailSustain,
@@ -336,6 +338,8 @@ private:
     float offlineModalPickDirectMix = 0.0f;
     float offlinePickTextureDensity = 1.0f;
     float offlineRegisterEnvelopeAnchor = 0.0f;
+    float offlineRegisterDecayAnchor = 0.0f;
+    float offlineRegisterMetalRestoration = 0.0f;
     float offlineRegisterLevelCompensation = 1.0f;
 #endif
 };

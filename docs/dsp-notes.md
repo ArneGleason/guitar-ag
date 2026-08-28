@@ -2265,3 +2265,31 @@ harmonic-number modal decay, and optionally blend a small amount of unanchored
 amplitude only into higher-frequency inharmonic side modes. This targets metal
 identity without restoring the broad pitch-shifted body or the rejected attack
 chirp modes.
+
+## 2026-08-27 — Plan 0095 Decay and Metal-Ring Separation
+
+The offline renderer now accepts two controls that leave the 35% amplitude
+envelope unchanged:
+
+- `--legacy-register-decay-anchor 0.0..1.0` overrides decay anchoring. If it is
+  omitted, decay follows `--legacy-register-anchor` exactly for compatibility.
+- `--legacy-register-metal-restore 0.0..8.0` adds back the difference between
+  anchored and unanchored inharmonic side-mode amplitude. A smooth 650–2500 Hz
+  gate and `1 - 0.72 * woundAmount` weighting focus the change on upper/plain
+  metal-string cues. Main harmonic modes and the attack chirp bank are untouched.
+
+A factor of 1 is the literal lost-energy restoration after frequency/string
+weighting, but its E4 contribution measured only -60.6 dB mean. The focused A/B
+uses 6x as a labelled diagnostic exaggeration, roughly -45 dB mean on E4, so
+the side-mode hypothesis is actually hearable. It is not a proposed control
+range or production default.
+
+The comparison is a 2x2: anchored versus harmonic-number decay, each with zero
+or 6x side-mode restoration. The accepted attack and 35% amplitude anchor remain
+fixed. Both Windows Release targets build; the default calibration remains exact
+at `C67DCE0C59AA6D0A903BA887E2C55953B5842CAF1CA3160C035D0704BF0BD48B`,
+and the default-follow 35% render exactly reproduces Plan 0094 at
+`94BA731900865E612887B9FE3CE6FB533323C14302D878418FD518F9C5CEBEF7`.
+All five review tracks are 424,800 samples, the combined candidate repeats
+byte-identically, and its signed added contribution reconstructs it from the
+accepted baseline with infinite measured audio PSNR.

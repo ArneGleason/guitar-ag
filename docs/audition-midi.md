@@ -309,6 +309,30 @@ The compact open-string sequence makes perceived instrument scale easy to track
 across the register while holding velocity and the accepted medium hybrid attack
 constant.
 
+Plan 0095 uses the exact same render inputs. This PowerShell command records the
+full accepted baseline rather than relying on remembered defaults:
+
+```powershell
+$renderer = 'build-vs2022-x64\GuitarAGOfflineRender_artefacts\Release\GuitarAGOfflineRender.exe'
+$common = @(
+  '--midi', 'tests\midi\register-formant-open-strings.mid',
+  '--sample-rate', '48000', '--block-size', '512', '--tail-seconds', '2.0',
+  '--pick-stiffness', '0.10', '--pick-texture', '0.75', '--pick-bite', '1.0',
+  '--legacy-pick-excitation', 'modal', '--legacy-modal-pick-force', '1.75',
+  '--legacy-additive-pick-mix', '0.12', '--legacy-pick-texture-density', '2.5',
+  '--legacy-register-anchor', '0.35'
+)
+
+& $renderer @common --output accepted.wav
+& $renderer @common --output harmonic-decay.wav --legacy-register-decay-anchor 0.0
+& $renderer @common --output metal-restore-6x.wav --legacy-register-metal-restore 6.0
+& $renderer @common --output combined.wav --legacy-register-decay-anchor 0.0 --legacy-register-metal-restore 6.0
+```
+
+Omitting `--legacy-register-decay-anchor` intentionally makes it follow the
+register envelope anchor. `--legacy-register-metal-restore 1.0` is literal
+lost-side-energy restoration; 6.0 is an audible diagnostic exaggeration.
+
 The legacy and stateful renders are peak matched closely enough to compare attack character directly. The stateful body is currently less dense, so do not loudness-normalize away that difference before deciding whether it is a strength or a weakness. Compare clean DI first, then the normal amp-sim chain.
 
 `--stateful-repick 0` clears the delay state at every note start. It exists only to isolate residual-state continuity in offline research and is not a proposed user control.

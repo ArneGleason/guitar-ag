@@ -114,3 +114,5 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Added audition-only register level compensation after the literal anchor made high E up to about 14 dB quieter; final per-note levels stay within about 1 dB, low E is effectively unchanged, and default/anchor-zero hashes remain exact.
 - Generated a compact six-open-string register fixture and a reconstruction-checked five-track 35/65/100% anchor A/B.
 - Human loudness-matched listening selected the 35% register anchor as much better than current, while identifying progressive loss of metal ring/brightness; preserve the envelope correction and separate decay from fixed-Hz metallic side-mode retention next.
+- Created Plan 0095 and split the accepted 35% amplitude anchor from modal-decay anchoring, then added an offline fixed-Hz/plain-string-weighted restoration of only the lost inharmonic side-mode energy.
+- Literal 1x side-mode restoration was too quiet for a useful review slot, so prepared a labelled 6x diagnostic in a 2x2 decay/restoration set; default and Plan 0094 hashes remain exact, the candidate is deterministic, and the signed contribution reconstructs exactly.

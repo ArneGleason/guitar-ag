@@ -789,3 +789,18 @@ decay curvature can shorten upper fixed-Hz partial lifetimes, and attenuating th
 same amplitude envelope for main and inharmonic side modes can remove a useful
 metal cue. Test those axes separately instead of backing away from the accepted
 envelope correction or adding a broadband treble boost.
+
+An ablation axis must be calibrated to audible scale before it consumes a slot.
+In Plan 0095, literal 1x restoration of side-mode energy lost to the 35% anchor
+measured only -60.6 dB mean during E4. The useful diagnostic is therefore an
+explicitly labelled 6x extrapolation, still limited to the existing detuned side
+modes by a 650–2500 Hz smooth gate and plain-string weighting. If that character
+is useful, listening should calibrate downward; if it sounds artificial, the
+result rejects the side-mode hypothesis without altering the accepted main body.
+
+Exact audition commands belong in durable documentation. The first Plan 0094
+handoff recorded hashes and parameters but omitted its render command, which
+made a later byte-regression check appear to fail when extra `player-feel` and
+`finger-noise` overrides were guessed. Recovering the original command showed
+the new default-follow path was byte-identical. Preserve commands alongside
+hashes so a regression failure distinguishes changed DSP from changed inputs.

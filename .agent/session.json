@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0094 register/formant listening verdict",
-  "status": "Plan 0094 listening selected 35% anchoring as much better than current, with a remaining progressive loss of metal ring and brightness in the upper register. The next offline test will split decay anchoring from narrow fixed-Hz metallic side-mode retention.",
-  "updatedAt": "2026-08-27T20:50:00-04:00",
-  "lastHandoff": ".agent/handoffs/20260827-codex-plan0094-register-formant-listening.md",
-  "branch": "codex/0094-register-formant-anchor",
-  "commit": "Plan 0094 implementation 3060f3b; verdict documentation pending commit",
+  "lastTask": "Plan 0095 upper-register metal-ring retention",
+  "status": "Plan 0095 is implemented and ready for human A/B: the accepted 35% amplitude envelope is fixed while decay anchoring and an audible 6x diagnostic restoration of lost inharmonic side-mode energy are crossed independently.",
+  "updatedAt": "2026-08-27T21:20:00-04:00",
+  "lastHandoff": ".agent/handoffs/20260827-codex-plan0095-metal-ring-listening.md",
+  "branch": "codex/0095-metal-ring-retention",
+  "commit": "Plan 0095 implementation based on Plan 0094 verdict 40dd831; see branch HEAD",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0094 validated the formant premise: 35% absolute-frequency anchoring sounds much better than the harmonic-number baseline. It also progressively removes upper-register metal ring/brightness, so the next A/B keeps that envelope fixed while independently testing unanchored decay and a restrained fixed-Hz inharmonic side-mode restoration. A damped-guitar DI capture protocol is ready; motion-driven finger noise remains later."
+    "summary": "Plan 0095 keeps the human-selected 35% amplitude/formant envelope fixed and separates its decay effect from existing inharmonic side-mode energy. The ready 2x2 A/B compares anchored versus harmonic-number decay with zero or a labelled 6x audible restoration diagnostic; default and Plan 0094 renders remain byte-exact. A damped-guitar DI capture protocol is ready; motion-driven finger noise remains later."
   }
 }

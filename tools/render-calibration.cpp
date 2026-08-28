@@ -27,7 +27,8 @@ void printUsage()
                  "[--legacy-attack-modes 0|1] [--legacy-pick-transient 0|1] [--legacy-contact-layer 0|1] "
                  "[--legacy-pick-excitation additive|modal] [--legacy-modal-pick-force 1.0] "
                  "[--legacy-additive-pick-mix 0.0] [--legacy-pick-texture-density 1.0] "
-                 "[--legacy-register-anchor 0.0] "
+                 "[--legacy-register-anchor 0.0] [--legacy-register-decay-anchor 0.0] "
+                 "[--legacy-register-metal-restore 0.0] "
                  "[--input-octave midi|daw] [--input-transpose 0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.25] [--pick-bite 0.5] "
                  "[--pick-stroke alternate] [--strum-speed 0.10] [--strum-balance -0.13] "
@@ -149,6 +150,8 @@ int main (int argc, char* argv[])
     auto legacyAdditivePickMix = 0.0f;
     auto legacyPickTextureDensity = 1.0f;
     auto legacyRegisterAnchor = 0.0f;
+    auto legacyRegisterDecayAnchor = -1.0f;
+    auto legacyRegisterMetalRestoration = 0.0f;
     auto inputTransposeSemitones = 0;
     auto sustain = 1.0f;
     auto pickStiffness = 0.5f;
@@ -283,6 +286,14 @@ int main (int argc, char* argv[])
         else if (argument == "--legacy-register-anchor" && hasValue)
         {
             legacyRegisterAnchor = juce::jlimit (0.0f, 1.0f, juce::String (argv[++i]).getFloatValue());
+        }
+        else if (argument == "--legacy-register-decay-anchor" && hasValue)
+        {
+            legacyRegisterDecayAnchor = juce::jlimit (0.0f, 1.0f, juce::String (argv[++i]).getFloatValue());
+        }
+        else if (argument == "--legacy-register-metal-restore" && hasValue)
+        {
+            legacyRegisterMetalRestoration = juce::jlimit (0.0f, 8.0f, juce::String (argv[++i]).getFloatValue());
         }
         else if (argument == "--input-octave" && hasValue)
         {
@@ -585,6 +596,11 @@ int main (int argc, char* argv[])
     engine.setLegacyOfflineModalPickDirectMix (legacyAdditivePickMix);
     engine.setLegacyOfflinePickTextureDensity (legacyPickTextureDensity);
     engine.setLegacyOfflineRegisterEnvelopeAnchor (legacyRegisterAnchor);
+
+    if (legacyRegisterDecayAnchor >= 0.0f)
+        engine.setLegacyOfflineRegisterDecayAnchor (legacyRegisterDecayAnchor);
+
+    engine.setLegacyOfflineRegisterMetalRestoration (legacyRegisterMetalRestoration);
 #endif
     engine.setInputTransposeSemitones (inputTransposeSemitones);
     engine.setTailSustain (sustain);

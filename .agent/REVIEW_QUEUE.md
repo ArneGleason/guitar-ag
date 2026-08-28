@@ -6,7 +6,8 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
-- Plan 0094 listening selected 35% anchoring as much better than current, but it progressively flattened upper notes and lost metal ring/brightness. Review a 2x2 split of amplitude anchoring, decay anchoring, and narrow side-mode metal retention next.
+- Plan 0095 is awaiting listening. Compare track 1 vs 2 for decay persistence, 1 vs 3 for the existing inharmonic side-mode character, and 2 vs 4 for their interaction. Reject the 6x diagnostic if it sounds buzzy/chime-like rather than metallic; it is deliberately exaggerated for audibility.
+- Plan 0094 listening selected 35% amplitude anchoring as much better than current, but it progressively flattened upper notes and lost metal ring/brightness. Keep that amplitude envelope fixed during Plan 0095 review.
 - Treat Plan 0094's register gain as audition normalization only. The positive timbre verdict still requires a principled string/gauge energy model before production promotion.
 - Plan 0093 listening calibrated 12% dense direct texture as medium and 22% as maximum. Preserve these bounds; use 12% as the fixed attack baseline for register/formant review.
 - Plan 0092 listening selected the 1.75x modal-force direction as a useful foundation. Review the next hybrid for whether low-level denser direct texture adds material detail without restoring the sparse woody digital rattle.

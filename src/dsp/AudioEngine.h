@@ -114,6 +114,8 @@ public:
     void setLegacyOfflineModalPickDirectMix (float directMix) noexcept;
     void setLegacyOfflinePickTextureDensity (float textureDensity) noexcept;
     void setLegacyOfflineRegisterEnvelopeAnchor (float anchorAmount) noexcept;
+    void setLegacyOfflineRegisterDecayAnchor (float anchorAmount) noexcept;
+    void setLegacyOfflineRegisterMetalRestoration (float restorationFactor) noexcept;
 #endif
     void setTailSustain (float newTailSustain) noexcept;
     void setInputTransposeSemitones (int newInputTransposeSemitones) noexcept;

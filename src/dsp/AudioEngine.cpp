@@ -266,6 +266,18 @@ void AudioEngine::setLegacyOfflineRegisterEnvelopeAnchor (float anchorAmount) no
     for (auto& voice : voices)
         voice.setOfflineRegisterEnvelopeAnchor (anchorAmount);
 }
+
+void AudioEngine::setLegacyOfflineRegisterDecayAnchor (float anchorAmount) noexcept
+{
+    for (auto& voice : voices)
+        voice.setOfflineRegisterDecayAnchor (anchorAmount);
+}
+
+void AudioEngine::setLegacyOfflineRegisterMetalRestoration (float restorationFactor) noexcept
+{
+    for (auto& voice : voices)
+        voice.setOfflineRegisterMetalRestoration (restorationFactor);
+}
 #endif
 
 void AudioEngine::setTailSustain (float newTailSustain) noexcept
