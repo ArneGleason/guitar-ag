@@ -383,6 +383,20 @@ This document defines the basic manual and technical checks needed as the projec
       background capture app.
 - [ ] Complete only Phase 0 and the six Phase 1 baseline items, then return the
       approved sessions for analysis before starting Phase 2.
+
+## Plan 0101 Reference-Capture ASIO Checks
+
+- [x] Windows Release `GuitarAGReferenceCapture` compiles with `JUCE_ASIO=1`.
+- [x] The current Windows registry exposes `Focusrite USB ASIO` to 64-bit
+      applications.
+- [ ] With Codex dictation, DAWs, browsers, and conferencing apps closed, open
+      Audio Settings and select `ASIO` / `Focusrite USB ASIO`.
+- [ ] Enable only the guitar input, select 48 kHz and a 1024-sample diagnostic
+      buffer, and confirm the input meter follows the instrument.
+- [ ] Record a ten-second noise floor and several isolated picks. Confirm there
+      are no audible clicks, zero-filled gaps, or writer-overflow warnings.
+- [ ] Restart the capture app and confirm the Focusrite ASIO device, sample
+      rate, buffer size, and enabled channel are restored.
 - [ ] In the DAW, replay the ordinary/deep/phrase material and confirm the plugin
       has the promoted track-2 tone without a level, note-release, or polyphony
       regression.

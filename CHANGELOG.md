@@ -8,6 +8,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Enabled JUCE ASIO support in the Windows reference-capture executable so the
+  installed `Focusrite USB ASIO` driver can be selected instead of the shared
+  or exclusive Windows Audio backends.
 - Added a foreground-only Space shortcut that toggles reference-capture record
   and stop while preserving normal spaces in take notes and avoiding accidental
   triggers during Audio Settings interaction.

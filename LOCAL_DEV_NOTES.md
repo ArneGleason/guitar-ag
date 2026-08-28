@@ -62,6 +62,11 @@ Its request/session workflow is documented in
 `Documents\Guitar AG Reference Captures`, outside Git. Enable only the intended
 Focusrite input because the MVP records the first enabled input channel.
 
+The Windows capture target compiles JUCE ASIO support. In Audio Settings,
+prefer `ASIO` / `Focusrite USB ASIO` and close other ASIO clients before opening
+the device. The Focusrite driver is an external machine dependency and is not
+bundled with the application.
+
 Create the guided 30-item inventory and stable request files in the operating
 system's Documents known folder:
 

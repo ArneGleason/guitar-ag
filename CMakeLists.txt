@@ -136,7 +136,8 @@ target_sources(GuitarAGReferenceCapture
 target_compile_definitions(GuitarAGReferenceCapture
     PRIVATE
         JUCE_WEB_BROWSER=0
-        JUCE_USE_CURL=0)
+        JUCE_USE_CURL=0
+        $<$<PLATFORM_ID:Windows>:JUCE_ASIO=1>)
 
 target_link_libraries(GuitarAGReferenceCapture
     PRIVATE

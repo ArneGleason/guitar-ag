@@ -35,9 +35,11 @@ build-vs2022-x64\GuitarAGReferenceCapture_artefacts\Release\Guitar AG Reference 
 ## First Focusrite Setup
 
 1. Connect the guitar directly to the Focusrite instrument input.
-2. Open the app and choose the Focusrite device type/device in Audio Settings.
-3. Enable only the one physical input carrying the guitar. The MVP records the
-   first enabled input channel.
+2. Open the app and choose `ASIO` as the device type in Audio Settings, then
+   choose `Focusrite USB ASIO`. The Windows capture build enables JUCE's ASIO
+   backend; the Focusrite USB driver must be installed separately.
+3. Enable only the one physical ASIO input carrying the guitar. The MVP records
+   the first enabled input channel.
 4. Prefer 48 or 96 kHz. The app writes the active device rate without
    resampling.
 5. Disable direct monitoring if hearing the dry input is distracting. App
@@ -46,6 +48,18 @@ build-vs2022-x64\GuitarAGReferenceCapture_artefacts\Release\Guitar AG Reference 
    roughly -12 dBFS. The meter turns orange above that reference target.
 
 The selected audio-device configuration is restored on the next launch.
+
+On Windows, prefer the Focusrite ASIO device over `Windows Audio` or `Windows
+Audio (Exclusive Mode)`. ASIO gives the capture app a direct interface-specific
+path and keeps its input/output clock, sample rate, and buffer configuration
+together. Close DAWs, dictation, conferencing, and other audio applications
+before selecting the ASIO driver because many ASIO drivers allow only one
+client at a time. Use the `Control Panel` button in Audio Settings, when shown,
+to open Focusrite Device Settings and choose the diagnostic buffer size.
+
+If `ASIO` or `Focusrite USB ASIO` is missing, install or repair the current
+Focusrite Windows driver and relaunch the app. The app does not bundle a
+Focusrite driver.
 
 ## Guided Inventory
 
