@@ -6,6 +6,14 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
+- Plan 0103 replaces the active 30-item inventory with six low-E exercises.
+  Review the exact 4/4/12 ringing and 6/6/12 hand-damped stroke semantics,
+  one-approved-batch rule, natural-timing guidance, new request IDs, and 44.1
+  kHz acquisition constraint. Do not expand the inventory before analysis.
+- After all six Plan 0103 sessions are approved, compare onset-aligned
+  down/up distributions, alternate repicking on a moving string, long decay,
+  and ringing-versus-damped residuals against the current model. Treat the
+  residual as diagnostic evidence, not a pure isolated pick sample.
 - Plan 0102 adds permanent file deletion. Review the rejected-only gate, direct
   session-child path check, failed-delete behavior, list reselection, manifest
   rewrite, and approval-derived inventory refresh. No key repeat should cascade.

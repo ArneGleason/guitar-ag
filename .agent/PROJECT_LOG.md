@@ -167,3 +167,13 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
   -12 dBFS guides, and hot/possible-clip cues. Disposable ASIO runtime tests
   verified both abort keys, both rejected-take deletion keys, manifest/file
   removal, status guards, one-action key edges, and the rendered layout.
+- Replaced Plan 0100's broad active inventory with Plan 0103's focused low-E
+  evaluation gate: approved noise floor plus ringing down/up/alternate and
+  hand-damped down/up/alternate batches.
+- Defined the exercise as 4/4/12 ringing strokes and 6/6/12 damped strokes,
+  natural timing without a metronome, one required approved WAV batch per item,
+  and a fixed 44.1 kHz ASIO rate matching the existing noise-floor reference.
+- Regenerated the real OneDrive Documents inventory without changing any of 22
+  existing session files, rebuilt the Windows Release capture app, and opened
+  it on `low-e-eval-ringing-down`. The next action is human capture of all six
+  items followed by a full current-model comparison.

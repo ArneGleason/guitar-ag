@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0102 capture discard and waveform review",
-  "status": "Added guarded Delete/Backspace abort and rejected-take erasure plus an absolute-scale selected-take waveform. Disposable ASIO runtime tests and the Windows Release build pass; the human should now confirm the shortcuts and visual level calibration on real guitar takes.",
-  "updatedAt": "2026-08-28T13:18:14-04:00",
-  "lastHandoff": ".agent/handoffs/20260828-codex-plan0102-capture-discard-waveform.md",
-  "branch": "codex/0102-capture-discard-waveform",
-  "commit": "e849c13",
+  "lastTask": "Plan 0103 focused low-E capture exercise",
+  "status": "Replaced the broad active inventory with six low-E performance exercises plus the existing noise floor. The real inventory is regenerated at 44.1 kHz, the Release capture app is open on the first new request, and the human should approve all six batches before model comparison.",
+  "updatedAt": "2026-08-28T13:49:17-04:00",
+  "lastHandoff": ".agent/handoffs/20260828-codex-plan0103-low-e-capture-exercise.md",
+  "branch": "codex/0103-low-e-capture-exercise",
+  "commit": "1075fdd",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "The ASIO capture app now supports fast duff-take triage: Delete/Backspace aborts recording without saving or erases a selected rejected take, while candidate/approved takes remain protected. The selected take displays at absolute full scale with level measurements and guides. Confirm this flow on real guitar before continuing Phase 0/1."
+    "summary": "The ASIO capture app is ready on the first of six focused low-E exercises. Capture one approved 44.1 kHz WAV batch for ringing down, ringing up, ringing alternate, hand-damped down, hand-damped up, and hand-damped alternate; then stop and compare the complete reference set with the current physical model."
   }
 }
