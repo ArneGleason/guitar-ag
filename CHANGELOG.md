@@ -8,6 +8,9 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added a foreground-only Space shortcut that toggles reference-capture record
+  and stop while preserving normal spaces in take notes and avoiding accidental
+  triggers during Audio Settings interaction.
 - Added Plan 0100, a 30-item phased reference-capture inventory with a seven-item
   setup/minimum-baseline stopping point, stable request generation, automatic
   app discovery, first-incomplete selection, and approval-driven progress.

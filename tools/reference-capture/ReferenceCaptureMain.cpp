@@ -103,6 +103,7 @@ public:
 
         instructionsEditor.setMultiLine (true);
         instructionsEditor.setReadOnly (true);
+        instructionsEditor.setWantsKeyboardFocus (false);
         instructionsEditor.setScrollbarsShown (true);
         instructionsEditor.setText (
             "Load a capture request, enable only the intended guitar input on the left, "
@@ -111,6 +112,7 @@ public:
 
         contextEditor.setMultiLine (true);
         contextEditor.setReadOnly (true);
+        contextEditor.setWantsKeyboardFocus (false);
         contextEditor.setScrollbarsShown (true);
         contextEditor.setText ("Context will appear here when a request is loaded.");
         addAndMakeVisible (contextEditor);
@@ -122,8 +124,16 @@ public:
         configureButton (loadInventoryButton, "Load inventory...", [this] { chooseInventory(); });
         configureButton (loadRequestButton, "Load one request...", [this] { chooseRequest(); });
         configureButton (chooseFolderButton, "Capture folder...", [this] { chooseFolder(); });
-        configureButton (recordButton, "Record take", [this] { startRecording(); });
-        configureButton (stopButton, "Stop", [this] { stopRecording(); });
+        configureButton (recordButton, "Record take [Space]", [this]
+        {
+            startRecording();
+            grabKeyboardFocus();
+        });
+        configureButton (stopButton, "Stop [Space]", [this]
+        {
+            stopRecording();
+            grabKeyboardFocus();
+        });
         configureButton (playButton, "Play selected", [this] { playSelected(); });
         configureButton (approveButton, "Approve", [this] { setSelectedStatus ("approved"); });
         configureButton (rejectButton, "Reject", [this] { setSelectedStatus ("rejected"); });
@@ -131,6 +141,7 @@ public:
         configureButton (saveNotesButton, "Save notes", [this] { saveSelectedNotes(); });
 
         inventoryCombo.setTextWhenNothingSelected ("Choose the next capture item");
+        inventoryCombo.setWantsKeyboardFocus (false);
         inventoryCombo.onChange = [this]
         {
             if (updatingInventory)
@@ -144,7 +155,10 @@ public:
 
         takesList.setModel (this);
         takesList.setRowHeight (28);
+        takesList.setWantsKeyboardFocus (false);
         addAndMakeVisible (takesList);
+
+        setWantsKeyboardFocus (true);
 
         if (deviceError.isNotEmpty())
             setStatus ("Audio device error: " + deviceError, true);
@@ -172,6 +186,12 @@ public:
 
         setSize (1120, 760);
         startTimerHz (20);
+        auto safeThis = juce::Component::SafePointer<CaptureComponent> (this);
+        juce::MessageManager::callAsync ([safeThis]
+        {
+            if (safeThis != nullptr)
+                safeThis->grabKeyboardFocus();
+        });
     }
 
     ~CaptureComponent() override
@@ -230,9 +250,9 @@ public:
         area.removeFromTop (10);
 
         auto transport = area.removeFromTop (36);
-        recordButton.setBounds (transport.removeFromLeft (112));
+        recordButton.setBounds (transport.removeFromLeft (150));
         transport.removeFromLeft (8);
-        stopButton.setBounds (transport.removeFromLeft (76));
+        stopButton.setBounds (transport.removeFromLeft (105));
         transport.removeFromLeft (8);
         playButton.setBounds (transport.removeFromLeft (112));
         transport.removeFromLeft (12);
@@ -313,6 +333,7 @@ private:
                           std::function<void()> action)
     {
         button.setButtonText (text);
+        button.setWantsKeyboardFocus (false);
         button.onClick = std::move (action);
         addAndMakeVisible (button);
     }
@@ -339,6 +360,7 @@ private:
 
     void chooseRequest()
     {
+        fileChooserOpen = true;
         requestChooser = std::make_unique<juce::FileChooser> (
             "Load a Guitar AG capture request", juce::File(), "*.json");
         auto safeThis = juce::Component::SafePointer<CaptureComponent> (this);
@@ -348,6 +370,7 @@ private:
                                      {
                                          if (safeThis != nullptr)
                                          {
+                                             safeThis->fileChooserOpen = false;
                                              const auto result = chooser.getResult();
                                              if (result.existsAsFile())
                                                  safeThis->loadRequest (result);
@@ -357,6 +380,7 @@ private:
 
     void chooseInventory()
     {
+        fileChooserOpen = true;
         inventoryChooser = std::make_unique<juce::FileChooser> (
             "Load a Guitar AG capture inventory", juce::File(), "*.json");
         auto safeThis = juce::Component::SafePointer<CaptureComponent> (this);
@@ -366,6 +390,7 @@ private:
                                        {
                                            if (safeThis != nullptr)
                                            {
+                                               safeThis->fileChooserOpen = false;
                                                const auto result = chooser.getResult();
                                                if (result.existsAsFile())
                                                    safeThis->loadInventory (result);
@@ -563,6 +588,7 @@ private:
 
         folderChooser = std::make_unique<juce::FileChooser> (
             "Choose a folder for this capture session", sessionDirectory);
+        fileChooserOpen = true;
         auto safeThis = juce::Component::SafePointer<CaptureComponent> (this);
         folderChooser->launchAsync (juce::FileBrowserComponent::openMode
                                         | juce::FileBrowserComponent::canSelectDirectories,
@@ -570,6 +596,7 @@ private:
                                     {
                                         if (safeThis != nullptr)
                                         {
+                                            safeThis->fileChooserOpen = false;
                                             const auto result = chooser.getResult();
                                             if (result.isDirectory())
                                             {
@@ -770,7 +797,9 @@ private:
         loadRequestButton.setEnabled (false);
         chooseFolderButton.setEnabled (false);
         inventoryCombo.setEnabled (false);
-        setStatus ("Recording take " + juce::String (currentTakeNumber) + "...", false);
+        setStatus ("Recording take " + juce::String (currentTakeNumber)
+                       + "... Press Space to stop.",
+                   false);
     }
 
     void stopRecording()
@@ -1022,6 +1051,8 @@ private:
 
     void timerCallback() override
     {
+        updateSpaceShortcut();
+
         const auto peak = inputPeak.exchange (0.0f);
         const auto db = juce::Decibels::gainToDecibels (peak, -100.0f);
         meterLabel.setText ("Input: " + juce::String (db, 1) + " dBFS",
@@ -1032,6 +1063,39 @@ private:
 
         if (! transport.isPlaying() && readerSource != nullptr)
             stopPlayback();
+    }
+
+    void updateSpaceShortcut()
+    {
+        const auto spaceIsDown = juce::KeyPress::isKeyCurrentlyDown (
+            juce::KeyPress::spaceKey);
+
+        if (! juce::Process::isForegroundProcess())
+        {
+            spaceWasDown = spaceIsDown;
+            return;
+        }
+
+        if (spaceIsDown && ! spaceWasDown)
+        {
+            auto* focused = juce::Component::getCurrentlyFocusedComponent();
+            const auto editingNotes = focused != nullptr
+                                      && (focused == &takeNotesEditor
+                                          || takeNotesEditor.isParentOf (focused));
+            const auto editingDevice = focused != nullptr
+                                       && (focused == &deviceSelector
+                                           || deviceSelector.isParentOf (focused));
+
+            if (! editingNotes && ! editingDevice && ! fileChooserOpen)
+            {
+                if (isRecording())
+                    stopRecording();
+                else
+                    startRecording();
+            }
+        }
+
+        spaceWasDown = spaceIsDown;
     }
 
     void audioDeviceAboutToStart (juce::AudioIODevice* device) override
@@ -1138,6 +1202,8 @@ private:
     juce::String inventoryInstructions;
     std::vector<InventoryItem> inventoryItems;
     bool updatingInventory = false;
+    bool spaceWasDown = false;
+    bool fileChooserOpen = false;
 
     juce::Rectangle<int> devicePanelBounds;
     juce::Label titleLabel;

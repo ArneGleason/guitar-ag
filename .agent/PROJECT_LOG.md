@@ -149,3 +149,7 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
   folder. Unit tests pass, the Windows app builds, default discovery creates the
   correct first session, a seeded approval advances to Phase 1, and inventory
   startup no longer creates stray manual-session folders.
+- Added a foreground-only Space transport shortcut after human usability
+  feedback: Space toggles record/stop, but is suppressed during take-note entry,
+  Audio Settings interaction, file choosers, and whenever another application
+  is foreground.

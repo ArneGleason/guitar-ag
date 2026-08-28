@@ -9,6 +9,9 @@ Suggested focus:
 - Plan 0100 adds automatic inventory discovery and approval-derived progress.
   Review inventory/request path handling, first-incomplete selection, status
   refresh after approval/reset, and behavior when a manifest or WAV is missing.
+- Verify the Space record/stop edge detection with focus on the main surface,
+  selected-take notes, Audio Settings, a file chooser, and another foreground
+  application; no context should cause an accidental double toggle.
 - Preserve the explicit human stopping rule: complete Phase 0 and the six Phase
   1 items, then analyze before expanding to the later 23 requests. Do not turn
   the visible roadmap into an assumed full capture requirement.

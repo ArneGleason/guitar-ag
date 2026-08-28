@@ -29,8 +29,8 @@
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
   "lastTask": "Plan 0100 guided reference capture inventory",
-  "status": "Added the phased capture checklist, automatic app discovery, first-incomplete selection, research reasons, and approval-driven progress. Complete only Phase 0 and Phase 1 before analysis.",
-  "updatedAt": "2026-08-28T12:32:43-04:00",
+  "status": "Added the phased capture checklist, automatic app discovery, approval-driven progress, and a guarded foreground-only Space record/stop shortcut. Complete only Phase 0 and Phase 1 before analysis.",
+  "updatedAt": "2026-08-28T12:38:16-04:00",
   "lastHandoff": ".agent/handoffs/20260828-codex-plan0100-capture-inventory.md",
   "branch": "codex/0100-reference-capture-inventory",
   "commit": "3566523",

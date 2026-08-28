@@ -11,6 +11,9 @@ Record up to three batches, listen back, and approve at least one representative
 batch. Approve more than one when both are clean and the natural variation is
 useful.
 
+Press Space to start recording and Space again to stop, so both hands can stay
+near the guitar. Space remains normal text while editing take notes.
+
 The capture app loads this inventory automatically from:
 
 ```text

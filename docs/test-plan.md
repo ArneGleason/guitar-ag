@@ -375,6 +375,12 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] The human confirms that the inventory selector, `[done]` labels, current
       phase, request instructions, and research reason are legible at normal UI
       size.
+- [ ] With the capture app foreground, Space starts a take and the next Space
+      stops it without requiring mouse focus on either transport button.
+- [ ] Space types normally in selected-take notes and does not toggle recording
+      while Audio Settings has keyboard focus.
+- [ ] Pressing Space in another foreground application does not control the
+      background capture app.
 - [ ] Complete only Phase 0 and the six Phase 1 baseline items, then return the
       approved sessions for analysis before starting Phase 2.
 - [ ] In the DAW, replay the ordinary/deep/phrase material and confirm the plugin

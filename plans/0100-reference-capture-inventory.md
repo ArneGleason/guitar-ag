@@ -16,6 +16,8 @@ knows what to capture next, why it matters, and when to stop for analysis.
 - Let the app load the inventory, show completion state, and open a selected
   request without file browsing.
 - Treat an item as complete after its required number of approved take batches.
+- Let Space start and stop a take while the app is foreground, except during
+  note entry or Audio Settings interaction.
 
 ## Human Workflow
 

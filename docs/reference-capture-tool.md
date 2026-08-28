@@ -104,6 +104,10 @@ C:\Users\name\OneDrive\Documents\Guitar AG Reference Captures\
 
 ## Record and Approve
 
+- Press Space to start a take and press Space again to stop. The shortcut works
+  while the capture app is foreground, but is deliberately disabled while the
+  take-notes editor or Audio Settings has keyboard focus. Clicking `Record take`
+  once returns focus to the main capture surface.
 - Record as many takes as useful; one WAV is created per take.
 - `Stop` flushes the file and adds peak, RMS, duration, device, sample-rate, and
   overflow evidence to the session.
