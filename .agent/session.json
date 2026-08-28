@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0108 low/high-E endpoint model",
-  "status": "The high-E captures are analyzed. A reference-backed offline candidate keeps accepted low E exact while adding E2-to-E4 decay and upper-partial-loss interpolation; the eight-track high-E listening gate is ready for human judgment.",
-  "updatedAt": "2026-08-28T19:27:10-04:00",
-  "lastHandoff": ".agent/handoffs/20260828-codex-plan0108-low-high-e-endpoint-model.md",
-  "branch": "codex/0108-low-high-e-endpoint-model",
-  "commit": "a2c6618928e7ebca94beee19d15a8bf3b428a05f",
+  "lastTask": "Plan 0109 transient-preserving high-E endpoint",
+  "status": "Plan 0108's dark/large/flat endpoint is human-rejected and production remains the preferred high-E baseline. Plan 0109 preserves onset amplitude, mildly shortens upper-partial persistence, and adds the missing real-reference low-E listening gate.",
+  "updatedAt": "2026-08-28T19:45:24-04:00",
+  "lastHandoff": ".agent/handoffs/20260828-codex-plan0109-transient-preserving-endpoint.md",
+  "branch": "codex/0109-transient-preserving-endpoint",
+  "commit": "4473962d58bd0aa6a77bdd5466a7f989fc3bdfd7",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0105's low-E geometry/decay and Plan 0106's de-click are human-accepted. Plan 0108 shows uniform low-E decay fails at high E and prepares an offline 1.50x-to-0.50x decay plus 0.25 curved partial-loss candidate whose low-E output is exact and whose high-E spectrum/decay closely match the EVH reference. Await human listening before production or more capture."
+    "summary": "Plan 0105's low-E candidate and Plan 0106's de-click remain accepted, but the actual low-E reference comparison is newly prepared. Plan 0108's aggregate-matched high E was rejected as dark/flat. Plan 0109 keeps production brightness and tests only mild fixed-Hz upper-partial decay; await low/high reference listening before production or more capture."
   }
 }
