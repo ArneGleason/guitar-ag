@@ -13,6 +13,8 @@ noise floor and six Phase 1 low/high E ringing, hand-damped, and foam-damped
 conditions. Stop there for analysis before collecting direction, force, depth,
 pick-material, or finger/surface phases.
 
+Implementation commit: `3566523`.
+
 ## Verification Completed
 
 - Windows Release `GuitarAGReferenceCapture` builds.

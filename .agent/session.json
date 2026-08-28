@@ -33,7 +33,7 @@
   "updatedAt": "2026-08-28T12:32:43-04:00",
   "lastHandoff": ".agent/handoffs/20260828-codex-plan0100-capture-inventory.md",
   "branch": "codex/0100-reference-capture-inventory",
-  "commit": "pending",
+  "commit": "3566523",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
     "summary": "The reference-capture app now opens a phased 30-item inventory automatically, but the human should capture only the seven-item Phase 0/1 checkpoint and return for analysis. Later pick-response, material, and finger/surface phases are intentionally deferred."
