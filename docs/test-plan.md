@@ -484,5 +484,20 @@ Plan 0103 supersedes this 30-item inventory for current capture work.
       offline tail storage and flag.
 - [x] The 5.85-second control/candidate pair is RMS-matched to -18 dBFS with
       less than 0.001 dB gain difference and no clipping.
-- [ ] Human listening confirms tick removal without a soft, doubled, or flammed
+- [x] Human listening confirms tick removal without a soft, doubled, or flammed
       legitimate pick attack.
+
+## Plan 0107 High-E Capture Checkpoint Checks
+
+- [x] Inventory generator emits 10 unique items across three phases.
+- [x] New high-E IDs are ringing down, ringing up, and down-first alternate only.
+- [x] High-E stroke counts are 6, 6, and 12; one approved batch is required and
+      a second is optional.
+- [x] Every high-E request records the EVH Wolfgang Special, neck humbucker,
+      midpoint picking location, likely-.009 string set/condition, and worn
+      medium celluloid-style pick with uncertainty preserved.
+- [x] Forced regeneration preserves all 43 existing session files byte-for-byte.
+- [x] Existing approvals make `high-e-eval-ringing-down` the first incomplete
+      inventory item.
+- [ ] Complete all three high-E items, then stop before A/D/G/B capture for the
+      endpoint model comparison.

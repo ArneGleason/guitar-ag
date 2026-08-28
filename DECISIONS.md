@@ -1174,7 +1174,8 @@ spike to -3.6 dB and the maximum to +1.8 dB. Fades of 3-8 ms provide no further
 benefit and overlap the reset voice longer.
 
 Status:
-Implemented as an offline Plan 0106 listening gate.
+Accepted by human listening as an “excellent declick.” Production transfer is
+coordinated with the accepted low-E candidate and endpoint scaling work.
 
 Consequences:
 Dedicated tail voices are allocated during offline-engine preparation, never on
@@ -1182,3 +1183,29 @@ the audio thread; the note event copies one already-allocated voice state. This
 removes a restart artifact but is not a full physical moving-string repick. A
 later production implementation must retain the accepted 1 ms behavior under
 six-string polyphony and host/MPE regression tests.
+
+## 2026-08-28 — Capture high E before filling every remaining string
+
+Decision:
+After the accepted low-E candidate and de-click, append only three open-high-E
+ringing requests: six independent downstrokes, six independent upstrokes, and
+12 continuous down-first alternates. Stop for endpoint comparison before asking
+for A, D, G, or B.
+
+Reason:
+High E is the opposite register/string endpoint and provides the most leverage
+for deciding how pluck geometry, modal envelope, and decay should scale. Filling
+all strings first would commit the player to substantial capture time before
+testing whether endpoint interpolation is useful. D/G remain the next likely
+wound/plain boundary checkpoint only after low/high E are compared.
+
+Status:
+Implemented in the Plan 0107 inventory; awaiting three high-E captures.
+
+Consequences:
+The active inventory retains the seven completed setup/low-E items and appends
+three high-E items, so existing approvals route directly to high-E downstrokes.
+No damping is requested. The setup is recorded as an EVH Wolfgang Special with
+neck humbucker, likely-.009 long-installed/grimy strings without a claim of
+fatigue, and a worn generic medium celluloid-style pick, with every uncertain
+detail explicitly labeled as such.

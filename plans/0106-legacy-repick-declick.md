@@ -29,5 +29,8 @@ without retaining long overlapping strings or allocating on the audio thread.
 - [x] Crossfade candidates are deterministic and bounded.
 - [x] Windows Release offline renderer and VST3 build.
 - [x] Produce a loudness-matched control/candidate alternate-picking A/B.
-- [ ] Require human confirmation that the tick is reduced without smearing the
+- [x] Require human confirmation that the tick is reduced without smearing the
       legitimate pick attack before promotion.
+
+Human verdict: “Excellent declick.” Production transfer remains a separate
+change, coordinated with the accepted low-E candidate and endpoint scaling.

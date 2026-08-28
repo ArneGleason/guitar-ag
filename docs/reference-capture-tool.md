@@ -63,15 +63,15 @@ Focusrite driver.
 
 ## Guided Inventory
 
-The app automatically loads the focused low-E evaluation inventory from
+The app automatically loads the focused low/high-E endpoint inventory from
 `Documents\Guitar AG Reference Captures\capture-inventory.json`. Its selector
 shows every requested sound in order, marks items `[done]` after the required
 approved take count, and opens the first unfinished item on launch.
 
-Reuse the approved Phase 0 noise floor when settings are unchanged, complete the
-six Phase 1 low-E exercise items, then stop for a full current-model comparison.
-See `docs/reference-capture-inventory.md` for the exact stroke order, natural-
-timing guidance, reset timing, and final-decay instructions.
+The noise floor and six low-E items are complete. Record only the three Phase 2
+high-E ringing items, then stop for endpoint comparison before A/D/G/B capture.
+See `docs/reference-capture-inventory.md` for the exact 6/6/12 stroke order,
+natural-timing guidance, reset timing, final decay, and setup description.
 
 Generate or deliberately refresh the inventory definitions with:
 
@@ -162,8 +162,8 @@ Do not treat a damped recording as pure pick noise and do not expect a direct
 waveform null. Muting changes boundary conditions, pickup-visible string
 motion, timing, and the act of picking itself.
 
-For the active low-E pick-contact comparison, keep guitar, pickup, controls,
-pick, string, direction, dynamics, depth, interface gain, and physical picking
+For any future ringing/damped comparison, keep guitar, pickup, controls, pick,
+string, direction, dynamics, depth, interface gain, and physical picking
 location fixed, then compare requests sharing one `comparison_group`:
 
 1. normal ringing;

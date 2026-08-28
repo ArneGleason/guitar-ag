@@ -976,3 +976,15 @@ Attack-mode, contact-layer, pick-transient, and all-direct-layer ablations left
 the spike unchanged. A 1 ms continuation of the outgoing modal phase suppressed
 it as well as 3-8 ms fades. Use the shortest effective transition: longer fades
 do not become more physical merely because they are smoother.
+
+## 2026-08-28 — Setup uncertainty belongs in the reference record
+
+“Likely .009,” “celluloid-style,” and qualitative string age are still useful
+modeling context, but they are not measurements. Persist the player's wording
+and certainty alongside every request. Converting plausible estimates into exact
+brand, gauge, composition, or wear would make later cross-guitar comparisons
+look more controlled than they really are.
+
+Endpoint-first capture also limits wasted performance effort. Low E plus high E
+can test whether register scaling is coherent before D/G probe the wound/plain
+boundary and A/B serve as interpolation checks.

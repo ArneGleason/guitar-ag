@@ -67,17 +67,18 @@ prefer `ASIO` / `Focusrite USB ASIO` and close other ASIO clients before opening
 the device. The Focusrite driver is an external machine dependency and is not
 bundled with the application.
 
-Create the guided low-E model-evaluation inventory and stable request files in
+Create the guided low/high-E endpoint inventory and stable request files in
 the operating system's Documents known folder:
 
 ```powershell
 python scripts\create-reference-capture-inventory.py
 ```
 
-The app discovers that inventory automatically. Keep the existing noise-floor
-approval when capture settings are unchanged, complete the six Phase 1 low-E
-exercise items, then stop for a model comparison. Later strings, dynamics,
-depths, and pick materials are deliberately excluded until that evaluation.
+The app discovers that inventory automatically. The completed noise-floor and
+six low-E items remain in place; the next item is high-E ringing downstrokes.
+Complete only the three high-E ringing items, then stop for endpoint comparison.
+A, D, G, B, damping, dynamics, depth, and pick-material expansion remain
+deliberately deferred.
 
 Reproduce the Plan 0104 low-E analysis after rendering the matching MIDI into a
 diagnostic directory:
@@ -116,7 +117,8 @@ The selected candidate adds
 `--legacy-pluck-position 0.14 --legacy-body-decay-time-scale 1.50` to an
 otherwise identical EG-089 humbucker/neck render. See
 `analysis/low-e-reference-candidate-20260828.md`. Human listening accepted it as
-better; production promotion now waits on the Plan 0106 restart-click gate.
+better. Plan 0106's 1 ms de-click also passed human listening; production
+promotion remains a separate polyphony/MPE-reviewed change.
 
 Plan 0106 diagnoses and auditions the accepted candidate's alternate-picking
 restart tick. After rendering `control.wav`, layer ablations, and 1/3/5/8 ms
@@ -132,9 +134,15 @@ python scripts\create-repick-declick-listening-set.py `
   --output-directory build-vs2022-x64\diagnostics\eg0106-legacy-repick-declick\listening
 ```
 
-The selected offline flag is `--legacy-repick-crossfade-ms 1`. See
-`analysis/legacy-repick-declick-20260828.md`. It remains a human-gated de-click
-prototype, not the production moving-string repick model.
+The selected offline flag is `--legacy-repick-crossfade-ms 1`. Human listening
+accepted it as an excellent de-click. See
+`analysis/legacy-repick-declick-20260828.md`; production transfer remains a
+separate polyphony/MPE-reviewed change, not a claim of complete physical repick.
+
+Plan 0107 records the setup profile in
+`analysis/reference-capture-setup-evh-wolfgang-20260828.md`. Regenerate the
+external definitions intentionally with `--force`; this overwrites inventory
+and request JSON only, not session evidence.
 
 The previous checkout at `C:\code\guitar-ag` was clean and at the same GitHub commit when the canonical clone was created. Windows would not move it while the original Codex workspace held the directory open. Remove that duplicate only from a later task after the original workspace is closed and the exact path is re-verified.
 

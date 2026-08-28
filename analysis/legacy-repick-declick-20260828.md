@@ -62,6 +62,10 @@ the legitimate pick attack soft, doubled, or flammed. If accepted, promote the
 Plan 0105 low-E candidate and this transition in a separate production change,
 with broader polyphony and ordinary-playing regression material.
 
+Human verdict: “Excellent declick.” The 1 ms direction is accepted. Production
+transfer remains separate so the full implementation can be checked under
+polyphony/MPE and coordinated with the next endpoint-derived register scaling.
+
 ## Reproduction
 
 The offline flag is:

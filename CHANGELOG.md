@@ -8,6 +8,10 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0107's three-item open-high-E endpoint checkpoint and embedded the
+  described EVH Wolfgang Special, neck-humbucker, likely-.009 long-installed/
+  grimy-string, and worn medium celluloid-style pick context without overstating
+  uncertain details.
 - Added Plan 0106's offline legacy-repick de-click experiment, derivative-spike
   analyzer, 1/3/5/8 ms modal-tail bracket, and order-balanced 1 ms listening
   gate after the human accepted the Plan 0105 low-E candidate but identified a

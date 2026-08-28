@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create the phased Guitar AG reference-capture starter inventory."""
+"""Create the phased Guitar AG endpoint-evaluation capture inventory."""
 
 from __future__ import annotations
 
@@ -9,6 +9,18 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
+
+
+GUITAR_DESCRIPTION = "EVH Wolfgang Special"
+PICKUP_DESCRIPTION = "neck humbucker; retain the established guitar volume/tone settings"
+PICKING_LOCATION_DESCRIPTION = "halfway between the bridge and neck pickups"
+STRING_SET_DESCRIPTION = "likely a .009-gauge electric-guitar set; exact brand and gauges unknown"
+STRING_CONDITION_DESCRIPTION = (
+    "installed for a long time and somewhat grimy from finger contact, but not heavily played or obviously fatigued"
+)
+PICK_DESCRIPTION = (
+    "generic medium-gauge celluloid-style plastic pick; exact brand/material/thickness unknown; well worn and broken in"
+)
 
 
 def default_documents_directory() -> Path:
@@ -58,8 +70,12 @@ def request(
             "performance_pattern": performance_pattern,
             "stroke_count": stroke_count,
             "timing": timing,
-            "guitar": "identify the guitar in take notes",
-            "pickup": "keep one pickup/settings combination fixed; identify it in notes",
+            "guitar": GUITAR_DESCRIPTION,
+            "pickup": PICKUP_DESCRIPTION,
+            "picking_location": PICKING_LOCATION_DESCRIPTION,
+            "string_set": STRING_SET_DESCRIPTION,
+            "string_condition": STRING_CONDITION_DESCRIPTION,
+            "setup_certainty": "descriptive player estimate; gauge, string brand, exact age, and pick composition are not confirmed",
             "comparison_group": phase_id,
         },
     }
@@ -119,6 +135,40 @@ def low_e_exercise_instructions(muting: str, pattern: str) -> str:
     raise ValueError(f"unsupported low-E exercise: {muting}/{pattern}")
 
 
+def high_e_exercise_instructions(pattern: str) -> str:
+    common = (
+        "Use open high E on the same EVH Wolfgang Special, neck humbucker, guitar controls, "
+        "Focusrite gain, medium force, shallow pick depth, and picking location used for the "
+        "accepted low-E set. Use the same worn medium celluloid-style pick. Leave about one "
+        "second of untouched input before the first stroke. Natural timing is wanted; do not "
+        "use a metronome. Long hand movement before starting and extra silence are fine. "
+    )
+    notes = (
+        "Approve one representative batch. Record a second batch only if the first has a duff, "
+        "handling noise, or obviously inconsistent force. Do not change gain merely to make high "
+        "E look as large as low E; if a gain change is unavoidable, document it in take notes."
+    )
+
+    if pattern in ("independent_down", "independent_up"):
+        direction = "downstrokes" if pattern == "independent_down" else "upstrokes"
+        return common + (
+            f"Play six independent {direction}. After each of the first five strokes, let the "
+            "string ring for 1.5 to 2 seconds, deliberately stop it, then leave about half a "
+            "second of quiet reset time. After the sixth stroke, let the string ring naturally "
+            "for 5 to 8 seconds before stopping it. "
+        ) + notes
+
+    if pattern == "alternate_down_first":
+        return common + (
+            "Let the string keep ringing while you play 12 continuous alternate-picked strokes "
+            "at a comfortable natural tempo, starting with down: D U D U D U D U D U D U. Do "
+            "not stop the string between strokes. After the final upstroke, let it ring for 4 to "
+            "6 seconds before stopping it. "
+        ) + notes
+
+    raise ValueError(f"unsupported high-E exercise: {pattern}")
+
+
 def build_items() -> list[dict[str, object]]:
     items: list[dict[str, object]] = []
 
@@ -143,7 +193,7 @@ def build_items() -> list[dict[str, object]]:
         "Measures independent down/up attacks, natural alternate repicking, and the "
         "ringing-versus-hand-damped contrast before changing the physical model."
     )
-    baseline_pick = "one ordinary medium plastic pick"
+    baseline_pick = PICK_DESCRIPTION
     exercise_specs = [
         (
             "low-e-eval-ringing-down",
@@ -235,6 +285,61 @@ def build_items() -> list[dict[str, object]]:
             )
         )
 
+    phase_2 = "phase-2-high-e-endpoint-evaluation"
+    phase_2_title = "Phase 2 — High-E endpoint exercise"
+    phase_2_why = (
+        "Measures the opposite string/register endpoint before deciding how low-E geometry, "
+        "decay, and attack behavior should scale across the instrument."
+    )
+    high_e_specs = [
+        (
+            "high-e-eval-ringing-down",
+            "Open High E - ringing independent downstrokes",
+            "down",
+            "independent_down",
+            6,
+            "1.5-2 s ring, deliberate stop, 0.5 s reset; final stroke rings 5-8 s",
+        ),
+        (
+            "high-e-eval-ringing-up",
+            "Open High E - ringing independent upstrokes",
+            "up",
+            "independent_up",
+            6,
+            "1.5-2 s ring, deliberate stop, 0.5 s reset; final stroke rings 5-8 s",
+        ),
+        (
+            "high-e-eval-ringing-alternate",
+            "Open High E - ringing alternate repicking",
+            "alternate_down_first",
+            "alternate_down_first",
+            12,
+            "comfortable natural tempo; continuous D U sequence; final ring 4-6 s",
+        ),
+    ]
+    for request_id, title, direction, pattern, stroke_count, timing in high_e_specs:
+        items.append(
+            request(
+                request_id,
+                title,
+                phase_2,
+                phase_2_title,
+                phase_2_why,
+                high_e_exercise_instructions(pattern),
+                technique=("pick_contact" if pattern != "alternate_down_first" else "alternate_repicking"),
+                string_name="open high E",
+                direction=direction,
+                dynamics="medium",
+                pick_depth="shallow",
+                pick=baseline_pick,
+                muting="ringing",
+                performance_pattern=pattern,
+                stroke_count=stroke_count,
+                timing=timing,
+                takes=2,
+            )
+        )
+
     return items
 
 
@@ -306,13 +411,13 @@ def main() -> int:
 
     inventory = {
         "schema_version": 1,
-        "inventory_id": "guitar-ag-reference-inventory-v2-low-e-evaluation",
+        "inventory_id": "guitar-ag-reference-inventory-v3-high-e-endpoint",
         "created_at": created_at,
-        "title": "Guitar AG Low-E Model Evaluation Inventory",
+        "title": "Guitar AG Low/High-E Endpoint Evaluation Inventory",
         "instructions": (
-            "Keep an existing approved Phase 0 noise floor if settings are unchanged. "
-            "Complete the six Phase 1 low-E exercise items, then stop for a full model "
-            "comparison. Do not expand to other strings or pick materials yet."
+            "Retain the approved Phase 0 noise floor and six completed low-E items when "
+            "settings are unchanged. Complete only the three Phase 2 ringing high-E items, "
+            "then stop for endpoint comparison. Do not capture A, D, G, or B yet."
         ),
         "phases": phase_order,
         "items": inventory_items,

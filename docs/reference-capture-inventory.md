@@ -2,9 +2,9 @@
 
 ## What to Do Now
 
-Keep the approved Phase 0 input noise floor if the guitar, Focusrite input, and
-gain have not changed. Then complete the six Phase 1 low-E exercise items and
-stop for a full comparison against the current physical model.
+The approved Phase 0 input noise floor and all six Phase 1 low-E exercises are
+complete. Now record only the three Phase 2 open-high-E ringing exercises and
+stop for a low/high endpoint comparison. Do not fill A, D, G, or B yet.
 
 One take means one WAV containing the complete instructed batch. Approve one
 representative batch per item. A second take is only a retry or an intentionally
@@ -56,27 +56,57 @@ pick, so sustained pitch is suppressed without moving the picking location.
 - [x] Alternate picking: 12 continuous strokes at a comfortable natural tempo,
       starting down (`D U D U D U D U D U D U`).
 
-Stop here. These six files provide independent down/up attacks, natural
-direction changes on a moving string, long decay, and the ringing-versus-damped
-contrast. The next inventory will be designed only after this set is compared
-against the current model.
+These six files supplied independent down/up attacks, natural direction changes
+on a moving string, long decay, and the ringing-versus-damped contrast. Plan
+0105's candidate and Plan 0106's de-click passed human listening.
 
 Recorded-set context: every completed take used the neck humbucker and a picking
 position halfway between bridge and neck. All damped takes used fretting-hand
 damping.
 
+## Phase 2 — High-E Endpoint Exercise
+
+Use open high E with the same guitar, neck humbucker, controls, Focusrite gain,
+picking location, medium force, shallow depth, and physical pick. Do not change
+gain simply to make the waveform as large as low E. If gain must change for a
+usable signal-to-noise ratio, document it in selected-take notes.
+
+- [ ] Independent downstrokes: six strokes. Let each of the first five ring for
+      1.5–2 seconds, deliberately stop it, then leave about 0.5 seconds of quiet
+      reset. Let the sixth ring naturally for 5–8 seconds.
+- [ ] Independent upstrokes: use the same six-stroke/reset/final-decay pattern.
+- [ ] Alternate repicking: play 12 continuous strokes at a comfortable natural
+      tempo, starting down (`D U D U D U D U D U D U`). Do not stop the string
+      between strokes. Let the final event ring for 4–6 seconds.
+
+Approve one representative batch per item. A second batch is optional. Stop
+after these three items; high E is the opposite endpoint used to decide how the
+model should scale before D/G or interpolation checks are requested.
+
+## Recorded Setup Profile
+
+- Guitar: EVH Wolfgang Special.
+- Pickup: neck humbucker.
+- Picking location: halfway between bridge and neck pickups.
+- Strings: likely approximately .009 gauge; exact brand/gauges unknown.
+- Condition: installed a long time and somewhat grimy from finger contact, but
+  not heavily played or obviously fatigued.
+- Pick: generic medium-gauge celluloid-style plastic, exact brand/composition/
+  thickness unknown, well worn and broken in.
+
+The estimated fields are intentionally not treated as measured specifications.
+
 ## Consistency Rules
 
 - Record clean DI without amp, cabinet, compression, gate, denoiser, or effects.
-- Keep the current 44.1 kHz ASIO rate for this low-E comparison unless you
-  intentionally choose to restart the entire six-item set at another rate.
-  Keep peaks near or below -12 dBFS.
+- Keep the current 44.1 kHz ASIO rate for endpoint comparison. Keep peaks near
+  or below -12 dBFS.
 - Enable only the intended Focusrite input; the MVP records the first enabled
   input channel.
 - Keep guitar volume/tone, pickup, interface gain, and picking location fixed
   within a comparison group.
-- Add exact guitar, pickup, pick, and any performance caveats to approved-take
-  notes.
+- Add any setup exception or performance caveat to approved-take notes; the
+  known guitar/pick/string description is already embedded in each request.
 - Preserve silence around gestures so onset alignment and noise measurement are
   possible.
 - Reject bumps, cable handling, accidental harmonics, wrong strings, and obvious

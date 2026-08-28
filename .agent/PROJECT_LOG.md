@@ -214,3 +214,10 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Added an offline-only outgoing-modal-tail crossfade. One millisecond reduces
   the median spike to -3.6 dB and performs as well as 3-8 ms, so a compact,
   order-balanced 1 ms A/B is the next human gate before production promotion.
+- Human listening accepted the 1 ms transition as an “excellent declick.”
+- Recorded the reference setup as an EVH Wolfgang Special with neck humbucker,
+  midpoint picking, likely-.009 long-installed/grimy strings, and a worn generic
+  medium celluloid-style pick, preserving uncertainty about exact specifications.
+- Replaced the active stop point with Plan 0107's high-E endpoint only: ringing
+  down/up/alternate at 6/6/12 strokes. Forced regeneration preserved all 43
+  existing session files byte-for-byte and routes next to high-E downstrokes.

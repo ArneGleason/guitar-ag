@@ -138,14 +138,14 @@ class ReferenceCaptureScriptsTest(unittest.TestCase):
                 capture_output=True,
                 text=True,
             )
-            self.assertIn("items=7", result.stdout)
+            self.assertIn("items=10", result.stdout)
 
             inventory_path = root / "capture-inventory.json"
             inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
             self.assertEqual(inventory["schema_version"], 1)
-            self.assertEqual(len(inventory["items"]), 7)
-            self.assertEqual(len(inventory["phases"]), 2)
-            self.assertIn("six Phase 1 low-E exercise items", inventory["instructions"])
+            self.assertEqual(len(inventory["items"]), 10)
+            self.assertEqual(len(inventory["phases"]), 3)
+            self.assertIn("three Phase 2 ringing high-E items", inventory["instructions"])
 
             phase_one = [
                 item
@@ -165,9 +165,26 @@ class ReferenceCaptureScriptsTest(unittest.TestCase):
             ]
             self.assertEqual([item["request_id"] for item in phase_one], expected_ids)
 
+            phase_two = [
+                item
+                for item in inventory["items"]
+                if item["phase_id"] == "phase-2-high-e-endpoint-evaluation"
+            ]
+            self.assertEqual(len(phase_two), 3)
+            self.assertTrue(all(item["required_approved_takes"] == 1 for item in phase_two))
+            self.assertEqual(
+                [item["request_id"] for item in phase_two],
+                [
+                    "high-e-eval-ringing-down",
+                    "high-e-eval-ringing-up",
+                    "high-e-eval-ringing-alternate",
+                ],
+            )
+
             request_ids = [item["request_id"] for item in inventory["items"]]
             self.assertEqual(len(request_ids), len(set(request_ids)))
             stroke_counts = []
+            high_e_stroke_counts = []
             for item in inventory["items"]:
                 request_path = Path(item["request_file"])
                 request = json.loads(request_path.read_text(encoding="utf-8"))
@@ -182,8 +199,19 @@ class ReferenceCaptureScriptsTest(unittest.TestCase):
                     )
                     self.assertIn("do not use a metronome", request["instructions"])
                     stroke_counts.append(request["context"]["stroke_count"])
+                if item["phase_id"] == "phase-2-high-e-endpoint-evaluation":
+                    self.assertEqual(request["requested_take_count"], 2)
+                    self.assertEqual(request["context"]["guitar"], "EVH Wolfgang Special")
+                    self.assertIn("neck humbucker", request["context"]["pickup"])
+                    self.assertIn(".009", request["context"]["string_set"])
+                    self.assertIn("grimy", request["context"]["string_condition"])
+                    self.assertIn("celluloid-style", request["context"]["pick"])
+                    self.assertIn("do not use a metronome", request["instructions"])
+                    self.assertNotIn("damp", request["context"]["muting"])
+                    high_e_stroke_counts.append(request["context"]["stroke_count"])
 
             self.assertEqual(stroke_counts, [4, 4, 12, 6, 6, 12])
+            self.assertEqual(high_e_stroke_counts, [6, 6, 12])
 
             duplicate = subprocess.run(
                 [sys.executable, str(INVENTORY_SCRIPT), "--capture-root", str(root)],

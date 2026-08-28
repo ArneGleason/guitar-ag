@@ -2430,7 +2430,10 @@ more controlled than their timing variation suggests.
 
 The capture chain used the neck humbucker for every take, with the pick halfway
 between bridge and neck. Every damped exercise used fretting-hand damping rather
-than bridge/palm muting. Guitar make/model and exact pick are not documented.
+than bridge/palm muting. At analysis time the guitar make/model and pick were not
+documented; the player later identified the EVH Wolfgang Special and supplied
+the qualitative setup profile in
+`analysis/reference-capture-setup-evh-wolfgang-20260828.md`.
 
 Pickup matching explains most of the initial apparent mismatch. In 60 ms attack
 windows, the real ringing low E places 90.8-95.0% of 50 Hz-10 kHz energy below
@@ -2529,3 +2532,8 @@ This path is compiled only with `GUITAR_AG_ENABLE_OFFLINE_ABLATION`. Copying a
 full modal voice on the audio thread is acceptable for a bounded offline
 hypothesis but must be reviewed carefully before production. The technique is a
 short de-click bridge, not preserved-state physical repicking.
+
+Human listening accepted the 1 ms candidate as an excellent de-click. This
+clears the Plan 0106 listening gate but does not promote the offline-only
+implementation into the VST3; that remains a separate real-time/polyphony/MPE
+review.
