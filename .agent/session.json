@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0105 low-E reference candidate",
-  "status": "Built an offline-only 0.14 pluck-position / 1.50x body-decay candidate and a compact RMS-matched current-versus-candidate listening gate. Measurements improve, but promotion and further capture are paused for the human realism verdict.",
-  "updatedAt": "2026-08-28T14:57:24-04:00",
-  "lastHandoff": ".agent/handoffs/20260828-codex-plan0105-low-e-reference-candidate.md",
-  "branch": "codex/0105-low-e-reference-candidate",
-  "commit": "1d0a99ed3b41614f2fbd591d7d0606a5c60ba725",
+  "lastTask": "Plan 0106 legacy repick de-click",
+  "status": "Human listening accepted the Plan 0105 low-E candidate and identified an alternate-picking restart tick. Plan 0106 isolates it to modal reconstruction and prepares a 1 ms outgoing-state de-click A/B; production promotion waits on the human artifact/attack verdict.",
+  "updatedAt": "2026-08-28T15:18:32-04:00",
+  "lastHandoff": ".agent/handoffs/20260828-codex-plan0106-legacy-repick-declick.md",
+  "branch": "codex/0106-legacy-repick-declick",
+  "commit": "02d9561d31b76b890bd32be89fe439e75e8f1579",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0105 selects an offline-only fixed pluck position of 0.14 and 1.50x harmonic-body decay. At Humbucker/neck, downstroke centroid improves 537 to 367 Hz and sub-500 Hz energy 64.0% to 82.3% versus 262 Hz / 90.8% reference; decay improves -2.75 to -1.68 dB/s. Alternate improves, upstroke less so. Listen before promotion or more capture."
+    "summary": "Plan 0105's 0.14 pluck / 1.50x decay candidate is human-accepted. Plan 0106 finds its alternate tick in a modal-restart spike 0.6-3 ms after note-on; a 1 ms outgoing modal-tail transition moves median spike ratio from +9.2 to -3.6 dB and awaits listening before production promotion."
   }
 }
