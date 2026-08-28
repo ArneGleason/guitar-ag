@@ -31,8 +31,8 @@ amplitude/formant envelope fixed.
 - [x] Every A/B file is stereo 48 kHz, aligned, and equal length.
 - [x] The 0x render plus the isolated 6x contribution reconstructs the selected
       reference exactly.
-- [ ] Human selects the lowest factor that retains the improvement, or determines
-      that harmonic-number decay alone is sufficient.
+- [x] Human selected 2x as good. Use it as the calibrated restoration amount;
+      do not retain the deliberately exaggerated 6x probe.
 
 ## Decision Gate
 
@@ -63,3 +63,15 @@ Track 1 exactly reproduces the accepted Plan 0095 candidate at SHA-256
 The 2x and 4x hashes repeat exactly at
 `ABF261ECD386B652755244D6A63786E6DB4A8899E1948DDF263750EC770AC041`
 and `800F077B090ABBE4765ABE4A4F4ECC0206435EB5C482979D30773DE01454DECD`.
+
+## Human Listening Verdict — 2026-08-27
+
+With loudness matching on, 2x restoration was "good." It is the selected amount
+for the consolidated offline tone, replacing the 6x audibility probe. The exact
+selected render is track 3 at SHA-256
+`ABF261ECD386B652755244D6A63786E6DB4A8899E1948DDF263750EC770AC041`.
+
+The accepted offline recipe is now 1.75x modal pick force, 12% direct texture at
+2.5x density, 35% amplitude/formant anchoring, harmonic-number decay, and 2x
+fixed-Hz side-mode restoration. It still requires a broader end-to-end promotion
+gate before any VST3/default change.

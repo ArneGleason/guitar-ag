@@ -35,3 +35,10 @@ is -47.8 dB mean / -25.6 dB peak before loudness matching.
   that still has the "pretty good" metal brightness and scale.
 - Track 5 — judge character only. Loudness matching greatly boosts this quiet
   contribution; do not interpret its playback level as its actual mix level.
+
+## Human Verdict
+
+With loudness matching on, track 3 (2x restoration) was "good." Use 2x as the
+calibrated amount in the consolidated offline recipe and retire the 6x audibility
+probe. The exact selected render hash is
+`ABF261ECD386B652755244D6A63786E6DB4A8899E1948DDF263750EC770AC041`.

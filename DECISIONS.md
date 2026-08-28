@@ -923,3 +923,24 @@ Compare the selected 6x version against 0x, 2x, and 4x while keeping the 35%
 amplitude anchor, harmonic-number decay, and accepted pick attack unchanged.
 Include the isolated 6x metal contribution. The single combined verdict does
 not by itself prove that either single-axis Plan 0095 candidate was rejected.
+
+## 2026-08-27 — Select 2x metal restoration for the consolidated offline recipe
+
+Decision:
+Replace the Plan 0095 6x audibility probe with 2x fixed-Hz side-mode restoration
+in the accepted offline tone recipe.
+
+Reason:
+Human loudness-matched calibration found 2x "good." It is lower than the 6x
+diagnostic while preserving the desired result, so retaining the larger
+extrapolation would add unsupported side-mode energy.
+
+Status:
+Accepted for the offline promotion gate.
+
+Consequences:
+The consolidated recipe is 1.75x modal force, 12% direct texture at 2.5x event
+density, 35% amplitude/formant anchoring, harmonic-number decay, and 2x side-mode
+restoration. Keep the VST3/default path unchanged until this combination passes
+a broader end-to-end comparison at ordinary and deep-pick settings across wound
+and plain strings.

@@ -7,8 +7,8 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 Suggested focus:
 
 - Plan 0095 listening accepted the combined harmonic-number-decay plus 6x side-mode candidate as "pretty good." Do not over-attribute the result: decay-only and side-mode-only received no written verdict.
-- Plan 0096 is awaiting listening. Compare the selected 6x reference against 0x, 2x, and 4x at fixed harmonic-number decay; choose the lowest amount that preserves the improvement, including zero if decay alone is sufficient.
-- Judge the isolated 6x contribution for character only because loudness matching boosts it roughly 19 dB relative to the full mixes. Reject side-mode restoration if it reads as a synthesized layer rather than metal-string behavior.
+- Plan 0096 listening selected 2x side-mode restoration as good. Use 2x, not the deliberately exaggerated 6x probe, in the consolidated offline recipe.
+- Before VST3/default promotion, review the full accepted recipe against the current production-equivalent path at ordinary and deep pick settings, on wound/plain strings and a short phrase. Open-string calibration alone is not a sufficient release gate.
 - Plan 0094 listening selected 35% amplitude anchoring as much better than current, but it progressively flattened upper notes and lost metal ring/brightness. Keep that amplitude envelope fixed during Plan 0095 review.
 - Treat Plan 0094's register gain as audition normalization only. The positive timbre verdict still requires a principled string/gauge energy model before production promotion.
 - Plan 0093 listening calibrated 12% dense direct texture as medium and 22% as maximum. Preserve these bounds; use 12% as the fixed attack baseline for register/formant review.

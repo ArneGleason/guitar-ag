@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0096 metal-restoration calibration",
-  "status": "Plan 0096 is ready for human A/B: selected 6x is compared against 0x, 2x, and 4x at fixed harmonic-number decay, with the isolated 6x metal contribution included.",
-  "updatedAt": "2026-08-27T21:35:00-04:00",
+  "lastTask": "Plan 0096 metal-restoration listening verdict",
+  "status": "Human listening selected 2x side-mode restoration as good. The consolidated offline recipe is calibrated and now needs a broader current-versus-candidate promotion gate before any VST3/default change.",
+  "updatedAt": "2026-08-27T21:45:00-04:00",
   "lastHandoff": ".agent/handoffs/20260827-codex-plan0096-metal-calibration-listening.md",
   "branch": "codex/0096-metal-restoration-calibration",
-  "commit": "Plan 0096 calibration based on Plan 0095 verdict e36b35a; see branch HEAD",
+  "commit": "Plan 0096 calibration d41f179; verdict documentation pending commit",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0096 is a no-code calibration of the positive Plan 0095 corner. It holds the 35% amplitude anchor and harmonic-number decay fixed, compares 0x/2x/4x against the selected 6x reference, and isolates the 6x metal term. Full mixes are level-controlled, deterministic, aligned, and reconstruction-checked. A damped-guitar DI capture protocol is ready; motion-driven finger noise remains later."
+    "summary": "Plan 0096 listening selected 2x side-mode restoration as good, replacing the 6x audibility probe. The consolidated offline recipe is now 1.75x modal force, 12% dense direct texture, 35% amplitude/formant anchoring, harmonic-number decay, and 2x restoration. A broader ordinary/deep-pick and wound/plain promotion gate is required before the VST3/default changes."
   }
 }

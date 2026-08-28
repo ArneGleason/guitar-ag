@@ -2317,3 +2317,19 @@ samples. Adding the isolated 6x contribution to the 0x render reconstructs the
 reference with infinite measured audio PSNR. Human listening should select the
 lowest amount that retains the accepted character, including zero if decay alone
 is sufficient.
+
+Human loudness-matched listening selected 2x restoration as good. The accepted
+offline recipe is therefore:
+
+- modal pick excitation at 1.75x force
+- 12% direct pick texture at 2.5x event density
+- 35% absolute-frequency amplitude/formant anchoring
+- harmonic-number modal decay (`--legacy-register-decay-anchor 0.0`)
+- 2x fixed-Hz/plain-string-weighted side-mode restoration
+
+The exact selected open-string render is
+`ABF261ECD386B652755244D6A63786E6DB4A8899E1948DDF263750EC770AC041`.
+These remain offline research controls. Before production promotion, compare the
+consolidated recipe against the current VST3-equivalent legacy path over normal
+and deep pick gestures, wound/plain registers, and at least one phrase rather
+than inferring generality from the six-open-string calibration alone.

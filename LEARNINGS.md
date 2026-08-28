@@ -819,3 +819,9 @@ within 0.1 dB whole-file mean and 0.2 dB per note, while the isolated 6x metal
 term is -47.8 dB mean. The full mixes therefore test timbre rather than level;
 the isolated track, boosted by A/B matching, identifies whether the contribution
 itself sounds like metal-string behavior or a synthetic layer.
+
+The restoration calibration reduced a diagnostic exaggeration without losing
+the positive result: human listening selected 2x as good, down from the 6x probe.
+This is exactly why audible ablations and production values should be separate.
+Use enough exaggeration to identify a mechanism, then explicitly calibrate back
+to the lowest accepted amount before treating it as part of the model.
