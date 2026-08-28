@@ -33,7 +33,7 @@
   "updatedAt": "2026-08-28T08:21:54-04:00",
   "lastHandoff": ".agent/handoffs/20260828-codex-plan0099-reference-capture.md",
   "branch": "codex/0099-reference-capture-lab",
-  "commit": "pending",
+  "commit": "5ee1b7a",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
     "summary": "Guitar AG now has a separate JUCE reference-capture app that turns focused agent requests into external 24-bit mono DI takes with durable human approvals. The first real Focusrite capture should verify input selection, 48/96 kHz recording, playback, and session resumption before analysis begins."

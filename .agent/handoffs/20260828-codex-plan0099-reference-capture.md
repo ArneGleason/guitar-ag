@@ -12,6 +12,8 @@ The request generator and session validator complete the agent/human loop. The
 validator can emit only approved absolute WAV paths for the next analysis pass.
 Captured audio remains external evidence and never becomes VST3 sample playback.
 
+Implementation commit: `5ee1b7a`.
+
 ## Verification Completed
 
 - Windows Release `GuitarAGReferenceCapture` build passes.
