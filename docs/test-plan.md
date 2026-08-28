@@ -446,8 +446,26 @@ Plan 0103 supersedes this 30-item inventory for current capture work.
       to confirm that the residual is not an exposed additive pick-click layer.
 - [x] Re-render with the confirmed neck humbucker using the virtual Humbucker /
       neck-side pickup and revise conclusions from the matched evidence.
-- [ ] Add an offline fixed-pluck-position bracket, then test slower decay and
+- [x] Add an offline fixed-pluck-position bracket, then test slower decay and
       require human listening before any production promotion.
 - [ ] In the DAW, replay the ordinary/deep/phrase material and confirm the plugin
       has the promoted track-2 tone without a level, note-release, or polyphony
       regression.
+
+## Plan 0105 Low-E Reference Candidate Checks
+
+- [x] Windows Release `GuitarAGOfflineRender` builds with fixed pluck-position
+      and harmonic-body decay-time controls.
+- [x] Omitting both controls reproduces the Plan 0104 pickup-matched downstroke
+      WAV byte-for-byte.
+- [x] Windows Release VST3 builds with the offline compile definition absent and
+      exposes neither research control.
+- [x] A 0.10-0.22 position bracket plus a tighter 0.12-0.16 bracket selects 0.14
+      from onset-aligned attack measurements.
+- [x] A 1.3x/1.5x/1.8x/2.1x body-decay bracket selects 1.5x as the cross-context
+      compromise.
+- [x] Current and candidate A/Bs use identical MIDI and humbucker/neck settings,
+      are 18.9 seconds each, RMS-matched to -18 dBFS, and do not clip.
+- [ ] Human listening confirms whether the candidate is materially more guitar-
+      like rather than only darker and longer.
+- [ ] Promote nothing and request no next-string capture until that verdict.

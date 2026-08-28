@@ -21,6 +21,13 @@ Suggested focus:
   and pick used for Plan 0103. Neck humbucker, midpoint picking location, and
   fretting-hand damping are confirmed; within-set contrasts remain stronger
   portable evidence.
+- Plan 0105 is an offline hypothesis, not a production change. Review the
+  compile-time boundary, default-render audio identity, and whether the 0.14
+  pluck override accidentally suppresses useful stroke-dependent geometry.
+- Human listening must reject a candidate that is merely darker and longer.
+  Upstroke high-band energy remains slightly worse than current even though its
+  decay and sub-500 Hz balance improve; do not broaden capture or promote the
+  constants until this limitation is heard in context.
 - Plan 0102 adds permanent file deletion. Review the rejected-only gate, direct
   session-child path check, failed-delete behavior, list reselection, manifest
   rewrite, and approval-derived inventory refresh. No key repeat should cascade.

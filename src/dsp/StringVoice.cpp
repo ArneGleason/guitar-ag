@@ -474,7 +474,11 @@ void StringVoice::start (int midiNoteNumber,
     const auto strikeAmount = std::pow (strikeInput, 0.58f);
     const auto hardStrike = std::pow (juce::jlimit (0.0f, 1.0f, (velocityNormal - 0.46f) / 0.54f), 0.55f);
     const auto brightness = strikeAmount;
-    const auto pluckPosition = juce::jlimit (0.055f, 0.280f, juce::jmap (strikeAmount, 0.225f, 0.080f) + strokePluckOffset);
+    auto pluckPosition = juce::jlimit (0.055f, 0.280f, juce::jmap (strikeAmount, 0.225f, 0.080f) + strokePluckOffset);
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+    if (offlinePluckPosition >= 0.0f)
+        pluckPosition = offlinePluckPosition;
+#endif
     constexpr auto pickupPositionMin = 0.055f;
     constexpr auto pickupPositionMax = 0.335f;
     constexpr auto humbuckerCoilSeparation = 0.046f;
@@ -765,7 +769,10 @@ void StringVoice::start (int midiNoteNumber,
                                 / (twoPi * 0.5f * harmonicFloat * pickupWidth);
         const auto decayBaseSeconds = (6.4f + (8.2f - 6.4f) * woundAmount) * (1.0f - 0.16f * stringAgeAmount);
         const auto decayCurvature = (0.0090f + (0.0065f - 0.0090f) * woundAmount) * (1.0f + 1.55f * stringAgeAmount);
-        const auto decaySeconds = decayBaseSeconds / (1.0f + decayCurvature * decayEnvelopeIndex * decayEnvelopeIndex);
+        auto decaySeconds = decayBaseSeconds / (1.0f + decayCurvature * decayEnvelopeIndex * decayEnvelopeIndex);
+#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
+        decaySeconds *= offlineBodyDecayTimeScale;
+#endif
         const auto decay = std::pow (0.001f, 1.0f / static_cast<float> (sampleRate * decaySeconds));
         const auto tiltStart = 1.00f + (0.92f - 1.00f) * woundAmount;
         const auto tiltEnd = 0.48f + (0.34f - 0.48f) * woundAmount;
@@ -1020,6 +1027,18 @@ void StringVoice::setOfflineRegisterDecayAnchor (float anchorAmount) noexcept
 void StringVoice::setOfflineRegisterMetalRestoration (float restorationFactor) noexcept
 {
     registerMetalRestoration = juce::jlimit (0.0f, 8.0f, restorationFactor);
+}
+
+void StringVoice::setOfflinePluckPosition (float normalizedPosition) noexcept
+{
+    offlinePluckPosition = normalizedPosition < 0.0f
+                         ? -1.0f
+                         : juce::jlimit (0.055f, 0.280f, normalizedPosition);
+}
+
+void StringVoice::setOfflineBodyDecayTimeScale (float timeScale) noexcept
+{
+    offlineBodyDecayTimeScale = juce::jlimit (0.50f, 4.00f, timeScale);
 }
 #endif
 

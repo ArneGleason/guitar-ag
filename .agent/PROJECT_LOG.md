@@ -196,3 +196,12 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
   to 0.5 kHz, high-band energy from 45-62% to 3.5-9.0%, and decay to about
   -2.7 dB/s. The next gate is fixed pluck-position geometry, not a universal
   modal-envelope rewrite.
+- Implemented Plan 0105's offline-only pluck-position and long-lived harmonic-
+  body decay controls while preserving default renderer audio byte-for-byte and
+  excluding the controls from the successfully rebuilt Windows VST3.
+- Bracketed pluck position and selected 0.14, reducing the pickup-matched
+  ringing-down centroid from 537 to 360 Hz and raising sub-500 Hz energy from
+  64.0% to 82.8% versus 262 Hz and 90.8% in the reference.
+- Selected 1.50x body decay as the cross-context compromise, then built an
+  18.9-second, -18 dBFS RMS-matched, order-balanced current/candidate listening
+  set. The candidate remains offline pending the human realism verdict.

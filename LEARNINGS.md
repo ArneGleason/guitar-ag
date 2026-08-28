@@ -948,3 +948,18 @@ switching the comparison render from its default single coil to the confirmed
 neck humbucker removed most of the apparent discrepancy. Always match pickup
 type, pickup position, and physical plucking location—and ablate the suspected
 layer—before fitting a diagnostic residual or retuning modal amplitudes.
+
+## 2026-08-28 — Pluck/pickup geometry is useful but non-monotonic
+
+The Plan 0105 fixed-position bracket found a sharp useful region near 0.14 of
+speaking length. Moving from the automatic roughly 0.10 position to 0.14 reduced
+the pickup-matched low-E attack centroid from 537 Hz to 360 Hz, but moving
+farther to 0.16-0.22 did not continue darkening it. Pluck and pickup observation
+nodes redistribute individual harmonics, so geometry should be bracketed and
+measured rather than tuned with a one-direction brightness assumption.
+
+Lengthening only the main harmonic-body modes by 1.50x matched the alternate
+reference decay without stretching the short attack chirps. It also showed why
+one tail is not a universal target: the human independent down, independent up,
+and alternate tails differed substantially. A cross-context compromise is safer
+than fitting the longest note exactly.

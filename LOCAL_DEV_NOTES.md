@@ -96,6 +96,28 @@ The analyzer is research tooling and requires NumPy and SciPy. See
 `analysis/low-e-reference-model-comparison-20260828.md` for the rendered control
 and ablation set and the interpreted results.
 
+Plan 0105 keeps the low-E candidate offline. After rendering current and
+candidate down/up/alternate files into
+`build-vs2022-x64\diagnostics\eg0105-low-e-reference-candidate`, reproduce its
+measurement summary and compact RMS-matched listening set with:
+
+```powershell
+python scripts\analyze-low-e-reference-candidates.py `
+  --reference-events build-vs2022-x64\diagnostics\eg0104-low-e-reference-model\events.csv `
+  --candidate-directory build-vs2022-x64\diagnostics\eg0105-low-e-reference-candidate `
+  --output build-vs2022-x64\diagnostics\eg0105-low-e-reference-candidate\candidate-grid.json
+
+python scripts\create-low-e-candidate-listening-set.py `
+  --render-directory build-vs2022-x64\diagnostics\eg0105-low-e-reference-candidate `
+  --output-directory build-vs2022-x64\diagnostics\eg0105-low-e-reference-candidate\listening
+```
+
+The selected candidate adds
+`--legacy-pluck-position 0.14 --legacy-body-decay-time-scale 1.50` to an
+otherwise identical EG-089 humbucker/neck render. See
+`analysis/low-e-reference-candidate-20260828.md`; do not promote it before the
+human listening verdict.
+
 The previous checkout at `C:\code\guitar-ag` was clean and at the same GitHub commit when the canonical clone was created. Windows would not move it while the original Codex workspace held the directory open. Remove that duplicate only from a later task after the original workspace is closed and the exact path is re-verified.
 
 On this PC, Git may reject a checkout as dubious ownership. Prefer an explicit per-command override such as:

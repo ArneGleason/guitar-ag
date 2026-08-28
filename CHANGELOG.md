@@ -8,6 +8,10 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0105's offline-only fixed pluck-position and harmonic-body decay-
+  time controls, a measured low-E parameter bracket, and an RMS-matched current-
+  versus-candidate listening gate. The candidate improves the pickup-matched
+  reference residual but is not promoted into the VST3 pending human listening.
 - Added Plan 0104's reproducible low-E reference/model analysis, matching MIDI
   fixtures, event-level onset/spectrum/decay measurements, and an evidence-
   backed next experiment matching pickup/pluck geometry before decay or modal-

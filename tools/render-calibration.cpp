@@ -29,7 +29,8 @@ void printUsage()
                  "[--legacy-pick-excitation additive|modal] [--legacy-modal-pick-force 1.75] "
                  "[--legacy-additive-pick-mix 0.12] [--legacy-pick-texture-density 2.5] "
                  "[--legacy-register-anchor 0.35] [--legacy-register-decay-anchor 0.0] "
-                 "[--legacy-register-metal-restore 2.0] "
+                 "[--legacy-register-metal-restore 2.0] [--legacy-pluck-position auto|0.18] "
+                 "[--legacy-body-decay-time-scale 1.0] "
                  "[--input-octave midi|daw] [--input-transpose 0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.25] [--pick-bite 0.5] "
                  "[--pick-stroke alternate] [--strum-speed 0.10] [--strum-balance -0.13] "
@@ -153,6 +154,8 @@ int main (int argc, char* argv[])
     auto legacyRegisterAnchor = 0.35f;
     auto legacyRegisterDecayAnchor = 0.0f;
     auto legacyRegisterMetalRestoration = 2.0f;
+    auto legacyPluckPosition = -1.0f;
+    auto legacyBodyDecayTimeScale = 1.0f;
     auto inputTransposeSemitones = 0;
     auto sustain = 1.0f;
     auto pickStiffness = 0.5f;
@@ -326,6 +329,17 @@ int main (int argc, char* argv[])
         else if (argument == "--legacy-register-metal-restore" && hasValue)
         {
             legacyRegisterMetalRestoration = juce::jlimit (0.0f, 8.0f, juce::String (argv[++i]).getFloatValue());
+        }
+        else if (argument == "--legacy-pluck-position" && hasValue)
+        {
+            const auto value = juce::String (argv[++i]).toLowerCase();
+            legacyPluckPosition = value == "auto" || value == "default"
+                                ? -1.0f
+                                : juce::jlimit (0.055f, 0.280f, value.getFloatValue());
+        }
+        else if (argument == "--legacy-body-decay-time-scale" && hasValue)
+        {
+            legacyBodyDecayTimeScale = juce::jlimit (0.50f, 4.00f, juce::String (argv[++i]).getFloatValue());
         }
         else if (argument == "--input-octave" && hasValue)
         {
@@ -630,6 +644,8 @@ int main (int argc, char* argv[])
     engine.setLegacyOfflineRegisterEnvelopeAnchor (legacyRegisterAnchor);
     engine.setLegacyOfflineRegisterDecayAnchor (legacyRegisterDecayAnchor);
     engine.setLegacyOfflineRegisterMetalRestoration (legacyRegisterMetalRestoration);
+    engine.setLegacyOfflinePluckPosition (legacyPluckPosition);
+    engine.setLegacyOfflineBodyDecayTimeScale (legacyBodyDecayTimeScale);
 #endif
     engine.setInputTransposeSemitones (inputTransposeSemitones);
     engine.setTailSustain (sustain);

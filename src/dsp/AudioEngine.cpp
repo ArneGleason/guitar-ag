@@ -278,6 +278,18 @@ void AudioEngine::setLegacyOfflineRegisterMetalRestoration (float restorationFac
     for (auto& voice : voices)
         voice.setOfflineRegisterMetalRestoration (restorationFactor);
 }
+
+void AudioEngine::setLegacyOfflinePluckPosition (float normalizedPosition) noexcept
+{
+    for (auto& voice : voices)
+        voice.setOfflinePluckPosition (normalizedPosition);
+}
+
+void AudioEngine::setLegacyOfflineBodyDecayTimeScale (float timeScale) noexcept
+{
+    for (auto& voice : voices)
+        voice.setOfflineBodyDecayTimeScale (timeScale);
+}
 #endif
 
 void AudioEngine::setTailSustain (float newTailSustain) noexcept

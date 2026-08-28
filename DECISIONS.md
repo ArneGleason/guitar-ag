@@ -1130,3 +1130,29 @@ and bracket fixed offline pluck positions near 0.10-0.22 speaking length. After
 geometry selection, bracket slower decay. Fretting-hand damping follows as a
 separate onset-preserving loss model. Preserved-state alternate repicking and
 context-dependent human scatter remain later work.
+
+## 2026-08-28 — Keep the first low-E reference candidate offline until listening
+
+Decision:
+Use fixed pluck position 0.14 and 1.50x long-lived harmonic-body decay time as
+the Plan 0105 listening candidate. Do not promote either value into the VST3,
+add an independent pick-click layer, or model the fretting-hand-damped takes in
+this change.
+
+Reason:
+At the capture-matched humbucker/neck setting, position 0.14 reduces the
+ringing-down centroid error by about 62% and the sub-500 Hz energy error by about
+68%. A 1.50x decay time matches the alternate reference and falls between the
+independent up/down tails. Upstroke spectrum improves only modestly and retains
+a high-band residual, so the measurements justify a candidate rather than a
+production claim. Plan 0104 also showed that direct pick/contact layers are too
+quiet to explain the discrepancy.
+
+Status:
+Implemented as an offline Plan 0105 A/B; awaiting human verdict.
+
+Consequences:
+The new controls compile only into `GuitarAGOfflineRender`; the rebuilt Windows
+VST3 has no corresponding code path or parameter. More capture work, fretting-
+hand damping, moving-string repicks, and contextual variation remain deferred
+until the candidate is audibly better through the intended listening chain.

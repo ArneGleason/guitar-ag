@@ -2484,3 +2484,25 @@ The production legacy voice also restarts on every repeated note-on. It cannot
 represent the alternate captures' defining state transition: re-excitation of
 an already moving string. Use the alternate set later to calibrate preserved-
 state modal repicking rather than approximating it with random attack changes.
+
+## 2026-08-28 — Plan 0105 Low-E Geometry/Decay Candidate
+
+Two research controls compile only into the offline renderer:
+
+- `--legacy-pluck-position` overrides the velocity/stroke-derived excitation
+  point after normal bounding, using 0.055-0.280 of speaking length;
+- `--legacy-body-decay-time-scale` multiplies the decay seconds used by the main
+  harmonic modes and their inharmonic side modes, without stretching winding
+  modes, short attack chirps, releases, palm damping, or additive contact layers.
+
+At the capture-matched humbucker/neck setting, the selected 0.14 / 1.50x
+candidate moves the ringing-down centroid from 537 to 367 Hz, sub-500 Hz energy
+from 64.0% to 82.3%, and decay from -2.75 to -1.68 dB/s. Reference values are
+262 Hz, 90.8%, and -1.02 dB/s. Alternate measurements also improve; upstroke
+spectrum improves less and remains a known residual. See
+`analysis/low-e-reference-candidate-20260828.md` for the full table.
+
+These are hypothesis controls, not parameters or production constants. The VST3
+has no corresponding fields or setters, and its Release target builds with the
+offline compile definition absent. Human listening must distinguish a more
+guitar-like result from one that is merely darker and longer before promotion.

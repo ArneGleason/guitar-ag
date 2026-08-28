@@ -116,6 +116,8 @@ public:
     void setLegacyOfflineRegisterEnvelopeAnchor (float anchorAmount) noexcept;
     void setLegacyOfflineRegisterDecayAnchor (float anchorAmount) noexcept;
     void setLegacyOfflineRegisterMetalRestoration (float restorationFactor) noexcept;
+    void setLegacyOfflinePluckPosition (float normalizedPosition) noexcept;
+    void setLegacyOfflineBodyDecayTimeScale (float timeScale) noexcept;
 #endif
     void setTailSustain (float newTailSustain) noexcept;
     void setInputTransposeSemitones (int newInputTransposeSemitones) noexcept;

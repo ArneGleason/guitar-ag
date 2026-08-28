@@ -71,6 +71,8 @@ public:
     void setOfflineRegisterEnvelopeAnchor (float anchorAmount) noexcept;
     void setOfflineRegisterDecayAnchor (float anchorAmount) noexcept;
     void setOfflineRegisterMetalRestoration (float restorationFactor) noexcept;
+    void setOfflinePluckPosition (float normalizedPosition) noexcept;
+    void setOfflineBodyDecayTimeScale (float timeScale) noexcept;
 #endif
 
     float renderSample (float tailSustain,
@@ -340,6 +342,8 @@ private:
     bool offlineAttackModesEnabled = true;
     bool offlinePickTransientEnabled = true;
     bool offlineContactLayerEnabled = true;
+    float offlinePluckPosition = -1.0f;
+    float offlineBodyDecayTimeScale = 1.0f;
 #endif
 };
 
