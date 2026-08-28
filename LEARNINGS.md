@@ -833,3 +833,11 @@ candidate aligned through identical MIDI and performance settings. The candidate
 is about 1 dB louder in every section, so whole-file loudness matching remains
 interpretable; an inconsistent section-by-section offset would have required
 separate comparisons instead of one stitched verdict.
+
+The consolidated tone passed outside its tuning fixtures. Human listening
+confirmed the Plan 0097 candidate across ordinary picking, the original deep
+failure regime, and a phrase with repeated notes, string crossings, upper melody,
+and polyphony. That is sufficient to justify production implementation, while
+still keeping the implementation and installed-plugin checks as a separate
+milestone. Preserve the previous tone offline so later regressions can separate
+changed code from changed listening preference.

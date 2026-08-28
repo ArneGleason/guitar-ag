@@ -38,3 +38,10 @@ sections; use the A/B tool's default loudness matching.
   judge its character, not its apparent mix level.
 
 Promotion requires the candidate to be preferable across all three contexts.
+
+## Human Verdict
+
+With loudness matching on, the human confirmed that track 2 works. This passes
+the ordinary, deep-pick, and compact-phrase promotion gate. Implement the exact
+accepted recipe in production as a separate milestone and preserve track 1's
+recipe as an offline regression option.

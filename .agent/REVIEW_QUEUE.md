@@ -8,8 +8,8 @@ Suggested focus:
 
 - Plan 0095 listening accepted the combined harmonic-number-decay plus 6x side-mode candidate as "pretty good." Do not over-attribute the result: decay-only and side-mode-only received no written verdict.
 - Plan 0096 listening selected 2x side-mode restoration as good. Use 2x, not the deliberately exaggerated 6x probe, in the consolidated offline recipe.
-- Plan 0097 is awaiting the production-tone promotion verdict. Require the accepted candidate to beat the current production-equivalent path across ordinary open strings, the deep/flexible failure regime, and the compact phrase—not just one section.
-- On the phrase section, listen for smeared fast attacks, excessive ringing between notes, synthetic high-register scale, and chord buildup. A win on isolated notes does not excuse a phrase regression.
+- Plan 0097 passed human listening across ordinary, deep-pick, and compact-phrase contexts. Review the production implementation for exact recipe transfer rather than retuning it during promotion.
+- Preserve an explicit offline previous-tone recipe and verify it reproduces the Plan 0097 current reference, while the new default reproduces the accepted candidate.
 - Plan 0094 listening selected 35% amplitude anchoring as much better than current, but it progressively flattened upper notes and lost metal ring/brightness. Keep that amplitude envelope fixed during Plan 0095 review.
 - Treat Plan 0094's register gain as audition normalization only. The positive timbre verdict still requires a principled string/gauge energy model before production promotion.
 - Plan 0093 listening calibrated 12% dense direct texture as medium and 22% as maximum. Preserve these bounds; use 12% as the fixed attack baseline for register/formant review.

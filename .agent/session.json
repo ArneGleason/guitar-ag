@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0097 production-tone promotion gate",
-  "status": "Plan 0097 is ready for human A/B: current production-equivalent tone is compared against the full accepted offline recipe across ordinary and deep open-string sweeps plus a compact phrase, with a signed difference included.",
-  "updatedAt": "2026-08-27T22:05:00-04:00",
+  "lastTask": "Plan 0097 production-tone promotion verdict",
+  "status": "Human listening confirmed the complete accepted candidate works across ordinary, deep-pick, and compact-phrase contexts. The recipe is cleared for a separate production implementation with an offline previous-tone regression path.",
+  "updatedAt": "2026-08-27T22:15:00-04:00",
   "lastHandoff": ".agent/handoffs/20260827-codex-plan0097-production-tone-gate.md",
   "branch": "codex/0097-production-tone-promotion-gate",
-  "commit": "Plan 0097 promotion gate based on Plan 0096 verdict e9a28ae; see branch HEAD",
+  "commit": "Plan 0097 gate e05f72e; verdict documentation pending commit",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0097 provides the production-tone gate for the calibrated offline recipe. A 26.9-second aligned comparison covers ordinary and deep E2–E4 sweeps plus a compact riff/arpeggio/melody/chord phrase, with current first and an exact signed difference. The VST3 remains unchanged pending the human verdict."
+    "summary": "Plan 0097 passed: the complete accepted recipe works across ordinary and deep E2–E4 sweeps plus a compact riff/arpeggio/melody/chord phrase. The next milestone promotes the exact recipe into the VST3/default renderer, updates identity/hash expectations, and preserves the former production tone as an offline regression option."
   }
 }

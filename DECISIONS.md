@@ -944,3 +944,27 @@ density, 35% amplitude/formant anchoring, harmonic-number decay, and 2x side-mod
 restoration. Keep the VST3/default path unchanged until this combination passes
 a broader end-to-end comparison at ordinary and deep-pick settings across wound
 and plain strings.
+
+## 2026-08-27 — Promote the consolidated tone recipe after Plan 0097
+
+Decision:
+Implement the accepted offline recipe in the production `StringVoice` and make
+it the VST3/default renderer tone in a separate buildable milestone. Preserve an
+explicit offline previous-tone recipe for regression and comparison.
+
+Reason:
+Human loudness-matched listening confirmed that the candidate works in the
+Plan 0097 stitched gate: ordinary E2–E4 picking, the deep/flexible/textured
+failure regime, and a compact riff/arpeggio/upper-melody/chord phrase. The result
+therefore generalizes beyond the isolated settings that selected its components.
+
+Status:
+Accepted for production implementation.
+
+Consequences:
+Production defaults become 1.75x modal pick force, 12% direct texture at 2.5x
+density, 35% amplitude/formant anchoring, harmonic-number decay, and 2x fixed-Hz
+side-mode restoration. No new user-facing parameters or preset fields are needed
+for this milestone. Update the model identity and expected default hash, keep the
+old recipe callable only in the offline renderer, and require Windows Release
+VST3/offline builds plus manual installed-plugin verification.

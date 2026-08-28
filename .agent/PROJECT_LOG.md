@@ -122,3 +122,4 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Human loudness-matched calibration selected 2x side-mode restoration as good. Replace the 6x audibility probe with 2x in the consolidated offline recipe and require a broader end-to-end gate before VST3/default promotion.
 - Created Plan 0097 and a compact promotion phrase, then stitched current-versus-candidate ordinary sweep, deep-pick sweep, and phrase sections into a 26.9-second production-tone gate.
 - Verified deterministic sections, consistent candidate level offset of about +1 dB across all contexts, equal 1,291,200-sample files, and exact reconstruction from the signed candidate-minus-current difference.
+- Human loudness-matched listening confirmed that the complete candidate works across the ordinary, deep-pick, and compact-phrase Plan 0097 gate. Proceed with a separate production implementation while preserving the previous tone offline for regression.

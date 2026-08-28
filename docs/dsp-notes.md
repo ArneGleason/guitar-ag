@@ -2354,3 +2354,9 @@ Current plus the signed `candidate - current` track reconstructs the candidate
 with infinite measured audio PSNR. All tracks are stereo 48 kHz and 1,291,200
 samples. Human listening across all three sections is the gate for a later,
 separate production implementation; the VST3 remains unchanged here.
+
+Human loudness-matched listening confirmed that the complete candidate works
+across all three Plan 0097 contexts. The recipe has therefore passed its
+production-tone gate. Promote it in a separate change, update the build identity
+and default-render expectation, and retain an explicit offline previous-tone
+recipe for regression. The gate itself did not modify the VST3.

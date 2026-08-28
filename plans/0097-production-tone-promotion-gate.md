@@ -34,8 +34,7 @@ the current production-equivalent legacy tone in the VST3/default path.
 - [x] The current track plus signed difference reconstructs the candidate exactly.
 - [x] Measure whole-file and per-section levels so loudness matching is
       interpretable.
-- [ ] Human decides whether the candidate wins across ordinary, deep, and phrase
-      contexts—not merely one isolated-note regime.
+- [x] Human confirmed track 2 works across the stitched promotion program.
 
 ## Decision Gate
 
@@ -71,3 +70,11 @@ SHA-256:
 - current: `18D35D92304F452B95AF6BE64B3EBFBED2E9C50465B20837B0D887230C6A2DA9`
 - candidate: `77DC804FC3F5EC57F0180CBECCC900A36476D2E53B3E0EB07E61C5F0CB40D750`
 - signed difference: `85B85B71B21A783BE2C8BBB7CFBDF4A16614A265A996F449DD366E478BA7CE3D`
+
+## Human Listening Verdict — 2026-08-27
+
+With loudness matching on, the human confirmed that track 2, the complete
+accepted candidate, works across the promotion program. This passes the
+ordinary-pick, deep-pick, and compact-phrase gate and authorizes a separate
+production implementation milestone. Preserve the old tone as an explicit
+offline regression recipe while changing the VST3/default path.

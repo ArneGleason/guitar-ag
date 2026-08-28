@@ -28,6 +28,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Changed
 
+- Recorded the Plan 0097 promotion verdict: the complete accepted candidate works across ordinary picking, the deep-pick failure case, and the compact phrase, clearing it for a separate production implementation milestone.
 - Recorded the Plan 0096 listening calibration: 2x side-mode restoration is good and replaces the deliberately exaggerated 6x diagnostic in the accepted offline recipe.
 - Recorded the Plan 0095 listening result: the combined harmonic-number decay and 6x side-mode restoration candidate is "pretty good" and becomes the provisional offline foundation pending restoration-amount calibration.
 - Recorded the Plan 0094 listening result: 35% register anchoring substantially improves high-register scale, but its coupled decay/envelope change progressively removes metal ring and brightness.
