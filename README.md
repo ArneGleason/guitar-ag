@@ -56,7 +56,7 @@ Implemented so far:
 Current model label:
 
 ```text
-StringVoice EG-088 MixedMpeChordAssignment
+StringVoice EG-089 ModalFormantTone
 ```
 
 ## Demo
@@ -238,7 +238,11 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
   --amp-feedback 0.75
 ```
 
-The offline renderer is useful for DSP comparison and regression checks. It does not replace testing the VST3 in a real host such as Bitwig, Reaper, Ableton Live, or another DAW.
+The offline renderer is useful for DSP comparison and regression checks. Its
+default legacy-engine tone is the same EG-089 recipe used by the VST3;
+`--legacy-tone-recipe previous` restores the EG-088 tone for controlled
+regressions. It does not replace testing the VST3 in a real host such as Bitwig,
+Reaper, Ableton Live, or another DAW.
 
 ## Development Process
 
@@ -257,11 +261,11 @@ The process is very "warmer/colder": Codex makes a narrow hypothesis and builds 
 As of the `EG-081 ArticGroups` release-candidate milestone:
 
 - Git commits before the release-prep commit: 119.
-- Model checkpoints documented or build-labeled: 81.
+- Model checkpoints documented or build-labeled: 82.
 - VST parameters: 40.
 - Editor pages: Setup, Pickup, Perform, Vibrato, MPE, Whammy, and Artic.
-- Plan files: 78, including slide gesture, finger squeak, pick-stroke, player-feel, Auto Strum, and preset-model plans.
-- Audition MIDI files: feature audition, player-articulation audition, slide gesture, pick-stroke, Auto Strum, single-note calibration, and velocity ladder.
+- Plan files: 95, including slide gesture, finger squeak, pick-stroke, player-feel, Auto Strum, and tone-realism plans.
+- Audition MIDI files: 10 fixtures covering feature, articulation, slide, pick, strum, register, promotion, and calibration checks.
 - Offline renderer flags now cover core tone controls, slide controls, MPE expression, pick/strum controls, player feel, legato articulation, and amp feedback.
 
 ## Repo Guide

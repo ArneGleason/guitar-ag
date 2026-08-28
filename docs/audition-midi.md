@@ -329,9 +329,16 @@ $common = @(
 & $renderer @common --output combined.wav --legacy-register-decay-anchor 0.0 --legacy-register-metal-restore 6.0
 ```
 
-Omitting `--legacy-register-decay-anchor` intentionally makes it follow the
-register envelope anchor. `--legacy-register-metal-restore 1.0` is literal
+For the Plan 0095 command above, specifying `--legacy-register-anchor` without a
+later decay override makes decay follow the envelope anchor. The production
+default now instead uses a 35% amplitude anchor with harmonic-number decay and
+2x restoration. `--legacy-register-metal-restore 1.0` is literal
 lost-side-energy restoration; 6.0 is an audible diagnostic exaggeration.
+
+From EG-089 onward, the renderer's no-flags legacy tone is the accepted Plan
+0097 production recipe. Use `--legacy-tone-recipe previous` to reproduce EG-088
+for regression. Recipe flags are processed in command order, so later individual
+`--legacy-*` controls can deliberately override a named recipe.
 
 ## Plan 0097 Production Tone Promotion Phrase
 

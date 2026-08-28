@@ -8,6 +8,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0098 and an offline `--legacy-tone-recipe previous` regression path that reproduces the former EG-088 production tone while leaving the VST3 on the new default.
 - Added Plan 0097, a stitched current-versus-candidate production-tone promotion gate spanning ordinary and deep open-string sweeps plus a compact phrase, with an exactly reconstructing signed difference.
 - Added a compact promotion phrase MIDI generator and fixture covering a wound-string riff, cross-string arpeggio, upper-register melody, and held chord.
 - Added Plan 0096, a no-code 0x/2x/4x/6x calibration of the accepted metal-restoration direction with an isolated 6x contribution and exact reconstruction checks.
@@ -28,6 +29,7 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Changed
 
+- Promoted the human-approved Plan 0097 tone to `StringVoice EG-089 ModalFormantTone`: 1.75x modal pick force, 12% direct texture at 2.5x density, 35% amplitude/formant anchoring, harmonic-number decay, and 2x fixed-Hz/plain-string side-mode restoration. No new VST parameters or preset fields were added.
 - Recorded the Plan 0097 promotion verdict: the complete accepted candidate works across ordinary picking, the deep-pick failure case, and the compact phrase, clearing it for a separate production implementation milestone.
 - Recorded the Plan 0096 listening calibration: 2x side-mode restoration is good and replaces the deliberately exaggerated 6x diagnostic in the accepted offline recipe.
 - Recorded the Plan 0095 listening result: the combined harmonic-number decay and 6x side-mode restoration candidate is "pretty good" and becomes the provisional offline foundation pending restoration-amount calibration.

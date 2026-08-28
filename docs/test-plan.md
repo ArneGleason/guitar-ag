@@ -232,7 +232,7 @@ This document defines the basic manual and technical checks needed as the projec
 - [ ] Compare the pick-stroke audition file against forced `Down` and forced `Up` to judge whether `Alternate` feels like right-hand travel rather than a mechanical toggle.
 - [ ] In the pick-stroke audition chord sections, strummed notes should feel like a held left-hand chord being re-articulated by the right hand, not like the fretting hand releases every note between strokes.
 - [ ] `Player Feel` at 0% sounds and renders like the current neutral picked path.
-- [ ] New plugin instances show `v0.3.1 / StringVoice EG-088 MixedMpeChordAssignment`.
+- [ ] New plugin instances show `v0.3.1 / StringVoice EG-089 ModalFormantTone`.
 - [ ] With `Input Octave = DAW E2=52`, a DAW piano-roll E2 plays the same low guitar E that previously required the DAW's E1 label in Bitwig.
 - [ ] With `Input Octave = MIDI E2=40`, MIDI note 40 plays the low guitar E directly for standard/scientific MIDI files.
 - [ ] In both `Input Octave` modes, the matching note-off releases the transposed note without leaving a stuck voice.
@@ -324,3 +324,19 @@ This document defines the basic manual and technical checks needed as the projec
 - [x] Decide whether the isolated E2/E4 attacks have less separate tonal chirp and whether the less-dense stateful body is acceptable: no; both stateful variants read as synths rather than guitar DI.
 - [x] Compare preserved and reset F2 repicks: neither variant passed the overall timbre gate, so repick continuity does not justify promotion.
 - [ ] Treat the E2-to-G2 section as a known missing left-hand model, not a Plan 0090 acceptance gate.
+
+## EG-089 Production-Tone Checks
+
+- [x] Windows Release VST3 and offline-render targets compile with the promoted
+      modal excitation and register/formant path enabled in production.
+- [x] No-flags offline renders exactly match the accepted Plan 0097 ordinary,
+      deep-pick, and compact-phrase section renders.
+- [x] `--legacy-tone-recipe previous` exactly matches the three Plan 0097 EG-088
+      references and the canonical EG-088 single-note hash.
+- [x] Repeated EG-089 single-note renders are byte-identical at SHA-256
+      `32AF0A4AE9A04B3E77F74161E963D4AE3E8431433012D642EA13A96C2C5C47D7`.
+- [ ] Install the Release VST3 and confirm the editor reads
+      `v0.3.1 / StringVoice EG-089 ModalFormantTone`.
+- [ ] In the DAW, replay the ordinary/deep/phrase material and confirm the plugin
+      has the promoted track-2 tone without a level, note-release, or polyphony
+      regression.

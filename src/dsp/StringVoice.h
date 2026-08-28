@@ -161,9 +161,7 @@ private:
                            const FeedbackRenderContext& feedback) noexcept;
     float renderPickTransient() noexcept;
     float renderContactLayer (float slideSqueakUp, float slideSqueakDown) noexcept;
-#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
-    void applyOfflineModalPickExcitation() noexcept;
-#endif
+    void applyModalPickExcitation() noexcept;
     [[nodiscard]] static float getEffectiveSlideFretSteps (float slideFretSteps) noexcept;
     [[nodiscard]] static float getFretSteppedSlideSemitones (float neckSlideSemitones,
                                                              float slideFretSteps,
@@ -321,26 +319,27 @@ private:
     bool useCachedPitchSteps = false;
     bool slideFretStateInitialized = false;
 
+    std::array<float, modalCount> modalPickCoupling {};
+    int modalPickSamplesRemaining = 0;
+    int modalPickTotalSamples = 0;
+    float modalPickImpulse = 0.0f;
+    float modalPickTexture = 0.0f;
+    float modalPickNoiseState = 0.0f;
+    uint32_t modalPickRandomState = 0x9e3779b9u;
+    bool modalPickExcitationEnabled = true;
+    bool modalPickReplacesDirectLayers = false;
+    float modalPickForceScale = 1.75f;
+    float modalPickDirectMix = 0.12f;
+    float pickTextureDensity = 2.5f;
+    float registerEnvelopeAnchor = 0.35f;
+    float registerDecayAnchor = 0.0f;
+    float registerMetalRestoration = 2.0f;
+    float registerLevelCompensation = 1.0f;
+
 #if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
-    std::array<float, modalCount> offlineModalPickCoupling {};
-    int offlineModalPickSamplesRemaining = 0;
-    int offlineModalPickTotalSamples = 0;
-    float offlineModalPickImpulse = 0.0f;
-    float offlineModalPickTexture = 0.0f;
-    float offlineModalPickNoiseState = 0.0f;
-    uint32_t offlineModalPickRandomState = 0x9e3779b9u;
     bool offlineAttackModesEnabled = true;
     bool offlinePickTransientEnabled = true;
     bool offlineContactLayerEnabled = true;
-    bool offlineModalPickExcitationEnabled = false;
-    bool offlineModalPickReplacesDirectLayers = false;
-    float offlineModalPickForceScale = 1.0f;
-    float offlineModalPickDirectMix = 0.0f;
-    float offlinePickTextureDensity = 1.0f;
-    float offlineRegisterEnvelopeAnchor = 0.0f;
-    float offlineRegisterDecayAnchor = 0.0f;
-    float offlineRegisterMetalRestoration = 0.0f;
-    float offlineRegisterLevelCompensation = 1.0f;
 #endif
 };
 

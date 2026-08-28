@@ -2360,3 +2360,31 @@ across all three Plan 0097 contexts. The recipe has therefore passed its
 production-tone gate. Promote it in a separate change, update the build identity
 and default-render expectation, and retain an explicit offline previous-tone
 recipe for regression. The gate itself did not modify the VST3.
+
+## 2026-08-27 — EG-089 Modal/Formant Tone Production Promotion
+
+EG-089 moves the complete Plan 0097 recipe into the normal `StringVoice` build:
+
+- a short, stiffness-dependent plectrum force updates modal quadrature state at
+  1.75x the originally auditioned modal-force scale
+- 12% of the existing direct pick texture remains as subordinate material detail,
+  with its stochastic event density raised to 2.5x and impulse energy compensated
+- modal amplitude/contact envelopes blend 35% toward an E2-referenced
+  absolute-frequency index, while modal decay remains harmonic-number based
+- only existing inharmonic side modes receive 2x restoration, smoothly gated
+  over 650–2500 Hz and reduced on wound strings
+- the register compensation used throughout the accepted listening chain is now
+  part of production so the promoted VST3 is the exact approved candidate
+
+These are fixed model constants, not new parameters. Harmonic-touch gestures do
+not use modal pick excitation, and later slide/fret contact remains independent
+of the 12% picked-onset mix.
+
+The offline renderer defaults to the same EG-089 recipe and exposes
+`--legacy-tone-recipe previous` for exact EG-088 regressions. The new default
+matches the accepted Plan 0097 ordinary, deep, and phrase section files byte for
+byte. The previous recipe matches all three corresponding current references and
+the canonical single-note hash
+`C67DCE0C59AA6D0A903BA887E2C55953B5842CAF1CA3160C035D0704BF0BD48B`.
+The new deterministic single-note hash is
+`32AF0A4AE9A04B3E77F74161E963D4AE3E8431433012D642EA13A96C2C5C47D7`.

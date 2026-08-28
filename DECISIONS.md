@@ -959,7 +959,7 @@ failure regime, and a compact riff/arpeggio/upper-melody/chord phrase. The resul
 therefore generalizes beyond the isolated settings that selected its components.
 
 Status:
-Accepted for production implementation.
+Implemented as `StringVoice EG-089 ModalFormantTone`.
 
 Consequences:
 Production defaults become 1.75x modal pick force, 12% direct texture at 2.5x
@@ -968,3 +968,8 @@ side-mode restoration. No new user-facing parameters or preset fields are needed
 for this milestone. Update the model identity and expected default hash, keep the
 old recipe callable only in the offline renderer, and require Windows Release
 VST3/offline builds plus manual installed-plugin verification.
+
+Plan 0098 implemented the recipe without retuning it. The new default exactly
+matches all three accepted Plan 0097 section renders, while
+`--legacy-tone-recipe previous` exactly matches all three former-production
+references and the canonical EG-088 single-note hash.

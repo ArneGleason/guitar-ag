@@ -123,3 +123,6 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Created Plan 0097 and a compact promotion phrase, then stitched current-versus-candidate ordinary sweep, deep-pick sweep, and phrase sections into a 26.9-second production-tone gate.
 - Verified deterministic sections, consistent candidate level offset of about +1 dB across all contexts, equal 1,291,200-sample files, and exact reconstruction from the signed candidate-minus-current difference.
 - Human loudness-matched listening confirmed that the complete candidate works across the ordinary, deep-pick, and compact-phrase Plan 0097 gate. Proceed with a separate production implementation while preserving the previous tone offline for regression.
+- Implemented Plan 0098 as `StringVoice EG-089 ModalFormantTone`, promoting the exact accepted recipe into both VST3 and default offline builds without new parameters or preset fields.
+- Added `--legacy-tone-recipe previous`; verified the new default and previous recipe byte-for-byte against all six Plan 0097 section references, repeated the new single-note hash exactly, and reproduced the canonical EG-088 single-note hash.
+- Built Windows Release `GuitarAG_VST3` and `GuitarAGOfflineRender`; installed-plugin identity/tone verification remains the human gate.

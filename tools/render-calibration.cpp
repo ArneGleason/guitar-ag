@@ -25,10 +25,11 @@ void printUsage()
                  "[--sample-rate 48000] [--block-size 512] [--tail-seconds 2.0] [--gain 1.0] "
                  "[--string-engine legacy|stateful] [--stateful-repick 0|1] "
                  "[--legacy-attack-modes 0|1] [--legacy-pick-transient 0|1] [--legacy-contact-layer 0|1] "
-                 "[--legacy-pick-excitation additive|modal] [--legacy-modal-pick-force 1.0] "
-                 "[--legacy-additive-pick-mix 0.0] [--legacy-pick-texture-density 1.0] "
-                 "[--legacy-register-anchor 0.0] [--legacy-register-decay-anchor 0.0] "
-                 "[--legacy-register-metal-restore 0.0] "
+                 "[--legacy-tone-recipe production|previous] "
+                 "[--legacy-pick-excitation additive|modal] [--legacy-modal-pick-force 1.75] "
+                 "[--legacy-additive-pick-mix 0.12] [--legacy-pick-texture-density 2.5] "
+                 "[--legacy-register-anchor 0.35] [--legacy-register-decay-anchor 0.0] "
+                 "[--legacy-register-metal-restore 2.0] "
                  "[--input-octave midi|daw] [--input-transpose 0] "
                  "[--sustain 1.0] [--pick-stiffness 0.5] [--pick-texture 0.25] [--pick-bite 0.5] "
                  "[--pick-stroke alternate] [--strum-speed 0.10] [--strum-balance -0.13] "
@@ -145,13 +146,13 @@ int main (int argc, char* argv[])
     auto legacyAttackModes = true;
     auto legacyPickTransient = true;
     auto legacyContactLayer = true;
-    auto legacyModalPickExcitation = false;
-    auto legacyModalPickForce = 1.0f;
-    auto legacyAdditivePickMix = 0.0f;
-    auto legacyPickTextureDensity = 1.0f;
-    auto legacyRegisterAnchor = 0.0f;
-    auto legacyRegisterDecayAnchor = -1.0f;
-    auto legacyRegisterMetalRestoration = 0.0f;
+    auto legacyModalPickExcitation = true;
+    auto legacyModalPickForce = 1.75f;
+    auto legacyAdditivePickMix = 0.12f;
+    auto legacyPickTextureDensity = 2.5f;
+    auto legacyRegisterAnchor = 0.35f;
+    auto legacyRegisterDecayAnchor = 0.0f;
+    auto legacyRegisterMetalRestoration = 2.0f;
     auto inputTransposeSemitones = 0;
     auto sustain = 1.0f;
     auto pickStiffness = 0.5f;
@@ -257,6 +258,36 @@ int main (int argc, char* argv[])
         {
             legacyContactLayer = juce::String (argv[++i]).getIntValue() != 0;
         }
+        else if (argument == "--legacy-tone-recipe" && hasValue)
+        {
+            const auto value = juce::String (argv[++i]).toLowerCase();
+
+            if (value == "production" || value == "accepted")
+            {
+                legacyModalPickExcitation = true;
+                legacyModalPickForce = 1.75f;
+                legacyAdditivePickMix = 0.12f;
+                legacyPickTextureDensity = 2.5f;
+                legacyRegisterAnchor = 0.35f;
+                legacyRegisterDecayAnchor = 0.0f;
+                legacyRegisterMetalRestoration = 2.0f;
+            }
+            else if (value == "previous" || value == "eg088")
+            {
+                legacyModalPickExcitation = false;
+                legacyModalPickForce = 1.0f;
+                legacyAdditivePickMix = 0.0f;
+                legacyPickTextureDensity = 1.0f;
+                legacyRegisterAnchor = 0.0f;
+                legacyRegisterDecayAnchor = 0.0f;
+                legacyRegisterMetalRestoration = 0.0f;
+            }
+            else
+            {
+                std::cerr << "Unknown legacy tone recipe: " << value << "\n";
+                return 2;
+            }
+        }
         else if (argument == "--legacy-pick-excitation" && hasValue)
         {
             const auto value = juce::String (argv[++i]).toLowerCase();
@@ -286,6 +317,7 @@ int main (int argc, char* argv[])
         else if (argument == "--legacy-register-anchor" && hasValue)
         {
             legacyRegisterAnchor = juce::jlimit (0.0f, 1.0f, juce::String (argv[++i]).getFloatValue());
+            legacyRegisterDecayAnchor = legacyRegisterAnchor;
         }
         else if (argument == "--legacy-register-decay-anchor" && hasValue)
         {
@@ -596,10 +628,7 @@ int main (int argc, char* argv[])
     engine.setLegacyOfflineModalPickDirectMix (legacyAdditivePickMix);
     engine.setLegacyOfflinePickTextureDensity (legacyPickTextureDensity);
     engine.setLegacyOfflineRegisterEnvelopeAnchor (legacyRegisterAnchor);
-
-    if (legacyRegisterDecayAnchor >= 0.0f)
-        engine.setLegacyOfflineRegisterDecayAnchor (legacyRegisterDecayAnchor);
-
+    engine.setLegacyOfflineRegisterDecayAnchor (legacyRegisterDecayAnchor);
     engine.setLegacyOfflineRegisterMetalRestoration (legacyRegisterMetalRestoration);
 #endif
     engine.setInputTransposeSemitones (inputTransposeSemitones);

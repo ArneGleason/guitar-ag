@@ -6,12 +6,14 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
+- Plan 0098 compiled the accepted recipe into `StringVoice EG-089 ModalFormantTone`. Review for exact transfer and real-time safety; do not retune the accepted constants during code review.
+- The no-flags renderer and `--legacy-tone-recipe previous` exactly match all six accepted/former Plan 0097 section files. The remaining gate is installed-plugin identity and DAW listening.
 - Plan 0095 listening accepted the combined harmonic-number-decay plus 6x side-mode candidate as "pretty good." Do not over-attribute the result: decay-only and side-mode-only received no written verdict.
 - Plan 0096 listening selected 2x side-mode restoration as good. Use 2x, not the deliberately exaggerated 6x probe, in the consolidated offline recipe.
 - Plan 0097 passed human listening across ordinary, deep-pick, and compact-phrase contexts. Review the production implementation for exact recipe transfer rather than retuning it during promotion.
 - Preserve an explicit offline previous-tone recipe and verify it reproduces the Plan 0097 current reference, while the new default reproduces the accepted candidate.
 - Plan 0094 listening selected 35% amplitude anchoring as much better than current, but it progressively flattened upper notes and lost metal ring/brightness. Keep that amplitude envelope fixed during Plan 0095 review.
-- Treat Plan 0094's register gain as audition normalization only. The positive timbre verdict still requires a principled string/gauge energy model before production promotion.
+- Plan 0094's register compensation is now part of EG-089 because it was present in every accepted render. Review output level across DAW velocity/register extremes, but preserve it unless a concrete host regression is captured.
 - Plan 0093 listening calibrated 12% dense direct texture as medium and 22% as maximum. Preserve these bounds; use 12% as the fixed attack baseline for register/formant review.
 - Plan 0092 listening selected the 1.75x modal-force direction as a useful foundation. Review the next hybrid for whether low-level denser direct texture adds material detail without restoring the sparse woody digital rattle.
 - Keep register/formant correction separate: inspect which harmonic-index envelopes should instead use absolute modal frequency so high notes retain instrument scale without becoming merely darker.

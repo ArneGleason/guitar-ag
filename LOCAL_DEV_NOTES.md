@@ -199,6 +199,13 @@ build/GuitarAGOfflineRender_artefacts/Release/GuitarAGOfflineRender \
 
 The offline renderer uses the same `AudioEngine` as the plugin. It is useful for DSP regression checks, but it does not verify DAW scanning, UI behavior, or host/plugin lifecycle.
 
+The default legacy-engine render uses the production EG-089 tone. To reproduce
+the former EG-088 tone without changing the VST3, add:
+
+```sh
+--legacy-tone-recipe previous
+```
+
 ## Validate
 
 For a docs-only or workflow-only change:

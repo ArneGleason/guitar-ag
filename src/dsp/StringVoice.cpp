@@ -147,17 +147,15 @@ void StringVoice::reset()
     pitchControlSamplesUntilUpdate = 0;
     feedbackControlSamplesUntilUpdate = 0;
     previousSlideFret = 0;
-#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
-    offlineModalPickCoupling.fill (0.0f);
-    offlineModalPickSamplesRemaining = 0;
-    offlineModalPickTotalSamples = 0;
-    offlineModalPickImpulse = 0.0f;
-    offlineModalPickTexture = 0.0f;
-    offlineModalPickNoiseState = 0.0f;
-    offlineModalPickRandomState = 0x9e3779b9u;
-    offlineModalPickReplacesDirectLayers = false;
-    offlineRegisterLevelCompensation = 1.0f;
-#endif
+    modalPickCoupling.fill (0.0f);
+    modalPickSamplesRemaining = 0;
+    modalPickTotalSamples = 0;
+    modalPickImpulse = 0.0f;
+    modalPickTexture = 0.0f;
+    modalPickNoiseState = 0.0f;
+    modalPickRandomState = 0x9e3779b9u;
+    modalPickReplacesDirectLayers = false;
+    registerLevelCompensation = 1.0f;
     active = false;
     releasing = false;
     woundString = false;
@@ -355,20 +353,18 @@ void StringVoice::start (int midiNoteNumber,
     pickHeavyBodyState = 0.0f;
     pickHeavyChoke = 0.0f;
     pickContactSamplesRemaining = 0;
-#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
-    offlineModalPickCoupling.fill (0.0f);
-    offlineModalPickSamplesRemaining = 0;
-    offlineModalPickTotalSamples = 0;
-    offlineModalPickImpulse = 0.0f;
-    offlineModalPickTexture = 0.0f;
-    offlineModalPickNoiseState = 0.0f;
-    offlineModalPickRandomState = randomState ^ 0x9e3779b9u;
-    offlineModalPickReplacesDirectLayers = false;
-    offlineRegisterLevelCompensation = 1.0f;
+    modalPickCoupling.fill (0.0f);
+    modalPickSamplesRemaining = 0;
+    modalPickTotalSamples = 0;
+    modalPickImpulse = 0.0f;
+    modalPickTexture = 0.0f;
+    modalPickNoiseState = 0.0f;
+    modalPickRandomState = randomState ^ 0x9e3779b9u;
+    modalPickReplacesDirectLayers = false;
+    registerLevelCompensation = 1.0f;
 
-    if (offlineModalPickRandomState == 0u)
-        offlineModalPickRandomState = 0x9e3779b9u;
-#endif
+    if (modalPickRandomState == 0u)
+        modalPickRandomState = 0x9e3779b9u;
     fingerImpact = 0.0f;
     fingerImpactDecay = 0.0f;
     fingerImpactPhase = 0.0f;
@@ -453,15 +449,13 @@ void StringVoice::start (int midiNoteNumber,
                                          8000.0,
                                          juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber)
                                              * static_cast<double> (intonationRatio * fretPressureRatio));
-#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
-    if (offlineRegisterEnvelopeAnchor > 0.000001f)
+    if (registerEnvelopeAnchor > 0.000001f)
     {
         constexpr auto lowEReferenceHz = 82.40689f;
         const auto registerRatio = juce::jmax (1.0f, static_cast<float> (frequency) / lowEReferenceHz);
-        offlineRegisterLevelCompensation = std::pow (registerRatio,
-                                                     1.08f * offlineRegisterEnvelopeAnchor);
+        registerLevelCompensation = std::pow (registerRatio,
+                                              1.08f * registerEnvelopeAnchor);
     }
-#endif
     slideFretContactPhase = nextNoiseSample() * twoPi;
     slideFretContactPhaseStep = twoPi
                               * juce::jlimit (700.0f,
@@ -706,12 +700,11 @@ void StringVoice::start (int midiNoteNumber,
         if (stiffFrequency >= sampleRate * 0.43)
             break;
 
-#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
         auto envelopeIndex = harmonicFloat;
         auto relativeEnvelopeIndex = harmonicFloat;
         auto decayEnvelopeIndex = harmonicFloat;
 
-        if (offlineRegisterEnvelopeAnchor > 0.000001f)
+        if (registerEnvelopeAnchor > 0.000001f)
         {
             constexpr auto lowEReferenceHz = 82.40689f;
             const auto fundamentalFrequencyIndex = juce::jmax (1.0f,
@@ -720,7 +713,7 @@ void StringVoice::start (int midiNoteNumber,
             const auto absoluteFrequencyIndex = juce::jmax (1.0f,
                                                             static_cast<float> (frequency) * harmonicFloat
                                                                 / lowEReferenceHz);
-            const auto anchorAmount = juce::jlimit (0.0f, 1.0f, offlineRegisterEnvelopeAnchor);
+            const auto anchorAmount = juce::jlimit (0.0f, 1.0f, registerEnvelopeAnchor);
             const auto fundamentalEnvelopeIndex = std::exp (anchorAmount * std::log (fundamentalFrequencyIndex));
             envelopeIndex = std::exp (std::log (harmonicFloat)
                                     + anchorAmount
@@ -730,9 +723,9 @@ void StringVoice::start (int midiNoteNumber,
 
         decayEnvelopeIndex = envelopeIndex;
 
-        if (std::abs (offlineRegisterDecayAnchor - offlineRegisterEnvelopeAnchor) > 0.000001f)
+        if (std::abs (registerDecayAnchor - registerEnvelopeAnchor) > 0.000001f)
         {
-            const auto decayAnchorAmount = juce::jlimit (0.0f, 1.0f, offlineRegisterDecayAnchor);
+            const auto decayAnchorAmount = juce::jlimit (0.0f, 1.0f, registerDecayAnchor);
 
             if (decayAnchorAmount <= 0.000001f)
             {
@@ -749,12 +742,6 @@ void StringVoice::start (int midiNoteNumber,
                                                  * (std::log (absoluteFrequencyIndex) - std::log (harmonicFloat)));
             }
         }
-#else
-        const auto envelopeIndex = harmonicFloat;
-        const auto relativeEnvelopeIndex = harmonicFloat;
-        const auto decayEnvelopeIndex = harmonicFloat;
-#endif
-
         const auto pluckShape = std::sin (twoPi * 0.5f * harmonicFloat * pluckPosition);
         const auto pickupShape = std::sin (twoPi * 0.5f * harmonicFloat * pickupPosition);
         const auto humbuckerCoilA = std::sin (twoPi * 0.5f * harmonicFloat
@@ -807,11 +794,10 @@ void StringVoice::start (int midiNoteNumber,
             const auto woundSideRegime = juce::jmap (strikeAmount, 0.45f, 2.20f) + hardStrike * 0.95f;
             const auto sideRegime = plainSideRegime + (woundSideRegime - plainSideRegime) * woundAmount;
             const auto sideAmount = 0.045f + ((0.12f + 0.014f * harmonicFloat) - 0.045f) * woundAmount;
-#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
             const auto sideTouchScale = 0.45f + 0.55f * touchMask;
             auto sideModeAmplitude = amplitude * sideRegime * sideAmount * sideTouchScale * agePartialDamping;
 
-            if (offlineRegisterMetalRestoration > 0.000001f)
+            if (registerMetalRestoration > 0.000001f)
             {
                 const auto unanchoredPickupElectricalTilt = pickupModelIndex == 1
                                                           ? std::exp (-0.010f * harmonicFloat)
@@ -830,13 +816,9 @@ void StringVoice::start (int midiNoteNumber,
                 const auto fixedHzGate = fixedHzGatePosition * fixedHzGatePosition
                                        * (3.0f - 2.0f * fixedHzGatePosition);
                 const auto plainStringWeight = 1.0f - 0.72f * woundAmount;
-                const auto restoration = offlineRegisterMetalRestoration * fixedHzGate * plainStringWeight;
+                const auto restoration = registerMetalRestoration * fixedHzGate * plainStringWeight;
                 sideModeAmplitude += (unanchoredSideModeAmplitude - sideModeAmplitude) * restoration;
             }
-#else
-            const auto sideModeAmplitude = amplitude * sideRegime * sideAmount
-                                         * (0.45f + 0.55f * touchMask) * agePartialDamping;
-#endif
             configureMode (modeIndex++,
                            sideFrequency,
                            sideModeAmplitude,
@@ -896,8 +878,7 @@ void StringVoice::start (int midiNoteNumber,
         }
     }
 
-#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
-    if (offlineModalPickExcitationEnabled && isPickedGesture && ! harmonicActive)
+    if (modalPickExcitationEnabled && isPickedGesture && ! harmonicActive)
     {
         auto maximumModeAmplitude = 0.0f;
 
@@ -915,29 +896,29 @@ void StringVoice::start (int midiNoteNumber,
                 const auto frequencyRatio = modalFrequency[modeIndexValue] / static_cast<float> (frequency);
                 const auto upperModeWeight = juce::jlimit (0.0f, 1.0f, (frequencyRatio - 1.0f) / 20.0f);
                 const auto materialTilt = 0.68f + upperModeWeight * (0.34f + 0.42f * textureAmount);
-                offlineModalPickCoupling[modeIndexValue] = (signedAmplitude < 0.0f ? -1.0f : 1.0f)
-                                                        * std::pow (relativeAmplitude, 0.72f)
-                                                        * materialTilt;
+                modalPickCoupling[modeIndexValue] = (signedAmplitude < 0.0f ? -1.0f : 1.0f)
+                                                  * std::pow (relativeAmplitude, 0.72f)
+                                                  * materialTilt;
             }
 
             const auto contactSeconds = juce::jmap (stiffnessAmount, 0.0060f, 0.0010f)
                                       * (0.85f + 0.35f * pickBiteAmount);
-            offlineModalPickTotalSamples = juce::jmax (2, static_cast<int> (sampleRate * contactSeconds));
-            offlineModalPickSamplesRemaining = offlineModalPickTotalSamples;
-            offlineModalPickImpulse = strokeSign
-                                    * velocityGain
-                                    * attackVariationContact
-                                    * strokeContactScale
-                                    * (0.120f + 0.400f * pickBiteAmount)
-                                    * (0.72f + 0.48f * textureAmount)
-                                    * offlineModalPickForceScale;
-            offlineModalPickTexture = textureAmount;
-            offlineModalPickReplacesDirectLayers = true;
+            modalPickTotalSamples = juce::jmax (2, static_cast<int> (sampleRate * contactSeconds));
+            modalPickSamplesRemaining = modalPickTotalSamples;
+            modalPickImpulse = strokeSign
+                             * velocityGain
+                             * attackVariationContact
+                             * strokeContactScale
+                             * (0.120f + 0.400f * pickBiteAmount)
+                             * (0.72f + 0.48f * textureAmount)
+                             * modalPickForceScale;
+            modalPickTexture = textureAmount;
+            modalPickReplacesDirectLayers = true;
 
-            // The modal force carries the attack. An optional offline mix keeps
-            // only a subordinate amount of the old picked texture; later slide
+            // The modal force carries the attack. A subordinate direct mix keeps
+            // a small amount of the old picked texture; later slide
             // and fret contact are independent and remain at their normal level.
-            const auto directMix = juce::jlimit (0.0f, 1.0f, offlineModalPickDirectMix);
+            const auto directMix = juce::jlimit (0.0f, 1.0f, modalPickDirectMix);
             pickTransient *= directMix;
             pickContact *= directMix;
             pickContactRing *= directMix;
@@ -950,8 +931,6 @@ void StringVoice::start (int midiNoteNumber,
                 pickContactSamplesRemaining = 0;
         }
     }
-#endif
-
     updateDamping();
 }
 
@@ -1009,38 +988,38 @@ void StringVoice::setOfflineLayerState (bool attackModesEnabled,
 
 void StringVoice::setOfflineModalPickExcitationEnabled (bool shouldUseModalPickExcitation) noexcept
 {
-    offlineModalPickExcitationEnabled = shouldUseModalPickExcitation;
+    modalPickExcitationEnabled = shouldUseModalPickExcitation;
 }
 
 void StringVoice::setOfflineModalPickForceScale (float forceScale) noexcept
 {
-    offlineModalPickForceScale = juce::jlimit (0.0f, 3.0f, forceScale);
+    modalPickForceScale = juce::jlimit (0.0f, 3.0f, forceScale);
 }
 
 void StringVoice::setOfflineModalPickDirectMix (float directMix) noexcept
 {
-    offlineModalPickDirectMix = juce::jlimit (0.0f, 1.0f, directMix);
+    modalPickDirectMix = juce::jlimit (0.0f, 1.0f, directMix);
 }
 
 void StringVoice::setOfflinePickTextureDensity (float textureDensity) noexcept
 {
-    offlinePickTextureDensity = juce::jlimit (1.0f, 6.0f, textureDensity);
+    pickTextureDensity = juce::jlimit (1.0f, 6.0f, textureDensity);
 }
 
 void StringVoice::setOfflineRegisterEnvelopeAnchor (float anchorAmount) noexcept
 {
-    offlineRegisterEnvelopeAnchor = juce::jlimit (0.0f, 1.0f, anchorAmount);
-    offlineRegisterDecayAnchor = offlineRegisterEnvelopeAnchor;
+    registerEnvelopeAnchor = juce::jlimit (0.0f, 1.0f, anchorAmount);
+    registerDecayAnchor = registerEnvelopeAnchor;
 }
 
 void StringVoice::setOfflineRegisterDecayAnchor (float anchorAmount) noexcept
 {
-    offlineRegisterDecayAnchor = juce::jlimit (0.0f, 1.0f, anchorAmount);
+    registerDecayAnchor = juce::jlimit (0.0f, 1.0f, anchorAmount);
 }
 
 void StringVoice::setOfflineRegisterMetalRestoration (float restorationFactor) noexcept
 {
-    offlineRegisterMetalRestoration = juce::jlimit (0.0f, 8.0f, restorationFactor);
+    registerMetalRestoration = juce::jlimit (0.0f, 8.0f, restorationFactor);
 }
 #endif
 
@@ -1192,9 +1171,7 @@ float StringVoice::renderSample (float tailSustain,
     };
 
     const auto effectiveSlideLift = juce::jlimit (0.0f, 1.0f, slideLiftEnvelope);
-#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
-    applyOfflineModalPickExcitation();
-#endif
+    applyModalPickExcitation();
     auto modalOutput = renderModalBank (tailBlend, palmDecay, expressionPressure, expressionTimbre, effectiveSlideLift, feedback);
 #if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
     if (offlinePickTransientEnabled)
@@ -1216,11 +1193,7 @@ float StringVoice::renderSample (float tailSustain,
     modalOutput += contactOutput;
 
     ++samplesSinceStart;
-#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
-    const auto voiceOutput = modalOutput * offlineRegisterLevelCompensation;
-#else
-    const auto voiceOutput = modalOutput;
-#endif
+    const auto voiceOutput = modalOutput * registerLevelCompensation;
     energy = 0.9994f * energy + 0.0006f * std::abs (voiceOutput);
 
     const auto feedbackHold = 1.0f - 0.78f * feedbackRise * cachedFeedbackHowl - 0.58f * loopAmount;
@@ -1333,38 +1306,37 @@ float StringVoice::renderModalBank (float tailBlend,
     return modalOutput;
 }
 
-#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
-void StringVoice::applyOfflineModalPickExcitation() noexcept
+void StringVoice::applyModalPickExcitation() noexcept
 {
-    if (! offlineModalPickReplacesDirectLayers
-        || offlineModalPickSamplesRemaining <= 0
-        || offlineModalPickTotalSamples <= 1)
+    if (! modalPickReplacesDirectLayers
+        || modalPickSamplesRemaining <= 0
+        || modalPickTotalSamples <= 1)
         return;
 
     constexpr auto pi = 3.14159265358979323846f;
-    const auto elapsedSamples = offlineModalPickTotalSamples - offlineModalPickSamplesRemaining;
+    const auto elapsedSamples = modalPickTotalSamples - modalPickSamplesRemaining;
     const auto progress = static_cast<float> (elapsedSamples)
-                        / static_cast<float> (offlineModalPickTotalSamples - 1);
+                        / static_cast<float> (modalPickTotalSamples - 1);
     const auto smoothContactForce = std::sin (pi * juce::jlimit (0.0f, 1.0f, progress));
 
-    offlineModalPickRandomState = offlineModalPickRandomState * 1664525u + 1013904223u;
-    const auto rawNoise = static_cast<float> ((offlineModalPickRandomState >> 8) & 0x00ffffffu)
+    modalPickRandomState = modalPickRandomState * 1664525u + 1013904223u;
+    const auto rawNoise = static_cast<float> ((modalPickRandomState >> 8) & 0x00ffffffu)
                         * (2.0f / 16777215.0f) - 1.0f;
-    const auto previousNoiseState = offlineModalPickNoiseState;
-    offlineModalPickNoiseState += 0.14f * (rawNoise - offlineModalPickNoiseState);
-    const auto forceRoughness = offlineModalPickNoiseState
+    const auto previousNoiseState = modalPickNoiseState;
+    modalPickNoiseState += 0.14f * (rawNoise - modalPickNoiseState);
+    const auto forceRoughness = modalPickNoiseState
                               + 0.42f * (rawNoise - previousNoiseState);
     const auto textureModulation = juce::jlimit (0.45f,
                                                  1.55f,
-                                                 1.0f + 0.24f * offlineModalPickTexture * forceRoughness);
-    const auto normalizedImpulse = offlineModalPickImpulse
-                                 * (0.5f * pi / static_cast<float> (offlineModalPickTotalSamples));
+                                                 1.0f + 0.24f * modalPickTexture * forceRoughness);
+    const auto normalizedImpulse = modalPickImpulse
+                                 * (0.5f * pi / static_cast<float> (modalPickTotalSamples));
     const auto force = normalizedImpulse * smoothContactForce * textureModulation;
 
     for (auto mode = 0; mode < activeModalCount; ++mode)
     {
         const auto modeIndex = static_cast<size_t> (mode);
-        const auto coupling = offlineModalPickCoupling[modeIndex];
+        const auto coupling = modalPickCoupling[modeIndex];
 
         if (std::abs (coupling) <= 0.000001f)
             continue;
@@ -1383,9 +1355,8 @@ void StringVoice::applyOfflineModalPickExcitation() noexcept
         }
     }
 
-    --offlineModalPickSamplesRemaining;
+    --modalPickSamplesRemaining;
 }
-#endif
 
 float StringVoice::renderPickTransient() noexcept
 {
@@ -1408,13 +1379,9 @@ float StringVoice::renderContactLayer (float slideSqueakUp, float slideSqueakDow
 
     if (pickContactSamplesRemaining > 0)
     {
-#if defined (GUITAR_AG_ENABLE_OFFLINE_ABLATION)
-        const auto textureDensity = offlineModalPickReplacesDirectLayers
-                                  ? juce::jlimit (1.0f, 6.0f, offlinePickTextureDensity)
+        const auto textureDensity = modalPickReplacesDirectLayers
+                                  ? juce::jlimit (1.0f, 6.0f, pickTextureDensity)
                                   : 1.0f;
-#else
-        constexpr auto textureDensity = 1.0f;
-#endif
         const auto textureImpulseScale = 1.0f / std::sqrt (textureDensity);
         const auto rawContact = nextNoiseSample();
         const auto contactScratch = rawContact - previousContactNoise * pickContactScratchHighpass;

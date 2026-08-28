@@ -841,3 +841,11 @@ and polyphony. That is sufficient to justify production implementation, while
 still keeping the implementation and installed-plugin checks as a separate
 milestone. Preserve the previous tone offline so later regressions can separate
 changed code from changed listening preference.
+
+Promoting an audition chain should be an identity-preserving transfer, not one
+more tuning pass. EG-089 compiled the accepted mechanisms and constants into the
+normal voice, then proved the no-flags renderer against each accepted Plan 0097
+section byte for byte. A named `previous` recipe simultaneously reproduced every
+old reference. That paired proof is stronger than a fresh subjective A/B because
+it establishes both that the approved sound was not altered during promotion and
+that future investigations still have an exact before state.
