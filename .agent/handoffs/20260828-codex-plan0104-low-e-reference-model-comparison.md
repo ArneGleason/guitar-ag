@@ -17,25 +17,27 @@ and production EG-089.
 - The human confirmed neck humbucker for every take, picking halfway between
   bridge and neck, and fretting-hand damping for every damped exercise.
 
-Implementation/report commit: `3b945b5`.
+Initial implementation/report commit: `3b945b5`. The pickup-matched correction
+after human metadata is authoritative over the initial default-pickup numbers.
 
 ## Main Diagnosis
 
-- Reference ringing attack centroid: 220-262 Hz; EG-089: 1,593-1,625 Hz.
-- Reference attack energy below 500 Hz: 90.8-95.0%; EG-089: 3.7-4.7%.
-- Reference attack energy above 1.5 kHz: 0.4-0.7%; EG-089: 45.0-62.3%.
-- Reference long decay: roughly -1.0 to -2.1 dB/s; EG-089: -4.3 to
-  -4.8 dB/s at maximum Sustain.
+- Reference ringing attack centroid: 220-262 Hz. Pickup-matched EG-089:
+  486-537 Hz; the earlier default-pickup 1,593-1,625 Hz is not the valid target.
+- Reference energy below 500 Hz: 90.8-95.0%; matched EG-089: 64.0-78.3%.
+- Reference energy above 1.5 kHz: 0.4-0.7%; matched EG-089: 3.5-9.0%.
+- Reference long decay: roughly -1.0 to -2.1 dB/s; matched EG-089:
+  approximately -2.7 dB/s at maximum Sustain.
 - Disabling direct pick mix, attack modes, pick transient, or contact layer
   leaves residuals 51-77 dB below production and does not move aggregate attack
-  metrics. The mismatch is the modal core, not an additive pick-click layer.
-- Maximum String Age remains much too bright (1,197 Hz centroid, 19.8% above
-  1.5 kHz).
+  metrics. The residual is not an additive pick-click layer, but it must not be
+  attributed to the universal modal core before pluck geometry is matched.
+- Matched maximum String Age reaches 316 Hz / 1.1% above 1.5 kHz, but couples
+  that useful darkening to faster decay and insufficient sub-500 Hz energy.
 - Reference fretting-hand damping preserves onset peak and reduces the early
   body by about 24-28 dB. Current palm mute cannot match both simultaneously.
-- Human attack spread is contextual at 2.9-6.0 dB p10-p90 versus 0.3-1.9 dB in
-  matching production groups. Maximum Player Feel reaches 2.47 dB for
-  independent downstrokes but not the wider up/alternate range.
+- Human attack spread is contextual at 2.9-6.0 dB p10-p90 versus 0.2-1.3 dB in
+  pickup-matched production groups.
 - Production repeated note-ons restart the legacy modal voice; they cannot
   preserve the moving-string state present in the alternate captures.
 
@@ -54,14 +56,15 @@ Implementation/report commit: `3b945b5`.
 
 ## Next Gate
 
-Preserve EG-089 as control and build an offline 2x2 fixture:
+Preserve EG-089 as control, use Humbucker/neck pickup, and add an offline fixed
+pluck-position bracket:
 
-1. current production;
-2. empirical low-E modal-envelope correction only;
-3. slower low-E modal decay only;
-4. envelope plus decay.
+1. current derived position near 0.10 speaking length;
+2. 0.14;
+3. 0.18;
+4. 0.22.
 
-Target the observed low-E spectral and -1 to -2 dB/s decay regions, but require
-loudness-matched human listening before production promotion. Only afterward
-add a separate onset-preserving fretting-hand damping intervention. Preserved-
-state repicking and contextual human scatter follow those foundation checks.
+After geometry selection, bracket slower decay toward the observed -1 to
+-2 dB/s region and require loudness-matched human listening. Only afterward add
+a separate onset-preserving fretting-hand damping intervention. Preserved-state
+repicking and contextual human scatter follow those foundation checks.

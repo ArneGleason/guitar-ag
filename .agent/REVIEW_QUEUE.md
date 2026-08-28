@@ -9,14 +9,14 @@ Suggested focus:
 - Review Plan 0104's onset selection and aggregate measurements against the
   plotted envelopes, especially the observed six-event deviations from the
   written ringing/damped-alternate counts. Preserve all accepted source WAVs.
-- Challenge the attribution that EG-089's excess high-frequency energy is in
-  the modal core: direct-pick/contact ablations are 51-77 dB below control,
-  String Age cannot approach the reference, and both attack and early-body
-  centroids remain far above the real low E.
-- Keep the recommended next gate offline and two-dimensional: current,
-  empirical modal envelope, slower modal decay, and both. Do not combine
-  damping, repick state, or wider human scatter until that 2x2 is measured and
-  listened to.
+- Preserve the pickup-matched correction: Humbucker/neck moves EG-089 from an
+  invalid 1.6 kHz default-pickup centroid to about 0.5 kHz and brings decay to
+  about -2.7 dB/s. Do not cite the earlier default-pickup gap as a universal
+  modal-core failure.
+- Keep the next gate offline: bracket fixed pluck positions near 0.10-0.22
+  speaking length at the matched pickup, then bracket slower decay. Do not
+  combine damping, repick state, or wider human scatter before geometry is
+  measured and listened to.
 - Treat absolute spectral targets as specific to the still-unidentified guitar
   and pick used for Plan 0103. Neck humbucker, midpoint picking location, and
   fretting-hand damping are confirmed; within-set contrasts remain stronger

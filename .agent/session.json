@@ -29,13 +29,13 @@
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
   "lastTask": "Plan 0104 low-E reference/model comparison",
-  "status": "Validated and onset-aligned 84 human low-E strokes, rendered matching EG-089 controls and ablations, and attributed the main mismatch to an overly bright, fast-decaying modal core rather than additive pick layers. The next gate is an offline 2x2 modal-envelope/decay experiment.",
-  "updatedAt": "2026-08-28T14:16:35-04:00",
+  "status": "Validated and onset-aligned 84 human low-E strokes. After the human identified neck humbucker and midpoint picking, pickup-matched EG-089 removed most of the initial discrepancy; the remaining gap should be tested with an offline fixed-pluck-position bracket before modal retuning.",
+  "updatedAt": "2026-08-28T14:28:00-04:00",
   "lastHandoff": ".agent/handoffs/20260828-codex-plan0104-low-e-reference-model-comparison.md",
   "branch": "codex/0103-low-e-capture-exercise",
-  "commit": "3b945b5",
+  "commit": "21e4c97",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0104 shows that EG-089's real low-E gap is modal: about 1.6 kHz attack centroid versus 220-262 Hz in the captured DI, 45-62% versus under 1% above 1.5 kHz, and decay two to four times too fast. Direct pick-layer ablations are negligible. Build an offline current/envelope/decay/both fixture next, then require human listening."
+    "summary": "Plan 0104's authoritative pickup-matched result is narrower than the initial default-pickup comparison: EG-089 Humbucker/neck reaches 486-537 Hz attack centroid versus 220-262 Hz reference, 3.5-9.0% versus under 1% above 1.5 kHz, and about -2.7 dB/s decay versus -1 to -2.1. Direct pick layers remain negligible. Bracket fixed pluck positions near 0.10-0.22 before modal or pickup retuning."
   }
 }

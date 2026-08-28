@@ -190,3 +190,9 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Added reproducible MIDI/analysis tooling and documented the next offline gate:
   a 2x2 low-E modal-envelope/decay experiment before damping, preserved-state
   repicking, or wider human scatter.
+- Human follow-up identified neck humbucker, midpoint picking, and fretting-hand
+  damping. Re-rendering with virtual Humbucker/neck corrected most of the
+  initial default-pickup discrepancy: attack centroid fell from about 1.6 kHz
+  to 0.5 kHz, high-band energy from 45-62% to 3.5-9.0%, and decay to about
+  -2.7 dB/s. The next gate is fixed pluck-position geometry, not a universal
+  modal-envelope rewrite.
