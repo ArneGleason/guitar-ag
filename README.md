@@ -244,6 +244,18 @@ default legacy-engine tone is the same EG-089 recipe used by the VST3;
 regressions. It does not replace testing the VST3 in a real host such as Bitwig,
 Reaper, Ableton Live, or another DAW.
 
+## Reference Capture Tool
+
+The repo also builds `GuitarAGReferenceCapture`, a separate JUCE desktop app for
+recording clean DI research references through an audio interface. An agent can
+prepare a focused JSON brief, the human can record and audition multiple takes,
+and approved/rejected decisions are preserved in a session manifest beside
+external mono 24-bit WAVs. The recordings guide synthesized model parameters;
+they are not playback assets for the plugin.
+
+See `docs/reference-capture-tool.md` for the Focusrite setup, request generator,
+approval loop, and muted-versus-ringing comparison method.
+
 ## Development Process
 
 We started with a rough idea: a lightweight physical-model electric guitar VST that could act as a clean DI instrument without samples, then built it in small auditionable steps. First we made the JUCE/CMake VST3 shell and a simple plucked string, then repeatedly listened, measured, and adjusted the model through pickup behavior, sustain, wound/plain string character, pick stiffness and texture, palm muting, harmonics, string age, intonation, fret pressure, finger noise, vibrato, whammy behavior, aftertouch bend, MPE per-note pitch bend, and MPE pressure/CC74 expression.
@@ -272,7 +284,7 @@ As of the `EG-081 ArticGroups` release-candidate milestone:
 
 - `src/dsp/` — audio engine, string voice, pickup/tone stage, fretboard mapper.
 - `src/plugin/` — JUCE processor and editor.
-- `tools/` — offline render tool.
+- `tools/` — offline render and reference-capture companion apps.
 - `scripts/` — analysis, MIDI generation, reference-data, and install helpers.
 - `docs/requirements.md` — product requirements.
 - `docs/architecture.md` — component boundaries.

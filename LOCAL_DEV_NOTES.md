@@ -48,7 +48,19 @@ Expected artifacts:
 ```text
 build-vs2022-x64\GuitarAG_artefacts\Release\VST3\Guitar AG.vst3
 build-vs2022-x64\GuitarAGOfflineRender_artefacts\Release\GuitarAGOfflineRender.exe
+build-vs2022-x64\GuitarAGReferenceCapture_artefacts\Release\Guitar AG Reference Capture.exe
 ```
+
+Build the interactive clean-DI reference recorder separately:
+
+```powershell
+cmake --build build-vs2022-x64 --config Release --target GuitarAGReferenceCapture
+```
+
+Its request/session workflow is documented in
+`docs/reference-capture-tool.md`. Requests and audio sessions default to
+`Documents\Guitar AG Reference Captures`, outside Git. Enable only the intended
+Focusrite input because the MVP records the first enabled input channel.
 
 The previous checkout at `C:\code\guitar-ag` was clean and at the same GitHub commit when the canonical clone was created. Windows would not move it while the original Codex workspace held the directory open. Remove that duplicate only from a later task after the original workspace is closed and the exact path is re-verified.
 

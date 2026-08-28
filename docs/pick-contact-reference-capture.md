@@ -57,3 +57,10 @@ The implementation target is a deterministic stochastic force/contact model
 whose distributions match these measurements. No captured waveform needs to be
 shipped or replayed by the instrument.
 
+## Interactive Capture Tool
+
+Use the JUCE companion app and structured request/session workflow documented in
+`docs/reference-capture-tool.md`. The app records external 24-bit mono WAVs,
+preserves multiple takes, and records the human's approved/rejected decisions in
+`session.json` so later analysis does not have to infer which performance was
+accepted.

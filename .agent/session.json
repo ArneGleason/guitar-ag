@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0098 promote accepted tone",
-  "status": "Implemented StringVoice EG-089 ModalFormantTone and preserved an exact offline EG-088 previous-tone recipe. Windows Release builds and byte-level transfer checks pass; installed-plugin DAW verification remains.",
-  "updatedAt": "2026-08-27T22:00:11-04:00",
-  "lastHandoff": ".agent/handoffs/20260827-codex-plan0098-promoted-tone.md",
-  "branch": "codex/0098-promote-accepted-tone",
-  "commit": "061be6c",
+  "lastTask": "Plan 0099 interactive reference capture lab",
+  "status": "Implemented the standalone Focusrite capture companion, request generator, session validator, and resumable take approval contract. Windows builds and automated/runtime smoke checks pass; real guitar recording and playback remain.",
+  "updatedAt": "2026-08-28T08:21:54-04:00",
+  "lastHandoff": ".agent/handoffs/20260828-codex-plan0099-reference-capture.md",
+  "branch": "codex/0099-reference-capture-lab",
+  "commit": "pending",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "EG-089 now uses the exact human-approved modal-pick/formant recipe in the VST3 and default renderer. The previous EG-088 tone remains exactly reproducible with --legacy-tone-recipe previous. Install the built VST3 and verify its identity and tone in the DAW before starting another DSP milestone."
+    "summary": "Guitar AG now has a separate JUCE reference-capture app that turns focused agent requests into external 24-bit mono DI takes with durable human approvals. The first real Focusrite capture should verify input selection, 48/96 kHz recording, playback, and session resumption before analysis begins."
   }
 }

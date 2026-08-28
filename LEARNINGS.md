@@ -849,3 +849,21 @@ section byte for byte. A named `previous` recipe simultaneously reproduced every
 old reference. That paired proof is stronger than a fresh subjective A/B because
 it establishes both that the approved sound was not altered during promotion and
 that future investigations still have an exact before state.
+
+## 2026-08-28 — Capture approval is part of the reference data
+
+A folder of unlabeled takes is not yet a useful modeling reference. The human's
+choice of which repetitions are representative, which are flawed, and what was
+heard must travel with the WAVs. A resumable manifest makes that judgment
+machine-readable without deleting rejected evidence or relying on chat history.
+
+The first-enabled-input rule is a useful small MVP boundary for interface
+capture, provided the UI and documentation explicitly tell the human to enable
+only the intended Focusrite channel. The file records the device sample rate
+without resampling and keeps each take mono/24-bit, making later alignment and
+analysis predictable.
+
+Muted and ringing pick takes are complementary interventions, not two terms in
+a perfect linear null. Different damping changes string boundaries and player
+interaction. Use paired repetitions to estimate distributions and transfer
+traits; treat subtraction only as a diagnostic listening residual.

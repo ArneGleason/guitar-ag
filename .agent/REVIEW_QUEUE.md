@@ -6,6 +6,15 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
+- Plan 0099 adds a standalone JUCE reference-capture app. Review the audio
+  callback/writer lifetime, device restart behavior, take resumption, and
+  manifest durability; keep all recording and file I/O outside the VST3.
+- The MVP intentionally records the first enabled input. Confirm the UI and
+  documentation make the one-enabled-Focusrite-channel requirement difficult
+  to miss, and verify mono 24-bit output on a real capture.
+- Treat ringing/hand-damped/foam-damped recordings as complementary
+  interventions. Do not approve any analysis that labels raw subtraction as a
+  perfectly isolated pick waveform or turns the captures into sample playback.
 - Plan 0098 compiled the accepted recipe into `StringVoice EG-089 ModalFormantTone`. Review for exact transfer and real-time safety; do not retune the accepted constants during code review.
 - The no-flags renderer and `--legacy-tone-recipe previous` exactly match all six accepted/former Plan 0097 section files. The remaining gate is installed-plugin identity and DAW listening.
 - Plan 0095 listening accepted the combined harmonic-number-decay plus 6x side-mode candidate as "pretty good." Do not over-attribute the result: decay-only and side-mode-only received no written verdict.

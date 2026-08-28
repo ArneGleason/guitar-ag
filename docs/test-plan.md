@@ -337,6 +337,28 @@ This document defines the basic manual and technical checks needed as the projec
       `32AF0A4AE9A04B3E77F74161E963D4AE3E8431433012D642EA13A96C2C5C47D7`.
 - [ ] Install the Release VST3 and confirm the editor reads
       `v0.3.1 / StringVoice EG-089 ModalFormantTone`.
+
+## Plan 0099 Reference-Capture Checks
+
+- [x] Windows Release `GuitarAGReferenceCapture` target compiles and launches.
+- [x] A generated schema-version 1 request loads and creates a valid external
+      `session.json` with the active Focusrite device metadata.
+- [x] Request-generator output parses and preserves the requested take count and
+      structured pick-contact context.
+- [x] Reopening code restores existing WAV-backed take decisions from the
+      manifest rather than replacing them with a blank session.
+- [ ] Select the Focusrite instrument input, set 48 or 96 kHz, and confirm the
+      meter follows only the intended guitar channel.
+- [ ] Record two short takes and confirm each file is mono 24-bit PCM at the
+      selected device sample rate with no writer-overflow warning.
+- [ ] Play both takes through the selected output and confirm there is no live
+      software-monitor feedback path.
+- [ ] Approve one take, reject the other, add notes, restart the app with the
+      same request, and confirm all states return.
+- [ ] Run `summarize-reference-capture-session.py` and confirm it validates the
+      WAV headers and prints only the approved file with `--approved-paths`.
+- [ ] Record the first ringing/hand-damped/foam-damped Focusrite comparison set;
+      do not interpret direct subtraction as a pure isolated pick signal.
 - [ ] In the DAW, replay the ordinary/deep/phrase material and confirm the plugin
       has the promoted track-2 tone without a level, note-release, or polyphony
       regression.

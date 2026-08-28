@@ -8,6 +8,13 @@ This changelog starts on 2026-05-09. Earlier project history is preserved across
 
 ### Added
 
+- Added Plan 0099 and a JUCE `GuitarAGReferenceCapture` desktop companion for
+  Focusrite clean-DI recording, multi-take audition, human approval, live
+  headroom metering, resumable external session manifests, and 24-bit mono WAV
+  capture.
+- Added dependency-free capture-request generation and session-validation
+  scripts plus a documented agent-request/human-approval workflow for pick,
+  finger, and contact-noise references.
 - Added Plan 0098 and an offline `--legacy-tone-recipe previous` regression path that reproduces the former EG-088 production tone while leaving the VST3 on the new default.
 - Added Plan 0097, a stitched current-versus-candidate production-tone promotion gate spanning ordinary and deep open-string sweeps plus a compact phrase, with an exactly reconstructing signed difference.
 - Added a compact promotion phrase MIDI generator and fixture covering a wound-string riff, cross-string arpeggio, upper-register melody, and held chord.

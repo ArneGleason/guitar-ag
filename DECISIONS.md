@@ -973,3 +973,29 @@ Plan 0098 implemented the recipe without retuning it. The new default exactly
 matches all three accepted Plan 0097 section renders, while
 `--legacy-tone-recipe previous` exactly matches all three former-production
 references and the canonical EG-088 single-note hash.
+
+## 2026-08-28 — Keep interactive reference capture outside the VST3
+
+Decision:
+Use a separate JUCE desktop companion for human reference capture. The
+companion owns audio-device selection, disk recording, request display,
+audition playback, and approval state; none of those responsibilities enter the
+plugin processor or its real-time DSP graph.
+
+Reason:
+The capture workflow needs a Focusrite input, external files, multiple human
+takes, and durable listening judgments. These are research and file-management
+concerns, not instrument behavior. Keeping them separate protects the plugin's
+real-time and product boundaries while still using the same cross-platform JUCE
+device layer.
+
+Status:
+Implemented in Plan 0099.
+
+Consequences:
+Agent/human interaction uses a schema-versioned request JSON and a resumable
+`session.json` containing external WAV filenames, measurements, notes, and
+candidate/approved/rejected states. Multiple takes may be approved because
+variation is part of the fitting target. Captures remain analysis evidence, not
+playback assets. Muted and ringing takes may be onset-aligned and compared
+statistically, but their raw difference is not defined as pure pick sound.

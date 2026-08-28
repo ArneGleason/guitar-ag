@@ -2388,3 +2388,19 @@ the canonical single-note hash
 `C67DCE0C59AA6D0A903BA887E2C55953B5842CAF1CA3160C035D0704BF0BD48B`.
 The new deterministic single-note hash is
 `32AF0A4AE9A04B3E77F74161E963D4AE3E8431433012D642EA13A96C2C5C47D7`.
+
+## 2026-08-28 — Plan 0099 Interactive Reference Capture Boundary
+
+Added a standalone JUCE capture companion around the existing damped-guitar
+pick-contact protocol. A focused request JSON carries string, stroke, dynamics,
+pick depth/material, muting, guitar/pickup, comparison group, target take count,
+and human instructions. The app records the first enabled interface input as
+mono 24-bit PCM at the native device sample rate, computes peak/RMS and duration,
+and preserves human candidate/approved/rejected decisions in a resumable
+external manifest.
+
+This does not change the string model. Its purpose is to make the next pick
+excitation iteration evidence-driven: onset-align approved repetitions, compare
+ringing/hand-damped/foam-damped distributions, and fit deterministic stochastic
+contact statistics. Direct subtraction remains a diagnostic residual rather
+than an isolated or reusable pick waveform.

@@ -126,3 +126,14 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
 - Implemented Plan 0098 as `StringVoice EG-089 ModalFormantTone`, promoting the exact accepted recipe into both VST3 and default offline builds without new parameters or preset fields.
 - Added `--legacy-tone-recipe previous`; verified the new default and previous recipe byte-for-byte against all six Plan 0097 section references, repeated the new single-note hash exactly, and reproduced the canonical EG-088 single-note hash.
 - Built Windows Release `GuitarAG_VST3` and `GuitarAGOfflineRender`; installed-plugin identity/tone verification remains the human gate.
+- Created `codex/0099-reference-capture-lab` and added a standalone JUCE
+  companion for Focusrite clean-DI capture, live headroom metering, 24-bit mono
+  WAV recording, multi-take audition, human approval, and resumable external
+  session manifests.
+- Added focused request generation, session validation/approved-path output,
+  script unit tests, and documentation for ringing/hand-damped/foam-damped
+  comparisons without treating subtraction as a pure physical null.
+- Built all three Windows Release targets. The capture app found the Focusrite
+  driver, loaded a generated request, retained a seeded approved take across a
+  restart, and exposed that take through the validator. Real guitar recording
+  and playback remain the human gate.

@@ -123,3 +123,22 @@ target_link_libraries(GuitarAGOfflineRender
     PRIVATE
         juce::juce_audio_utils
         juce::juce_audio_formats)
+
+juce_add_gui_app(GuitarAGReferenceCapture
+    PRODUCT_NAME "Guitar AG Reference Capture"
+    COMPANY_NAME "Arne Gleason"
+    BUNDLE_ID "com.arnegleason.guitarag.referencecapture")
+
+target_sources(GuitarAGReferenceCapture
+    PRIVATE
+        tools/reference-capture/ReferenceCaptureMain.cpp)
+
+target_compile_definitions(GuitarAGReferenceCapture
+    PRIVATE
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0)
+
+target_link_libraries(GuitarAGReferenceCapture
+    PRIVATE
+        juce::juce_audio_utils
+        juce::juce_audio_formats)
