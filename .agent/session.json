@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0106 legacy repick de-click",
-  "status": "Human listening accepted the Plan 0105 low-E candidate and identified an alternate-picking restart tick. Plan 0106 isolates it to modal reconstruction and prepares a 1 ms outgoing-state de-click A/B; production promotion waits on the human artifact/attack verdict.",
-  "updatedAt": "2026-08-28T15:18:32-04:00",
-  "lastHandoff": ".agent/handoffs/20260828-codex-plan0106-legacy-repick-declick.md",
-  "branch": "codex/0106-legacy-repick-declick",
-  "commit": "02d9561d31b76b890bd32be89fe439e75e8f1579",
+  "lastTask": "Plan 0107 high-E capture checkpoint",
+  "status": "Plan 0106's 1 ms de-click is human-accepted. The live reference inventory now retains the seven completed setup/low-E items and requests only three open-high-E ringing batches (6 down, 6 up, 12 alternate) before endpoint comparison.",
+  "updatedAt": "2026-08-28T18:57:18-04:00",
+  "lastHandoff": ".agent/handoffs/20260828-codex-plan0107-high-e-capture-checkpoint.md",
+  "branch": "codex/0107-high-e-capture-checkpoint",
+  "commit": "a6f5966d62ee001ae1818df0add6a32c46658e8b",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "Plan 0105's 0.14 pluck / 1.50x decay candidate is human-accepted. Plan 0106 finds its alternate tick in a modal-restart spike 0.6-3 ms after note-on; a 1 ms outgoing modal-tail transition moves median spike ratio from +9.2 to -3.6 dB and awaits listening before production promotion."
+    "summary": "Plan 0105's 0.14 pluck / 1.50x decay candidate and Plan 0106's 1 ms de-click are human-accepted. Plan 0107 records the EVH Wolfgang Special setup with explicit uncertainty and is ready for three high-E endpoint captures before any middle-string expansion or production promotion."
   }
 }
