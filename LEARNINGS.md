@@ -880,3 +880,16 @@ noise floor and six low/high E damping comparisons under one medium downstroke
 setup. Direction, force, depth, material, and finger gestures remain visible but
 deferred. This makes the first handoff about 7 decisions rather than 30 tasks or
 hundreds of individual strokes with no feedback loop.
+
+## 2026-08-28 — Writer overflow is not an input-dropout detector
+
+The first real capture's `dropped_audio: false` did not mean the incoming audio
+was continuous. Sample inspection found several hard discontinuities and about
+8 ms of exact zeros in the WAV. The current flag reports only failure to enqueue
+audio into JUCE's threaded disk writer; a device, driver, or callback-layer
+dropout can arrive as apparently valid samples and remain unreported.
+
+For Windows Focusrite diagnosis, verify the recorded waveform as well as the
+writer flag, close competing microphone/ASIO clients, and prefer the native
+Focusrite ASIO device. A future diagnostics pass should add callback timing or
+sample-discontinuity evidence rather than overloading the disk-writer warning.

@@ -1022,3 +1022,27 @@ incomplete request, shows progress, and retains later response-axis, material,
 and finger/surface phases as a visible roadmap. Finish the seven-item starting
 checkpoint, analyze it, and revise or continue the later phases only from that
 evidence.
+
+## 2026-08-28 — Prefer interface-native ASIO for Windows reference capture
+
+Decision:
+Compile JUCE ASIO support into the Windows reference-capture companion and use
+the installed `Focusrite USB ASIO` driver as the preferred capture device.
+Retain Windows Audio backends as selectable fallbacks and do not force a
+specific interface in code.
+
+Reason:
+The first real Windows Audio take contained confirmed abrupt discontinuities
+and an approximately 8 ms zero-filled gap even though the recorder's disk-writer
+queue did not overflow. The interface-native ASIO path keeps input/output clock,
+sample rate, buffer configuration, and driver ownership within the Focusrite
+driver rather than the shared Windows audio path.
+
+Status:
+Implemented in Plan 0101; a clean real-guitar ASIO take remains the human gate.
+
+Consequences:
+The Windows capture executable depends on the user installing the Focusrite
+driver and on the applicable terms for JUCE's bundled ASIO SDK-derived headers.
+Other ASIO clients, including DAWs, should be closed for controlled capture.
+The VST3 and offline renderer compile definitions are unchanged.

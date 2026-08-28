@@ -6,6 +6,12 @@ Use this file to give reviewers a focused starting point. Add known risks, open 
 
 Suggested focus:
 
+- Plan 0101 enables `JUCE_ASIO=1` only for the Windows reference-capture target.
+  Confirm `ASIO` / `Focusrite USB ASIO` opens at 48 kHz, restores correctly, and
+  does not affect the VST3 or offline renderer build definitions.
+- The existing `dropped_audio` manifest field covers only threaded-writer FIFO
+  failure. Do not interpret it as proof that device callbacks were continuous;
+  the first real WAV contained an 8 ms zero gap while the field remained false.
 - Plan 0100 adds automatic inventory discovery and approval-derived progress.
   Review inventory/request path handling, first-incomplete selection, status
   refresh after approval/reset, and behavior when a manifest or WAV is missing.

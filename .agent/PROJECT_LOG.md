@@ -153,3 +153,10 @@ Use this file for durable Studio Pattern project events and meaningful workflow 
   feedback: Space toggles record/stop, but is suppressed during take-note entry,
   Audio Settings interaction, file choosers, and whenever another application
   is foreground.
+- Diagnosed the first real Windows Audio reference take and confirmed abrupt
+  sample discontinuities plus an approximately 8 ms zero-filled gap even though
+  the threaded disk writer reported no overflow.
+- Implemented Plan 0101 by compiling JUCE ASIO support only into the Windows
+  reference-capture target. The Release build contains the ASIO backend, and
+  the workstation registers `Focusrite USB ASIO`; a clean human capture remains
+  the final gate.

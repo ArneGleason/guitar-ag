@@ -28,14 +28,14 @@
     "machineHandle": "unassigned Windows PC",
     "localCheckout": "C:\\code\\github\\guitar-ag"
   },
-  "lastTask": "Plan 0100 guided reference capture inventory",
-  "status": "Added the phased capture checklist, automatic app discovery, approval-driven progress, and a guarded foreground-only Space record/stop shortcut. Complete only Phase 0 and Phase 1 before analysis.",
-  "updatedAt": "2026-08-28T12:38:16-04:00",
-  "lastHandoff": ".agent/handoffs/20260828-codex-plan0100-capture-inventory.md",
-  "branch": "codex/0100-reference-capture-inventory",
-  "commit": "95bce64",
+  "lastTask": "Plan 0101 Windows ASIO reference capture",
+  "status": "Enabled JUCE ASIO for the Windows capture companion after confirming a real Windows Audio take contained digital discontinuities and an 8 ms zero-filled gap. Select Focusrite USB ASIO and make one clean diagnostic take before resuming the inventory.",
+  "updatedAt": "2026-08-28T13:00:33-04:00",
+  "lastHandoff": ".agent/handoffs/20260828-codex-plan0101-reference-capture-asio.md",
+  "branch": "codex/0101-reference-capture-asio",
+  "commit": "0a66264",
   "releaseUrl": "https://github.com/ArneGleason/guitar-ag/releases/tag/v0.3.1",
   "projectState": {
-    "summary": "The reference-capture app now opens a phased 30-item inventory automatically, but the human should capture only the seven-item Phase 0/1 checkpoint and return for analysis. Later pick-response, material, and finger/surface phases are intentionally deferred."
+    "summary": "The Windows reference-capture app now compiles JUCE ASIO support and can use the registered Focusrite USB ASIO driver. Close competing audio clients, select ASIO at 48 kHz with a conservative buffer, and validate one clean diagnostic take before continuing the seven-item Phase 0/1 checkpoint."
   }
 }
